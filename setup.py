@@ -1,11 +1,24 @@
 import os
 from setuptools import find_packages, setup
 
+def read(rel_path: str) -> str:
+    here = os.path.abspath(os.path.dirname(__file__))
+    with open(os.path.join(here, rel_path), encoding="utf-8") as fp:
+        return fp.read()
+
+
+def get_version(rel_path: str) -> str:
+    for line in read(rel_path).splitlines():
+        if line.startswith("__version__"):
+            delim = '"' if '"' in line else "'"
+            return line.split(delim)[1]
+    raise RuntimeError("Unable to find version string.")
+
 # Package meta-data.
 NAME = "learnware"
 DESCRIPTION = "learnware market project"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = "0.0.1"
+VERSION = get_version("learnware/__init__.py")
 
 
 # BEFORE importing setuptools, remove MANIFEST. Otherwise it may not be
@@ -30,8 +43,9 @@ if __name__ == "__main__":
     setup(
         name=NAME,
         version=VERSION,
-        url="https://git.nju.edu.cn/",
-        packages=find_packages(),
+        license="MIT Licence",
+        url="https://git.nju.edu.cn/learnware/learnware-market",
+        packages=find_packages(exclude=("tests",)),
         include_package_data=True,
         description=DESCRIPTION,
         long_description=long_description,
@@ -45,6 +59,8 @@ if __name__ == "__main__":
             "Topic :: Software Development",
             "Topic :: Scientific/Engineering",
             "Operating System :: POSIX :: Linux",
+            "Operating System :: Microsoft :: Windows",
+            "Operating System :: MacOS",
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",

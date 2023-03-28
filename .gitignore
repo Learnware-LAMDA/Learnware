@@ -13,19 +13,25 @@ dist/
 *.pkl
 *.hd5
 *.csv
+*.html
+*.xml
 .env
 .vim
 .nvimrc
 .vscode
 *.egg-info/
 
-
 # special software
-mlruns/
-
 .pytest_cache/
 .mypy_cache/
 .vscode/
 *.swp
 ./pretrain
 .idea/
+.DS_Store
+node_modules/
+build/
+_build/
+dist/
+cache/
+tmp/

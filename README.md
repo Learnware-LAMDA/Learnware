@@ -32,7 +32,7 @@ pip install black
 
 使用以下方式进行安装开发：
 * 使用 python 3.8 进行开发
-* 安装代码（仅需一次
+* 安装代码（代码根目录运行
 ```
 python setup.py develop
 ```
