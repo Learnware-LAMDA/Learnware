@@ -1,6 +1,7 @@
 import os
 from setuptools import find_packages, setup
 
+
 def read(rel_path: str) -> str:
     here = os.path.abspath(os.path.dirname(__file__))
     with open(os.path.join(here, rel_path), encoding="utf-8") as fp:
@@ -13,6 +14,7 @@ def get_version(rel_path: str) -> str:
             delim = '"' if '"' in line else "'"
             return line.split(delim)[1]
     raise RuntimeError("Unable to find version string.")
+
 
 # Package meta-data.
 NAME = "learnware"
@@ -39,7 +41,6 @@ with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
 
 
 if __name__ == "__main__":
-
     setup(
         name=NAME,
         version=VERSION,
