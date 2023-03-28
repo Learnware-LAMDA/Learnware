@@ -1,7 +1,8 @@
 include *.rst
 recursive-include docs *
 recursive-exclude tests *
+recursive-exclude examples *
 include *.md
-recursive-include deepforest *.py
-recursive-include deepforest *.c *.h *.pyx *.pxd *.pxi
+recursive-include learnware *.py
+recursive-include learnware *.c *.h *.pyx *.pxd *.pxi
 include LICENSE

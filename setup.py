@@ -46,7 +46,7 @@ if __name__ == "__main__":
         version=VERSION,
         license="MIT Licence",
         url="https://git.nju.edu.cn/learnware/learnware-market",
-        packages=find_packages(exclude=("tests",)),
+        packages=find_packages(),
         include_package_data=True,
         description=DESCRIPTION,
         long_description=long_description,
