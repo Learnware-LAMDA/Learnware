@@ -1,5 +1,5 @@
 import numpy as np
-from .base_specification import StatSpecification
+from .base import StatSpecification
 
 
 def generate_stat_spec(X: np.ndarray) -> StatSpecification:

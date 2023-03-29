@@ -2,21 +2,28 @@ import numpy as np
 import pandas as pd
 from typing import Tuple, Any, List, Union, Dict
 import os
-from ..learnware import BaseLearnware
+from ..learnware import Learnware
 
 
 class LearnwareMarket:
+    """Market for Learnware
+
+    .. code-block:: python
+
+        # Provide some python examples
+        learnmarket = LearnwareMarket()
+
+
+    """
+
     def __init__(self):
-        """
-        Initializing an empty market
-        """
-        self.learnware_list = {}  # id:BaseLearnware
+        """Initializing an empty market"""
+        self.learnware_list = {}  # id:Learnware
         self.count = 0
         self.property_list = None
 
     def reload_market(self, market_path: str, property_list_path: str, load_mode: str = "database") -> bool:
-        """
-            Reload the market when server restared.
+        """Reload the market when server restared.
 
         Parameters
         ----------
@@ -54,9 +61,12 @@ class LearnwareMarket:
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, properties: dict, desc: str
     ) -> Tuple[str, bool]:
-        """
-            Add a learnware into the market.
-            Market will pack contents into a BaseLearnware object and assign an id automatically.
+        """Add a learnware into the market.
+
+        .. note::
+
+            Given a prediction of a certain time, all signals before this time will be prepared well.
+
 
         Parameters
         ----------
@@ -89,12 +99,13 @@ class LearnwareMarket:
 
     def search_learnware(
         self, target_properties: dict = None, target_stat_specification: str = None
-    ) -> Tuple[Any, Dict[str : List[Any]]]:
+    ) -> Tuple[Any, Dict[str, List[Any]]]:
         """
             Search Learnware based on properties and statistical specification.
-            Return random learnwares when both target_properties and target_stat_specification is None,
-            Search only based on properties when target_stat_specification is None,
-            Filter through properties and rank according to statistical specification otherwise.
+
+            - Return random learnwares when both target_properties and target_stat_specification is None
+            - Search only based on properties when target_stat_specification is None
+            - Filter through properties and rank according to statistical specification otherwise
 
         Parameters
         ----------
@@ -105,10 +116,11 @@ class LearnwareMarket:
 
         Returns
         -------
-        Tuple[Any, Dict[str:List[Any]]]
+        Tuple[Any, Dict[str, List[Any]]]
             return two items:
-            first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.
-            second is a list of matched learnwares
+
+            - first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.
+            - second is a list of matched learnwares
 
         Raises
         ------
@@ -122,7 +134,7 @@ class LearnwareMarket:
             )
         return None, []
 
-    def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[BaseLearnware, List[BaseLearnware]]:
+    def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """
             Get Learnware from market by id
 
@@ -133,10 +145,11 @@ class LearnwareMarket:
 
         Returns
         -------
-        Union[BaseLearnware, List[BaseLearnware]]
-            Return a BaseLearnware object or a list of BaseLearnware objects based on the type of input param.
-            The returned items are search results.
-            'None' indicating the target id not found.
+        Union[Learnware, List[Learnware]]
+            Return a Learnware object or a list of Learnware objects based on the type of input param.
+
+            - The returned items are search results.
+            - 'None' indicating the target id not found.
         """
         return None
 

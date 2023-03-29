@@ -23,4 +23,4 @@ class Learnware:
 
     def update(self):
         # Empty Interface.
-        raise Exception("'update' Method NOT Implemented.")
+        raise NotImplementedError("'update' Method NOT Implemented.")

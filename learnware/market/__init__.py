@@ -1,1 +1,1 @@
-from .base_market import LearnwareMarket
+from .base import LearnwareMarket

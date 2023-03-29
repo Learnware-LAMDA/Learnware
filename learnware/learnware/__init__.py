@@ -1,3 +1,1 @@
-class BaseLearnware:
-    def __init__(self) -> None:
-        pass
+from .base import Learnware

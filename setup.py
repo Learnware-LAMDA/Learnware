@@ -32,7 +32,11 @@ if os.path.exists("MANIFEST"):
 # What packages are required for this module to be executed?
 # `estimator` may depend on other packages. In order to reduce dependencies, it is not written here.
 REQUIRED = [
-    "numpy>=1.16.0,<1.20.0",
+    "numpy>=1.12.0",
+    "pandas>=0.25.1",
+    "scipy>=1.0.0",
+    "matplotlib==3.1.3",
+    "tqdm",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))

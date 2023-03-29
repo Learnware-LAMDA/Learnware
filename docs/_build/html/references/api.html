@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en-US" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; learnware 0.1.0.99 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Specification" href="../components/spec.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Home</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">GETTING STARTED:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/intro.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">COMPONENTS:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../components/market.html">Market</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../components/spec.html">Specification</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">REFERENCES:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#market">Market</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#learnware.market.LearnwareMarket"><code class="docutils literal notranslate"><span class="pre">LearnwareMarket</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#learnware">Learnware</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#learnware.learnware.Learnware"><code class="docutils literal notranslate"><span class="pre">Learnware</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#specification">Specification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#learnware.specification.Specification"><code class="docutils literal notranslate"><span class="pre">Specification</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#learnware.specification.StatSpecification"><code class="docutils literal notranslate"><span class="pre">StatSpecification</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">learnware</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/references/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<span id="api"></span><h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
+<p>Here you can find all <code class="docutils literal notranslate"><span class="pre">learnware</span></code> interfaces.</p>
+<section id="market">
+<h2>Market<a class="headerlink" href="#market" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">learnware.market.</span></span><span class="sig-name descname"><span class="pre">LearnwareMarket</span></span><a class="headerlink" href="#learnware.market.LearnwareMarket" title="Permalink to this definition"></a></dt>
+<dd><p>Market for Learnware</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Provide some python examples</span>
+<span class="n">learnmarket</span> <span class="o">=</span> <span class="n">LearnwareMarket</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket.add_learnware">
+<span class="sig-name descname"><span class="pre">add_learnware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">learnware_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stat_spec_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#learnware.market.LearnwareMarket.add_learnware" title="Permalink to this definition"></a></dt>
+<dd><p>Add a learnware into the market.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Given a prediction of a certain time, all signals before this time will be prepared well.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learnware_name</strong> (<em>str</em>) – Name of new learnware.</p></li>
+<li><p><strong>model_path</strong> (<em>str</em>) – Filepath for learnware model, a zipped file.</p></li>
+<li><p><strong>stat_spec_path</strong> (<em>str</em>) – Filepath for statistical specification, a ‘.npy’ file.
+How to pass parameters requires further discussion.</p></li>
+<li><p><strong>properties</strong> (<em>dict</em>) – property for new learnware, in dictionary format.</p></li>
+<li><p><strong>desc</strong> (<em>str</em>) – Brief desciption for new learnware.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>str indicating model_id, bool indicating whether the learnware is added successfully.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[str, bool]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FileNotFoundError</strong> – file for model or statistical specification not found</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket.delete_learnware">
+<span class="sig-name descname"><span class="pre">delete_learnware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#learnware.market.LearnwareMarket.delete_learnware" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>deleted a learnware from market</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>str</em>) – id of learnware to be deleted</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if the target learnware is deleted successfully.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – Raise an excpetion when give id is NOT found in learnware list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket.get_learnware_by_ids">
+<span class="sig-name descname"><span class="pre">get_learnware_by_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#learnware.learnware.Learnware" title="learnware.learnware.base.Learnware"><span class="pre">Learnware</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#learnware.learnware.Learnware" title="learnware.learnware.base.Learnware"><span class="pre">Learnware</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#learnware.market.LearnwareMarket.get_learnware_by_ids" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Get Learnware from market by id</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – Given one id or a list of ids as target.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>Return a Learnware object or a list of Learnware objects based on the type of input param.</p>
+<ul class="simple">
+<li><p>The returned items are search results.</p></li>
+<li><p>’None’ indicating the target id not found.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[<a class="reference internal" href="#learnware.learnware.Learnware" title="learnware.learnware.Learnware">Learnware</a>, List[<a class="reference internal" href="#learnware.learnware.Learnware" title="learnware.learnware.Learnware">Learnware</a>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket.get_property_list">
+<span class="sig-name descname"><span class="pre">get_property_list</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#learnware.market.LearnwareMarket.get_property_list" title="Permalink to this definition"></a></dt>
+<dd><p>Return all properties available</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>All properties in dictionary format</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket.reload_market">
+<span class="sig-name descname"><span class="pre">reload_market</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">market_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_list_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">load_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'database'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#learnware.market.LearnwareMarket.reload_market" title="Permalink to this definition"></a></dt>
+<dd><p>Reload the market when server restared.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>market_path</strong> (<em>str</em>) – Directory for market data. ‘_IP_:_port_’ for loading from database.</p></li>
+<li><p><strong>property_list_path</strong> (<em>str</em>) – Directory for available properties. Should be a json file.</p></li>
+<li><p><strong>load_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of reload source. Currently, only ‘database’ is available. Defaults to ‘database’, by default “database”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A flag indicating whether the market is reload successfully.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>NotImplementedError</strong> – Reload method NOT implemented. Currently, only loading from database is supported.</p></li>
+<li><p><strong>FileNotFoundError</strong> – Loading source/property_list NOT found. Check whether the source and property_list are available.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket.search_learnware">
+<span class="sig-name descname"><span class="pre">search_learnware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_stat_specification</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#learnware.market.LearnwareMarket.search_learnware" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Search Learnware based on properties and statistical specification.</p>
+<ul class="simple">
+<li><p>Return random learnwares when both target_properties and target_stat_specification is None</p></li>
+<li><p>Search only based on properties when target_stat_specification is None</p></li>
+<li><p>Filter through properties and rank according to statistical specification otherwise</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_properties</strong> (<em>dict</em><em>, </em><em>optional</em>) – Properties selected by user, by default None</p></li>
+<li><p><strong>target_stat_specification</strong> (<em>str</em><em>, </em><em>optional</em>) – statistical specification uploaded by user, by default None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><p>return two items:</p>
+<ul class="simple">
+<li><p>first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.</p></li>
+<li><p>second is a list of matched learnwares</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Any, Dict[str, List[Any]]]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>FileNotFoundError</strong> – Give file path is empty.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="learnware.market.LearnwareMarket.update_learnware">
+<span class="sig-name descname"><span class="pre">update_learnware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#learnware.market.LearnwareMarket.update_learnware" title="Permalink to this definition"></a></dt>
+<dd><blockquote>
+<div><p>Update Learnware with id and content to be updated.
+Empty interface. TODO</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>str</em>) – id of target learnware.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="learnware">
+<h2>Learnware<a class="headerlink" href="#learnware" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="learnware.learnware.Learnware">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">learnware.learnware.</span></span><span class="sig-name descname"><span class="pre">Learnware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">specification</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#learnware.specification.Specification" title="learnware.specification.base.Specification"><span class="pre">Specification</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">desc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#learnware.learnware.Learnware" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="specification">
+<h2>Specification<a class="headerlink" href="#specification" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="learnware.specification.Specification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">learnware.specification.</span></span><span class="sig-name descname"><span class="pre">Specification</span></span><a class="headerlink" href="#learnware.specification.Specification" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="learnware.specification.StatSpecification">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">learnware.specification.</span></span><span class="sig-name descname"><span class="pre">StatSpecification</span></span><a class="headerlink" href="#learnware.specification.StatSpecification" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../components/spec.html" class="btn btn-neutral float-left" title="Specification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, LAMDA Group.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
