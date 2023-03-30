@@ -5,14 +5,13 @@ import os
 from ..learnware import Learnware
 
 
-class LearnwareMarket:
+class BaseMarket:
     """Market for Learnware
 
     .. code-block:: python
 
         # Provide some python examples
         learnmarket = LearnwareMarket()
-
 
     """
 
