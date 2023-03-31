@@ -4,20 +4,117 @@ import torch
 import faiss
 import json
 import codecs
+import random
 import numpy as np
-from .base import BaseStatSpecification
-from .utils import setup_seed, choose_device, torch_rbf_kernel, solve_qp
+from cvxopt import solvers, matrix
 from typing import Tuple, Any, List, Union, Dict
-from learnware.config import C
+
+from .base import BaseStatSpecification
 
 
 class RKMESpecification:
     pass
 
 
+def setup_seed(seed):
+    """
+		Fix a random seed for addressing reproducibility issues.
+	
+	Parameters
+	----------
+	seed : int
+		Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
+	"""
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+
+
+def choose_device(cuda_idx=-1):
+    """
+		Let users choose compuational device between CPU or GPU.
+
+	Parameters
+	----------
+	cuda_idx : int, optional
+		GPU index, by default -1 which stands for using CPU instead.
+
+	Returns
+	-------
+	torch.device
+		A torch.device object
+	"""
+    if cuda_idx != -1:
+        device = torch.device(f"cuda:{cuda_idx}")
+    else:
+        device = torch.device("cpu")
+    return device
+
+
+def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
+    """
+		Use pytorch to compute rbf_kernel function at faster speed.
+
+	Parameters
+	----------
+	x1 : torch.Tensor
+		First vector in the rbf_kernel
+	x2 : torch.Tensor
+		Second vector in the rbf_kernel
+	gamma : float
+		Bandwidth in gaussian kernel
+	
+	Returns
+	-------
+	torch.Tensor
+		The computed rbf_kernel value at x1, x2.
+	"""
+    x1 = x1.double()
+    x2 = x2.double()
+    X12norm = torch.sum(x1 ** 2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2 ** 2, 1, keepdim=True).T
+    return torch.exp(-X12norm * gamma)
+
+
+def solve_qp(K: np.ndarray, C: np.ndarray):
+    """
+		Solver for the following quadratic programming(QP) problem:
+		- min    1/2 x^T K x - C^T x
+    	  s.t    1^T x - 1 = 0
+                    - I x <= 0
+
+	Parameters
+	----------
+	K : np.ndarray
+		Parameter in the quadratic term.
+	C : np.ndarray
+		Parameter in the linear term.
+
+	Returns
+	-------
+	torch.tensor
+		Solution to the QP problem.
+	"""
+    n = K.shape[0]
+    P = matrix(K.cpu().numpy())
+    q = matrix(-C.cpu().numpy())
+    G = matrix(-np.eye(n))
+    h = matrix(np.zeros((n, 1)))
+    A = matrix(np.ones((1, n)))
+    b = matrix(np.ones((1, 1)))
+
+    solvers.options["show_progress"] = False
+    sol = solvers.qp(P, q, G, h, A, b)  # Requires the sum of x to be 1
+    # sol = solvers.qp(P, q, G, h) # Otherwise
+    w = np.array(sol["x"])
+    w = torch.from_numpy(w).reshape(-1)
+
+    return w
+
+
 class RKMESpecification(BaseStatSpecification):
-    """Reduced-set Kernel Mean Embedding(RKME) Specification
-        
+    """Reduced-set Kernel Mean Embedding (RKME) Specification
     """
 
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
@@ -30,8 +127,8 @@ class RKMESpecification(BaseStatSpecification):
         cuda_idx : int
             A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
         """
-        self.Z = []
-        self.beta = []
+        self.z = None
+        self.beta = None
         self.gamma = gamma
         self.num_points = 0
         self.cuda_idx = cuda_idx
@@ -39,28 +136,34 @@ class RKMESpecification(BaseStatSpecification):
         self.device = choose_device(cuda_idx=cuda_idx)
         setup_seed(0)
 
-    def get_beta(self) -> torch.tensor:
+    def get_beta(self) -> np.ndarray:
         """Move beta(RKME weights) back to memory accessible to the CPU.
 
         Returns
         -------
-        torch.tensor
+        np.ndarray
             A copy of beta in CPU memory.
         """
-        return self.beta.detach().cpu()
+        return self.beta.detach().cpu().numpy()
 
-    def get_z(self) -> torch.tensor:
+    def get_z(self) -> np.ndarray:
         """Move z(RKME reduced set points) back to memory accessible to the CPU.
 
         Returns
         -------
-        torch.tensor
+        np.ndarray
             A copy of z in CPU memory.
         """
-        return self.z.detach().cpu()
+        return self.z.detach().cpu().numpy()
 
     def generate_stat_spec_from_data(
-        self, X: np.ndarray, K: int, step_size: float, steps: int, reduce: bool = True, nonnegative_beta: bool = False
+        self,
+        X: np.ndarray,
+        K: int = 100,
+        step_size: float = 0.1,
+        steps: int = 3,
+        nonnegative_beta: bool = True,
+        reduce: bool = True,
     ):
         """Construct reduced set from raw dataset using iterative optimization.
 
@@ -74,14 +177,21 @@ class RKMESpecification(BaseStatSpecification):
             Step size for gradient descent in the iterative optimization.
         steps : int
             Total rounds in the iterative optimization.
-        reduce : bool, optional
-            Whether shrink original data to a smaller set, by default True
         nonnegative_beta : bool, optional
             True if weights for the reduced set are intended to be kept non-negative, by default False.
+        reduce : bool, optional
+            Whether shrink original data to a smaller set, by default True
         """
         alpha = None
         self.num_points = X.shape[0]
-
+        
+        # fill np.nan
+        X_nan = np.isnan(X)
+        if X_nan.max() == 1:
+            for col in range(X.shape[1]):
+                col_mean = np.nanmean(X[:, col])
+                X[:, col] = np.where(X_nan[:, col], col_mean, X[:, col])
+        
         if not reduce:
             self.z = X
             self.beta = 1 / self.num_points * np.ones(self.num_points)
@@ -98,7 +208,7 @@ class RKMESpecification(BaseStatSpecification):
             self._update_z(alpha, X, step_size)
             self._update_beta(X, nonnegative_beta)
 
-    def _init_z_by_faiss(self, X: Any, K: int):
+    def _init_z_by_faiss(self, X: Union[np.ndarray, torch.tensor], K: int):
         """Intialize Z by faiss clustering.
 
         Parameters
@@ -108,6 +218,7 @@ class RKMESpecification(BaseStatSpecification):
         K : int
             Size of the construced reduced set.
         """
+        X = X.astype("float32")
         numDim = X.shape[1]
         kmeans = faiss.Kmeans(numDim, K, niter=100, verbose=False)
         kmeans.train(X)
@@ -185,7 +296,7 @@ class RKMESpecification(BaseStatSpecification):
         Z = Z - step_size * grad_Z
         self.z = Z
 
-    def eval_Phi(self, Phi2: RKMESpecification) -> float:
+    def inner_prod(self, Phi2: RKMESpecification) -> float:
         """Compute the inner product between two RKME specifications
         
         Parameters
@@ -206,7 +317,7 @@ class RKMESpecification(BaseStatSpecification):
         v = torch.sum(torch_rbf_kernel(Z1, Z2, self.gamma) * (beta_1.T @ beta_2))
         return float(v)
 
-    def MMD(self, Phi2: RKMESpecification, omit_term1: bool = False) -> float:
+    def dist(self, Phi2: RKMESpecification, omit_term1: bool = False) -> float:
         """Compute the Maximum-Mean-Discrepancy(MMD) between two RKME specifications
 
         Parameters
@@ -219,14 +330,11 @@ class RKMESpecification(BaseStatSpecification):
         if omit_term1:
             term1 = 0
         else:
-            term1 = self.eval_Phi(self)
-        term2 = self.eval_Phi(Phi2)
-        term3 = Phi2.eval_Phi(Phi2)
+            term1 = self.inner_prod(self)
+        term2 = self.inner_prod(Phi2)
+        term3 = Phi2.inner_prod(Phi2)
 
         return float(term1 - 2 * term2 + term3)
-
-    def generate_stat_spec_from_data(self, X: np.ndarray):
-        return super().generate_stat_spec_from_data(X)
 
     def save(self, filepath: str):
         """Save the computed RKME specification to a specified path in JSON format.
@@ -236,7 +344,7 @@ class RKMESpecification(BaseStatSpecification):
         filepath : str
             The specified saving path.
         """
-        save_path = os.path.join(C.specification_path, f"{filepath}.json")
+        save_path = filepath
         rkme_to_save = copy.deepcopy(self.__dict__)
         if torch.is_tensor(rkme_to_save["z"]):
             rkme_to_save["z"] = rkme_to_save["z"].detach().cpu().numpy()
@@ -263,7 +371,7 @@ class RKMESpecification(BaseStatSpecification):
             True if the RKME is loaded successfully.
         """
         # Load JSON file:
-        load_path = os.path.join(C.specification_path, f"{filepath}.json")
+        load_path = filepath
         if os.path.exists(load_path):
             obj_text = codecs.open(load_path, "r", encoding="utf-8").read()
             rkme_load = json.loads(obj_text)

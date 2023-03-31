@@ -1,105 +1,52 @@
 import numpy as np
-import torch
-import random
-from cvxopt import solvers, matrix
+
 from .base import BaseStatSpecification
+from .rkme import RKMESpecification
 
 
-def setup_seed(seed):
+def generate_rkme_spec(
+    X: np.ndarray,
+    gamma: float = 0.1,
+    K: int = 100,
+    step_size: float = 0.1,
+    steps: int = 3,
+    nonnegative_beta: bool = True,
+    reduce: bool = True,
+    cuda_idx: int = -1,
+) -> RKMESpecification:
     """
-		Fix a random seed for addressing reproducibility issues.
-	
-	Parameters
-	----------
-	seed : int
-		Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
-	"""
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.backends.cudnn.deterministic = True
+		Interface for users to generate Reduced-set Kernel Mean Embedding (RKME) specification.
+		Return a RKMESpecification object, use .save() method to save as json file.
 
-
-def choose_device(cuda_idx=-1):
-    """
-		Let users choose compuational device between CPU or GPU.
 
 	Parameters
 	----------
-	cuda_idx : int, optional
-		GPU index, by default -1 which stands for using CPU instead.
-
-	Returns
-	-------
-	torch.device
-		A torch.device object
-	"""
-    if cuda_idx != -1:
-        device = torch.device(f"cuda:{cuda_idx}")
-    else:
-        device = torch.device("cpu")
-    return device
-
-
-def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
-    """
-		Use pytorch to compute rbf_kernel function at faster speed.
-
-	Parameters
-	----------
-	x1 : torch.Tensor
-		First vector in the rbf_kernel
-	x2 : torch.Tensor
-		Second vector in the rbf_kernel
+	X : np.ndarray
+		Raw data in np.ndarray format.
+		Size of array: (n*d)
 	gamma : float
-		Bandwidth in gaussian kernel
-	
-	Returns
-	-------
-	torch.Tensor
-		The computed rbf_kernel value at x1, x2.
-	"""
-    x1 = x1.double()
-    x2 = x2.double()
-    X12norm = torch.sum(x1 ** 2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2 ** 2, 1, keepdim=True).T
-    return torch.exp(-X12norm * gamma)
-
-
-def solve_qp(K: np.ndarray, C: np.ndarray):
-    """
-		Solver for the following quadratic programming(QP) problem:
-		- min    1/2 x^T K x - C^T x
-    	  s.t    1^T x - 1 = 0
-                    - I x <= 0
-
-	Parameters
-	----------
-	K : np.ndarray
-		Parameter in the quadratic term.
-	C : np.ndarray
-		Parameter in the linear term.
+            Bandwidth in gaussian kernel, by default 0.1.
+	K : int
+		Size of the construced reduced set.
+	step_size : float
+		Step size for gradient descent in the iterative optimization.
+	steps : int
+		Total rounds in the iterative optimization.
+	nonnegative_beta : bool, optional
+		True if weights for the reduced set are intended to be kept non-negative, by default False.
+	reduce : bool, optional
+		Whether shrink original data to a smaller set, by default True	
+	cuda_idx : int
+		A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
 
 	Returns
 	-------
-	torch.tensor
-		Solution to the QP problem.
+	RKMESpecification
+		A RKMESpecification object
 	"""
-    n = K.shape[0]
-    P = matrix(K.cpu().numpy())
-    q = matrix(-C.cpu().numpy())
-    G = matrix(-np.eye(n))
-    h = matrix(np.zeros((n, 1)))
-    A = matrix(np.ones((1, n)))
-    b = matrix(np.ones((1, 1)))
-
-    solvers.options["show_progress"] = False
-    sol = solvers.qp(P, q, G, h, A, b)  # Requires the sum of x to be 1
-    # sol = solvers.qp(P, q, G, h) # Otherwise
-    w = np.array(sol["x"])
-    w = torch.from_numpy(w).reshape(-1)
-
-    return w
+    rkme_spec = RKMESpecification(gamma=gamma, cuda_idx=cuda_idx)
+    rkme_spec.generate_stat_spec_from_data(X, K, step_size, steps, nonnegative_beta, reduce)
+    return rkme_spec
 
 
 def generate_stat_spec(X: np.ndarray) -> BaseStatSpecification:
