@@ -26,7 +26,7 @@ class Specification:
     def get_property(self):
         return self.property
 
-    def add_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
+    def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.stat_spec[name] = new_stat_spec
 
     def get_stat_spec_by_name(self, name: str):
@@ -34,6 +34,3 @@ class Specification:
             return None
 
         return self.stat_spec[name]
-
-    def update_stat_spec(self):  # update specification method
-        pass

@@ -25,7 +25,7 @@ def generate_rkme_spec(
 		Raw data in np.ndarray format.
 		Size of array: (n*d)
 	gamma : float
-            Bandwidth in gaussian kernel, by default 0.1.
+        Bandwidth in gaussian kernel, by default 0.1.
 	K : int
 		Size of the construced reduced set.
 	step_size : float
