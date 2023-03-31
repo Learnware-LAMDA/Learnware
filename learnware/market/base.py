@@ -57,6 +57,20 @@ class BaseMarket:
 
         return True
 
+    def check_learnware(self, learnware: Learnware) -> bool:
+        """Check the utility of a learnware
+        
+        Parameters
+        ----------
+        learnware : Learnware
+
+        Returns
+        -------
+        bool
+            A flag indicating whether the learnware can be accepted.
+        """
+        return True
+    
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, properties: dict, desc: str
     ) -> Tuple[str, bool]:
