@@ -1,9 +1,10 @@
+import os
 import numpy as np
 from typing import Union
-from ..specification import Specification
+
+from ..specification import Specification, BaseStatSpecification
 from ..model import BaseModel
 from ..utils import get_module_by_module_path
-import os
 
 
 class Learnware:
@@ -47,13 +48,16 @@ class Learnware:
             raise TypeError("model must be BaseModel or dict")
 
     def get_model(self) -> BaseModel:
-        pass
+        return self.model
 
     def get_specification(self) -> Specification:
-        pass
+        return self.specification
 
     def get_info(self):
-        pass
+        return self.desc
+    
+    def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
+        self.specification.update_stat_spec(name, new_stat_spec)
 
     def update(self):
         # Empty Interface.
