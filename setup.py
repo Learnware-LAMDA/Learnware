@@ -35,7 +35,7 @@ REQUIRED = [
     "numpy>=1.12.0",
     "pandas>=0.25.1",
     "scipy>=1.0.0",
-    "matplotlib==3.1.3",
+    "matplotlib>=3.1.3",
     "tqdm",
 ]
 

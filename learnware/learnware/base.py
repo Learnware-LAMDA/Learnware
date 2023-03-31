@@ -39,10 +39,10 @@ class Learnware:
         """
         if isinstance(model, BaseModel):
             return model
-        
+
         elif isinstance(model, str):
             model_module = get_module_by_module_path(os.path.join(model, "run.py"))
-            return getattr(model_module, )
+            return getattr(model_module,)
         else:
             raise TypeError("model must be BaseModel or dict")
 

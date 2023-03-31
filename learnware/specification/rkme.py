@@ -11,10 +11,15 @@ from typing import Tuple, Any, List, Union, Dict
 from learnware.config import C
 
 
+class RKMESpecification:
+    pass
+
+
 class RKMESpecification(BaseStatSpecification):
     """Reduced-set Kernel Mean Embedding(RKME) Specification
         
     """
+
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
         """Initializing RKME parameters.
 
@@ -33,7 +38,7 @@ class RKMESpecification(BaseStatSpecification):
         torch.cuda.empty_cache()
         self.device = choose_device(cuda_idx=cuda_idx)
         setup_seed(0)
-    
+
     def get_beta(self) -> torch.tensor:
         """Move beta(RKME weights) back to memory accessible to the CPU.
 
@@ -43,7 +48,7 @@ class RKMESpecification(BaseStatSpecification):
             A copy of beta in CPU memory.
         """
         return self.beta.detach().cpu()
-    
+
     def get_z(self) -> torch.tensor:
         """Move z(RKME reduced set points) back to memory accessible to the CPU.
 
@@ -53,8 +58,10 @@ class RKMESpecification(BaseStatSpecification):
             A copy of z in CPU memory.
         """
         return self.z.detach().cpu()
-    
-    def generate_stat_spec_from_data(self, X: np.ndarray, K: int, step_size: float, steps: int, reduce: bool = True, nonnegative_beta: bool = False):
+
+    def generate_stat_spec_from_data(
+        self, X: np.ndarray, K: int, step_size: float, steps: int, reduce: bool = True, nonnegative_beta: bool = False
+    ):
         """Construct reduced set from raw dataset using iterative optimization.
 
         Parameters
@@ -90,7 +97,7 @@ class RKMESpecification(BaseStatSpecification):
         for i in range(steps):
             self._update_z(alpha, X, step_size)
             self._update_beta(X, nonnegative_beta)
-    
+
     def _init_z_by_faiss(self, X: Any, K: int):
         """Intialize Z by faiss clustering.
 
@@ -106,7 +113,7 @@ class RKMESpecification(BaseStatSpecification):
         kmeans.train(X)
         center = torch.from_numpy(kmeans.centroids).double()
         self.z = center
-    
+
     def _update_beta(self, X: Any, nonnegative_beta: bool = False):
         """Fix Z and update beta using its closed-form solution.
 
@@ -135,7 +142,7 @@ class RKMESpecification(BaseStatSpecification):
             beta = torch.linalg.inv(K + torch.eye(K.shape[0]).to(self.device) * 1e-5) @ C
 
         self.beta = beta
-    
+
     def _update_z(self, alpha: float, X: Any, step_size: float):
         """Fix beta and update Z using gradient descent.
 
@@ -198,7 +205,7 @@ class RKMESpecification(BaseStatSpecification):
 
         v = torch.sum(torch_rbf_kernel(Z1, Z2, self.gamma) * (beta_1.T @ beta_2))
         return float(v)
-    
+
     def MMD(self, Phi2: RKMESpecification, omit_term1: bool = False) -> float:
         """Compute the Maximum-Mean-Discrepancy(MMD) between two RKME specifications
 
@@ -217,10 +224,10 @@ class RKMESpecification(BaseStatSpecification):
         term3 = Phi2.eval_Phi(Phi2)
 
         return float(term1 - 2 * term2 + term3)
-    
+
     def generate_stat_spec_from_data(self, X: np.ndarray):
         return super().generate_stat_spec_from_data(X)
-    
+
     def save(self, filepath: str):
         """Save the computed RKME specification to a specified path in JSON format.
 
@@ -239,11 +246,9 @@ class RKMESpecification(BaseStatSpecification):
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
         json.dump(
-            rkme_to_save,
-            codecs.open(save_path, "w", encoding="utf-8"),
-            separators=(",", ":"),
+            rkme_to_save, codecs.open(save_path, "w", encoding="utf-8"), separators=(",", ":"),
         )
-    
+
     def load(self, filepath: str) -> bool:
         """Load a RKME specification file in JSON format from the specified path.
 
