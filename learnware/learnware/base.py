@@ -58,7 +58,7 @@ class Learnware:
     
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.specification.update_stat_spec(name, new_stat_spec)
-
+    
     def update(self):
         # Empty Interface.
         raise NotImplementedError("'update' Method is NOT Implemented.")
