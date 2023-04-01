@@ -30,7 +30,4 @@ class Specification:
         self.stat_spec[name] = new_stat_spec
 
     def get_stat_spec_by_name(self, name: str):
-        if not name in self.stat_spec:
-            return None
-
-        return self.stat_spec[name]
+        return self.stat_spec.get(name, None)
