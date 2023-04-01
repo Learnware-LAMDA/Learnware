@@ -109,7 +109,7 @@ class BaseMarket:
             A flag indicating whether the learnware can be accepted.
         """
         return True
-    
+  
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, property: dict, desc: str
     ) -> Tuple[str, bool]:
@@ -187,8 +187,7 @@ class BaseMarket:
         return None
 
     def delete_learnware(self, id: str) -> bool:
-        """
-            deleted a learnware from market
+        """Delete a learnware from market
 
         Parameters
         ----------
@@ -203,10 +202,12 @@ class BaseMarket:
         Raises
         ------
         Exception
-            Raise an excpetion when give id is NOT found in learnware list
-        """
+            Raise an excpetion when given id is NOT found in learnware list
+        """ 
         if not id in self.learnware_list:
             raise Exception("Learnware id:{} NOT Found!".format(id))
+
+        self.learnware_list.pop(id)
         return True
 
     def update_learnware(self, id: str) -> bool:
