@@ -18,7 +18,7 @@ class UserInfo:
         return self.desc_info
     
     def get_stat_info(self, name: str):
-        return self.stat_info
+        return self.stat_info.get(name, None)
     
     def update_stat_info(self, name: str, item: Any):
         self.stat_info[name] = item

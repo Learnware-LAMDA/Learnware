@@ -17,7 +17,7 @@ class BaseMarket:
 
     def __init__(self):
         """Initializing an empty market"""
-        self.learnware_list = {}  # id:Learnware
+        self.learnware_list = {}  # id: Learnware
         self.count = 0
         self.property_list = None
 
