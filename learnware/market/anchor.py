@@ -1,7 +1,7 @@
 import os
 from typing import Tuple, Any, List, Union, Dict
 
-from .base import BaseMarket
+from .base import LearnwareMarket
 from ..learnware import Learnware
 
 
