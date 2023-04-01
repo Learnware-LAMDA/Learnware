@@ -1,1 +1,2 @@
-from .base import BaseMarket
+from .base import BaseUserInfo, BaseMarket
+from .anchor import AnchoredUserInfo, AnchoredMarket
