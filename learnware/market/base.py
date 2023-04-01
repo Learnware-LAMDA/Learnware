@@ -6,6 +6,45 @@ from typing import Tuple, Any, List, Union, Dict
 from ..learnware import Learnware
 
 
+class BaseUserInfo:
+    """
+        User Information for searching learnware
+        
+        - Return random learnwares when both property and stat_info is empty
+        - Search only based on property when stat_info is None
+        - Filter through property and rank according to stat_info otherwise
+    """
+
+    def __init__(self, id: str, property: dict = dict(), stat_info: dict = dict()):
+        """Initializing user information
+
+        Parameters
+        ----------
+        id : str
+            user id
+        property : dict, optional
+            property selected by user, by default dict()
+        stat_info : dict, optional
+            statistical information uploaded by user, by default dict()
+        """
+        self.id = id
+        self.property = property
+        self.stat_info = stat_info
+    
+    def get_property(self) -> dict:
+        """Return user properties
+
+        Returns
+        -------
+        dict
+            user properties
+        """
+        return self.property
+    
+    def get_stat_info(self, name: str):
+        return self.stat_info.get(name, None)
+
+
 class BaseMarket:
     """Market for Learnware
 
@@ -29,7 +68,7 @@ class BaseMarket:
         market_path : str
             Directory for market data. '_IP_:_port_' for loading from database.
         property_list_path : str
-            Directory for available properties. Should be a json file.
+            Directory for available property. Should be a json file.
         load_mode : str, optional
             Type of reload source. Currently, only 'database' is available. Defaults to 'database', by default "database"
 
@@ -72,7 +111,7 @@ class BaseMarket:
         return True
     
     def add_learnware(
-        self, learnware_name: str, model_path: str, stat_spec_path: str, properties: dict, desc: str
+        self, learnware_name: str, model_path: str, stat_spec_path: str, property: dict, desc: str
     ) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
@@ -90,7 +129,7 @@ class BaseMarket:
         stat_spec_path : str
             Filepath for statistical specification, a '.npy' file.
             How to pass parameters requires further discussion.
-        properties : dict
+        property : dict
             property for new learnware, in dictionary format.
         desc : str
             Brief desciption for new learnware.
@@ -110,22 +149,13 @@ class BaseMarket:
             raise FileNotFoundError("Model or Stat_spec NOT Found.")
         return str(self.count), True
 
-    def search_learnware(
-        self, target_properties: dict = None, target_stat_specification: str = None
-    ) -> Tuple[Any, Dict[str, List[Any]]]:
-        """
-            Search Learnware based on properties and statistical specification.
-
-            - Return random learnwares when both target_properties and target_stat_specification is None
-            - Search only based on properties when target_stat_specification is None
-            - Filter through properties and rank according to statistical specification otherwise
+    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, Dict[str, List[Any]]]:
+        """Search Learnware based on user_info
 
         Parameters
         ----------
-        target_properties : dict, optional
-            Properties selected by user, by default None
-        target_stat_specification : str, optional
-            statistical specification uploaded by user, by default None
+        user_info : BaseUserInfo
+            user_info with properties and statistical information
 
         Returns
         -------
@@ -134,18 +164,8 @@ class BaseMarket:
 
             - first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.
             - second is a list of matched learnwares
-
-        Raises
-        ------
-        FileNotFoundError
-            Give file path is empty.
         """
-
-        if not os.path.exists(target_stat_specification):
-            raise FileNotFoundError(
-                "Statistical Specification File NOT Found. Please check param 'target_stat_specification'."
-            )
-        return None, []
+        pass
 
     def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """

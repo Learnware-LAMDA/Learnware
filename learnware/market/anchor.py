@@ -13,6 +13,7 @@ class UserInfo:
         self.id = id
         self.desc_info = desc_info
         self.stat_info = stat_info
+        self.anchor_learnware_list = {} # id: Learnware
     
     def get_desc_info(self):
         return self.desc_info
