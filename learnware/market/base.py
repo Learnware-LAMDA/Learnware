@@ -149,7 +149,7 @@ class BaseMarket:
             raise FileNotFoundError("Model or Stat_spec NOT Found.")
         return str(self.count), True
 
-    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, Dict[str, List[Any]]]:
+    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
         """Search Learnware based on user_info
 
         Parameters
@@ -159,7 +159,7 @@ class BaseMarket:
 
         Returns
         -------
-        Tuple[Any, Dict[str, List[Any]]]
+        Tuple[Any, List[Any]]
             return two items:
 
             - first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.
