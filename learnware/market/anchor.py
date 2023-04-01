@@ -1,8 +1,8 @@
 import os
 from typing import Tuple, Any, List, Union, Dict
 
-from .base import BaseUserInfo, BaseMarket
 from ..learnware import Learnware
+from .base import BaseUserInfo, BaseMarket
 
 
 class AnchoredUserInfo(BaseUserInfo):
@@ -44,11 +44,11 @@ class AnchoredUserInfo(BaseUserInfo):
 
 class AnchoredMarket(BaseMarket):
     """Add the anchor design to the BaseMarket
-    
-    .. code-block:: python
 
-        # Provide some python examples
-        learnmarket = AnchoredMarket()
+    Parameters
+    ----------
+    BaseMarket : _type_
+        Basic market version
     """
     
     def __init__(self):
