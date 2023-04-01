@@ -1,7 +1,8 @@
+import os
 import numpy as np
 import pandas as pd
 from typing import Tuple, Any, List, Union, Dict
-import os
+
 from ..learnware import Learnware
 
 
@@ -12,7 +13,6 @@ class BaseMarket:
 
         # Provide some python examples
         learnmarket = LearnwareMarket()
-
     """
 
     def __init__(self):
