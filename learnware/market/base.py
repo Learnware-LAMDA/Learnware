@@ -30,7 +30,7 @@ class BaseUserInfo:
         self.id = id
         self.property = property
         self.stat_info = stat_info
-    
+
     def get_property(self) -> dict:
         """Return user properties
 
@@ -40,7 +40,7 @@ class BaseUserInfo:
             user properties
         """
         return self.property
-    
+
     def get_stat_info(self, name: str):
         return self.stat_info.get(name, None)
 
@@ -109,7 +109,7 @@ class BaseMarket:
             A flag indicating whether the learnware can be accepted.
         """
         return True
-  
+
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, property: dict, desc: str
     ) -> Tuple[str, bool]:
@@ -203,7 +203,7 @@ class BaseMarket:
         ------
         Exception
             Raise an excpetion when given id is NOT found in learnware list
-        """ 
+        """
         if not id in self.learnware_list:
             raise Exception("Learnware id:{} NOT Found!".format(id))
 

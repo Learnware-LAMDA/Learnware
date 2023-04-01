@@ -15,8 +15,8 @@ class AnchoredUserInfo(BaseUserInfo):
 
     def __init__(self, id: str, property: dict = dict(), stat_info: dict = dict()):
         super(AnchoredUserInfo, self).__init__(id, property, stat_info)
-        self.anchor_learnware_list = {} # id: Learnware
-    
+        self.anchor_learnware_list = {}  # id: Learnware
+
     def add_anchor_learnware(self, learnware_id: str, learnware: Learnware):
         """Add the anchor learnware acquired from the market
 
@@ -28,7 +28,7 @@ class AnchoredUserInfo(BaseUserInfo):
             Anchor learnware for capturing user requirements
         """
         self.anchor_learnware_list[learnware_id] = learnware
-    
+
     def update_stat_info(self, name: str, item: Any):
         """Update stat_info based on anchor learnwares
 
@@ -50,11 +50,11 @@ class AnchoredMarket(BaseMarket):
     BaseMarket : _type_
         Basic market version
     """
-    
+
     def __init__(self):
         super(AnchoredMarket, self).__init__()
-        self.anchor_learnware_list = {} # anchor_id: anchor learnware
-    
+        self.anchor_learnware_list = {}  # anchor_id: anchor learnware
+
     def _update_anchor_learnware(self, anchor_id: str, anchor_learnware: Learnware):
         """Update anchor_learnware_list
 
@@ -66,7 +66,7 @@ class AnchoredMarket(BaseMarket):
             Anchor learnware
         """
         self.anchor_learnware_list[anchor_id] = anchor_learnware
-    
+
     def _delete_anchor_learnware(self, anchor_id: str) -> bool:
         """Delete anchor learnware in anchor_learnware_list
 
@@ -90,7 +90,7 @@ class AnchoredMarket(BaseMarket):
 
         self.anchor_learnware_list.pop(anchor_id)
         return True
-    
+
     def update_anchor_learnware_list(self, learnware_list: Dict[str, Learnware]):
         """Update anchor_learnware_list
 
@@ -100,7 +100,7 @@ class AnchoredMarket(BaseMarket):
             Learnwares for updating anchor_learnware_list
         """
         pass
-    
+
     def search_anchor_learnware(self, user_info: AnchoredUserInfo) -> Tuple[Any, List[Learnware]]:
         """Search anchor Learnwares from anchor_learnware_list based on user_info
 
@@ -119,7 +119,7 @@ class AnchoredMarket(BaseMarket):
             - second is a list of anchor learnwares
         """
         pass
-    
+
     def search_learnware(self, user_info: AnchoredUserInfo) -> Tuple[Any, List[Learnware]]:
         """Find helpful learnwares from learnware_list based on user_info
 
