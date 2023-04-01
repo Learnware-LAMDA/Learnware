@@ -1,11 +1,11 @@
 import os
 from typing import Tuple, Any, List, Union, Dict
 
-from .base import LearnwareMarket
+from .base import BaseUserInfo, BaseLearnwareMarket
 from ..learnware import Learnware
 
 
-class UserInfo:
+class UserInfoWithAnchors:
     """Record the user info
     """
 
@@ -26,7 +26,7 @@ class UserInfo:
     
 
 
-class AnchorMarket(BaseMarket):
+class LearnwareMarketWithAnchors(BaseMarket):
     """Add the anchor design to the BaseMarket
     
     .. code-block:: python

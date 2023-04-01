@@ -45,13 +45,13 @@ class BaseUserInfo:
         return self.stat_info.get(name, None)
 
 
-class BaseLearnwareMarket:
+class BaseMarket:
     """Market for Learnware
 
     .. code-block:: python
 
         # Provide some python examples
-        learnmarket = LearnwareMarket()
+        learnmarket = BaseMarket()
     """
 
     def __init__(self):
