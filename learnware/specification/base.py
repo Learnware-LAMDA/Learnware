@@ -16,8 +16,8 @@ class BaseStatSpecification:
 
 
 class Specification:
-    def __init__(self):
-        self.property = None
+    def __init__(self, property=None):
+        self.property = property
         self.stat_spec = {}  # stat_spec should be dict
 
     def get_stat_spec(self):
