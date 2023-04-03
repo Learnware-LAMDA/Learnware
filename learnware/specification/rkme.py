@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 import mkl
 import copy
@@ -17,12 +19,12 @@ mkl.get_max_threads()
 
 def setup_seed(seed):
     """Fix a random seed for addressing reproducibility issues.
-	
-	Parameters
-	----------
-	seed : int
-		Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
-	"""
+
+    Parameters
+    ----------
+    seed : int
+            Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
+    """
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
@@ -75,8 +77,8 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
 
 def solve_qp(K: np.ndarray, C: np.ndarray):
     """Solver for the following quadratic programming(QP) problem:
-		- min    1/2 x^T K x - C^T x
-    	  s.t    1^T x - 1 = 0
+                - min    1/2 x^T K x - C^T x
+          s.t    1^T x - 1 = 0
                     - I x <= 0
 
     Parameters
@@ -289,8 +291,6 @@ class RKMESpecification(BaseStatSpecification):
 
         Z = Z - step_size * grad_Z
         self.z = Z
-
-    from .rkme import RKMESpecification
 
     def inner_prod(self, Phi2: RKMESpecification) -> float:
         """Compute the inner product between two RKME specifications
