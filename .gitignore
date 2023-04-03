@@ -14,7 +14,6 @@ dist/
 *.hd5
 *.csv
 # *.html
-*.png
 *.dot
 *.xml
 .env
