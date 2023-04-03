@@ -16,30 +16,21 @@ def prepare_learnware():
     clf = svm.SVC()
     clf.fit(data_X, data_y)
     joblib.dump(clf, "./svm/svm.pkl")
-    
-    spec= specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+
+    spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
     spec.save("./svm/spec.json")
 
 
 def test_API():
-    text_X = np.random.randn(100, 20)    
+    text_X = np.random.randn(100, 20)
     svm = SVM()
     pred_y1 = svm.predict(text_X)
     print(type(svm))
-    
-    model = {
-        "module_path": "./svm/__init__.py",
-        "class_name": "SVM"
-    }
+
+    model = {"module_path": "./svm/__init__.py", "class_name": "SVM"}
     spec = specification.rkme.RKMESpecification()
     spec.load("./svm/spec.json")
-    learnware = Learnware(
-        id="A0",
-        name="SVM",
-        model=model,
-        specification=spec,
-        desc="svm"
-    )
+    learnware = Learnware(id="A0", name="SVM", model=model, specification=spec, desc="svm")
     pred_y2 = learnware.predict(text_X)
     print(type(learnware.model))
     print(f"diff: {np.sum(pred_y1 != pred_y2)}")

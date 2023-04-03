@@ -16,15 +16,15 @@ class BaseStatSpecification:
 
 
 class Specification:
-    def __init__(self, property=None):
-        self.property = property
+    def __init__(self, semantic_spec=None):
+        self.semantic_spec = semantic_spec
         self.stat_spec = {}  # stat_spec should be dict
 
     def get_stat_spec(self):
         return self.stat_spec
 
-    def get_property(self):
-        return self.property
+    def get_semantic_spec(self):
+        return self.semantic_spec
 
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.stat_spec[name] = new_stat_spec

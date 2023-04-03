@@ -7,39 +7,33 @@ from ..learnware import Learnware
 
 
 class BaseUserInfo:
-    """
-        User Information for searching learnware
-        
-        - Return random learnwares when both property and stat_info is empty
-        - Search only based on property when stat_info is None
-        - Filter through property and rank according to stat_info otherwise
-    """
+    """User Information for searching learnware"""
 
-    def __init__(self, id: str, property: dict = dict(), stat_info: dict = dict()):
+    def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
         """Initializing user information
 
         Parameters
         ----------
         id : str
             user id
-        property : dict, optional
-            property selected by user, by default dict()
+        semantic_spec : dict, optional
+            semantic_spec selected by user, by default dict()
         stat_info : dict, optional
             statistical information uploaded by user, by default dict()
         """
         self.id = id
-        self.property = property
+        self.semantic_spec = semantic_spec
         self.stat_info = stat_info
 
-    def get_property(self) -> dict:
-        """Return user properties
+    def get_semantic_spec(self) -> dict:
+        """Return user semantic specifications
 
         Returns
         -------
         dict
-            user properties
+            user semantic specifications
         """
-        return self.property
+        return self.semantic_spec
 
     def get_stat_info(self, name: str):
         return self.stat_info.get(name, None)
@@ -58,38 +52,64 @@ class BaseMarket:
         """Initializing an empty market"""
         self.learnware_list = {}  # id: Learnware
         self.count = 0
-        self.property_list = {
-            'Data': {
-                'Values': ['Tabular', 'Image', 'Video', 'Text', 'Audio'],
-                'Type' : 'Class', # Choose only one class
+        self.semantic_spec_list = self._init_semantic_spec_list()
+
+    def _init_semantic_spec_list(self):
+        return {
+            "Data": {
+                "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
+                "Type": "Class",  # Choose only one class
             },
-            'Task': {
-                'Values': ['Classification','Regression','Clustering','Feature Extraction','Generation','Segmentation','Object Detection'],
-                'Type': 'Class', # Choose only one class
+            "Task": {
+                "Values": [
+                    "Classification",
+                    "Regression",
+                    "Clustering",
+                    "Feature Extraction",
+                    "Generation",
+                    "Segmentation",
+                    "Object Detection",
+                ],
+                "Type": "Class",  # Choose only one class
             },
-            'Device': {
-                'Values': ['CPU', 'GPU'],
-                'Type': 'Tag', # Choose one or more tags
+            "Device": {
+                "Values": ["CPU", "GPU"],
+                "Type": "Tag",  # Choose one or more tags
             },
-            'Scenario': {
-                'Values': ['Business', 'Financial', 'Health', 'Politics', 'Computer', 'Internet', 'Traffic', 'Nature', 'Fashion', 'Industry', 'Agriculture', 'Education', 'Entertainment', 'Architecture'],
-                'Type': 'Tag', # Choose one or more tags
+            "Scenario": {
+                "Values": [
+                    "Business",
+                    "Financial",
+                    "Health",
+                    "Politics",
+                    "Computer",
+                    "Internet",
+                    "Traffic",
+                    "Nature",
+                    "Fashion",
+                    "Industry",
+                    "Agriculture",
+                    "Education",
+                    "Entertainment",
+                    "Architecture",
+                ],
+                "Type": "Tag",  # Choose one or more tags
             },
-            'Description': {
-                'Values': str,
-                'Type': 'Description',
+            "Description": {
+                "Values": str,
+                "Type": "Description",
             },
         }
 
-    def reload_market(self, market_path: str, property_list_path: str, load_mode: str = "database") -> bool:
+    def reload_market(self, market_path: str, semantic_spec_list_path: str, load_mode: str = "database") -> bool:
         """Reload the market when server restared.
 
         Parameters
         ----------
         market_path : str
             Directory for market data. '_IP_:_port_' for loading from database.
-        property_list_path : str
-            Directory for available property. Should be a json file.
+        semantic_spec_list_path : str
+            Directory for available semantic_spec. Should be a json file.
         load_mode : str, optional
             Type of reload source. Currently, only 'database' is available. Defaults to 'database', by default "database"
 
@@ -103,7 +123,7 @@ class BaseMarket:
         NotImplementedError
             Reload method NOT implemented. Currently, only loading from database is supported.
         FileNotFoundError
-            Loading source/property_list NOT found. Check whether the source and property_list are available.
+            Loading source/semantic_spec_list NOT found. Check whether the source and semantic_spec_list are available.
 
         """
 
@@ -119,7 +139,7 @@ class BaseMarket:
 
     def check_learnware(self, learnware: Learnware) -> bool:
         """Check the utility of a learnware
-        
+
         Parameters
         ----------
         learnware : Learnware
@@ -132,7 +152,7 @@ class BaseMarket:
         return True
 
     def add_learnware(
-        self, learnware_name: str, model_path: str, stat_spec_path: str, property: dict, desc: str
+        self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
     ) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
@@ -150,8 +170,8 @@ class BaseMarket:
         stat_spec_path : str
             Filepath for statistical specification, a '.npy' file.
             How to pass parameters requires further discussion.
-        property : dict
-            property for new learnware, in dictionary format.
+        semantic_spec : dict
+            semantic_spec for new learnware, in dictionary format.
         desc : str
             Brief desciption for new learnware.
 
@@ -176,7 +196,7 @@ class BaseMarket:
         Parameters
         ----------
         user_info : BaseUserInfo
-            user_info with properties and statistical information
+            user_info with emantic specifications and statistical information
 
         Returns
         -------
@@ -186,28 +206,29 @@ class BaseMarket:
             - first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.
             - second is a list of matched learnwares
         """
-        def search_by_property():
-            def match_property(property1, property2):
-                if property1.keys() != property2.keys():
-                    raise Exception("property key error".format(property1.keys(), property2.keys()))
-                for key in property1.keys():
-                    if property1[key]['Type'] == 'Class':
-                        if property1[key]['Values'] != property2[key]['Values']:
+
+        def search_by_semantic_spec():
+            def match_semantic_spec(semantic_spec1, semantic_spec2):
+                if semantic_spec1.keys() != semantic_spec2.keys():
+                    raise Exception("semantic_spec key error".format(semantic_spec1.keys(), semantic_spec2.keys()))
+                for key in semantic_spec1.keys():
+                    if semantic_spec1[key]["Type"] == "Class":
+                        if semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]:
                             return False
-                    elif property1[key]['Type'] == 'Tag':
-                        if not (set(property1[key]['Values']) & set(property2[key]['Values'])):
+                    elif semantic_spec1[key]["Type"] == "Tag":
+                        if not (set(semantic_spec1[key]["Values"]) & set(semantic_spec2[key]["Values"])):
                             return False
                 return True
-            
+
             match_learnwares = []
             for learnware in self.learnware_list:
-                learnware_property = learnware.get_specification().get_property()
-                user_property = user_info.get_property()
-                if match_property(learnware_property, user_property):
+                learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
+                user_semantic_spec = user_info.get_semantic_spec()
+                if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
                     match_learnwares.append(learnware)
             return match_learnwares
-        
-        match_learnwares = search_by_property()
+
+        match_learnwares = search_by_semantic_spec()
 
         pass
 
@@ -266,13 +287,13 @@ class BaseMarket:
         """
         return True
 
-    def get_property_list(self) -> dict:
-        """Return all properties available
+    def get_semantic_spec_list(self) -> dict:
+        """Return all semantic specifications available
 
         Returns
         -------
         dict
-            All properties in dictionary format
+            All emantic specifications in dictionary format
 
         """
-        return self.property_list
+        return self.semantic_spec_list

@@ -6,7 +6,7 @@ from .anchor import AnchoredUserInfo, AnchoredMarket
 
 
 class EvolvedMarket(AnchoredMarket):
-    """Organize learnwares and enable them to continuously evolve 
+    """Organize learnwares and enable them to continuously evolve
 
     Parameters
     ----------

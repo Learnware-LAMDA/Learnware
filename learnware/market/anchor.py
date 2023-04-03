@@ -7,14 +7,14 @@ from .base import BaseUserInfo, BaseMarket
 
 class AnchoredUserInfo(BaseUserInfo):
     """
-        User Information for searching learnware (add the anchor design)
-        
-        - UserInfo contains the anchor list acquired from the market
-        - UserInfo can update stat_info based on anchors
+    User Information for searching learnware (add the anchor design)
+
+    - UserInfo contains the anchor list acquired from the market
+    - UserInfo can update stat_info based on anchors
     """
 
-    def __init__(self, id: str, property: dict = dict(), stat_info: dict = dict()):
-        super(AnchoredUserInfo, self).__init__(id, property, stat_info)
+    def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
+        super(AnchoredUserInfo, self).__init__(id, semantic_spec, stat_info)
         self.anchor_learnware_list = {}  # id: Learnware
 
     def add_anchor_learnware(self, learnware_id: str, learnware: Learnware):
@@ -79,7 +79,7 @@ class AnchoredMarket(BaseMarket):
         -------
         bool
             True if the target anchor learnware is deleted successfully.
-            
+
         Raises
         ------
         Exception
@@ -107,7 +107,7 @@ class AnchoredMarket(BaseMarket):
         Parameters
         ----------
         user_info : AnchoredUserInfo
-            - user_info with properties and statistical information
+            - user_info with semantic specifications and statistical information
             - some statistical information calculated on previous anchor learnwares
 
         Returns
@@ -126,7 +126,7 @@ class AnchoredMarket(BaseMarket):
         Parameters
         ----------
         user_info : AnchoredUserInfo
-            - user_info with properties and statistical information
+            - user_info with semantic specifications and statistical information
             - some statistical information calculated on anchor learnwares
 
         Returns

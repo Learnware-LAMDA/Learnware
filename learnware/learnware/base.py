@@ -48,7 +48,7 @@ class Learnware:
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict(X)
-    
+
     def get_model(self) -> BaseModel:
         return self.model
 
@@ -57,10 +57,10 @@ class Learnware:
 
     def get_info(self):
         return self.desc
-    
+
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.specification.update_stat_spec(name, new_stat_spec)
-    
+
     def update(self):
         # Empty Interface.
         raise NotImplementedError("'update' Method is NOT Implemented.")
