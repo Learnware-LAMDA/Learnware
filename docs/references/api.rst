@@ -14,6 +14,9 @@ Market
 .. autoclass:: learnware.market.BaseMarket
     :members:
 
+.. autoclass:: learnware.market.SerialMarket
+    :members:
+
 .. autoclass:: learnware.market.AnchoredMarket
     :members:
 
@@ -21,6 +24,9 @@ Market
     :members:
 
 .. autoclass:: learnware.market.BaseUserInfo
+    :members:
+
+.. autoclass:: learnware.market.SerialUserInfo
     :members:
 
 Learnware
@@ -41,5 +47,5 @@ Specification
 .. autoclass:: learnware.specification.BaseStatSpecification
     :members:
 
-.. autoclass:: learnware.specification.RKMESpecification
+.. autoclass:: learnware.specification.RKMEStatSpecification
     :members:

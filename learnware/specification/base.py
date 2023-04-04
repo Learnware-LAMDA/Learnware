@@ -18,7 +18,7 @@ class BaseStatSpecification:
 class Specification:
     def __init__(self, semantic_spec=None):
         self.semantic_spec = semantic_spec
-        self.stat_spec = {}  # stat_spec should be dict
+        self.stat_spec = BaseStatSpecification()  # stat_spec should be dict
 
     def get_stat_spec(self):
         return self.stat_spec

@@ -1,7 +1,7 @@
 import numpy as np
 
 from .base import BaseStatSpecification
-from .rkme import RKMESpecification
+from .rkme import RKMEStatSpecification
 
 
 def generate_rkme_spec(
@@ -13,10 +13,10 @@ def generate_rkme_spec(
     nonnegative_beta: bool = True,
     reduce: bool = True,
     cuda_idx: int = -1,
-) -> RKMESpecification:
+) -> RKMEStatSpecification:
     """
             Interface for users to generate Reduced-set Kernel Mean Embedding (RKME) specification.
-            Return a RKMESpecification object, use .save() method to save as json file.
+            Return a RKMEStatSpecification object, use .save() method to save as json file.
 
 
     Parameters
@@ -41,10 +41,10 @@ def generate_rkme_spec(
 
     Returns
     -------
-    RKMESpecification
-            A RKMESpecification object
+    RKMEStatSpecification
+            A RKMEStatSpecification object
     """
-    rkme_spec = RKMESpecification(gamma=gamma, cuda_idx=cuda_idx)
+    rkme_spec = RKMEStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_spec.generate_stat_spec_from_data(X, K, step_size, steps, nonnegative_beta, reduce)
     return rkme_spec
 
