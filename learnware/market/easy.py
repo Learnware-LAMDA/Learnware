@@ -8,37 +8,6 @@ from ..learnware import Learnware
 from ..specification import RKMEStatSpecification
 
 
-class EasyUserInfo(BaseUserInfo):
-    def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
-        """Initializing user information
-
-        Parameters
-        ----------
-        id : str
-            user id
-        semantic_spec : dict, optional
-            semantic_spec selected by user, by default dict()
-        stat_info : dict, optional
-            statistical information uploaded by user, by default dict()
-        """
-        self.id = id
-        self.semantic_spec = semantic_spec
-        self.stat_info = stat_info
-
-    def get_semantic_spec(self) -> dict:
-        """Return user semantic specifications
-
-        Returns
-        -------
-        dict
-            user semantic specifications
-        """
-        return self.semantic_spec
-
-    def get_stat_info(self, name: str):
-        return self.stat_info.get(name, None)
-
-
 class EasyMarket(BaseMarket):
     def __init__(self):
         """Initializing an empty market"""
@@ -164,6 +133,8 @@ class EasyMarket(BaseMarket):
             return match_learnwares
 
         match_learnwares = search_by_semantic_spec()
+        # return match_learnwares
+        # TODO:
 
     def delete_learnware(self, id: str) -> bool:
         if not id in self.learnware_list:

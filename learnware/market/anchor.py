@@ -2,11 +2,10 @@ import os
 from typing import Tuple, Any, List, Union, Dict
 
 from ..learnware import Learnware
-from .base import BaseMarket
-from .easy import EasyUserInfo
+from .base import BaseMarket, BaseUserInfo
 
 
-class AnchoredUserInfo(EasyUserInfo):
+class AnchoredUserInfo(BaseUserInfo):
     """
     User Information for searching learnware (add the anchor design)
 

@@ -7,7 +7,7 @@ if __name__ == "__main__":
     for i in range(10):
         data_X[i, i] = np.nan
     spec1 = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=-1)
-    spec2 = specification.rkme.RKMESpecification()
+    spec2 = specification.rkme.RKMEStatSpecification()
     spec1.generate_stat_spec_from_data(data_X)
     spec1.save("spec.json")
 

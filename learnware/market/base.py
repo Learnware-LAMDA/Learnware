@@ -10,11 +10,34 @@ from ..specification import RKMEStatSpecification
 class BaseUserInfo:
     """User Information for searching learnware"""
 
+    def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
+        """Initializing user information
+
+        Parameters
+        ----------
+        id : str
+            user id
+        semantic_spec : dict, optional
+            semantic_spec selected by user, by default dict()
+        stat_info : dict, optional
+            statistical information uploaded by user, by default dict()
+        """
+        self.id = id
+        self.semantic_spec = semantic_spec
+        self.stat_info = stat_info
+
     def get_semantic_spec(self) -> dict:
-        raise NotImplementedError("get_semantic_spec is Not Implemented")
+        """Return user semantic specifications
+
+        Returns
+        -------
+        dict
+            user semantic specifications
+        """
+        return self.semantic_spec
 
     def get_stat_info(self, name: str):
-        raise NotImplementedError("get_stat_info is Not Implemented")
+        return self.stat_info.get(name, None)
 
 
 class BaseMarket:
