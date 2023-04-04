@@ -18,100 +18,7 @@ from .base import BaseStatSpecification
 # mkl.get_max_threads()
 
 
-def setup_seed(seed):
-    """Fix a random seed for addressing reproducibility issues.
-
-    Parameters
-    ----------
-    seed : int
-            Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
-    """
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.backends.cudnn.deterministic = True
-
-
-def choose_device(cuda_idx=-1):
-    """Let users choose compuational device between CPU or GPU.
-
-    Parameters
-    ----------
-    cuda_idx : int, optional
-            GPU index, by default -1 which stands for using CPU instead.
-
-    Returns
-    -------
-    torch.device
-            A torch.device object
-    """
-    if cuda_idx != -1:
-        device = torch.device(f"cuda:{cuda_idx}")
-    else:
-        device = torch.device("cpu")
-    return device
-
-
-def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
-    """Use pytorch to compute rbf_kernel function at faster speed.
-
-    Parameters
-    ----------
-    x1 : torch.Tensor
-            First vector in the rbf_kernel
-    x2 : torch.Tensor
-            Second vector in the rbf_kernel
-    gamma : float
-            Bandwidth in gaussian kernel
-
-    Returns
-    -------
-    torch.Tensor
-            The computed rbf_kernel value at x1, x2.
-    """
-    x1 = x1.double()
-    x2 = x2.double()
-    X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
-    return torch.exp(-X12norm * gamma)
-
-
-def solve_qp(K: np.ndarray, C: np.ndarray):
-    """Solver for the following quadratic programming(QP) problem:
-        - min   1/2 x^T K x - C^T x
-        s.t     1^T x - 1 = 0
-                - I x <= 0
-
-    Parameters
-    ----------
-    K : np.ndarray
-            Parameter in the quadratic term.
-    C : np.ndarray
-            Parameter in the linear term.
-
-    Returns
-    -------
-    torch.tensor
-            Solution to the QP problem.
-    """
-    n = K.shape[0]
-    P = matrix(K.cpu().numpy())
-    q = matrix(-C.cpu().numpy())
-    G = matrix(-np.eye(n))
-    h = matrix(np.zeros((n, 1)))
-    A = matrix(np.ones((1, n)))
-    b = matrix(np.ones((1, 1)))
-
-    solvers.options["show_progress"] = False
-    sol = solvers.qp(P, q, G, h, A, b)  # Requires the sum of x to be 1
-    # sol = solvers.qp(P, q, G, h) # Otherwise
-    w = np.array(sol["x"])
-    w = torch.from_numpy(w).reshape(-1)
-
-    return w
-
-
-class RKMESpecification(BaseStatSpecification):
+class RKMEStatSpecification(BaseStatSpecification):
     """Reduced-set Kernel Mean Embedding (RKME) Specification"""
 
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
@@ -293,12 +200,12 @@ class RKMESpecification(BaseStatSpecification):
         Z = Z - step_size * grad_Z
         self.z = Z
 
-    def inner_prod(self, Phi2: RKMESpecification) -> float:
+    def inner_prod(self, Phi2: RKMEStatSpecification) -> float:
         """Compute the inner product between two RKME specifications
 
         Parameters
         ----------
-        Phi2 : RKMESpecification
+        Phi2 : RKMEStatSpecification
             The other RKME specification.
 
         Returns
@@ -314,12 +221,12 @@ class RKMESpecification(BaseStatSpecification):
         v = torch.sum(torch_rbf_kernel(Z1, Z2, self.gamma) * (beta_1.T @ beta_2))
         return float(v)
 
-    def dist(self, Phi2: RKMESpecification, omit_term1: bool = False) -> float:
+    def dist(self, Phi2: RKMEStatSpecification, omit_term1: bool = False) -> float:
         """Compute the Maximum-Mean-Discrepancy(MMD) between two RKME specifications
 
         Parameters
         ----------
-        Phi2 : RKMESpecification
+        Phi2 : RKMEStatSpecification
             The other RKME specification.
         omit_term1 : bool, optional
             True if the inner product of self with itself can be omitted, by default False
@@ -384,3 +291,97 @@ class RKMESpecification(BaseStatSpecification):
             return True
         else:
             return False
+
+
+def setup_seed(seed):
+    """Fix a random seed for addressing reproducibility issues.
+
+    Parameters
+    ----------
+    seed : int
+            Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
+    """
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+
+
+def choose_device(cuda_idx=-1):
+    """Let users choose compuational device between CPU or GPU.
+
+    Parameters
+    ----------
+    cuda_idx : int, optional
+            GPU index, by default -1 which stands for using CPU instead.
+
+    Returns
+    -------
+    torch.device
+            A torch.device object
+    """
+    if cuda_idx != -1:
+        device = torch.device(f"cuda:{cuda_idx}" if torch.cuda.is_available() else "cpu")
+        # device = torch.device(f"cuda:{cuda_idx}")
+    else:
+        device = torch.device("cpu")
+    return device
+
+
+def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
+    """Use pytorch to compute rbf_kernel function at faster speed.
+
+    Parameters
+    ----------
+    x1 : torch.Tensor
+            First vector in the rbf_kernel
+    x2 : torch.Tensor
+            Second vector in the rbf_kernel
+    gamma : float
+            Bandwidth in gaussian kernel
+
+    Returns
+    -------
+    torch.Tensor
+            The computed rbf_kernel value at x1, x2.
+    """
+    x1 = x1.double()
+    x2 = x2.double()
+    X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
+    return torch.exp(-X12norm * gamma)
+
+
+def solve_qp(K: np.ndarray, C: np.ndarray):
+    """Solver for the following quadratic programming(QP) problem:
+        - min   1/2 x^T K x - C^T x
+        s.t     1^T x - 1 = 0
+                - I x <= 0
+
+    Parameters
+    ----------
+    K : np.ndarray
+            Parameter in the quadratic term.
+    C : np.ndarray
+            Parameter in the linear term.
+
+    Returns
+    -------
+    torch.tensor
+            Solution to the QP problem.
+    """
+    n = K.shape[0]
+    P = matrix(K.cpu().numpy())
+    q = matrix(-C.cpu().numpy())
+    G = matrix(-np.eye(n))
+    h = matrix(np.zeros((n, 1)))
+    A = matrix(np.ones((1, n)))
+    b = matrix(np.ones((1, 1)))
+
+    solvers.options["show_progress"] = False
+    sol = solvers.qp(P, q, G, h, A, b)  # Requires the sum of x to be 1
+    # sol = solvers.qp(P, q, G, h) # Otherwise
+    w = np.array(sol["x"])
+    w = torch.from_numpy(w).reshape(-1)
+
+    return w

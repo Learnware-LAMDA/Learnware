@@ -4,6 +4,7 @@ import pandas as pd
 from typing import Tuple, Any, List, Union, Dict
 
 from ..learnware import Learnware
+from ..specification import RKMEStatSpecification
 
 
 class BaseUserInfo:
