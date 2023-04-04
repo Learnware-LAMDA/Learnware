@@ -14,6 +14,12 @@ Market
 .. autoclass:: learnware.market.BaseMarket
     :members:
 
+.. autoclass:: learnware.market.AnchoredMarket
+    :members:
+
+.. autoclass:: learnware.market.BaseMarket
+    :members:
+
 .. autoclass:: learnware.market.BaseReuse
     :members:
 

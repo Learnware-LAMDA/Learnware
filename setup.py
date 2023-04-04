@@ -36,7 +36,11 @@ REQUIRED = [
     "pandas>=0.25.1",
     "scipy>=1.0.0",
     "matplotlib>=3.1.3",
-    "tqdm",
+    "torch>=1.11.0",
+    "faiss-cpu>=1.7.1",
+    # "mkl-service>=2.3.0",
+    "cvxopt>=1.3.0",
+    "tqdm>=4.65.0",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))

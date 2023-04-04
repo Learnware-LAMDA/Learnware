@@ -7,13 +7,14 @@ __pycache__/
 *.so
 *.ipynb
 .ipynb_checkpoints
-# _build
+_build
+_templates
 build/
 dist/
 *.pkl
 *.hd5
 *.csv
-# *.html
+*.html
 *.dot
 *.xml
 .env

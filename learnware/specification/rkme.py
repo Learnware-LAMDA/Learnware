@@ -77,9 +77,9 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
 
 def solve_qp(K: np.ndarray, C: np.ndarray):
     """Solver for the following quadratic programming(QP) problem:
-                - min    1/2 x^T K x - C^T x
-          s.t    1^T x - 1 = 0
-                    - I x <= 0
+        - min   1/2 x^T K x - C^T x
+        s.t     1^T x - 1 = 0
+                - I x <= 0
 
     Parameters
     ----------

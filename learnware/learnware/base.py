@@ -39,7 +39,6 @@ class Learnware:
         """
         if isinstance(model, BaseModel):
             return model
-
         elif isinstance(model, dict):
             model_module = get_module_by_module_path(model["module_path"])
             return getattr(model_module, model["class_name"])()
