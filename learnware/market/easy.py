@@ -7,7 +7,8 @@ from .base import BaseMarket, BaseUserInfo
 from ..learnware import Learnware
 from ..specification import RKMEStatSpecification, Specification
 
-class SerialUserInfo(BaseUserInfo):
+
+class EasyUserInfo(BaseUserInfo):
     def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
         """Initializing user information
 
@@ -37,7 +38,8 @@ class SerialUserInfo(BaseUserInfo):
     def get_stat_info(self, name: str):
         return self.stat_info.get(name, None)
 
-class SerialMarket(BaseMarket):
+
+class EasyMarket(BaseMarket):
     def __init__(self):
         """Initializing an empty market"""
         self.learnware_list = {}  # id: Learnware
