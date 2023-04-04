@@ -7,6 +7,35 @@ from .base import BaseMarket, BaseUserInfo
 from ..learnware import Learnware
 from ..specification import RKMEStatSpecification, Specification
 
+class SerialUserInfo(BaseUserInfo):
+    def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
+        """Initializing user information
+
+        Parameters
+        ----------
+        id : str
+            user id
+        semantic_spec : dict, optional
+            semantic_spec selected by user, by default dict()
+        stat_info : dict, optional
+            statistical information uploaded by user, by default dict()
+        """
+        self.id = id
+        self.semantic_spec = semantic_spec
+        self.stat_info = stat_info
+
+    def get_semantic_spec(self) -> dict:
+        """Return user semantic specifications
+
+        Returns
+        -------
+        dict
+            user semantic specifications
+        """
+        return self.semantic_spec
+
+    def get_stat_info(self, name: str):
+        return self.stat_info.get(name, None)
 
 class SerialMarket(BaseMarket):
     def __init__(self):
