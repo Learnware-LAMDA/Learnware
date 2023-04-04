@@ -139,7 +139,7 @@ class EasyMarket(BaseMarket):
         rkme_stat_spec = RKMEStatSpecification()
         rkme_stat_spec.load(stat_spec_path)
         specification = Specification(semantic_spec=semantic_spec)
-        specification.upload_stat_spec("RKME", rkme_stat_spec)
+        specification.update_stat_spec("RKME", rkme_stat_spec)
         model_dict = {"model_path":model_path, "class_name":"BaseModel"}
         new_learnware = Learnware(id=id, name=learnware_name, 
                                 model=model_dict, specification=specification)
