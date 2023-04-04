@@ -17,10 +17,10 @@ Market
 .. autoclass:: learnware.market.AnchoredMarket
     :members:
 
-.. autoclass:: learnware.market.BaseMarket
+.. autoclass:: learnware.market.EvolvedMarket
     :members:
 
-.. autoclass:: learnware.market.BaseReuse
+.. autoclass:: learnware.market.BaseUserInfo
     :members:
 
 Learnware
@@ -29,6 +29,8 @@ Learnware
 .. autoclass:: learnware.learnware.Learnware
     :members:
 
+.. autoclass:: learnware.learnware.BaseReuse
+    :members:
 
 Specification
 ====================
@@ -36,7 +38,7 @@ Specification
 .. autoclass:: learnware.specification.Specification
     :members:
 
-.. autoclass:: learnware.specification.StatSpecification
+.. autoclass:: learnware.specification.BaseStatSpecification
     :members:
 
 .. autoclass:: learnware.specification.RKMESpecification

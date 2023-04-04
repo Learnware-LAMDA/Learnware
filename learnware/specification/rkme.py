@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-import mkl
+
+# import mkl
 import copy
 import torch
 import faiss
@@ -14,7 +15,7 @@ from typing import Tuple, Any, List, Union, Dict
 
 from .base import BaseStatSpecification
 
-mkl.get_max_threads()
+# mkl.get_max_threads()
 
 
 def setup_seed(seed):
