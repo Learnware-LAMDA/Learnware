@@ -4,6 +4,7 @@ import pandas as pd
 from typing import Tuple, Any, List, Union, Dict
 
 from ..learnware import Learnware
+from ..specification import RKMEStatSpecification
 
 
 class BaseUserInfo:
@@ -55,6 +56,7 @@ class BaseMarket:
         self.semantic_spec_list = self._init_semantic_spec_list()
 
     def _init_semantic_spec_list(self):
+        # TODO: Load from json
         return {
             "Data": {
                 "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
@@ -188,6 +190,11 @@ class BaseMarket:
         """
         if (not os.path.exists(model_path)) or (not os.path.exists(stat_spec_path)):
             raise FileNotFoundError("Model or Stat_spec NOT Found.")
+        
+        id = "%08d"%(self.count)
+        stat_spec = RKMEStatSpecification()
+        stat_spec_path.load(stat_spec_path)
+        
         return str(self.count), True
 
     def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
