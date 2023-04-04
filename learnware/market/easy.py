@@ -163,6 +163,7 @@ class EasyMarket(BaseMarket):
                 return True
 
             match_learnwares = []
+            # TODO: self.learnware_list is a dict. Bug need to be fixed!
             for learnware in self.learnware_list:
                 learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
                 user_semantic_spec = user_info.get_semantic_spec()
