@@ -14,7 +14,7 @@ Market
 .. autoclass:: learnware.market.BaseMarket
     :members:
 
-.. autoclass:: learnware.market.SerialMarket
+.. autoclass:: learnware.market.EasyMarket
     :members:
 
 .. autoclass:: learnware.market.AnchoredMarket
@@ -26,7 +26,7 @@ Market
 .. autoclass:: learnware.market.BaseUserInfo
     :members:
 
-.. autoclass:: learnware.market.SerialUserInfo
+.. autoclass:: learnware.market.EasyUserInfo
     :members:
 
 Learnware
