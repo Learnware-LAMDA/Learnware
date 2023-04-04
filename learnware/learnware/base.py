@@ -8,12 +8,11 @@ from ..utils import get_module_by_module_path
 
 
 class Learnware:
-    def __init__(self, id: str, name: str, model: Union[BaseModel, dict], specification: Specification, desc: str):
+    def __init__(self, id: str, name: str, model: Union[BaseModel, dict], specification: Specification):
         self.id = id
         self.name = name
         self.model = self._import_model(model)
         self.specification = specification
-        self.desc = desc
 
     def _import_model(self, model: Union[BaseModel, dict]) -> BaseModel:
         """_summary_

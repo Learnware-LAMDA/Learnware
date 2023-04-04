@@ -5,7 +5,7 @@ from typing import Tuple, Any, List, Union, Dict
 
 from .base import BaseMarket, BaseUserInfo
 from ..learnware import Learnware
-from ..specification import RKMEStatSpecification
+from ..specification import RKMEStatSpecification, Specification
 
 
 class EasyMarket(BaseMarket):
@@ -104,11 +104,18 @@ class EasyMarket(BaseMarket):
         if (not os.path.exists(model_path)) or (not os.path.exists(stat_spec_path)):
             raise FileNotFoundError("Model or Stat_spec NOT Found.")
 
-        id = "%08d" % (self.count)
-        stat_spec = RKMEStatSpecification()
-        stat_spec_path.load(stat_spec_path)
+        id = "%08d"%(self.count)
+        rkme_stat_spec = RKMEStatSpecification()
+        rkme_stat_spec.load(stat_spec_path)
+        specification = Specification(semantic_spec=semantic_spec)
+        specification.update_stat_spec("RKME", rkme_stat_spec)
+        model_dict = {"model_path":model_path, "class_name":"BaseModel"}
+        new_learnware = Learnware(id=id, name=learnware_name, 
+                                model=model_dict, specification=specification)
+        self.learnware_list[id] = new_learnware
+        self.count += 1
 
-        return str(self.count), True
+        return id, True
 
     def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
         def search_by_semantic_spec():
@@ -125,6 +132,7 @@ class EasyMarket(BaseMarket):
                 return True
 
             match_learnwares = []
+            # TODO: self.learnware_list is a dict. Bug need to be fixed!
             for learnware in self.learnware_list:
                 learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
                 user_semantic_spec = user_info.get_semantic_spec()
