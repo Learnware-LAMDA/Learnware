@@ -28,7 +28,7 @@ def test_API():
     print(type(svm))
 
     model = {"module_path": "./svm/__init__.py", "class_name": "SVM"}
-    spec = specification.rkme.RKMESpecification()
+    spec = specification.rkme.RKMEStatSpecification()
     spec.load("./svm/spec.json")
     learnware = Learnware(id="A0", name="SVM", model=model, specification=spec, desc="svm")
     pred_y2 = learnware.predict(text_X)
