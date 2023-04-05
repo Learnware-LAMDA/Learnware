@@ -117,6 +117,42 @@ class EasyMarket(BaseMarket):
 
         return id, True
 
+    def _search_by_rkme_spec_mixture(self, user_rkme: RKMEStatSpecification, search_num: int) -> Tuple[List[float], List[Learnware]]:
+        """Get search_num learnwares with their mixture weight
+
+        Parameters
+        ----------
+        user_rkme : RKMEStatSpecification
+            user RKME statistical specification
+        learnware_num : int
+            the number of the returned learnwares
+
+        Returns
+        -------
+        Tuple[List[float], List[Learnware]]
+            the first is the list of weight
+            the second is the list of Learnware
+            the size of both list equals search_num
+        """
+        pass
+    
+    def _search_by_rkme_spec_single(self, user_rkme: RKMEStatSpecification) -> Tuple[List[float], List[Learnware]]:
+        """Calculate the distances between learnwares and user_rkme
+
+        Parameters
+        ----------
+        user_rkme : RKMEStatSpecification
+            user RKME statistical specification
+
+        Returns
+        -------
+        Tuple[List[float], List[Learnware]]
+            the first is the list of mmd dist
+            the second is the list of Learnware
+            both lists are sorted by mmd dist
+        """
+        pass
+    
     def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
         def search_by_semantic_spec():
             def match_semantic_spec(semantic_spec1, semantic_spec2):
