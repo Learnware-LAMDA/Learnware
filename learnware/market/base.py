@@ -40,7 +40,7 @@ class BaseUserInfo:
         return self.stat_info.get(name, None)
 
 
-class BaseMarket:
+class BaseMarket():
     """Market for Learnware
 
     .. code-block:: python

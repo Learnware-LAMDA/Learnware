@@ -7,7 +7,7 @@ import json
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT_PATH, "market.db")
-LOGGER = get_module_logger("market")
+LOGGER = get_module_logger("db")
 
 
 def init_empty_db(func):
@@ -29,16 +29,15 @@ def init_empty_db(func):
             )
             LOGGER.info("Database Built!")
         kwargs["cur"] = cur
-        kwargs["conn"] = conn
-        func(*args, **kwargs)
+        item = func(*args, **kwargs)
         conn.commit()
         conn.close()
+        return item
 
     return wrapper
 
-
 @init_empty_db
-def add_learnware_to_db(id: str, name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, cur, conn):
+def add_learnware_to_db(id: str, name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, cur):
     semantic_spec_str = json.dumps(semantic_spec)
     stat_spec_path_dict = {"RKME": stat_spec_path}
     stat_spec_str = json.dumps(stat_spec_path_dict)
@@ -48,16 +47,12 @@ def add_learnware_to_db(id: str, name: str, model_path: str, stat_spec_path: str
         % (id, name, semantic_spec_str, model_path, stat_spec_str)
     )
 
+@init_empty_db
+def delete_learnware_from_db(id: str, cur):
+    cur.execute("DELETE from LEARNWARE where ID='%s';"%(id))
 
 @init_empty_db
-def delete_learnware_from_db(id: str, cur, conn):
-    cur.execute("DELETE from LEARNWARE where ID=%;")
-    conn.commit()
-    LOGGER.info("%d item has been deleted from table 'LEARNWARE'" % (conn.total_changes))
-
-
-@init_empty_db
-def load_market_from_db(cur, conn):
+def load_market_from_db(cur):
     LOGGER.info("Reload from Database")
     cursor = cur.execute("SELECT id, name, semantic_spec, model_path, stat_spec_path from LEARNWARE")
 
@@ -70,9 +65,11 @@ def load_market_from_db(cur, conn):
         stat_spec_dict = {}
         for stat_spec_name in stat_spec_path_dict:
             new_stat_spec = RKMEStatSpecification()
-            new_stat_spec.load(stat_spec_dict[stat_spec_name])
+            new_stat_spec.load(stat_spec_path_dict[stat_spec_name])
             stat_spec_dict[stat_spec_name] = new_stat_spec
-        model_dict = {"model_path": model_path, "class_name": "BaseModel"}
+        # Commented for test purpose. Uncomment when Learnware class is implemented.
+        # model_dict = {"module_path": model_path, "class_name": "BaseModel"}
+        model_dict = model_path
         specification = Specification(semantic_spec=semantic_spec_dict, stat_spec=stat_spec_dict)
         new_learnware = Learnware(id=id, name=name, model=model_dict, specification=specification)
         learnware_list[id] = new_learnware

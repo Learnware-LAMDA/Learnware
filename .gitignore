@@ -24,6 +24,7 @@ dist/
 .vscode
 *.egg-info/
 *.db
+*.json
 
 # special software
 .pytest_cache/

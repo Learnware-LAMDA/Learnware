@@ -14,7 +14,7 @@ class Learnware:
         self.model = self._import_model(model)
         self.specification = specification
 
-    def _import_model(self, model: Union[BaseModel, dict]) -> BaseModel:
+    def _import_model(self, model: Union[BaseModel, dict, str]) -> BaseModel:
         """_summary_
 
         Parameters
@@ -41,6 +41,8 @@ class Learnware:
         elif isinstance(model, dict):
             model_module = get_module_by_module_path(model["module_path"])
             return getattr(model_module, model["class_name"])()
+        elif isinstance(model, str):
+            return model    # For test purpose
         else:
             raise TypeError("model must be BaseModel or dict")
 
