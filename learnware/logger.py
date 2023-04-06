@@ -22,6 +22,9 @@ def get_module_logger(module_name, level=logging.INFO):
     # Get logger.
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
+    fmt = '%(asctime)s - %(funcName)s - [%(levelname)s] - %(message)s'  
+    formatter = logging.Formatter(fmt) 
+    console_handler.setFormatter(formatter)
     module_logger = logging.getLogger(module_name)
     module_logger.setLevel(level)
     module_logger.addHandler(console_handler)
