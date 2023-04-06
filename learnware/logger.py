@@ -4,17 +4,20 @@ import logging.handlers
 from .config import C
 
 
-def get_module_logger(module_name, level=None):
-    """
-    Get a logger for a specific module.
-    :param module_name: str
+def get_module_logger(module_name: str, level:int = None):
+    """Get a logger for a specific module.
+
+    Parameters
+    ----------
+    module_name : str
         Logic module name.
-    :param level: int
-    :param sh_level: int
-        Stream handler log level.
-    :param log_format: str
-    :return: Logger
-        Logger object.
+    level : int, optional
+        logging level, by default None
+
+    Returns
+    -------
+    _type_
+        _description_
     """
     if level is None:
         level = C.logging_level
