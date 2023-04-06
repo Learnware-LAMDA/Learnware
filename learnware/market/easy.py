@@ -69,7 +69,7 @@ class EasyMarket(BaseMarket):
         self.learnware_list, self.count = load_market_from_db()
 
     def add_learnware(
-        self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
+        self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict
     ) -> Tuple[str, bool]:
         """Add a learnware into the market.
 

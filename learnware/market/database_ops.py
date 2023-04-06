@@ -9,12 +9,14 @@ ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT_PATH, "market.db")
 LOGGER = get_module_logger("market")
 
-def init_empty_db(func):
 
+def init_empty_db(func):
     def wrapper(*args, **kwargs):
         conn = sqlite3.connect(DB_PATH)
         cur = conn.cursor()
-        listOfTables = cur.execute( """SELECT name FROM sqlite_master WHERE type='table' AND name='LEARNWARE'; """).fetchall()
+        listOfTables = cur.execute(
+            """SELECT name FROM sqlite_master WHERE type='table' AND name='LEARNWARE'; """
+        ).fetchall()
         if listOfTables == []:
             LOGGER.info("Initializing Database in %s..." % (DB_PATH))
             cur.execute(
@@ -26,29 +28,37 @@ def init_empty_db(func):
             STAT_SPEC_PATH         TEXT NOT NULL);"""
             )
             LOGGER.info("Database Built!")
-        kwargs['cur'] = cur
-        kwargs['conn'] = conn
+        kwargs["cur"] = cur
+        kwargs["conn"] = conn
         func(*args, **kwargs)
         conn.commit()
         conn.close()
 
     return wrapper
 
-@init_empty_db
-def add_learnware_to_db(id:str, name:str, model_path:str, semantic_spec:dict):
-    pass
 
 @init_empty_db
-def delete_learnware_from_db(id:str, cur, conn):
+def add_learnware_to_db(id: str, name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, cur, conn):
+    semantic_spec_str = json.dumps(semantic_spec)
+    stat_spec_path_dict = {"RKME": stat_spec_path}
+    stat_spec_str = json.dumps(stat_spec_path_dict)
+    cur.execute(
+        "INSERT INTO LEARNWARE (ID,NAME,SEMANTIC_SPEC,MODEL_PATH,STAT_SPEC_PATH) \
+      VALUES ('%s', '%s', '%s', '%s', '%s' )"
+        % (id, name, semantic_spec_str, model_path, stat_spec_str)
+    )
+
+
+@init_empty_db
+def delete_learnware_from_db(id: str, cur, conn):
     cur.execute("DELETE from LEARNWARE where ID=%;")
     conn.commit()
-    LOGGER.info("%d item has been deleted from table 'LEARNWARE'"%(conn.total_changes))
+    LOGGER.info("%d item has been deleted from table 'LEARNWARE'" % (conn.total_changes))
+
 
 @init_empty_db
 def load_market_from_db(cur, conn):
-    # conn = sqlite3.connect(DB_PATH)
     LOGGER.info("Reload from Database")
-    # c = conn.cursor()
     cursor = cur.execute("SELECT id, name, semantic_spec, model_path, stat_spec_path from LEARNWARE")
 
     learnware_list = {}
@@ -62,10 +72,10 @@ def load_market_from_db(cur, conn):
             new_stat_spec = RKMEStatSpecification()
             new_stat_spec.load(stat_spec_dict[stat_spec_name])
             stat_spec_dict[stat_spec_name] = new_stat_spec
-        model_dict = {'model_path':model_path, 'class_name':'BaseModel'}
+        model_dict = {"model_path": model_path, "class_name": "BaseModel"}
         specification = Specification(semantic_spec=semantic_spec_dict, stat_spec=stat_spec_dict)
         new_learnware = Learnware(id=id, name=name, model=model_dict, specification=specification)
         learnware_list[id] = new_learnware
         max_count = max(max_count, int(id))
     LOGGER.info("Market Reloaded from DB.")
-    return learnware_list, max_count+1
+    return learnware_list, max_count + 1
