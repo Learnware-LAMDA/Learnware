@@ -17,6 +17,7 @@ dist/
 *.html
 *.dot
 *.xml
+*.log
 .env
 .vim
 .nvimrc
