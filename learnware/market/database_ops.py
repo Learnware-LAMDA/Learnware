@@ -7,7 +7,7 @@ import json
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT_PATH, "market.db")
-LOGGER = get_module_logger("market", level="INFO")
+LOGGER = get_module_logger("market")
 
 def init_empty_db(func):
 
@@ -27,8 +27,8 @@ def init_empty_db(func):
             LOGGER.info("Database Built!")
             conn.commit()
             conn.close()
-        else:
-            pass
+        func()
+
     return wrapper
 
 @init_empty_db
@@ -41,9 +41,8 @@ def delete_learnware_from_db(id:str):
 
 @init_empty_db
 def load_market_from_db():
-    if not os.path.exists(DB_PATH):
-        init_empty_db()
     conn = sqlite3.connect(DB_PATH)
+    LOGGER.info("Reload from Database")
     c = conn.cursor()
     cursor = c.execute("SELECT id, name, semantic_spec, model_path, stat_spec_path from LEARNWARE")
 
