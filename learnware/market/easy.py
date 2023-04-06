@@ -105,22 +105,25 @@ class EasyMarket(BaseMarket):
         if (not os.path.exists(model_path)) or (not os.path.exists(stat_spec_path)):
             raise FileNotFoundError("Model or Stat_spec NOT Found.")
 
-        id = "%08d"%(self.count)
+        id = "%08d" % (self.count)
         rkme_stat_spec = RKMEStatSpecification()
         rkme_stat_spec.load(stat_spec_path)
         specification = Specification(semantic_spec=semantic_spec)
         specification.update_stat_spec("RKME", rkme_stat_spec)
-        model_dict = {"model_path":model_path, "class_name":"BaseModel"}
-        new_learnware = Learnware(id=id, name=learnware_name, 
-                                model=model_dict, specification=specification)
+        model_dict = {"model_path": model_path, "class_name": "BaseModel"}
+        new_learnware = Learnware(id=id, name=learnware_name, model=model_dict, specification=specification)
         self.learnware_list[id] = new_learnware
         self.count += 1
 
         return id, True
-    
+
     def _calculate_rkme_spec_mixture_weight(
-            self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, intermediate_K: np.ndarray = None, intermediate_C: np.ndarray = None
-        ) -> Tuple[List[float], float]:
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: RKMEStatSpecification,
+        intermediate_K: np.ndarray = None,
+        intermediate_C: np.ndarray = None,
+    ) -> Tuple[List[float], float]:
         """Calculate mixture weight for the learnware_list based on a user's rkme
 
         Parameters
@@ -141,7 +144,7 @@ class EasyMarket(BaseMarket):
             The second is the mmd dist between the mixture of learnware rkmes and the user's rkme
         """
         learnware_num = len(learnware_list)
-        RKME_list = [learnware.specification.get_stat_spec_by_name('RKME') for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name("RKME") for learnware in learnware_list]
 
         if type(intermediate_K) == np.ndarray:
             K = intermediate_K
@@ -161,9 +164,9 @@ class EasyMarket(BaseMarket):
         K = torch.from_numpy(K).double().to(user_rkme.device)
         C = torch.from_numpy(C).double().to(user_rkme.device)
 
-        #if nonnegative_beta:
+        # if nonnegative_beta:
         #    w = solve_qp(K, C).double().to(Phi_t.device)
-        #else:
+        # else:
         weight = torch.linalg.inv(K + torch.eye(K.shape[0]).to(user_rkme.device) * 1e-5) @ C
 
         term1 = user_rkme.eval_Phi(user_rkme)
@@ -172,10 +175,14 @@ class EasyMarket(BaseMarket):
         score = float(term1 - 2 * term2 + term3)
 
         return weight.detach().cpu().numpy().reshape(-1), score
-    
+
     def _calculate_intermediate_K_and_C(
-            self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, intermediate_K: np.ndarray = None, intermediate_C: np.ndarray = None
-        ) -> Tuple[np.ndarray, np.ndarray]:
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: RKMEStatSpecification,
+        intermediate_K: np.ndarray = None,
+        intermediate_C: np.ndarray = None,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Incrementally update the values of intermediate_K and intermediate_C
 
         Parameters
@@ -196,13 +203,15 @@ class EasyMarket(BaseMarket):
             The second is the intermediate value of C
         """
         num = intermediate_K.shape[0] - 1
-        RKME_list = [learnware.specification.get_stat_spec_by_name('RKME') for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name("RKME") for learnware in learnware_list]
         for i in range(intermediate_K.shape[0]):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
         return intermediate_K, intermediate_C
 
-    def _search_by_rkme_spec_mixture(self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, search_num: int) -> Tuple[List[float], List[Learnware]]:
+    def _search_by_rkme_spec_mixture(
+        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, search_num: int
+    ) -> Tuple[List[float], List[Learnware]]:
         """Get search_num learnwares with their mixture weight from the given learnware_list
 
         Parameters
@@ -236,23 +245,30 @@ class EasyMarket(BaseMarket):
                 intermediate_K = np.c_[intermediate_K, np.zeros((k, 1))]
                 intermediate_K = np.r_[intermediate_K, np.zeros((1, k + 1))]
                 intermediate_C = np.r_[intermediate_C, np.zeros((1, 1))]
-            
+
             for idx in range(len(sorted_learnware_list)):
                 if flag_list[idx] == 0:
                     mixture_list[-1] = sorted_learnware_list[idx]
-                    intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(mixture_list, user_rkme, intermediate_K, intermediate_C)
-                    weight, score = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme, intermediate_K, intermediate_C)
+                    intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
+                        mixture_list, user_rkme, intermediate_K, intermediate_C
+                    )
+                    weight, score = self._calculate_rkme_spec_mixture_weight(
+                        mixture_list, user_rkme, intermediate_K, intermediate_C
+                    )
                     if idx_min == -1 or score < score_min:
                         idx_min, score_min, weight_min = idx, score, weight
-            
+
             flag_list[idx_min] = 1
             mixture_list[-1] = sorted_learnware_list[idx_min]
-            intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(mixture_list, user_rkme, intermediate_K, intermediate_C)
-        
+            intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
+                mixture_list, user_rkme, intermediate_K, intermediate_C
+            )
+
         return weight_min, mixture_list
 
-    
-    def _search_by_rkme_spec_single(self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification) -> Tuple[List[float], List[Learnware]]:
+    def _search_by_rkme_spec_single(
+        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification
+    ) -> Tuple[List[float], List[Learnware]]:
         """Calculate the distances between learnwares in the given learnware_list and user_rkme
 
         Parameters
@@ -269,15 +285,15 @@ class EasyMarket(BaseMarket):
             the second is the list of Learnware
             both lists are sorted by mmd dist
         """
-        RKME_list = [learnware.specification.get_stat_spec_by_name('RKME') for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name("RKME") for learnware in learnware_list]
         mmd_dist_list = []
         for RKME in RKME_list:
             mmd_dist = RKME.dist(user_rkme)
             mmd_dist_list.append(mmd_dist)
         sorted_dist_list, sorted_learnware_list = (list(t) for t in zip(*sorted(zip(mmd_dist_list, learnware_list))))
-        
-        return sorted_dist_list, sorted_learnware_list 
-    
+
+        return sorted_dist_list, sorted_learnware_list
+
     def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
         def search_by_semantic_spec():
             def match_semantic_spec(semantic_spec1, semantic_spec2):

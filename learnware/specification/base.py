@@ -16,7 +16,7 @@ class BaseStatSpecification:
 
 
 class Specification:
-    def __init__(self, semantic_spec:dict=None):
+    def __init__(self, semantic_spec: dict = None):
         self.semantic_spec = semantic_spec
         self.stat_spec = {}  # stat_spec should be dict
 
@@ -25,7 +25,7 @@ class Specification:
 
     def get_semantic_spec(self):
         return self.semantic_spec
-    
+
     def upload_semantic_spec(self, new_semantic_spec: dict):
         self.semantic_spec = new_semantic_spec
 
