@@ -19,7 +19,7 @@ def prepare_learnware(learnware_num = 10):
         data_y = np.random.randn(5000)
         data_y = np.where(data_y > 0, 1, 0)
 
-        clf = svm.SVC()
+        clf = svm.SVC(kernel="linear")
         clf.fit(data_X, data_y)
         joblib.dump(clf, "./svm/svm_%d.pkl"%(i))
 
@@ -29,7 +29,7 @@ def prepare_learnware(learnware_num = 10):
 def test_market():
     easy_market = EasyMarket()
     print('Total Item:', len(easy_market))
-    root_path = '/home/chenzx/code/learnware_project/learnware-market/examples/example_market_db/svm'
+    root_path = './svm'
     os.makedirs(root_path, exist_ok=True)
     test_learnware_num = 10
     prepare_learnware(test_learnware_num)
