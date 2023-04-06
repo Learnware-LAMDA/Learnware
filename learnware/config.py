@@ -1,5 +1,6 @@
 import os
 import copy
+import logging
 
 
 class Config:
@@ -50,6 +51,6 @@ class Config:
 ROOT_DIRPATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SPEC_DIRPATH = None
 
-_DEFAULT_CONFIG = {"root_path": ROOT_DIRPATH, "logging_level": "INFO", "specification_path": SPEC_DIRPATH}
+_DEFAULT_CONFIG = {"root_path": ROOT_DIRPATH, "logging_level": logging.INFO, "specification_path": SPEC_DIRPATH}
 
 C = Config(_DEFAULT_CONFIG)
