@@ -68,7 +68,6 @@ class EasyMarket(BaseMarket):
     def reload_market(self) -> bool:
         self.learnware_list, self.count = load_market_from_db()
 
-
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
     ) -> Tuple[str, bool]:
@@ -110,7 +109,7 @@ class EasyMarket(BaseMarket):
         id = "%08d" % (self.count)
         rkme_stat_spec = RKMEStatSpecification()
         rkme_stat_spec.load(stat_spec_path)
-        stat_spec = {'RKME':rkme_stat_spec}
+        stat_spec = {"RKME": rkme_stat_spec}
         specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
         # specification.update_stat_spec("RKME", rkme_stat_spec)
         model_dict = {"model_path": model_path, "class_name": "BaseModel"}

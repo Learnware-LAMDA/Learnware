@@ -4,7 +4,7 @@ from logging import Logger, handlers
 from .config import C
 
 
-def get_module_logger(module_name: str, level:int = None) -> Logger:
+def get_module_logger(module_name: str, level: int = None, outfile: str = None) -> Logger:
     """Get a logger for a specific module.
     Parameters
     ----------
@@ -15,8 +15,8 @@ def get_module_logger(module_name: str, level:int = None) -> Logger:
 
     Returns
     -------
-    _type_
-        _description_
+    Logger
+        logging.Logger for output log
     """
     if level is None:
         level = C.logging_level
@@ -24,10 +24,15 @@ def get_module_logger(module_name: str, level:int = None) -> Logger:
     # Get logger.
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
-    fmt = '%(asctime)s - %(filename)s - [%(levelname)s] - %(message)s'  
-    formatter = logging.Formatter(fmt) 
+    formatter = logging.Formatter("%(asctime)s - %(filename)s - [%(levelname)s] - %(message)s")
     console_handler.setFormatter(formatter)
     module_logger = logging.getLogger(module_name)
     module_logger.setLevel(level)
     module_logger.addHandler(console_handler)
+
+    if outfile is not None:
+        file_handler = logging.FileHandler(outfile)
+        file_handler.setFormatter(formatter)
+        module_logger.addHandler(file_handler)
+
     return module_logger

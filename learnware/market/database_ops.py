@@ -9,8 +9,8 @@ ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT_PATH, "market.db")
 LOGGER = get_module_logger("market")
 
-def init_empty_db(func):
 
+def init_empty_db(func):
     def wrapper():
         if not os.path.exists(DB_PATH):
             conn = sqlite3.connect(DB_PATH)
@@ -31,13 +31,16 @@ def init_empty_db(func):
 
     return wrapper
 
+
 @init_empty_db
 def add_learnware_to_db():
     pass
 
+
 @init_empty_db
-def delete_learnware_from_db(id:str):
+def delete_learnware_from_db(id: str):
     pass
+
 
 @init_empty_db
 def load_market_from_db():
@@ -57,7 +60,7 @@ def load_market_from_db():
             new_stat_spec = RKMEStatSpecification()
             new_stat_spec.load(stat_spec_dict[stat_spec_name])
             stat_spec_dict[stat_spec_name] = new_stat_spec
-        model_dict = {'model_path':model_path, 'class_name':'BaseModel'}
+        model_dict = {"model_path": model_path, "class_name": "BaseModel"}
         specification = Specification(semantic_spec=semantic_spec_dict, stat_spec=stat_spec_dict)
         new_learnware = Learnware(id=id, name=name, model=model_dict, specification=specification)
         learnware_list[id] = new_learnware
