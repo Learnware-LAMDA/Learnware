@@ -8,7 +8,7 @@ from ..utils import get_module_by_module_path
 
 
 class Learnware:
-    def __init__(self, id: str, name: str, model: Union[BaseModel, dict], specification: Specification):
+    def __init__(self, id: str, name: str, model: Union[BaseModel, str], specification: Specification):
         self.id = id
         self.name = name
         self.model = self._import_model(model)
@@ -42,8 +42,6 @@ class Learnware:
         elif isinstance(model, dict):
             model_module = get_module_by_module_path(model["module_path"])
             return getattr(model_module, model["class_name"])()
-        elif isinstance(model, str):
-            return model  # For test purpose
         else:
             raise TypeError("model must be BaseModel or dict")
 

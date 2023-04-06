@@ -72,8 +72,7 @@ class EasyMarket(BaseMarket):
         specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
         # Commented for test purpose. Uncomment when Learnware class is implemented.
         # model_dict = {"module_path": model_path, "class_name": "BaseModel"}
-        model_dict = model_path
-        new_learnware = Learnware(id=id, name=learnware_name, model=model_dict, specification=specification)
+        new_learnware = Learnware(id=id, name=learnware_name, model=model_path, specification=specification)
         self.learnware_list[id] = new_learnware
         self.count += 1
         add_learnware_to_db(
