@@ -17,7 +17,6 @@ from .base import BaseStatSpecification
 
 # mkl.get_max_threads()
 
-
 class RKMEStatSpecification(BaseStatSpecification):
     """Reduced-set Kernel Mean Embedding (RKME) Specification"""
 
