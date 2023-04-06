@@ -21,7 +21,7 @@ def get_module_logger(module_name, level=logging.INFO):
 
     # Get logger.
     console_handler = logging.StreamHandler()
-    console_handler.setLevel('INFO')
+    console_handler.setLevel(level)
     module_logger = logging.getLogger(module_name)
     module_logger.setLevel(level)
     module_logger.addHandler(console_handler)
