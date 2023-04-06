@@ -1,3 +1,3 @@
 import learnware.market.database_ops as db_ops
 
-db_ops.init_empty_db()
+db_ops.load_market_from_db()

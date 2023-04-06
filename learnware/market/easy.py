@@ -7,6 +7,7 @@ from typing import Tuple, Any, List, Union, Dict
 from .base import BaseMarket, BaseUserInfo
 from ..learnware import Learnware
 from ..specification import RKMEStatSpecification, Specification
+from .database_ops import load_market_from_db, add_learnware_to_db, delete_learnware_from_db
 
 
 class EasyMarket(BaseMarket):
@@ -64,8 +65,9 @@ class EasyMarket(BaseMarket):
             },
         }
 
-    def reload_market(self, market_path: str, semantic_spec_list_path: str) -> bool:
-        raise NotImplementedError("reload market is Not Implemented")
+    def reload_market(self) -> bool:
+        self.learnware_list, self.count = load_market_from_db()
+
 
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
@@ -108,8 +110,9 @@ class EasyMarket(BaseMarket):
         id = "%08d" % (self.count)
         rkme_stat_spec = RKMEStatSpecification()
         rkme_stat_spec.load(stat_spec_path)
-        specification = Specification(semantic_spec=semantic_spec)
-        specification.update_stat_spec("RKME", rkme_stat_spec)
+        stat_spec = {'RKME':rkme_stat_spec}
+        specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
+        # specification.update_stat_spec("RKME", rkme_stat_spec)
         model_dict = {"model_path": model_path, "class_name": "BaseModel"}
         new_learnware = Learnware(id=id, name=learnware_name, model=model_dict, specification=specification)
         self.learnware_list[id] = new_learnware
