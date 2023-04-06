@@ -36,6 +36,7 @@ def init_empty_db(func):
 
     return wrapper
 
+
 @init_empty_db
 def add_learnware_to_db(id: str, name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, cur):
     semantic_spec_str = json.dumps(semantic_spec)
@@ -47,9 +48,11 @@ def add_learnware_to_db(id: str, name: str, model_path: str, stat_spec_path: str
         % (id, name, semantic_spec_str, model_path, stat_spec_str)
     )
 
+
 @init_empty_db
 def delete_learnware_from_db(id: str, cur):
-    cur.execute("DELETE from LEARNWARE where ID='%s';"%(id))
+    cur.execute("DELETE from LEARNWARE where ID='%s';" % (id))
+
 
 @init_empty_db
 def load_market_from_db(cur):

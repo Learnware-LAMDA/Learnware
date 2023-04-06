@@ -14,27 +14,28 @@ class Learnware:
         self.model = self._import_model(model)
         self.specification = specification
 
-    def _import_model(self, model: Union[BaseModel, dict, str]) -> BaseModel:
+    def _import_model(self, model: Union[BaseModel, dict]) -> BaseModel:
         """_summary_
 
         Parameters
         ----------
         model : Union[BaseModel, dict]
-            - If isinstance(model, dict), autoimport the model w.r.t the following format:
+            - If isinstance(model, dict), auto import the model w.r.t the following format:
                 model = {
                     "module_path": str,
                     "class_name": str
                 }
+                - where the module_path is the path of python file
+                - where the class_name is the name of class in python file
             - If isinstance(model, BaseModel), return model directly
         Returns
         -------
         BaseModel
-            _description_
-
+            The model that is given by user
         Raises
         ------
         TypeError
-            _description_
+            The type of model must be dict or BaseModel, else raise error
         """
         if isinstance(model, BaseModel):
             return model
@@ -42,7 +43,7 @@ class Learnware:
             model_module = get_module_by_module_path(model["module_path"])
             return getattr(model_module, model["class_name"])()
         elif isinstance(model, str):
-            return model    # For test purpose
+            return model  # For test purpose
         else:
             raise TypeError("model must be BaseModel or dict")
 

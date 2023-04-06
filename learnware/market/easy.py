@@ -5,69 +5,24 @@ import pandas as pd
 from typing import Tuple, Any, List, Union, Dict
 
 from .base import BaseMarket, BaseUserInfo
+from .database_ops import load_market_from_db, add_learnware_to_db, delete_learnware_from_db
+
 from ..learnware import Learnware
 from ..specification import RKMEStatSpecification, Specification
-from .database_ops import load_market_from_db, add_learnware_to_db, delete_learnware_from_db
 from ..logger import get_module_logger
+from ..config import C
 
-LOGGER = get_module_logger('market', 'INFO')
+LOGGER = get_module_logger("market", "INFO")
+
 
 class EasyMarket(BaseMarket):
     def __init__(self):
         """Initializing an empty market"""
         self.learnware_list = {}  # id: Learnware
         self.count = 0
-        self.semantic_spec_list = self._init_semantic_spec_list()
+        self.semantic_spec_list = C.semantic_specs
         self.reload_market()
-        LOGGER.info('Market Initialized!')
-
-    def _init_semantic_spec_list(self):
-        # TODO: Load from json
-        return {
-            "Data": {
-                "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
-                "Type": "Class",  # Choose only one class
-            },
-            "Task": {
-                "Values": [
-                    "Classification",
-                    "Regression",
-                    "Clustering",
-                    "Feature Extraction",
-                    "Generation",
-                    "Segmentation",
-                    "Object Detection",
-                ],
-                "Type": "Class",  # Choose only one class
-            },
-            "Device": {
-                "Values": ["CPU", "GPU"],
-                "Type": "Tag",  # Choose one or more tags
-            },
-            "Scenario": {
-                "Values": [
-                    "Business",
-                    "Financial",
-                    "Health",
-                    "Politics",
-                    "Computer",
-                    "Internet",
-                    "Traffic",
-                    "Nature",
-                    "Fashion",
-                    "Industry",
-                    "Agriculture",
-                    "Education",
-                    "Entertainment",
-                    "Architecture",
-                ],
-                "Type": "Tag",  # Choose one or more tags
-            },
-            "Description": {
-                "Values": str,
-                "Type": "Description",
-            },
-        }
+        LOGGER.info("Market Initialized!")
 
     def reload_market(self) -> bool:
         self.learnware_list, self.count = load_market_from_db()
@@ -121,8 +76,10 @@ class EasyMarket(BaseMarket):
         new_learnware = Learnware(id=id, name=learnware_name, model=model_dict, specification=specification)
         self.learnware_list[id] = new_learnware
         self.count += 1
-        add_learnware_to_db(id, name=learnware_name, model_path=model_path, stat_spec_path=stat_spec_path, semantic_spec=semantic_spec)
-        
+        add_learnware_to_db(
+            id, name=learnware_name, model_path=model_path, stat_spec_path=stat_spec_path, semantic_spec=semantic_spec
+        )
+
         return id, True
 
     def _calculate_rkme_spec_mixture_weight(
@@ -339,10 +296,10 @@ class EasyMarket(BaseMarket):
 
     def get_semantic_spec_list(self) -> dict:
         return self.semantic_spec_list
-    
+
     def __len__(self):
         return len(self.learnware_list.keys())
-    
+
     def _get_ids(self, top=None):
         if top is None:
             return list(self.learnware_list.keys())

@@ -24,7 +24,7 @@ def get_module_logger(module_name: str, level: int = None, outfile: str = None) 
     # Get logger.
     console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
-    formatter = logging.Formatter("%(asctime)s - %(filename)s - [%(levelname)s] - %(message)s")
+    formatter = logging.Formatter(f"[%(levelname)s] - %(asctime)s - %(filename)s - {module_name} - %(message)s")
     console_handler.setFormatter(formatter)
     module_logger = logging.getLogger(module_name)
     module_logger.setLevel(level)

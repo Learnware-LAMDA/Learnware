@@ -51,6 +51,57 @@ class Config:
 ROOT_DIRPATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SPEC_DIRPATH = None
 
-_DEFAULT_CONFIG = {"root_path": ROOT_DIRPATH, "logging_level": logging.INFO, "specification_path": SPEC_DIRPATH}
+semantic_config = {
+    "Data": {
+        "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
+        "Type": "Class",  # Choose only one class
+    },
+    "Task": {
+        "Values": [
+            "Classification",
+            "Regression",
+            "Clustering",
+            "Feature Extraction",
+            "Generation",
+            "Segmentation",
+            "Object Detection",
+        ],
+        "Type": "Class",  # Choose only one class
+    },
+    "Device": {
+        "Values": ["CPU", "GPU"],
+        "Type": "Tag",  # Choose one or more tags
+    },
+    "Scenario": {
+        "Values": [
+            "Business",
+            "Financial",
+            "Health",
+            "Politics",
+            "Computer",
+            "Internet",
+            "Traffic",
+            "Nature",
+            "Fashion",
+            "Industry",
+            "Agriculture",
+            "Education",
+            "Entertainment",
+            "Architecture",
+        ],
+        "Type": "Tag",  # Choose one or more tags
+    },
+    "Description": {
+        "Values": str,
+        "Type": "Description",
+    },
+}
+
+_DEFAULT_CONFIG = {
+    "root_path": ROOT_DIRPATH,
+    "logging_level": logging.INFO,
+    "specification_path": SPEC_DIRPATH,
+    "semantic_specs": semantic_config,
+}
 
 C = Config(_DEFAULT_CONFIG)

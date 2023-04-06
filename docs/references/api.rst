@@ -25,10 +25,7 @@ Market
 
 .. autoclass:: learnware.market.BaseUserInfo
     :members:
-
-.. autoclass:: learnware.market.EasyUserInfo
-    :members:
-
+    
 Learnware
 ====================
 
