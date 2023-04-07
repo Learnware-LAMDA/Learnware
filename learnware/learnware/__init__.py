@@ -1,7 +1,9 @@
+import os
+
 from .base import Learnware
 from .utils import get_stat_spec_from_config, get_model_from_config
 from ..specification import RKMEStatSpecification, Specification
-from ..utils import get_module_by_module_path
+from ..utils import get_module_by_module_path, read_yaml_to_dict
 from ..logger import get_module_logger
 
 from typing import Tuple
@@ -11,17 +13,17 @@ from .base import Learnware
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_config(id: int, semantic_spec: dict, file_config: dict = None) -> Learnware:
-    """Get the learnware object from config, and provide the manage interface tor Learnware class
+def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: str = None) -> Learnware:
+    """Get the learnware object from dirpath, and provide the manage interface tor Learnware class
 
     Parameters
     ----------
     id : int
         The learnware id that is given by learnware market
-    file_config : dict
-        The learnware file config that demonstrates the name, model, and statistic specification config of learnware
     semantic_spec : dict
         The learnware semantice specifactions
+    learnware_dirpath : str
+        The dirpath of learnware file
 
     Returns
     -------
@@ -42,13 +44,19 @@ def get_learnware_from_config(id: int, semantic_spec: dict, file_config: dict = 
             },
         ],
     }
-    if file_config is not None:
-        if "name" in file_config:
-            learnware_config["name"] = file_config["name"]
-        if "model" in file_config:
-            learnware_config["model"].update(file_config["model"])
-        if "stats_specifications" in file_config:
-            learnware_config["stat_specifications"] = file_config["stat_specifications"]
+
+    if learnware_dirpath is not None:
+        try:
+            yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, "learnware.yaml"))
+        except FileNotFoundError:
+            yaml_config = {}
+
+    if "name" in yaml_config:
+        learnware_config["name"] = yaml_config["name"]
+    if "model" in yaml_config:
+        learnware_config["model"].update(yaml_config["model"])
+    if "stats_specifications" in yaml_config:
+        learnware_config["stat_specifications"] = yaml_config["stat_specifications"]
 
     try:
         learnware_spec = Specification()
