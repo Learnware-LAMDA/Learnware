@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from ..logger import get_module_logger
-from ..learnware import Learnware
+from ..learnware import Learnware, get_learnware_from_config
 from ..specification import RKMEStatSpecification, Specification
 import json
 
@@ -24,8 +24,8 @@ def init_empty_db(func):
             (ID CHAR(10) PRIMARY KEY     NOT NULL,
             NAME           TEXT    NOT NULL,
             SEMANTIC_SPEC            TEXT     NOT NULL,
-            MODEL_PATH     TEXT NOT NULL,
-            STAT_SPEC_PATH         TEXT NOT NULL);"""
+            ZIP_PATH     TEXT NOT NULL,
+            FOLDER_PATH         TEXT NOT NULL);"""
             )
             LOGGER.info("Database Built!")
         kwargs["cur"] = cur
@@ -50,14 +50,12 @@ def clear_learnware_table(cur):
 
 
 @init_empty_db
-def add_learnware_to_db(id: str, name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, cur):
+def add_learnware_to_db(id: str, name: str, semantic_spec: dict, zip_path: str, folder_path: str, cur):
     semantic_spec_str = json.dumps(semantic_spec)
-    stat_spec_path_dict = {"RKME": stat_spec_path}
-    stat_spec_str = json.dumps(stat_spec_path_dict)
     cur.execute(
-        "INSERT INTO LEARNWARE (ID,NAME,SEMANTIC_SPEC,MODEL_PATH,STAT_SPEC_PATH) \
+        "INSERT INTO LEARNWARE (ID,NAME,SEMANTIC_SPEC,ZIP_PATH,FOLDER_PATH) \
       VALUES ('%s', '%s', '%s', '%s', '%s' )"
-        % (id, name, semantic_spec_str, model_path, stat_spec_str)
+        % (id, name, semantic_spec_str, zip_path, folder_path)
     )
 
 
@@ -69,25 +67,18 @@ def delete_learnware_from_db(id: str, cur):
 @init_empty_db
 def load_market_from_db(cur):
     LOGGER.info("Reload from Database")
-    cursor = cur.execute("SELECT id, name, semantic_spec, model_path, stat_spec_path from LEARNWARE")
+    cursor = cur.execute("SELECT id, name, semantic_spec, zip_path, FOLDER_PATH from LEARNWARE")
 
     learnware_list = {}
+    zip_list = {}
     max_count = 0
     for item in cursor:
-        id, name, semantic_spec, model_path, stat_spec_path = item
+        id, name, semantic_spec, zip_path, folder_path = item
         semantic_spec_dict = json.loads(semantic_spec)
-        stat_spec_path_dict = json.loads(stat_spec_path)
-        stat_spec_dict = {}
-        for stat_spec_name in stat_spec_path_dict:
-            new_stat_spec = RKMEStatSpecification()
-            new_stat_spec.load(stat_spec_path_dict[stat_spec_name])
-            stat_spec_dict[stat_spec_name] = new_stat_spec
-        # Commented for test purpose. Uncomment when Learnware class is implemented.
-        # model_dict = {"module_path": model_path, "class_name": "BaseModel"}
-        model_dict = model_path
-        specification = Specification(semantic_spec=semantic_spec_dict, stat_spec=stat_spec_dict)
-        new_learnware = Learnware(id=id, name=name, model=model_dict, specification=specification)
+        config_file_path = os.path.join(folder_path, "learnware.yaml")
+        new_learnware = get_learnware_from_config(id=id, semantic_spec=semantic_spec_dict)
         learnware_list[id] = new_learnware
+        zip_list[id] = zip_path
         max_count = max(max_count, int(id))
     LOGGER.info("Market Reloaded from DB.")
     return learnware_list, max_count + 1

@@ -104,7 +104,7 @@ _DEFAULT_CONFIG = {
     "logging_level": logging.INFO,
     "specification_path": SPEC_DIRPATH,
     "semantic_specs": semantic_config,
-    "model_pool_path": LEARNWARE_POOL_PATH,
+    "learnware_pool_path": LEARNWARE_POOL_PATH,
 }
 
 C = Config(_DEFAULT_CONFIG)
