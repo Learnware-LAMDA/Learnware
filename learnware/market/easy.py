@@ -345,6 +345,12 @@ class EasyMarket(BaseMarket):
     def get_semantic_spec_list(self) -> dict:
         return self.semantic_spec_list
 
+    def get_learnware_by_ids(self, id:str):
+        pass
+
+    def get_learnware_path_by_ids(self, id:str) -> str:
+        pass
+
     def __len__(self):
         return len(self.learnware_list.keys())
 

@@ -50,6 +50,8 @@ class Config:
 
 ROOT_DIRPATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SPEC_DIRPATH = None
+LEARNWARE_POOL_PATH = os.path.join(ROOT_DIRPATH, "learnware_pool")
+os.makedirs(LEARNWARE_POOL_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {
@@ -102,6 +104,7 @@ _DEFAULT_CONFIG = {
     "logging_level": logging.INFO,
     "specification_path": SPEC_DIRPATH,
     "semantic_specs": semantic_config,
+    "model_pool_path": LEARNWARE_POOL_PATH,
 }
 
 C = Config(_DEFAULT_CONFIG)
