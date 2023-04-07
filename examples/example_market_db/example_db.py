@@ -58,6 +58,7 @@ def test_market():
 
 def test_search():
     easy_market = EasyMarket()
+    # learnware_list = easy_market
     
 
 if __name__ == "__main__":

@@ -278,7 +278,7 @@ class EasyMarket(BaseMarket):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
+    def _search_by_semantic_spec(self, user_info: BaseUserInfo) -> List[Learnware]:
         def search_by_semantic_spec():
             def match_semantic_spec(semantic_spec1, semantic_spec2):
                 if semantic_spec1.keys() != semantic_spec2.keys():
@@ -300,10 +300,13 @@ class EasyMarket(BaseMarket):
                 if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
                     match_learnwares.append(learnware)
             return match_learnwares
-
-        match_learnwares = search_by_semantic_spec()
-        # return match_learnwares
-        # TODO:
+        
+        learnware_list = [self.learnware_list[key] for key in self.learnware_list]
+        return learnware_list
+    
+    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
+        learnware_list = self._search_by_semantic_spec(user_info)
+        return learnware_list
 
     def delete_learnware(self, id: str) -> bool:
         if not id in self.learnware_list:
