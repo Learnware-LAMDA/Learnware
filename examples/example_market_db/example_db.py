@@ -16,7 +16,8 @@ def prepare_learnware(learnware_num=10):
         os.makedirs(dir_path, exist_ok=True)
 
         print("Preparing Learnware: %d" % (i))
-        data_X = np.random.randn(5000, 20)
+        data_X = np.random.randn(5000, 20) * i
+        # print(data_X[:10])
         data_y = np.random.randn(5000)
         data_y = np.where(data_y > 0, 1, 0)
 
@@ -32,6 +33,7 @@ def prepare_learnware(learnware_num=10):
 
 
 def test_market():
+    database_ops.clear_learnware_table()
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
     test_learnware_num = 10
