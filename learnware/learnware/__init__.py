@@ -11,7 +11,7 @@ from .base import Learnware
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_config(id: int, file_config: dict, semantic_spec: dict) -> Learnware:
+def get_learnware_from_config(id: int, semantic_spec: dict, file_config: dict = None) -> Learnware:
     """Get the learnware object from config, and provide the manage interface tor Learnware class
 
     Parameters
@@ -42,12 +42,13 @@ def get_learnware_from_config(id: int, file_config: dict, semantic_spec: dict) -
             },
         ],
     }
-    if "name" in file_config:
-        learnware_config["name"] = file_config["name"]
-    if "model" in file_config:
-        learnware_config["model"].update(file_config["model"])
-    if "stats_specifications" in file_config:
-        learnware_config["stat_specifications"] = file_config["stat_specifications"]
+    if file_config is not None:
+        if "name" in file_config:
+            learnware_config["name"] = file_config["name"]
+        if "model" in file_config:
+            learnware_config["model"].update(file_config["model"])
+        if "stats_specifications" in file_config:
+            learnware_config["stat_specifications"] = file_config["stat_specifications"]
 
     try:
         learnware_spec = Specification()
