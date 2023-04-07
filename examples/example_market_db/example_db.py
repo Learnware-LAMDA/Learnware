@@ -58,8 +58,130 @@ def test_market():
     print("Available ids:", curr_inds)
 
 
+def test_search_sementics():
+    easy_market = EasyMarket()
+    print("Total Item:", len(easy_market))
+    test_learnware_num = 3
+    prepare_learnware(test_learnware_num)
+    root_path = "./learnware_pool"
+    os.makedirs(root_path, exist_ok=True)
+
+    # "Data": {
+    #     "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
+    #     "Type": "Class",  # Choose only one class
+    # },
+    # "Task": {
+    #     "Values": [
+    #         "Classification",
+    #         "Regression",
+    #         "Clustering",
+    #         "Feature Extraction",
+    #         "Generation",
+    #         "Segmentation",
+    #         "Object Detection",
+    #     ],
+    #     "Type": "Class",  # Choose only one class
+    # },
+    # "Device": {
+    #     "Values": ["CPU", "GPU"],
+    #     "Type": "Tag",  # Choose one or more tags
+    # },
+    # "Scenario": {
+    #     "Values": [
+    #         "Business",
+    #         "Financial",
+    #         "Health",
+    #         "Politics",
+    #         "Computer",
+    #         "Internet",
+    #         "Traffic",
+    #         "Nature",
+    #         "Fashion",
+    #         "Industry",
+    #         "Agriculture",
+    #         "Education",
+    #         "Entertainment",
+    #         "Architecture",
+    #     ],
+    #     "Type": "Tag",  # Choose one or more tags
+    # },
+    # "Description": {
+    #     "Values": str,
+    #     "Type": "Description",
+    # },
+
+    semantic_specs = [
+        {
+            "Data": {"Values": ["Tabular"], "Type": "Class"},
+            "Task": {
+                "Values": [
+                    "Classification",
+                ],
+                "Type": "Class",
+            },
+            "Device": {"Values": ["GPU"], "Type": "Tag"},
+            "Scenario": {"Values": ["Nature"], "Type": "Tag"},
+            "Description": {"Values": "", "Type": "Description"},
+        },
+        {
+            "Data": {"Values": ["Tabular"], "Type": "Class"},
+            "Task": {
+                "Values": [
+                    "Classification",
+                ],
+                "Type": "Class",
+            },
+            "Device": {"Values": ["GPU"], "Type": "Tag"},
+            "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
+            "Description": {"Values": "", "Type": "Description"},
+        },
+        {
+            "Data": {"Values": ["Tabular"], "Type": "Class"},
+            "Task": {
+                "Values": [
+                    "Classification",
+                ],
+                "Type": "Class",
+            },
+            "Device": {"Values": ["GPU"], "Type": "Tag"},
+            "Scenario": {"Values": ["Business"], "Type": "Tag"},
+            "Description": {"Values": "", "Type": "Description"},
+        },
+    ]
+    user_senmantic = {
+        "Data": {"Values": ["Tabular"], "Type": "Class"},
+        "Task": {
+            "Values": [
+                "Classification",
+            ],
+            "Type": "Class",
+        },
+        "Device": {"Values": ["GPU"], "Type": "Tag"},
+        "Scenario": {"Values": ["Business"], "Type": "Tag"},
+        "Description": {"Values": "learnware_1", "Type": "Description"},
+    }
+
+    for i in range(test_learnware_num):
+        dir_path = f"./learnware_pool/svm{i}"
+        model_path = os.path.join(dir_path, "__init__.py")
+        stat_spec_path = os.path.join(dir_path, "spec.json")
+        easy_market.add_learnware("learnware_%d" % (i), model_path, stat_spec_path, semantic_specs[i])
+    print("Total Item:", len(easy_market))
+    curr_inds = easy_market._get_ids()
+    print("Available ids:", curr_inds)
+
+    user_info = BaseUserInfo(id="user", semantic_spec=user_senmantic, stat_info=dict())
+    learnware_list = easy_market.search_learnware(user_info)
+    print(learnware_list)
+
+
 def test_search():
     easy_market = EasyMarket()
+    print("Total Item:", len(easy_market))
+    test_learnware_num = 3
+    prepare_learnware(test_learnware_num)
+    root_path = "./learnware_pool"
+    os.makedirs(root_path, exist_ok=True)
     for i in range(10):
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(f"./learnware_pool/svm{i}/spec.json")
