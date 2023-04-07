@@ -1,4 +1,4 @@
-from learnware.market import EasyMarket
+from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
 from learnware.learnware import Learnware
 import learnware.specification as specification
@@ -58,9 +58,19 @@ def test_market():
 
 def test_search():
     easy_market = EasyMarket()
-    # learnware_list = easy_market
+    for i in range(10):
+        user_spec = specification.rkme.RKMEStatSpecification()
+        user_spec.load(f"./learnware_pool/svm{i}/spec.json")
+        user_info = BaseUserInfo(id="user_0", semantic_spec={"desc": "test_user_number_0"}, stat_info={"RKME": user_spec})
+        sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
+
+        print(f"search result of user{i}:")
+        for dist, learnware in zip(sorted_dist_list, single_learnware_list):
+            print(f"dist: {dist}, learnware_id: {learnware.id}, learnware_name: {learnware.name}")
+        mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
+        print(f"mixture_learnware: {mixture_id}\n")
     
 
 if __name__ == "__main__":
-    # test_market()
+    test_market()
     test_search()
