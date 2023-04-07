@@ -27,6 +27,25 @@ class EasyMarket(BaseMarket):
     def reload_market(self) -> bool:
         self.learnware_list, self.count = load_market_from_db()
 
+    def check_learnware(self, learnware: Learnware) -> bool:
+        """Check the utility of a learnware
+
+        Parameters
+        ----------
+        learnware : Learnware
+
+        Returns
+        -------
+        bool
+            A flag indicating whether the learnware can be accepted.
+        """
+        try:
+            spec_data = learnware.specification.stat_spec["RKME"].get_z()
+            pred_spec = learnware.predict(spec_data)
+            return True
+        except:
+            return False
+    
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict
     ) -> Tuple[str, bool]:
@@ -65,21 +84,22 @@ class EasyMarket(BaseMarket):
         if (not os.path.exists(model_path)) or (not os.path.exists(stat_spec_path)):
             raise FileNotFoundError("Model or Stat_spec NOT Found.")
 
-        id = "%08d" % (self.count)
         rkme_stat_spec = RKMEStatSpecification()
         rkme_stat_spec.load(stat_spec_path)
         stat_spec = {"RKME": rkme_stat_spec}
         specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
-        # Commented for test purpose. Uncomment when Learnware class is implemented.
-        # model_dict = {"module_path": model_path, "class_name": "BaseModel"}
+        
+        id = "%08d" % (self.count)
         new_learnware = Learnware(id=id, name=learnware_name, model=model_path, specification=specification)
-        self.learnware_list[id] = new_learnware
-        self.count += 1
-        add_learnware_to_db(
-            id, name=learnware_name, model_path=model_path, stat_spec_path=stat_spec_path, semantic_spec=semantic_spec
-        )
-
-        return id, True
+        if self.check_learnware(new_learnware):            
+            self.learnware_list[id] = new_learnware
+            self.count += 1
+            add_learnware_to_db(
+                id, name=learnware_name, model_path=model_path, stat_spec_path=stat_spec_path, semantic_spec=semantic_spec
+            )
+            return id, True
+        else:
+            return None, False
 
     def _calculate_rkme_spec_mixture_weight(
         self,

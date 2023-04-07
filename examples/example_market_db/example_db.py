@@ -56,5 +56,10 @@ def test_market():
     print("Available ids:", curr_inds)
 
 
+def test_search():
+    easy_market = EasyMarket()
+    
+
 if __name__ == "__main__":
-    test_market()
+    # test_market()
+    test_search()
