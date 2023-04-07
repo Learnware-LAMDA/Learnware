@@ -11,7 +11,7 @@ from .base import Learnware
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_config(id: int, semantic_spec: dict, file_config: dict = None) -> Learnware:
+def get_learnware_from_config(id: int, name:str, semantic_spec: dict, file_config: str = None) -> Learnware:
     """Get the learnware object from config, and provide the manage interface tor Learnware class
 
     Parameters
@@ -29,7 +29,7 @@ def get_learnware_from_config(id: int, semantic_spec: dict, file_config: dict = 
         The contructed learnware object, return None if build failed
     """
     learnware_config = {
-        "name": "None",
+        "name": name,
         "model": {
             "class_name": "Model",
             "kwargs": {},

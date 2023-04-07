@@ -76,7 +76,7 @@ def load_market_from_db(cur):
         id, name, semantic_spec, zip_path, folder_path = item
         semantic_spec_dict = json.loads(semantic_spec)
         config_file_path = os.path.join(folder_path, "learnware.yaml")
-        new_learnware = get_learnware_from_config(id=id, semantic_spec=semantic_spec_dict)
+        new_learnware = get_learnware_from_config(id=id, name=name, semantic_spec=semantic_spec_dict, file_config=config_file_path)
         learnware_list[id] = new_learnware
         zip_list[id] = zip_path
         max_count = max(max_count, int(id))
