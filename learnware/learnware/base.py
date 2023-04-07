@@ -29,7 +29,7 @@ class Learnware:
         Raises
         ------
         TypeError
-            The type of model must be dict or BaseModel, else raise error
+            The type of model must be str or BaseModel, else raise error
         """
         if isinstance(model, BaseModel):
             return model
@@ -42,7 +42,7 @@ class Learnware:
             model_module = get_module_by_module_path(model_dict["module_path"])
             return getattr(model_module, model_dict["class_name"])()
         else:
-            raise TypeError("model must be BaseModel or dict")
+            raise TypeError("model must be BaseModel or str")
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict(X)
