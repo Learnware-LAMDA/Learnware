@@ -12,7 +12,7 @@ from ..specification import RKMEStatSpecification, Specification
 from ..logger import get_module_logger
 from ..config import C
 
-LOGGER = get_module_logger("market", "INFO")
+logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
@@ -22,7 +22,7 @@ class EasyMarket(BaseMarket):
         self.count = 0
         self.semantic_spec_list = C.semantic_specs
         self.reload_market()
-        LOGGER.info("Market Initialized!")
+        logger.info("Market Initialized!")
 
     def reload_market(self) -> bool:
         self.learnware_list, self.count = load_market_from_db()
@@ -42,10 +42,11 @@ class EasyMarket(BaseMarket):
         try:
             spec_data = learnware.specification.stat_spec["RKME"].get_z()
             pred_spec = learnware.predict(spec_data)
-            return True
-        except:
+        except Exception:
+            logger.warning(f"The learnware [{learnware.id}-{learnware.name}] is not avaliable!")
             return False
-    
+        return True
+
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict
     ) -> Tuple[str, bool]:
@@ -88,14 +89,18 @@ class EasyMarket(BaseMarket):
         rkme_stat_spec.load(stat_spec_path)
         stat_spec = {"RKME": rkme_stat_spec}
         specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
-        
+
         id = "%08d" % (self.count)
         new_learnware = Learnware(id=id, name=learnware_name, model=model_path, specification=specification)
-        if self.check_learnware(new_learnware):            
+        if self.check_learnware(new_learnware):
             self.learnware_list[id] = new_learnware
             self.count += 1
             add_learnware_to_db(
-                id, name=learnware_name, model_path=model_path, stat_spec_path=stat_spec_path, semantic_spec=semantic_spec
+                id,
+                name=learnware_name,
+                model_path=model_path,
+                stat_spec_path=stat_spec_path,
+                semantic_spec=semantic_spec,
             )
             return id, True
         else:
@@ -303,11 +308,13 @@ class EasyMarket(BaseMarket):
                 if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
                     match_learnwares.append(learnware)
             return match_learnwares
-        
+
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
         return learnware_list
-    
-    def search_learnware(self, user_info: BaseUserInfo, search_num=3) -> Tuple[List[float], List[Learnware], List[Learnware]]:
+
+    def search_learnware(
+        self, user_info: BaseUserInfo, search_num=3
+    ) -> Tuple[List[float], List[Learnware], List[Learnware]]:
         """Search learnwares based on user_info
 
         Parameters
@@ -331,7 +338,9 @@ class EasyMarket(BaseMarket):
         else:
             user_rkme = user_info.stat_info["RKME"]
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
-            weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(learnware_list, user_rkme, search_num)
+            weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(
+                learnware_list, user_rkme, search_num
+            )
             return sorted_dist_list, single_learnware_list, mixture_learnware_list
 
     def delete_learnware(self, id: str) -> bool:

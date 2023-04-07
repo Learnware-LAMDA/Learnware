@@ -41,6 +41,8 @@ REQUIRED = [
     # "mkl-service>=2.3.0",
     "cvxopt>=1.3.0",
     "tqdm>=4.65.0",
+    "scikit-learn>=1.2.2",
+    "joblib>=1.2.0",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))

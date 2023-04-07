@@ -17,7 +17,8 @@ def prepare_learnware():
     clf.fit(data_X, data_y)
     joblib.dump(clf, "./svm/svm.pkl")
 
-    spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+    spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1)
+
     spec.save("./svm/spec.json")
 
 

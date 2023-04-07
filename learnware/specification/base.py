@@ -29,8 +29,9 @@ class Specification:
     def upload_semantic_spec(self, new_semantic_spec: dict):
         self.semantic_spec = new_semantic_spec
 
-    def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
-        self.stat_spec[name] = new_stat_spec
+    def update_stat_spec(self, **kwargs):
+        for _k, _v in kwargs:
+            self.stat_spec[_k] = _v
 
     def get_stat_spec_by_name(self, name: str):
         return self.stat_spec.get(name, None)
