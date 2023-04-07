@@ -278,34 +278,46 @@ class EasyMarket(BaseMarket):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def _search_by_semantic_spec(self, user_info: BaseUserInfo) -> List[Learnware]:
-        def search_by_semantic_spec():
-            def match_semantic_spec(semantic_spec1, semantic_spec2):
-                if semantic_spec1.keys() != semantic_spec2.keys():
-                    raise Exception("semantic_spec key error".format(semantic_spec1.keys(), semantic_spec2.keys()))
-                for key in semantic_spec1.keys():
-                    if semantic_spec1[key]["Type"] == "Class":
-                        if semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]:
-                            return False
-                    elif semantic_spec1[key]["Type"] == "Tag":
-                        if not (set(semantic_spec1[key]["Values"]) & set(semantic_spec2[key]["Values"])):
-                            return False
-                return True
+    def _search_by_semantic_description(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
+        user_semantic_spec = user_info.get_semantic_spec()
+        user_input_description = user_semantic_spec["Description"]["Values"]
+        if not user_input_description:
+            return []
+        match_learnwares = []
+        for learnware in learnware_list:
+            learnware_name = learnware.get_name()
 
-            match_learnwares = []
-            # TODO: self.learnware_list is a dict. Bug need to be fixed!
-            for learnware in self.learnware_list:
-                learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
-                user_semantic_spec = user_info.get_semantic_spec()
-                if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
-                    match_learnwares.append(learnware)
-            return match_learnwares
-        
-        learnware_list = [self.learnware_list[key] for key in self.learnware_list]
-        return learnware_list
+            if user_input_description in learnware_name:
+                match_learnwares.append(learnware)
+        return match_learnwares
+
+
+    def _search_by_semantic_tags(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
+        def match_semantic_tags(semantic_spec1, semantic_spec2):
+            if semantic_spec1.keys() != semantic_spec2.keys():
+                raise Exception("semantic_spec key error".format(semantic_spec1.keys(), semantic_spec2.keys()))
+            for key in semantic_spec1.keys():
+                if semantic_spec1[key]["Type"] == "Class":
+                    if semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]:
+                        return False
+                elif semantic_spec1[key]["Type"] == "Tag":
+                    if not (set(semantic_spec1[key]["Values"]) & set(semantic_spec2[key]["Values"])):
+                        return False
+            return True
+        match_learnwares = []
+        for learnware in learnware_list:
+            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
+            user_semantic_spec = user_info.get_semantic_spec()
+            if match_semantic_tags(learnware_semantic_spec, user_semantic_spec):
+                match_learnwares.append(learnware)
+        return match_learnwares
     
     def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
-        learnware_list = self._search_by_semantic_spec(user_info)
+        learnware_list = [self.learnware_list[key] for key in self.learnware_list]
+        learnware_list_tags = self._search_by_semantic_tags(learnware_list, user_info)
+        learnware_list_description = self._search_by_semantic_description(learnware_list, user_info)
+        print(learnware_list_tags, learnware_list_description)
+        learnware_list = list(set(learnware_list_tags + learnware_list_description))
         return learnware_list
 
     def delete_learnware(self, id: str) -> bool:

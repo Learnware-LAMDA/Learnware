@@ -56,6 +56,9 @@ class Learnware:
     def get_info(self):
         return self.desc
 
+    def get_name(self):
+        return self.name
+
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.specification.update_stat_spec(name, new_stat_spec)
 
