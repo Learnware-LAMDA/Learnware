@@ -1,4 +1,6 @@
 import os
+from shutil import copyfile, rmtree
+import zipfile
 import torch
 import numpy as np
 import pandas as pd
@@ -7,7 +9,7 @@ from typing import Tuple, Any, List, Union, Dict
 from .base import BaseMarket, BaseUserInfo
 from .database_ops import load_market_from_db, add_learnware_to_db, delete_learnware_from_db
 
-from ..learnware import Learnware
+from ..learnware import Learnware, get_learnware_from_config
 from ..specification import RKMEStatSpecification, Specification
 from ..logger import get_module_logger
 from ..config import C
@@ -19,6 +21,7 @@ class EasyMarket(BaseMarket):
     def __init__(self):
         """Initializing an empty market"""
         self.learnware_list = {}  # id: Learnware
+        self.learnware_zip_list = {}
         self.count = 0
         self.semantic_spec_list = C.semantic_specs
         self.reload_market()
@@ -47,9 +50,7 @@ class EasyMarket(BaseMarket):
             return False
         return True
 
-    def add_learnware(
-        self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict
-    ) -> Tuple[str, bool]:
+    def add_learnware(self, learnware_name: str, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -82,29 +83,41 @@ class EasyMarket(BaseMarket):
             file for model or statistical specification not found
 
         """
-        if (not os.path.exists(model_path)) or (not os.path.exists(stat_spec_path)):
+        if not os.path.exists(zip_path):
             raise FileNotFoundError("Model or Stat_spec NOT Found.")
 
+        """
         rkme_stat_spec = RKMEStatSpecification()
         rkme_stat_spec.load(stat_spec_path)
         stat_spec = {"RKME": rkme_stat_spec}
         specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
+        """
 
         id = "%08d" % (self.count)
-        new_learnware = Learnware(id=id, name=learnware_name, model=model_path, specification=specification)
-        if self.check_learnware(new_learnware):
+        target_zip_dir = os.path.join(C.learnware_zip_pool_path, "%s.zip" % (id))
+        target_folder_dir = os.path.join(C.learnware_folder_pool_path, id)
+        copyfile(zip_path, target_zip_dir)
+        with zipfile.ZipFile(target_zip_dir, "r") as z_file:
+            z_file.extractall(target_folder_dir)
+        config_file_dir = os.path.join(target_folder_dir, "learnware.yaml")
+
+        new_learnware = get_learnware_from_config(id=id, semantic_spec=semantic_spec, file_config=config_file_dir)
+        if new_learnware is None:
+            os.rmdir(target_zip_dir)
+            rmtree(target_folder_dir)
+            return None, None
+        else:
             self.learnware_list[id] = new_learnware
+            self.learnware_zip_list[id] = target_zip_dir
             self.count += 1
             add_learnware_to_db(
                 id,
                 name=learnware_name,
-                model_path=model_path,
-                stat_spec_path=stat_spec_path,
                 semantic_spec=semantic_spec,
+                zip_path=target_folder_dir,
+                folder_path=target_folder_dir,
             )
             return id, True
-        else:
-            return None, False
 
     def _calculate_rkme_spec_mixture_weight(
         self,
@@ -360,6 +373,7 @@ class EasyMarket(BaseMarket):
             raise Exception("Learnware id:'{}' NOT Found!".format(id))
 
         self.learnware_list.pop(id)
+        self.learnware_zip_list.pop(id)
         delete_learnware_from_db(id)
         return True
 

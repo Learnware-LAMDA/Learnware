@@ -2,13 +2,9 @@ import os
 
 from .base import Learnware
 from .utils import get_stat_spec_from_config, get_model_from_config
-from ..specification import RKMEStatSpecification, Specification
-from ..utils import get_module_by_module_path, read_yaml_to_dict
+from ..specification import Specification
+from ..utils import read_yaml_to_dict
 from ..logger import get_module_logger
-
-from typing import Tuple
-
-from .base import Learnware
 
 logger = get_module_logger("learnware.learnware")
 
