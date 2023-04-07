@@ -16,7 +16,8 @@ def prepare_learnware(learnware_num=10):
         os.makedirs(dir_path, exist_ok=True)
 
         print("Preparing Learnware: %d" % (i))
-        data_X = np.random.randn(5000, 20)
+        data_X = np.random.randn(5000, 20) * i
+        # print(data_X[:10])
         data_y = np.random.randn(5000)
         data_y = np.where(data_y > 0, 1, 0)
 
@@ -32,6 +33,7 @@ def prepare_learnware(learnware_num=10):
 
 
 def test_market():
+    database_ops.clear_learnware_table()
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
     test_learnware_num = 10
@@ -56,7 +58,7 @@ def test_market():
     print("Available ids:", curr_inds)
 
 
-def test_search():
+def test_search_sementics():
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
     test_learnware_num = 3
@@ -153,8 +155,27 @@ def test_search():
     user_info = BaseUserInfo(id='user', semantic_spec=user_senmantic, stat_info = dict())
     learnware_list = easy_market.search_learnware(user_info)
     print(learnware_list)
+    
+def test_search():
+    easy_market = EasyMarket()
+    print("Total Item:", len(easy_market))
+    test_learnware_num = 3
+    prepare_learnware(test_learnware_num)
+    root_path = "./learnware_pool"
+    os.makedirs(root_path, exist_ok=True)
+    for i in range(10):
+        user_spec = specification.rkme.RKMEStatSpecification()
+        user_spec.load(f"./learnware_pool/svm{i}/spec.json")
+        user_info = BaseUserInfo(id="user_0", semantic_spec={"desc": "test_user_number_0"}, stat_info={"RKME": user_spec})
+        sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
+
+        print(f"search result of user{i}:")
+        for dist, learnware in zip(sorted_dist_list, single_learnware_list):
+            print(f"dist: {dist}, learnware_id: {learnware.id}, learnware_name: {learnware.name}")
+        mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
+        print(f"mixture_learnware: {mixture_id}\n")
 
 
 if __name__ == "__main__":
-    # test_market()
+    test_market()
     test_search()
