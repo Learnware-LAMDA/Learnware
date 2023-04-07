@@ -19,7 +19,7 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
     semantic_spec : dict
         The learnware semantice specifactions
     learnware_dirpath : str
-        The dirpath of learnware file
+        The dirpath of learnware folder
 
     Returns
     -------
