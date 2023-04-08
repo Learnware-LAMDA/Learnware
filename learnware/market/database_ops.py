@@ -1,9 +1,10 @@
-import sqlite3
 import os
-from ..logger import get_module_logger
-from ..learnware import Learnware, get_learnware_from_dirpath
-from ..specification import RKMEStatSpecification, Specification
 import json
+import sqlite3
+
+from ..logger import get_module_logger
+from ..learnware import get_learnware_from_dirpath
+
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(ROOT_PATH, "market.db")
