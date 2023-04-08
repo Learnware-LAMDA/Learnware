@@ -1,7 +1,7 @@
 import sqlite3
 import os
 from ..logger import get_module_logger
-from ..learnware import Learnware, get_learnware_from_config
+from ..learnware import Learnware, get_learnware_from_dirpath
 from ..specification import RKMEStatSpecification, Specification
 import json
 
@@ -22,7 +22,6 @@ def init_empty_db(func):
             cur.execute(
                 """CREATE TABLE LEARNWARE
             (ID CHAR(10) PRIMARY KEY     NOT NULL,
-            NAME           TEXT    NOT NULL,
             SEMANTIC_SPEC            TEXT     NOT NULL,
             ZIP_PATH     TEXT NOT NULL,
             FOLDER_PATH         TEXT NOT NULL);"""
@@ -50,12 +49,12 @@ def clear_learnware_table(cur):
 
 
 @init_empty_db
-def add_learnware_to_db(id: str, name: str, semantic_spec: dict, zip_path: str, folder_path: str, cur):
+def add_learnware_to_db(id: str, semantic_spec: dict, zip_path: str, folder_path: str, cur):
     semantic_spec_str = json.dumps(semantic_spec)
     cur.execute(
-        "INSERT INTO LEARNWARE (ID,NAME,SEMANTIC_SPEC,ZIP_PATH,FOLDER_PATH) \
-      VALUES ('%s', '%s', '%s', '%s', '%s' )"
-        % (id, name, semantic_spec_str, zip_path, folder_path)
+        "INSERT INTO LEARNWARE (ID,SEMANTIC_SPEC,ZIP_PATH,FOLDER_PATH) \
+      VALUES ('%s', '%s', '%s', '%s' )"
+        % (id, semantic_spec_str, zip_path, folder_path)
     )
 
 
@@ -67,17 +66,17 @@ def delete_learnware_from_db(id: str, cur):
 @init_empty_db
 def load_market_from_db(cur):
     LOGGER.info("Reload from Database")
-    cursor = cur.execute("SELECT id, name, semantic_spec, zip_path, FOLDER_PATH from LEARNWARE")
+    cursor = cur.execute("SELECT id, semantic_spec, zip_path, FOLDER_PATH from LEARNWARE")
 
     learnware_list = {}
     zip_list = {}
     max_count = 0
     for item in cursor:
-        id, name, semantic_spec, zip_path, folder_path = item
+        id, semantic_spec, zip_path, folder_path = item
         semantic_spec_dict = json.loads(semantic_spec)
         config_file_path = os.path.join(folder_path, "learnware.yaml")
-        new_learnware = get_learnware_from_config(
-            id=id, name=name, semantic_spec=semantic_spec_dict, file_config=config_file_path
+        new_learnware = get_learnware_from_dirpath(
+            id=id, semantic_spec=semantic_spec_dict, file_config=config_file_path
         )
         learnware_list[id] = new_learnware
         zip_list[id] = zip_path
