@@ -8,6 +8,7 @@ from sklearn import svm
 from learnware.config import C
 from learnware.learnware import get_learnware_from_dirpath
 
+
 def prepare_learnware():
     data_X = np.random.randn(5000, 20)
     data_y = np.random.randn(5000)
@@ -25,6 +26,7 @@ def test_import_learnware():
     learnware_inst = get_learnware_from_dirpath(id="123", semantic_spec=C.semantic_specs, learnware_dirpath="./svm")
     return learnware_inst
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     prepare_learnware()
     test_import_learnware()
