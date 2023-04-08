@@ -99,10 +99,10 @@ class EasyMarket(BaseMarket):
         copyfile(zip_path, target_zip_dir)
         with zipfile.ZipFile(target_zip_dir, "r") as z_file:
             z_file.extractall(target_folder_dir)
-        config_file_dir = os.path.join(target_folder_dir, "learnware.yaml")
+        # config_file_dir = os.path.join(target_folder_dir, "learnware.yaml")
 
         new_learnware = get_learnware_from_dirpath(
-            id=id, semantic_spec=semantic_spec, learnware_dirpath=config_file_dir
+            id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
         )
         if new_learnware is None:
             os.rmdir(target_zip_dir)
