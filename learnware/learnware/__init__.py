@@ -27,7 +27,6 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
         The contructed learnware object, return None if build failed
     """
     learnware_config = {
-        "name": "None",
         "model": {
             "class_name": "Model",
             "kwargs": {},
@@ -36,6 +35,7 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
             {
                 "module_name": "learnware.specification",
                 "class_name": "RKMEStatSpecification",
+                "file_name": "stat_spec.json",
                 "kwargs": {},
             },
         ],
@@ -52,7 +52,7 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
     if "model" in yaml_config:
         learnware_config["model"].update(yaml_config["model"])
     if "stats_specifications" in yaml_config:
-        learnware_config["stat_specifications"] = yaml_config["stat_specifications"]
+        learnware_config["stat_specifications"] = yaml_config["stat_specifications"].copy()
 
     try:
         learnware_spec = Specification()
@@ -67,4 +67,4 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
         logger.warning(f"Load Learnware {id} failed!")
         return None
 
-    return Learnware(id=id, name=learnware_config["name"], model=learnware_model, specification=learnware_spec)
+    return Learnware(id=id, model=learnware_model, specification=learnware_spec)

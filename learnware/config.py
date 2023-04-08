@@ -97,8 +97,12 @@ semantic_config = {
         "Type": "Tag",  # Choose one or more tags
     },
     "Description": {
-        "Values": str,
+        "Values": None,
         "Type": "Description",
+    },
+    "Name": {
+        "Values": None,
+        "Type": "Name",
     },
 }
 

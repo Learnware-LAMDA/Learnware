@@ -9,7 +9,7 @@ from typing import Tuple, Any, List, Union, Dict
 from .base import BaseMarket, BaseUserInfo
 from .database_ops import load_market_from_db, add_learnware_to_db, delete_learnware_from_db
 
-from ..learnware import Learnware, get_learnware_from_config
+from ..learnware import Learnware, get_learnware_from_dirpath
 from ..specification import RKMEStatSpecification, Specification
 from ..logger import get_module_logger
 from ..config import C
@@ -101,7 +101,9 @@ class EasyMarket(BaseMarket):
             z_file.extractall(target_folder_dir)
         config_file_dir = os.path.join(target_folder_dir, "learnware.yaml")
 
-        new_learnware = get_learnware_from_config(id=id, semantic_spec=semantic_spec, file_config=config_file_dir)
+        new_learnware = get_learnware_from_dirpath(
+            id=id, semantic_spec=semantic_spec, learnware_dirpath=config_file_dir
+        )
         if new_learnware is None:
             os.rmdir(target_zip_dir)
             rmtree(target_folder_dir)

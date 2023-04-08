@@ -1,8 +1,8 @@
 model:
-  name: SVM_example
   class_name: SVM
   kwargs: {}
 stat_specifications:
   - module_name: learnware.specification
     class_name: RKMEStatSpecification
+    file_name: svm.json
     kwargs: {}  
