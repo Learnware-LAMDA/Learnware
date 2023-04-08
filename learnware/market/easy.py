@@ -312,7 +312,7 @@ class EasyMarket(BaseMarket):
         match_learnwares = []
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
-            learnware_name = learnware_semantic_spec['Name']['Values']
+            learnware_name = learnware_semantic_spec["Name"]["Values"]
             if user_input_description in learnware_name:
                 match_learnwares.append(learnware)
         return match_learnwares

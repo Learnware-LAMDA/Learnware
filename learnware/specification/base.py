@@ -30,7 +30,7 @@ class Specification:
         self.semantic_spec = new_semantic_spec
 
     def update_stat_spec(self, **kwargs):
-        for _k, _v in kwargs:
+        for _k, _v in kwargs.items():
             self.stat_spec[_k] = _v
 
     def get_stat_spec_by_name(self, name: str):

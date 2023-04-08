@@ -2,7 +2,7 @@ model:
   class_name: SVM
   kwargs: {}
 stat_specifications:
-  - module_name: learnware.specification
+  - module_path: learnware.specification
     class_name: RKMEStatSpecification
     file_name: svm.json
     kwargs: {}  

@@ -9,12 +9,12 @@ from ..logger import get_module_logger
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: str = None) -> Learnware:
+def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: str = None) -> Learnware:
     """Get the learnware object from dirpath, and provide the manage interface tor Learnware class
 
     Parameters
     ----------
-    id : int
+    id : str
         The learnware id that is given by learnware market
     semantic_spec : dict
         The learnware semantice specifactions
@@ -33,7 +33,7 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
         },
         "stat_specifications": [
             {
-                "module_name": "learnware.specification",
+                "module_path": "learnware.specification",
                 "class_name": "RKMEStatSpecification",
                 "file_name": "stat_spec.json",
                 "kwargs": {},
@@ -54,6 +54,9 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
     if "stats_specifications" in yaml_config:
         learnware_config["stat_specifications"] = yaml_config["stat_specifications"].copy()
 
+    if "module_path" not in learnware_config["model"]:
+        learnware_config["model"]["module_path"] = os.path.join(learnware_dirpath, "__init__.py")
+
     try:
         learnware_spec = Specification()
         for _stat_spec in learnware_config["stat_specifications"]:
@@ -63,8 +66,8 @@ def get_learnware_from_dirpath(id: int, semantic_spec: dict, learnware_dirpath: 
         learnware_spec.upload_semantic_spec(semantic_spec)
         learnware_model = get_model_from_config(learnware_config["model"])
 
-    except Exception:
-        logger.warning(f"Load Learnware {id} failed!")
+    except Exception as e:
+        logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")
         return None
 
     return Learnware(id=id, model=learnware_model, specification=learnware_spec)
