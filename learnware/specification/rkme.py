@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 
-# import mkl
 import copy
 import torch
 import faiss
@@ -14,8 +13,6 @@ from cvxopt import solvers, matrix
 from typing import Tuple, Any, List, Union, Dict
 
 from .base import BaseStatSpecification
-
-# mkl.get_max_threads()
 
 
 class RKMEStatSpecification(BaseStatSpecification):
