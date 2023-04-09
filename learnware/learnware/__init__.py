@@ -51,7 +51,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
         learnware_config["name"] = yaml_config["name"]
     if "model" in yaml_config:
         learnware_config["model"].update(yaml_config["model"])
-    if "stats_specifications" in yaml_config:
+    if "stat_specifications" in yaml_config:
         learnware_config["stat_specifications"] = yaml_config["stat_specifications"].copy()
 
     if "module_path" not in learnware_config["model"]:
@@ -60,6 +60,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
     try:
         learnware_spec = Specification()
         for _stat_spec in learnware_config["stat_specifications"]:
+            _stat_spec["file_name"] = os.path.join(learnware_dirpath, _stat_spec["file_name"])
             stat_spac_name, stat_spec_inst = get_stat_spec_from_config(_stat_spec)
             learnware_spec.update_stat_spec(**{stat_spac_name: stat_spec_inst})
 

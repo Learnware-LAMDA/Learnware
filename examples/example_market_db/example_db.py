@@ -167,13 +167,13 @@ def test_stat_search():
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(os.path.join(unzip_dir, "svm.json"))
         user_info = BaseUserInfo(
-            id="user_0", semantic_spec={"desc": "test_user_number_0"}, stat_info={"RKME": user_spec}
+            id="user_0", semantic_spec={"desc": "test_user_number_0"}, stat_info={"RKMEStatSpecification": user_spec}
         )
         sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
         print(f"search result of user{idx}:")
         for dist, learnware in zip(sorted_dist_list, single_learnware_list):
-            print(f"dist: {dist}, learnware_id: {learnware.id}, learnware_name: {learnware.name}")
+            print(f"dist: {dist}, learnware_id: {learnware.id}")
         mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
         print(f"mixture_learnware: {mixture_id}\n")
 
@@ -182,7 +182,7 @@ def test_stat_search():
 
 if __name__ == "__main__":
     learnware_num = 5
-    prepare_learnware(learnware_num)
+    # prepare_learnware(learnware_num)
 
     # test_market()
     # test_stat_search()
