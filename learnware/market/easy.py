@@ -384,7 +384,10 @@ class EasyMarket(BaseMarket):
         return self.semantic_spec_list
 
     def get_learnware_by_ids(self, id: str):
-        pass
+        if not id in self.learnware_list:
+            raise Exception("Target id not found in market")
+        else:
+            return self.learnware_list[id]
 
     def get_learnware_path_by_ids(self, id: str) -> str:
         if not id in self.learnware_zip_list:
