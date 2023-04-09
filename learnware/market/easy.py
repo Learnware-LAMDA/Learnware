@@ -44,7 +44,7 @@ class EasyMarket(BaseMarket):
             A flag indicating whether the learnware can be accepted.
         """
         try:
-            spec_data = learnware.specification.stat_spec["RKME"].get_z()
+            spec_data = learnware.specification.stat_spec["RKMEStatSpecification"].get_z()
             pred_spec = learnware.predict(spec_data)
         except Exception:
             logger.warning(f"The learnware [{learnware.id}-{learnware.name}] is not avaliable!")
@@ -88,7 +88,7 @@ class EasyMarket(BaseMarket):
         """
         rkme_stat_spec = RKMEStatSpecification()
         rkme_stat_spec.load(stat_spec_path)
-        stat_spec = {"RKME": rkme_stat_spec}
+        stat_spec = {"RKMEStatSpecification": rkme_stat_spec}
         specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
         """
 
@@ -154,7 +154,7 @@ class EasyMarket(BaseMarket):
             The second is the mmd dist between the mixture of learnware rkmes and the user's rkme
         """
         learnware_num = len(learnware_list)
-        RKME_list = [learnware.specification.get_stat_spec_by_name("RKME") for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list]
 
         if type(intermediate_K) == np.ndarray:
             K = intermediate_K
@@ -213,7 +213,7 @@ class EasyMarket(BaseMarket):
             The second is the intermediate value of C
         """
         num = intermediate_K.shape[0] - 1
-        RKME_list = [learnware.specification.get_stat_spec_by_name("RKME") for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list]
         for i in range(intermediate_K.shape[0]):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
@@ -297,7 +297,7 @@ class EasyMarket(BaseMarket):
             the second is the list of Learnware
             both lists are sorted by mmd dist
         """
-        RKME_list = [learnware.specification.get_stat_spec_by_name("RKME") for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list]
         mmd_dist_list = []
         for RKME in RKME_list:
             mmd_dist = RKME.dist(user_rkme)
@@ -370,10 +370,10 @@ class EasyMarket(BaseMarket):
         learnware_list_description = self._search_by_semantic_description(learnware_list, user_info)
         learnware_list = list(set(learnware_list_tags + learnware_list_description))
 
-        if "RKME" not in user_info.stat_info:
+        if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
         else:
-            user_rkme = user_info.stat_info["RKME"]
+            user_rkme = user_info.stat_info["RKMEStatSpecification"]
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(
                 learnware_list, user_rkme, search_num

@@ -44,7 +44,7 @@ def get_model_from_config(model: Union[BaseModel, dict]) -> BaseModel:
 def get_stat_spec_from_config(stat_spec: dict) -> BaseStatSpecification:
     stat_spec_module = get_module_by_module_path(stat_spec["module_path"])
     stat_spec_inst = getattr(stat_spec_module, stat_spec["class_name"])(**stat_spec["kwargs"])
-
+    
     if not isinstance(stat_spec_inst, BaseStatSpecification):
         raise TypeError(
             f"Statistic specification must be type of BaseStatSpecification, not {BaseStatSpecification.__class__.__name__}"
