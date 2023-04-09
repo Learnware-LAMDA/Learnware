@@ -383,7 +383,7 @@ class EasyMarket(BaseMarket):
     def delete_learnware(self, id: str) -> bool:
         if not id in self.learnware_list:
             raise Exception("Learnware id:'{}' NOT Found!".format(id))
-        
+
         zip_dir = self.learnware_zip_list[id]
         os.remove(zip_dir)
         folder_dir = self.learnware_folder_list[id]
@@ -392,7 +392,7 @@ class EasyMarket(BaseMarket):
         self.learnware_zip_list.pop(id)
         self.learnware_folder_list.pop(id)
         delete_learnware_from_db(id)
-        
+
         return True
 
     def get_semantic_spec_list(self) -> dict:
