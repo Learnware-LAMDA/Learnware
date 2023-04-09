@@ -1,3 +1,4 @@
+import copy
 import numpy as np
 
 
@@ -16,9 +17,14 @@ class BaseStatSpecification:
 
 
 class Specification:
-    def __init__(self, semantic_spec: dict = None, stat_spec: dict = {}):
+    def __init__(self, semantic_spec: dict = None, stat_spec: dict = None):
         self.semantic_spec = semantic_spec
-        self.stat_spec = stat_spec
+        self.stat_spec = {} if stat_spec is None else stat_spec
+
+    def __repr__(self) -> str:
+        return "{}(Semantic Spec: {}, {})".format(
+            type(self).__name__, type(self.semantic_spec).__name__, self.stat_spec
+        )
 
     def get_stat_spec(self):
         return self.stat_spec
@@ -26,8 +32,8 @@ class Specification:
     def get_semantic_spec(self):
         return self.semantic_spec
 
-    def upload_semantic_spec(self, new_semantic_spec: dict):
-        self.semantic_spec = new_semantic_spec
+    def upload_semantic_spec(self, semantic_spec: dict):
+        self.semantic_spec = semantic_spec
 
     def update_stat_spec(self, **kwargs):
         for _k, _v in kwargs.items():

@@ -1,14 +1,9 @@
-from .base import Learnware
-from .reuse import BaseReuse
+import copy
+from typing import Union
 
-
-from typing import Tuple, Union
-
-from .base import Learnware
 from ..model import BaseModel
 from ..specification import BaseStatSpecification
 from ..utils import get_module_by_module_path
-import learnware.specification as specification
 
 
 def get_model_from_config(model: Union[BaseModel, dict]) -> BaseModel:
@@ -44,11 +39,12 @@ def get_model_from_config(model: Union[BaseModel, dict]) -> BaseModel:
 def get_stat_spec_from_config(stat_spec: dict) -> BaseStatSpecification:
     stat_spec_module = get_module_by_module_path(stat_spec["module_path"])
     stat_spec_inst = getattr(stat_spec_module, stat_spec["class_name"])(**stat_spec["kwargs"])
-    
+
     if not isinstance(stat_spec_inst, BaseStatSpecification):
         raise TypeError(
             f"Statistic specification must be type of BaseStatSpecification, not {BaseStatSpecification.__class__.__name__}"
         )
-    stat_spec_inst.load(stat_spec["file_name"])
-    
+    if stat_spec_inst.load(stat_spec["file_name"]) is False:
+        raise ValueError("Load statistic specification failed!")
+
     return stat_spec["class_name"], stat_spec_inst

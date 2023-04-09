@@ -59,6 +59,7 @@ user_senmantic = {
     "Name": {"Values": "", "Type": "Name"},
 }
 
+
 def prepare_learnware(learnware_num=10):
     np.random.seed(2023)
     for i in range(learnware_num):
@@ -105,9 +106,7 @@ def test_market():
         semantic_spec = semantic_specs[idx % 3]
         semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-        easy_market.add_learnware(
-            zip_path, semantic_spec
-        )
+        easy_market.add_learnware(zip_path, semantic_spec)
     print("Total Item:", len(easy_market))
     curr_inds = easy_market._get_ids()
     print("Available ids:", curr_inds)
@@ -127,7 +126,6 @@ def test_search_sementics():
     test_learnware_num = 3
     prepare_learnware(test_learnware_num)
 
-
     test_folder = "./test_stat"
     zip_path_list = get_zip_path_list()
 
@@ -138,9 +136,7 @@ def test_search_sementics():
 
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(os.path.join(unzip_dir, "svm.json"))
-        user_info = BaseUserInfo(
-            id="user_0", semantic_spec=user_senmantic, stat_info={"RKME": user_spec}
-        )
+        user_info = BaseUserInfo(id="user_0", semantic_spec=user_senmantic, stat_info={"RKME": user_spec})
         sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
     os.system(f"rm -r {test_folder}")
@@ -175,8 +171,8 @@ def test_stat_search():
 
 
 if __name__ == "__main__":
-    learnware_num = 10
-    prepare_learnware(learnware_num)
-    test_market()
+    learnware_num = 5
+    # prepare_learnware(learnware_num)
+    # test_market()
     test_stat_search()
-    test_search_sementics()
+    # test_search_sementics()

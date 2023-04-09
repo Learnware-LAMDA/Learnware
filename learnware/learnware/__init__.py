@@ -1,4 +1,5 @@
 import os
+import copy
 
 from .base import Learnware
 from .utils import get_stat_spec_from_config, get_model_from_config
@@ -60,11 +61,12 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
     try:
         learnware_spec = Specification()
         for _stat_spec in learnware_config["stat_specifications"]:
-            _stat_spec["file_name"] = os.path.join(learnware_dirpath, _stat_spec["file_name"])
-            stat_spac_name, stat_spec_inst = get_stat_spec_from_config(_stat_spec)
+            stat_spec = _stat_spec.copy()
+            stat_spec["file_name"] = os.path.join(learnware_dirpath, stat_spec["file_name"])
+            stat_spac_name, stat_spec_inst = get_stat_spec_from_config(stat_spec)
             learnware_spec.update_stat_spec(**{stat_spac_name: stat_spec_inst})
 
-        learnware_spec.upload_semantic_spec(semantic_spec)
+        learnware_spec.upload_semantic_spec(copy.deepcopy(semantic_spec))
         learnware_model = get_model_from_config(learnware_config["model"])
 
     except Exception as e:

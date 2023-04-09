@@ -74,13 +74,14 @@ def load_market_from_db(cur):
     zip_list = {}
     folder_list = {}
     max_count = 0
-    for item in cursor:
-        id, semantic_spec, zip_path, folder_path = item
+
+    for id, semantic_spec, zip_path, folder_path in cursor:
         semantic_spec_dict = json.loads(semantic_spec)
         new_learnware = get_learnware_from_dirpath(
             id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
         )
-        learnware_list[id] = deepcopy(new_learnware)
+
+        learnware_list[id] = new_learnware
         zip_list[id] = zip_path
         folder_list[id] = folder_path
         max_count = max(max_count, int(id))

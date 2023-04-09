@@ -24,6 +24,9 @@ class Learnware:
         self.model = model
         self.specification = specification
 
+    def __repr__(self) -> str:
+        return "{}({}, {}, {})".format(type(self).__name__, self.id, type(self.model).__name__, self.specification)
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict(X)
 
