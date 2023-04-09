@@ -102,7 +102,6 @@ def test_market():
     zip_path_list = get_zip_path_list()  # the path list for learnware .zip
 
     for idx, zip_path in enumerate(zip_path_list):
-        print(zip_path)
         semantic_spec = semantic_specs[idx % 3]
         semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
@@ -146,8 +145,6 @@ def test_search_sementics():
 
     os.system(f"rm -r {test_folder}")
 
-    
-
 
 def test_stat_search():
     easy_market = EasyMarket()
@@ -164,7 +161,7 @@ def test_stat_search():
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(os.path.join(unzip_dir, "svm.json"))
         user_info = BaseUserInfo(
-            id="user_0", semantic_spec={"desc": "test_user_number_0"}, stat_info={"RKMEStatSpecification": user_spec}
+            id="user_0", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
         )
         sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
@@ -179,8 +176,7 @@ def test_stat_search():
 
 if __name__ == "__main__":
     learnware_num = 10
-    # prepare_learnware(learnware_num)
-
-    # test_market()
-    # test_stat_search()
+    prepare_learnware(learnware_num)
+    test_market()
+    test_stat_search()
     test_search_sementics()
