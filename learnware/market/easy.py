@@ -22,13 +22,14 @@ class EasyMarket(BaseMarket):
         """Initializing an empty market"""
         self.learnware_list = {}  # id: Learnware
         self.learnware_zip_list = {}
+        self.learnware_folder_list = {}
         self.count = 0
         self.semantic_spec_list = C.semantic_specs
         self.reload_market()
         logger.info("Market Initialized!")
 
     def reload_market(self) -> bool:
-        self.learnware_list, self.count = load_market_from_db()
+        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db()
 
     def check_learnware(self, learnware: Learnware) -> bool:
         """Check the utility of a learnware
@@ -116,6 +117,7 @@ class EasyMarket(BaseMarket):
         else:
             self.learnware_list[id] = new_learnware
             self.learnware_zip_list[id] = target_zip_dir
+            self.learnware_folder_list[id] = target_folder_dir
             self.count += 1
             add_learnware_to_db(
                 id,
@@ -381,10 +383,16 @@ class EasyMarket(BaseMarket):
     def delete_learnware(self, id: str) -> bool:
         if not id in self.learnware_list:
             raise Exception("Learnware id:'{}' NOT Found!".format(id))
-
+        
+        zip_dir = self.learnware_zip_list[id]
+        os.remove(zip_dir)
+        folder_dir = self.learnware_folder_list[id]
+        rmtree(folder_dir)
         self.learnware_list.pop(id)
         self.learnware_zip_list.pop(id)
+        self.learnware_folder_list.pop(id)
         delete_learnware_from_db(id)
+        
         return True
 
     def get_semantic_spec_list(self) -> dict:

@@ -71,6 +71,7 @@ def load_market_from_db(cur):
 
     learnware_list = {}
     zip_list = {}
+    folder_list = {}
     max_count = 0
     for item in cursor:
         id, semantic_spec, zip_path, folder_path = item
@@ -80,6 +81,7 @@ def load_market_from_db(cur):
         )
         learnware_list[id] = new_learnware
         zip_list[id] = zip_path
+        folder_list = folder_path
         max_count = max(max_count, int(id))
     LOGGER.info("Market Reloaded from DB.")
-    return learnware_list, max_count + 1
+    return learnware_list, zip_list, folder_list, max_count + 1
