@@ -98,7 +98,7 @@ class EasyMarket(BaseMarket):
         target_folder_dir = os.path.join(C.learnware_folder_pool_path, id)
         copyfile(zip_path, target_zip_dir)
         with zipfile.ZipFile(target_zip_dir, "r") as z_file:
-            z_file.extractall(target_folder_dir)
+            z_file.extractall(C.learnware_folder_pool_path)
         # config_file_dir = os.path.join(target_folder_dir, "learnware.yaml")
 
         new_learnware = get_learnware_from_dirpath(
@@ -114,7 +114,6 @@ class EasyMarket(BaseMarket):
             self.count += 1
             add_learnware_to_db(
                 id,
-                name=learnware_name,
                 semantic_spec=semantic_spec,
                 zip_path=target_folder_dir,
                 folder_path=target_folder_dir,
@@ -388,7 +387,10 @@ class EasyMarket(BaseMarket):
         pass
 
     def get_learnware_path_by_ids(self, id: str) -> str:
-        pass
+        if not id in self.learnware_zip_list:
+            raise Exception("Target id not found in market")
+        else:
+            return self.learnware_zip_list[id]
 
     def __len__(self):
         return len(self.learnware_list.keys())
