@@ -62,8 +62,8 @@ def test_market():
     curr_inds = easy_market._get_ids()
     print("Available ids:", curr_inds)
 
-    easy_market.delete_learnware(curr_inds[4])
-    easy_market.delete_learnware(curr_inds[8])
+    easy_market.delete_learnware(curr_inds[3])
+    easy_market.delete_learnware(curr_inds[2])
     curr_inds = easy_market._get_ids()
     print("Available ids:", curr_inds)
 

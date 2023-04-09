@@ -4,7 +4,7 @@ import numpy as np
 from learnware.model import BaseModel
 
 
-class Model(BaseModel):
+class SVM(BaseModel):
     def __init__(self):
         dir_path = os.path.dirname(os.path.abspath(__file__))
         self.model = joblib.load(os.path.join(dir_path, "svm.pkl"))
