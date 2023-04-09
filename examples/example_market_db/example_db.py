@@ -13,6 +13,7 @@ curr_root = os.path.dirname(os.path.abspath(__file__))
 
 
 def prepare_learnware(learnware_num=10):
+    np.random.seed(2023)
     for i in range(learnware_num):
         dir_path = os.path.join(curr_root, "learnware_pool", "svm_%d" % (i))
         os.makedirs(dir_path, exist_ok=True)
@@ -171,7 +172,7 @@ def test_stat_search():
 
 
 if __name__ == "__main__":
-    learnware_num = 5
+    learnware_num = 10
     # prepare_learnware(learnware_num)
 
     # test_market()

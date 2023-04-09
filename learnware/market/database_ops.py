@@ -1,6 +1,7 @@
 import os
 import json
 import sqlite3
+from copy import deepcopy
 
 from ..logger import get_module_logger
 from ..learnware import get_learnware_from_dirpath
@@ -79,9 +80,10 @@ def load_market_from_db(cur):
         new_learnware = get_learnware_from_dirpath(
             id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
         )
-        learnware_list[id] = new_learnware
+        learnware_list[id] = deepcopy(new_learnware)
         zip_list[id] = zip_path
-        folder_list = folder_path
+        folder_list[id] = folder_path
         max_count = max(max_count, int(id))
+
     LOGGER.info("Market Reloaded from DB.")
     return learnware_list, zip_list, folder_list, max_count + 1

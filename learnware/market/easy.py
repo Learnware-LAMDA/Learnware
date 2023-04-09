@@ -25,7 +25,7 @@ class EasyMarket(BaseMarket):
         self.learnware_folder_list = {}
         self.count = 0
         self.semantic_spec_list = C.semantic_specs
-        self.reload_market()
+        self.reload_market()        
         logger.info("Market Initialized!")
 
     def reload_market(self) -> bool:
@@ -373,7 +373,7 @@ class EasyMarket(BaseMarket):
         if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
         else:
-            user_rkme = user_info.stat_info["RKMEStatSpecification"]
+            user_rkme = user_info.stat_info["RKMEStatSpecification"]            
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(
                 learnware_list, user_rkme, search_num
