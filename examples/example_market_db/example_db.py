@@ -9,10 +9,12 @@ from learnware.learnware import Learnware
 import learnware.specification as specification
 from learnware.utils import get_module_by_module_path
 
+curr_root = os.path.dirname(os.path.abspath(__file__))
+
 
 def prepare_learnware(learnware_num=10):
     for i in range(learnware_num):
-        dir_path = f"./learnware_pool/svm{i}"
+        dir_path = os.path.join(curr_root, "learnware_pool", "svm_%d" % (i))
         os.makedirs(dir_path, exist_ok=True)
 
         print("Preparing Learnware: %d" % (i))
@@ -29,17 +31,17 @@ def prepare_learnware(learnware_num=10):
 
         init_file = os.path.join(dir_path, "__init__.py")
         os.system(f"cp example_init.py {init_file}")
-        
+
         yaml_file = os.path.join(dir_path, "learnware.yaml")
         os.system(f"cp example.yaml {yaml_file}")
-        
+
         zip_file = dir_path + ".zip"
         os.system(f"zip -q -r -j {zip_file} {dir_path}")
         os.system(f"rm -r {dir_path}")
 
 
 def get_zip_path_list():
-    root_path = "./learnware_pool"
+    root_path = os.path.join(curr_root, "learnware_pool")
     zip_path_list = [os.path.join(root_path, path) for path in os.listdir(root_path)]
     return zip_path_list
 
@@ -48,10 +50,11 @@ def test_market():
     database_ops.clear_learnware_table()
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
-    
-    zip_path_list = get_zip_path_list() # the path list for learnware .zip
+
+    zip_path_list = get_zip_path_list()  # the path list for learnware .zip
 
     for idx, zip_path in enumerate(zip_path_list):
+        print(zip_path)
         easy_market.add_learnware(
             zip_path, {"name": "learnware_%d" % (idx), "desc": "test_learnware_number_%d" % (idx)}
         )
@@ -68,55 +71,11 @@ def test_market():
 def test_search_sementics():
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
-    
+
     root_path = "./learnware_pool"
     os.makedirs(root_path, exist_ok=True)
     test_learnware_num = 3
     prepare_learnware(test_learnware_num)
-
-    # "Data": {
-    #     "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
-    #     "Type": "Class",  # Choose only one class
-    # },
-    # "Task": {
-    #     "Values": [
-    #         "Classification",
-    #         "Regression",
-    #         "Clustering",
-    #         "Feature Extraction",
-    #         "Generation",
-    #         "Segmentation",
-    #         "Object Detection",
-    #     ],
-    #     "Type": "Class",  # Choose only one class
-    # },
-    # "Device": {
-    #     "Values": ["CPU", "GPU"],
-    #     "Type": "Tag",  # Choose one or more tags
-    # },
-    # "Scenario": {
-    #     "Values": [
-    #         "Business",
-    #         "Financial",
-    #         "Health",
-    #         "Politics",
-    #         "Computer",
-    #         "Internet",
-    #         "Traffic",
-    #         "Nature",
-    #         "Fashion",
-    #         "Industry",
-    #         "Agriculture",
-    #         "Education",
-    #         "Entertainment",
-    #         "Architecture",
-    #     ],
-    #     "Type": "Tag",  # Choose one or more tags
-    # },
-    # "Description": {
-    #     "Values": str,
-    #     "Type": "Description",
-    # },
 
     semantic_specs = [
         {
@@ -194,7 +153,7 @@ def test_stat_search():
         unzip_dir = os.path.join(test_folder, f"{idx}")
         os.makedirs(unzip_dir, exist_ok=True)
         os.system(f"unzip -q {zip_path} -d {unzip_dir}")
-        
+
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(os.path.join(unzip_dir, "svm.json"))
         user_info = BaseUserInfo(
@@ -207,13 +166,13 @@ def test_stat_search():
             print(f"dist: {dist}, learnware_id: {learnware.id}, learnware_name: {learnware.name}")
         mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
         print(f"mixture_learnware: {mixture_id}\n")
-        
+
     os.system(f"rm -r {test_folder}")
 
 
 if __name__ == "__main__":
-    learnware_num = 10
+    learnware_num = 5
     prepare_learnware(learnware_num)
 
-    # test_market()
+    test_market()
     test_stat_search()

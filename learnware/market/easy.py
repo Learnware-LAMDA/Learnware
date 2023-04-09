@@ -91,20 +91,27 @@ class EasyMarket(BaseMarket):
         specification = Specification(semantic_spec=semantic_spec, stat_spec=stat_spec)
         """
 
+        logger.info("Get new learnware from %s" % (zip_path))
         id = "%08d" % (self.count)
         target_zip_dir = os.path.join(C.learnware_zip_pool_path, "%s.zip" % (id))
         target_folder_dir = os.path.join(C.learnware_folder_pool_path, id)
         copyfile(zip_path, target_zip_dir)
-        with zipfile.ZipFile(target_zip_dir, "r") as z_file:
-            z_file.extractall(C.learnware_folder_pool_path)
-        # config_file_dir = os.path.join(target_folder_dir, "learnware.yaml")
 
-        new_learnware = get_learnware_from_dirpath(
-            id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
-        )
+        with zipfile.ZipFile(target_zip_dir, "r") as z_file:
+            z_file.extractall(target_folder_dir)
+        logger.info("Learnware move to %s, and unzip to %s" % (target_zip_dir, target_folder_dir))
+        try:
+            new_learnware = get_learnware_from_dirpath(
+                id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
+            )
+        except:
+            new_learnware = None
         if new_learnware is None:
-            os.rmdir(target_zip_dir)
-            rmtree(target_folder_dir)
+            try:
+                os.remove(target_zip_dir)
+                rmtree(target_folder_dir)
+            except:
+                pass
             return None, None
         else:
             self.learnware_list[id] = new_learnware
