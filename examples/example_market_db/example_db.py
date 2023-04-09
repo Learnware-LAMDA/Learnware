@@ -143,10 +143,6 @@ def test_search_sementics():
         )
         sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
-        print(f"search result of user{idx}:")
-        for dist, learnware in zip(sorted_dist_list, single_learnware_list):
-            print(f"dist: {dist}, learnware_id: {learnware.id}, learnware_name: {learnware.name}")
-
     os.system(f"rm -r {test_folder}")
 
     

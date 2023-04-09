@@ -368,6 +368,7 @@ class EasyMarket(BaseMarket):
         learnware_list_tags = self._search_by_semantic_tags(learnware_list, user_info)
         learnware_list_description = self._search_by_semantic_description(learnware_list, user_info)
         learnware_list = list(set(learnware_list_tags + learnware_list_description))
+        # print(learnware_list_tags, learnware_list_description)
 
         if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
