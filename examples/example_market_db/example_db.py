@@ -11,6 +11,53 @@ from learnware.utils import get_module_by_module_path
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
+semantic_specs = [
+    {
+        "Data": {"Values": ["Tabular"], "Type": "Class"},
+        "Task": {
+            "Values": ["Classification"],
+            "Type": "Class",
+        },
+        "Device": {"Values": ["GPU"], "Type": "Tag"},
+        "Scenario": {"Values": ["Nature"], "Type": "Tag"},
+        "Description": {"Values": "", "Type": "Description"},
+        "Name": {"Values": "learnware_1", "Type": "Name"},
+    },
+    {
+        "Data": {"Values": ["Tabular"], "Type": "Class"},
+        "Task": {
+            "Values": ["Classification"],
+            "Type": "Class",
+        },
+        "Device": {"Values": ["GPU"], "Type": "Tag"},
+        "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
+        "Description": {"Values": "", "Type": "Description"},
+        "Name": {"Values": "learnware_2", "Type": "Name"},
+    },
+    {
+        "Data": {"Values": ["Tabular"], "Type": "Class"},
+        "Task": {
+            "Values": ["Classification"],
+            "Type": "Class",
+        },
+        "Device": {"Values": ["GPU"], "Type": "Tag"},
+        "Scenario": {"Values": ["Business"], "Type": "Tag"},
+        "Description": {"Values": "", "Type": "Description"},
+        "Name": {"Values": "learnware_3", "Type": "Name"},
+    },
+]
+
+user_senmantic = {
+    "Data": {"Values": ["Tabular"], "Type": "Class"},
+    "Task": {
+        "Values": ["Classification"],
+        "Type": "Class",
+    },
+    "Device": {"Values": ["GPU"], "Type": "Tag"},
+    "Scenario": {"Values": ["Business"], "Type": "Tag"},
+    "Description": {"Values": "", "Type": "Description"},
+    "Name": {"Values": "", "Type": "Name"},
+}
 
 def prepare_learnware(learnware_num=10):
     for i in range(learnware_num):
@@ -55,8 +102,11 @@ def test_market():
 
     for idx, zip_path in enumerate(zip_path_list):
         print(zip_path)
+        semantic_spec = semantic_specs[idx % 3]
+        semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
+        semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
         easy_market.add_learnware(
-            zip_path, {"name": "learnware_%d" % (idx), "desc": "test_learnware_number_%d" % (idx)}
+            zip_path, semantic_spec
         )
     print("Total Item:", len(easy_market))
     curr_inds = easy_market._get_ids()
@@ -77,69 +127,29 @@ def test_search_sementics():
     test_learnware_num = 3
     prepare_learnware(test_learnware_num)
 
-    semantic_specs = [
-        {
-            "Data": {"Values": ["Tabular"], "Type": "Class"},
-            "Task": {
-                "Values": [
-                    "Classification",
-                ],
-                "Type": "Class",
-            },
-            "Device": {"Values": ["GPU"], "Type": "Tag"},
-            "Scenario": {"Values": ["Nature"], "Type": "Tag"},
-            "Description": {"Values": "", "Type": "Description"},
-        },
-        {
-            "Data": {"Values": ["Tabular"], "Type": "Class"},
-            "Task": {
-                "Values": [
-                    "Classification",
-                ],
-                "Type": "Class",
-            },
-            "Device": {"Values": ["GPU"], "Type": "Tag"},
-            "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
-            "Description": {"Values": "", "Type": "Description"},
-        },
-        {
-            "Data": {"Values": ["Tabular"], "Type": "Class"},
-            "Task": {
-                "Values": [
-                    "Classification",
-                ],
-                "Type": "Class",
-            },
-            "Device": {"Values": ["GPU"], "Type": "Tag"},
-            "Scenario": {"Values": ["Business"], "Type": "Tag"},
-            "Description": {"Values": "", "Type": "Description"},
-        },
-    ]
-    user_senmantic = {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": [
-                "Classification",
-            ],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Business"], "Type": "Tag"},
-        "Description": {"Values": "learnware_1", "Type": "Description"},
-    }
 
-    for i in range(test_learnware_num):
-        dir_path = f"./learnware_pool/svm{i}"
-        model_path = os.path.join(dir_path, "__init__.py")
-        stat_spec_path = os.path.join(dir_path, "spec.json")
-        easy_market.add_learnware("learnware_%d" % (i), model_path, stat_spec_path, semantic_specs[i])
-    print("Total Item:", len(easy_market))
-    curr_inds = easy_market._get_ids()
-    print("Available ids:", curr_inds)
+    test_folder = "./test_stat"
+    zip_path_list = get_zip_path_list()
 
-    user_info = BaseUserInfo(id="user", semantic_spec=user_senmantic, stat_info=dict())
-    learnware_list = easy_market.search_learnware(user_info)
-    print(learnware_list)
+    for idx, zip_path in enumerate(zip_path_list):
+        unzip_dir = os.path.join(test_folder, f"{idx}")
+        os.makedirs(unzip_dir, exist_ok=True)
+        os.system(f"unzip -o -q {zip_path} -d {unzip_dir}")
+
+        user_spec = specification.rkme.RKMEStatSpecification()
+        user_spec.load(os.path.join(unzip_dir, "svm.json"))
+        user_info = BaseUserInfo(
+            id="user_0", semantic_spec=user_senmantic, stat_info={"RKME": user_spec}
+        )
+        sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
+
+        print(f"search result of user{idx}:")
+        for dist, learnware in zip(sorted_dist_list, single_learnware_list):
+            print(f"dist: {dist}, learnware_id: {learnware.id}, learnware_name: {learnware.name}")
+
+    os.system(f"rm -r {test_folder}")
+
+    
 
 
 def test_stat_search():
@@ -152,7 +162,7 @@ def test_stat_search():
     for idx, zip_path in enumerate(zip_path_list):
         unzip_dir = os.path.join(test_folder, f"{idx}")
         os.makedirs(unzip_dir, exist_ok=True)
-        os.system(f"unzip -q {zip_path} -d {unzip_dir}")
+        os.system(f"unzip -o -q {zip_path} -d {unzip_dir}")
 
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(os.path.join(unzip_dir, "svm.json"))
@@ -174,5 +184,6 @@ if __name__ == "__main__":
     learnware_num = 5
     prepare_learnware(learnware_num)
 
-    test_market()
-    test_stat_search()
+    # test_market()
+    # test_stat_search()
+    test_search_sementics()
