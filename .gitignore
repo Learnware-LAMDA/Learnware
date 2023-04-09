@@ -25,6 +25,7 @@ dist/
 *.egg-info/
 *.db
 *.json
+*.zip
 
 # special software
 .pytest_cache/

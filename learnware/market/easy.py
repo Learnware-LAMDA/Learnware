@@ -50,7 +50,7 @@ class EasyMarket(BaseMarket):
             return False
         return True
 
-    def add_learnware(self, learnware_name: str, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
+    def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -60,8 +60,6 @@ class EasyMarket(BaseMarket):
 
         Parameters
         ----------
-        learnware_name : str
-            Name of new learnware.
         model_path : str
             Filepath for learnware model, a zipped file.
         stat_spec_path : str
@@ -234,7 +232,9 @@ class EasyMarket(BaseMarket):
             The size of both list equals search_num
         """
         learnware_num = len(learnware_list)
-        _, sorted_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
+        if learnware_num == 0:
+            return [], []
+
         flag_list = [0 for i in range(learnware_num)]
         mixture_list = []
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
@@ -249,9 +249,9 @@ class EasyMarket(BaseMarket):
                 intermediate_K = np.r_[intermediate_K, np.zeros((1, k + 1))]
                 intermediate_C = np.r_[intermediate_C, np.zeros((1, 1))]
 
-            for idx in range(len(sorted_learnware_list)):
+            for idx in range(len(learnware_list)):
                 if flag_list[idx] == 0:
-                    mixture_list[-1] = sorted_learnware_list[idx]
+                    mixture_list[-1] = learnware_list[idx]
                     intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
                         mixture_list, user_rkme, intermediate_K, intermediate_C
                     )
@@ -262,7 +262,7 @@ class EasyMarket(BaseMarket):
                         idx_min, score_min, weight_min = idx, score, weight
 
             flag_list[idx_min] = 1
-            mixture_list[-1] = sorted_learnware_list[idx_min]
+            mixture_list[-1] = learnware_list[idx_min]
             intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
                 mixture_list, user_rkme, intermediate_K, intermediate_C
             )

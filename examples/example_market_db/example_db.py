@@ -1,13 +1,13 @@
+import os
+import joblib
+import numpy as np
+from sklearn import svm
+
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
 from learnware.learnware import Learnware
 import learnware.specification as specification
 from learnware.utils import get_module_by_module_path
-
-from sklearn import svm
-import joblib
-import numpy as np
-import os
 
 
 def prepare_learnware(learnware_num=10):
@@ -17,7 +17,6 @@ def prepare_learnware(learnware_num=10):
 
         print("Preparing Learnware: %d" % (i))
         data_X = np.random.randn(5000, 20) * i
-        # print(data_X[:10])
         data_y = np.random.randn(5000)
         data_y = np.where(data_y > 0, 1, 0)
 
@@ -26,27 +25,35 @@ def prepare_learnware(learnware_num=10):
         joblib.dump(clf, os.path.join(dir_path, "svm.pkl"))
 
         spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
-        spec.save(os.path.join(dir_path, "spec.json"))
+        spec.save(os.path.join(dir_path, "svm.json"))
 
         init_file = os.path.join(dir_path, "__init__.py")
         os.system(f"cp example_init.py {init_file}")
+        
+        yaml_file = os.path.join(dir_path, "learnware.yaml")
+        os.system(f"cp example.yaml {yaml_file}")
+        
+        zip_file = dir_path + ".zip"
+        os.system(f"zip -q -r -j {zip_file} {dir_path}")
+        os.system(f"rm -r {dir_path}")
+
+
+def get_zip_path_list():
+    root_path = "./learnware_pool"
+    zip_path_list = [os.path.join(root_path, path) for path in os.listdir(root_path)]
+    return zip_path_list
 
 
 def test_market():
     database_ops.clear_learnware_table()
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
-    test_learnware_num = 10
-    prepare_learnware(test_learnware_num)
-    root_path = "./learnware_pool"
-    os.makedirs(root_path, exist_ok=True)
+    
+    zip_path_list = get_zip_path_list() # the path list for learnware .zip
 
-    for i in range(test_learnware_num):
-        dir_path = f"./learnware_pool/svm{i}"
-        model_path = os.path.join(dir_path, "__init__.py")
-        stat_spec_path = os.path.join(dir_path, "spec.json")
+    for idx, zip_path in enumerate(zip_path_list):
         easy_market.add_learnware(
-            "learnware_%d" % (i), model_path, stat_spec_path, {"desc": "test_learnware_number_%d" % (i)}
+            zip_path, {"name": "learnware_%d" % (idx), "desc": "test_learnware_number_%d" % (idx)}
         )
     print("Total Item:", len(easy_market))
     curr_inds = easy_market._get_ids()
@@ -61,10 +68,11 @@ def test_market():
 def test_search_sementics():
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
-    test_learnware_num = 3
-    prepare_learnware(test_learnware_num)
+    
     root_path = "./learnware_pool"
     os.makedirs(root_path, exist_ok=True)
+    test_learnware_num = 3
+    prepare_learnware(test_learnware_num)
 
     # "Data": {
     #     "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
@@ -175,28 +183,37 @@ def test_search_sementics():
     print(learnware_list)
 
 
-def test_search():
+def test_stat_search():
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
-    test_learnware_num = 3
-    prepare_learnware(test_learnware_num)
-    root_path = "./learnware_pool"
-    os.makedirs(root_path, exist_ok=True)
-    for i in range(10):
+
+    test_folder = "./test_stat"
+    zip_path_list = get_zip_path_list()
+
+    for idx, zip_path in enumerate(zip_path_list):
+        unzip_dir = os.path.join(test_folder, f"{idx}")
+        os.makedirs(unzip_dir, exist_ok=True)
+        os.system(f"unzip -q {zip_path} -d {unzip_dir}")
+        
         user_spec = specification.rkme.RKMEStatSpecification()
-        user_spec.load(f"./learnware_pool/svm{i}/spec.json")
+        user_spec.load(os.path.join(unzip_dir, "svm.json"))
         user_info = BaseUserInfo(
             id="user_0", semantic_spec={"desc": "test_user_number_0"}, stat_info={"RKME": user_spec}
         )
         sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
-        print(f"search result of user{i}:")
+        print(f"search result of user{idx}:")
         for dist, learnware in zip(sorted_dist_list, single_learnware_list):
             print(f"dist: {dist}, learnware_id: {learnware.id}, learnware_name: {learnware.name}")
         mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
         print(f"mixture_learnware: {mixture_id}\n")
+        
+    os.system(f"rm -r {test_folder}")
 
 
 if __name__ == "__main__":
-    test_market()
-    test_search()
+    learnware_num = 10
+    prepare_learnware(learnware_num)
+
+    # test_market()
+    test_stat_search()
