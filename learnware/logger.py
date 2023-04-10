@@ -12,6 +12,8 @@ def get_module_logger(module_name: str, level: int = None, outfile: str = None) 
         Logic module name.
     level : int, optional
         Logging level, by default None
+    outfile : str, optional
+        The output filepath, by default None
 
     Returns
     -------
@@ -20,6 +22,8 @@ def get_module_logger(module_name: str, level: int = None, outfile: str = None) 
     """
     if level is None:
         level = C.logging_level
+    if outfile is None:
+        outfile = C.logging_outfile
 
     # Get logger.
     console_handler = logging.StreamHandler()

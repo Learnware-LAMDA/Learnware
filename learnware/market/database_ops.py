@@ -5,22 +5,20 @@ from copy import deepcopy
 
 from ..logger import get_module_logger
 from ..learnware import get_learnware_from_dirpath
+from ..config import C
 
-
-ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(ROOT_PATH, "market.db")
-LOGGER = get_module_logger("db")
+logger = get_module_logger("database_ops")
 
 
 def init_empty_db(func):
     def wrapper(*args, **kwargs):
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(os.path.join(C.database_path, "market.db"))
         cur = conn.cursor()
         listOfTables = cur.execute(
             """SELECT name FROM sqlite_master WHERE type='table' AND name='LEARNWARE'; """
         ).fetchall()
-        if listOfTables == []:
-            LOGGER.info("Initializing Database in %s..." % (DB_PATH))
+        if len(listOfTables) == 0:
+            logger.info("Initializing Database in %s..." % (os.path.join(C.database_path, "market.db")))
             cur.execute(
                 """CREATE TABLE LEARNWARE
             (ID CHAR(10) PRIMARY KEY     NOT NULL,
@@ -28,7 +26,7 @@ def init_empty_db(func):
             ZIP_PATH     TEXT NOT NULL,
             FOLDER_PATH         TEXT NOT NULL);"""
             )
-            LOGGER.info("Database Built!")
+            logger.info("Database Built!")
         kwargs["cur"] = cur
         item = func(*args, **kwargs)
         conn.commit()
@@ -46,7 +44,7 @@ def init_empty_db(func):
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 @init_empty_db
 def clear_learnware_table(cur):
-    LOGGER.warning("!!! Drop Learnware Table !!!")
+    logger.warning("!!! Drop Learnware Table !!!")
     cur.execute("DROP TABLE LEARNWARE")
 
 
@@ -67,7 +65,7 @@ def delete_learnware_from_db(id: str, cur):
 
 @init_empty_db
 def load_market_from_db(cur):
-    LOGGER.info("Reload from Database")
+    logger.info("Reload from Database")
     cursor = cur.execute("SELECT id, semantic_spec, zip_path, FOLDER_PATH from LEARNWARE")
 
     learnware_list = {}
@@ -86,5 +84,5 @@ def load_market_from_db(cur):
         folder_list[id] = folder_path
         max_count = max(max_count, int(id))
 
-    LOGGER.info("Market Reloaded from DB.")
+    logger.info("Market Reloaded from DB.")
     return learnware_list, zip_list, folder_list, max_count + 1

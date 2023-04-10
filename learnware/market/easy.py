@@ -82,7 +82,8 @@ class EasyMarket(BaseMarket):
         Returns
         -------
         Tuple[str, bool]
-            str indicating model_id, bool indicating whether the learnware is added successfully.
+            - str indicating model_id
+            - bool indicating whether the learnware is added successfully.
 
         """
         if not os.path.exists(zip_path):
@@ -104,6 +105,7 @@ class EasyMarket(BaseMarket):
             )
         except:
             new_learnware = None
+
         if new_learnware is None:
             try:
                 os.remove(target_zip_dir)

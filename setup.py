@@ -44,6 +44,7 @@ REQUIRED = [
     "scikit-learn>=1.2.2",
     "joblib>=1.2.0",
     "pyyaml>=6.0",
+    "fire>=0.5.0",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))

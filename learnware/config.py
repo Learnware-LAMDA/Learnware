@@ -48,13 +48,22 @@ class Config:
         self.__dict__["_config"].update(*args, **kwargs)
 
 
-ROOT_DIRPATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), ".learnware")
 SPEC_DIRPATH = None
+
 LEARNWARE_POOL_PATH = os.path.join(ROOT_DIRPATH, "learnware_pool")
 LEARNWARE_ZIP_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "zips")
 LEARNWARE_FOLDER_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "learnwares")
+
+DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
+
+
+# TODO: Delete them later
+os.makedirs(ROOT_DIRPATH, exist_ok=True)
+os.makedirs(LEARNWARE_POOL_PATH, exist_ok=True)
 os.makedirs(LEARNWARE_ZIP_POOL_PATH, exist_ok=True)
 os.makedirs(LEARNWARE_FOLDER_POOL_PATH, exist_ok=True)
+os.makedirs(DATABASE_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {
@@ -109,11 +118,16 @@ semantic_config = {
 _DEFAULT_CONFIG = {
     "root_path": ROOT_DIRPATH,
     "logging_level": logging.INFO,
-    "specification_path": SPEC_DIRPATH,
+    "logging_outfile": None,
     "semantic_specs": semantic_config,
     "learnware_pool_path": LEARNWARE_POOL_PATH,
     "learnware_zip_pool_path": LEARNWARE_ZIP_POOL_PATH,
     "learnware_folder_pool_path": LEARNWARE_FOLDER_POOL_PATH,
+    "learnware_folder_config": {
+        "yaml_file": "learnware.yaml",
+        "module_file": "__init__.py",
+    },
+    "database_path": DATABASE_PATH,
 }
 
 C = Config(_DEFAULT_CONFIG)

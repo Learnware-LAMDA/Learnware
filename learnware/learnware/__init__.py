@@ -6,6 +6,7 @@ from .utils import get_stat_spec_from_config, get_model_from_config
 from ..specification import Specification
 from ..utils import read_yaml_to_dict
 from ..logger import get_module_logger
+from ..config import C
 
 logger = get_module_logger("learnware.learnware")
 
@@ -44,7 +45,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
 
     if learnware_dirpath is not None:
         try:
-            yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, "learnware.yaml"))
+            yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"]))
         except FileNotFoundError:
             yaml_config = {}
 
@@ -56,7 +57,9 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
         learnware_config["stat_specifications"] = yaml_config["stat_specifications"].copy()
 
     if "module_path" not in learnware_config["model"]:
-        learnware_config["model"]["module_path"] = os.path.join(learnware_dirpath, "__init__.py")
+        learnware_config["model"]["module_path"] = os.path.join(
+            learnware_dirpath, C.learnware_folder_config["module_file"]
+        )
 
     try:
         learnware_spec = Specification()
