@@ -312,21 +312,6 @@ class EasyMarket(BaseMarket):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def _search_by_semantic_description(
-        self, learnware_list: List[Learnware], user_info: BaseUserInfo
-    ) -> List[Learnware]:
-        user_semantic_spec = user_info.get_semantic_spec()
-        user_input_description = user_semantic_spec["Name"]["Values"]
-        if not user_input_description:
-            return learnware_list
-        match_learnwares = []
-        for learnware in learnware_list:
-            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
-            learnware_name = learnware_semantic_spec["Name"]["Values"]
-            if user_input_description in learnware_name:
-                match_learnwares.append(learnware)
-        return match_learnwares
-
     def _search_by_semantic_tags(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
         def match_semantic_tags(semantic_spec1, semantic_spec2):
             if semantic_spec1.keys() != semantic_spec2.keys():
@@ -334,22 +319,22 @@ class EasyMarket(BaseMarket):
                 logger.warning("semantic_spec key error!")
                 return False
             for key in semantic_spec1.keys():
+                if len(semantic_spec1[key]["Values"]) == 0:
+                    continue
+                if len(semantic_spec2[key]["Values"]) == 0:
+                    continue
                 if semantic_spec1[key]["Type"] == "Class":
-                    if (
-                        len(semantic_spec2[key]["Values"]) > 0
-                        and semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]
-                    ):
+                    if isinstance(semantic_spec1[key]["Values"], list):
+                        semantic_spec1[key]["Values"] = semantic_spec1[key]["Values"][0]
+                    if isinstance(semantic_spec2[key]["Values"], list):
+                        semantic_spec2[key]["Values"] = semantic_spec2[key]["Values"][0]
+                    if semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]:
                         return False
                 elif semantic_spec1[key]["Type"] == "Tag":
-                    if len(semantic_spec2[key]["Values"]) > 0 and not (
-                        set(semantic_spec1[key]["Values"]) & set(semantic_spec2[key]["Values"])
-                    ):
+                    if not (set(semantic_spec1[key]["Values"]) & set(semantic_spec2[key]["Values"])):
                         return False
                 elif semantic_spec1[key]["Type"] == "Name":
-                    if (
-                        len(semantic_spec2[key]["Values"]) > 0
-                        and semantic_spec2[key]["Values"] not in semantic_spec1[key]["Values"]
-                    ):
+                    if semantic_spec2[key]["Values"] not in semantic_spec1[key]["Values"]:
                         return False
             return True
 
