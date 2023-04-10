@@ -18,8 +18,8 @@ logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
-    def __init__(self, rebuild:bool = False):
-        """Initialize Learnware Market. 
+    def __init__(self, rebuild: bool = False):
+        """Initialize Learnware Market.
         Automatically reload from db if available.
         Build an empty db otherwise.
 
@@ -37,7 +37,7 @@ class EasyMarket(BaseMarket):
         self.reload_market(rebuild=rebuild)  # Automatically reload the market
         logger.info("Market Initialized!")
 
-    def reload_market(self, rebuild:bool = False) -> bool:
+    def reload_market(self, rebuild: bool = False) -> bool:
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
             clear_learnware_table()
@@ -86,7 +86,7 @@ class EasyMarket(BaseMarket):
 
         """
         if not os.path.exists(zip_path):
-            logger.warning('Zip Path NOT Found! Fail to add learnware.')
+            logger.warning("Zip Path NOT Found! Fail to add learnware.")
             return None, False
 
         logger.info("Get new learnware from %s" % (zip_path))
@@ -438,16 +438,15 @@ class EasyMarket(BaseMarket):
                 if id in self.learnware_list:
                     ret.append(self.learnware_list[id])
                 else:
-                    logger.warning("Learnware ID '%s' NOT Found!"%(id))
+                    logger.warning("Learnware ID '%s' NOT Found!" % (id))
                     ret.append(None)
             return ret
         else:
             try:
                 return self.learnware_list[ids]
             except:
-                logger.warning("Learnware ID '%s' NOT Found!"%(ids))
+                logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
-
 
     def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Get Zipped Learnware file by id
@@ -472,14 +471,14 @@ class EasyMarket(BaseMarket):
                 if id in self.learnware_zip_list:
                     ret.append(self.learnware_zip_list[id])
                 else:
-                    logger.warning("Learnware ID '%s' NOT Found!"%(id))
+                    logger.warning("Learnware ID '%s' NOT Found!" % (id))
                     ret.append(None)
             return ret
         else:
             try:
                 return self.learnware_zip_list[ids]
             except:
-                logger.warning("Learnware ID '%s' NOT Found!"%(ids))
+                logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
     def __len__(self):
