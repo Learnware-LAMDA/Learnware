@@ -171,7 +171,7 @@ def test_stat_search():
 
 
 if __name__ == "__main__":
-    learnware_num = 5
+    learnware_num = 10
     prepare_learnware(learnware_num)
     test_market()
     test_stat_search()

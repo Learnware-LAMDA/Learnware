@@ -37,7 +37,6 @@ def init_empty_db(func):
 
     return wrapper
 
-
 # Clear Learnware Database
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # !!!!!                                    !!!!!
@@ -48,7 +47,6 @@ def init_empty_db(func):
 def clear_learnware_table(cur):
     LOGGER.warning("!!! Drop Learnware Table !!!")
     cur.execute("DROP TABLE LEARNWARE")
-
 
 @init_empty_db
 def add_learnware_to_db(id: str, semantic_spec: dict, zip_path: str, folder_path: str, cur):

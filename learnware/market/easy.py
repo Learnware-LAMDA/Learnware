@@ -84,13 +84,10 @@ class EasyMarket(BaseMarket):
         Tuple[str, bool]
             str indicating model_id, bool indicating whether the learnware is added successfully.
 
-        Raises
-        ------
-        FileNotFoundError
-            file for model or statistical specification not found
         """
         if not os.path.exists(zip_path):
-            raise FileNotFoundError("Model or Stat_spec NOT Found.")
+            logger.warning('Zip Path NOT Found! Fail to add learnware.')
+            return None, False
 
         logger.info("Get new learnware from %s" % (zip_path))
         id = "%08d" % (self.count)
@@ -113,7 +110,7 @@ class EasyMarket(BaseMarket):
                 rmtree(target_folder_dir)
             except:
                 pass
-            return None, None
+            return None, False
         else:
             self.learnware_list[id] = new_learnware
             self.learnware_zip_list[id] = target_zip_dir
@@ -386,8 +383,22 @@ class EasyMarket(BaseMarket):
             return sorted_dist_list, single_learnware_list, mixture_learnware_list
 
     def delete_learnware(self, id: str) -> bool:
+        """Delete Learnware from market
+
+        Parameters
+        ----------
+        id : str
+            Learnware to be deleted
+
+        Returns
+        -------
+        bool
+            True for successful operation.
+            False for id not found.
+        """
         if not id in self.learnware_list:
-            raise Exception("Learnware id:'{}' NOT Found!".format(id))
+            logger.warning("Learnware id:'{}' NOT Found!".format(id))
+            return False
 
         zip_dir = self.learnware_zip_list[id]
         os.remove(zip_dir)
