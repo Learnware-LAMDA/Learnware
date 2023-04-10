@@ -244,7 +244,7 @@ class EasyMarket(BaseMarket):
         learnware_num = len(learnware_list)
         if learnware_num == 0:
             return [], []
-        if learnware_num <  search_num:
+        if learnware_num < search_num:
             logger.warning("Available Learnware num less than search_num")
             search_num = learnware_num
 

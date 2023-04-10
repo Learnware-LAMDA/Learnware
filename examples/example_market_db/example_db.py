@@ -117,7 +117,7 @@ def test_market():
     print("Available ids:", curr_inds)
 
 
-def test_search_sementics():
+def test_search_semantics():
     easy_market = EasyMarket()
     print("Total Item:", len(easy_market))
 
@@ -175,4 +175,4 @@ if __name__ == "__main__":
     prepare_learnware(learnware_num)
     test_market()
     test_stat_search()
-    test_search_sementics()
+    test_search_semantics()
