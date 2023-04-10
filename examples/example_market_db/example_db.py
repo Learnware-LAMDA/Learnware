@@ -14,10 +14,7 @@ curr_root = os.path.dirname(os.path.abspath(__file__))
 semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
+        "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Nature"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "Description"},
@@ -25,10 +22,7 @@ semantic_specs = [
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
+        "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "Description"},
@@ -36,10 +30,7 @@ semantic_specs = [
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
+        "Task": {"Values": ["Regression"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "Description"},
@@ -49,14 +40,11 @@ semantic_specs = [
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {
-        "Values": ["Classification"],
-        "Type": "Class",
-    },
+    "Task": {"Values": ["Classification"], "Type": "Class",},
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "Description"},
-    "Name": {"Values": "", "Type": "Name"},
+    "Name": {"Values": "learnware_4", "Type": "Name"},
 }
 
 
@@ -130,15 +118,20 @@ def test_search_semantics():
     test_folder = "./test_stat"
     zip_path_list = get_zip_path_list()
 
-    for idx, zip_path in enumerate(zip_path_list):
-        unzip_dir = os.path.join(test_folder, f"{idx}")
-        os.makedirs(unzip_dir, exist_ok=True)
-        os.system(f"unzip -o -q {zip_path} -d {unzip_dir}")
+    idx, zip_path = 1, zip_path_list[1]
+    unzip_dir = os.path.join(test_folder, f"{idx}")
+    os.makedirs(unzip_dir, exist_ok=True)
+    os.system(f"unzip -o -q {zip_path} -d {unzip_dir}")
 
-        user_spec = specification.rkme.RKMEStatSpecification()
-        user_spec.load(os.path.join(unzip_dir, "svm.json"))
-        user_info = BaseUserInfo(id="user_0", semantic_spec=user_senmantic, stat_info={"RKME": user_spec})
-        sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
+    user_spec = specification.rkme.RKMEStatSpecification()
+    user_spec.load(os.path.join(unzip_dir, "svm.json"))
+    user_info = BaseUserInfo(id="user_0", semantic_spec=user_senmantic)
+    _, single_learnware_list, _ = easy_market.search_learnware(user_info)
+
+    print("User info:", user_info.get_semantic_spec())
+    print(f"search result of user{idx}:")
+    for learnware in single_learnware_list:
+        print("Choose learnware:", learnware.id, learnware.get_specification().get_semantic_spec())
 
     os.system(f"rm -r {test_folder}")
 
@@ -160,11 +153,11 @@ def test_stat_search():
         user_info = BaseUserInfo(
             id="user_0", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
         )
-        sorted_dist_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
+        sorted_score_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
         print(f"search result of user{idx}:")
-        for dist, learnware in zip(sorted_dist_list, single_learnware_list):
-            print(f"dist: {dist}, learnware_id: {learnware.id}")
+        for score, learnware in zip(sorted_score_list, single_learnware_list):
+            print(f"score: {score}, learnware_id: {learnware.id}")
         mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
         print(f"mixture_learnware: {mixture_id}\n")
 
@@ -175,5 +168,5 @@ if __name__ == "__main__":
     learnware_num = 5
     prepare_learnware(learnware_num)
     test_market()
-    test_stat_search()
+    # test_stat_search()
     test_search_semantics()

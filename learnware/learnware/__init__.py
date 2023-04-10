@@ -29,10 +29,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
         The contructed learnware object, return None if build failed
     """
     learnware_config = {
-        "model": {
-            "class_name": "Model",
-            "kwargs": {},
-        },
+        "model": {"class_name": "Model", "kwargs": {},},
         "stat_specifications": [
             {
                 "module_path": "learnware.specification",

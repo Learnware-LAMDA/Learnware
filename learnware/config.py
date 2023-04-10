@@ -66,10 +66,7 @@ os.makedirs(LEARNWARE_FOLDER_POOL_PATH, exist_ok=True)
 os.makedirs(DATABASE_PATH, exist_ok=True)
 
 semantic_config = {
-    "Data": {
-        "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
-        "Type": "Class",  # Choose only one class
-    },
+    "Data": {"Values": ["Tabular", "Image", "Video", "Text", "Audio"], "Type": "Class",},  # Choose only one class
     "Task": {
         "Values": [
             "Classification",
@@ -82,10 +79,7 @@ semantic_config = {
         ],
         "Type": "Class",  # Choose only one class
     },
-    "Device": {
-        "Values": ["CPU", "GPU"],
-        "Type": "Tag",  # Choose one or more tags
-    },
+    "Device": {"Values": ["CPU", "GPU"], "Type": "Tag",},  # Choose one or more tags
     "Scenario": {
         "Values": [
             "Business",
@@ -105,14 +99,8 @@ semantic_config = {
         ],
         "Type": "Tag",  # Choose one or more tags
     },
-    "Description": {
-        "Values": None,
-        "Type": "Description",
-    },
-    "Name": {
-        "Values": None,
-        "Type": "Name",
-    },
+    "Description": {"Values": None, "Type": "Description",},
+    "Name": {"Values": None, "Type": "Name",},
 }
 
 _DEFAULT_CONFIG = {

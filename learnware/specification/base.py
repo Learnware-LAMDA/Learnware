@@ -7,10 +7,10 @@ class BaseStatSpecification:
         pass
 
     def generate_stat_spec_from_data(self, **kwargs):
-        """Construct reduced set from raw dataset using iterative optimization
+        """Construct statistical specification from raw dataset
 
         - kwargs may include the feature, label and model
-        - kwargs also can include hyperparameter for specifaction generation
+        - kwargs also can include hyperparameters of specific method for specifaction generation
         """
         raise NotImplementedError("generate_stat_spec_from_data is not implemented")
 
