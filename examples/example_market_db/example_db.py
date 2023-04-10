@@ -44,7 +44,7 @@ user_senmantic = {
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "Description"},
-    "Name": {"Values": "", "Type": "Name"},
+    "Name": {"Values": "learnware_4", "Type": "Name"},
 }
 
 
@@ -126,7 +126,7 @@ def test_search_semantics():
     user_spec.load(os.path.join(unzip_dir, "svm.json"))
     user_info = BaseUserInfo(id="user_0", semantic_spec=user_senmantic)
     _, single_learnware_list, _ = easy_market.search_learnware(user_info)
-    
+
     print("User info:", user_info.get_semantic_spec())
     print(f"search result of user{idx}:")
     for learnware in single_learnware_list:
