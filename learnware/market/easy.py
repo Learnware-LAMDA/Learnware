@@ -134,10 +134,10 @@ class EasyMarket(BaseMarket):
         List[float]
             The list of min_max scores of each learnware
         """
-        score_list = [(max(dist_list) - dist) / (max(dist_list) - min(dist_list)) for dist in dist_list]
-
-        return score_list
-        
+        if max(dist_list) == min(dist_list):
+            return [1 for dist in dist_list]
+        else:
+            return [(max(dist_list) - dist) / (max(dist_list) - min(dist_list)) for dist in dist_list]
 
     def _calculate_rkme_spec_mixture_weight(
         self,
