@@ -333,7 +333,9 @@ class EasyMarket(BaseMarket):
     def _search_by_semantic_tags(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
         def match_semantic_tags(semantic_spec1, semantic_spec2):
             if semantic_spec1.keys() != semantic_spec2.keys():
-                raise Exception("semantic_spec key error")
+                # raise Exception("semantic_spec key error")
+                logger.warning("semantic_spec key error!")
+                return False
             for key in semantic_spec1.keys():
                 if semantic_spec1[key]["Type"] == "Class":
                     if semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]:
