@@ -6,7 +6,12 @@ class BaseStatSpecification:
     def __init__(self):
         pass
 
-    def generate_stat_spec_from_data(self, X: np.ndarray):
+    def generate_stat_spec_from_data(self, **kwargs):
+        """Construct statistical specification from raw dataset
+
+        - kwargs may include the feature, label and model
+        - kwargs also can include hyperparameters of specific method for specifaction generation
+        """
         raise NotImplementedError("generate_stat_spec_from_data is not implemented")
 
     def save(self, filepath: str):

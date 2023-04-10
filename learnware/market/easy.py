@@ -117,10 +117,7 @@ class EasyMarket(BaseMarket):
             self.learnware_folder_list[id] = target_folder_dir
             self.count += 1
             add_learnware_to_db(
-                id,
-                semantic_spec=semantic_spec,
-                zip_path=target_folder_dir,
-                folder_path=target_folder_dir,
+                id, semantic_spec=semantic_spec, zip_path=target_folder_dir, folder_path=target_folder_dir,
             )
             return id, True
     
@@ -333,21 +330,6 @@ class EasyMarket(BaseMarket):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def _search_by_semantic_description(
-        self, learnware_list: List[Learnware], user_info: BaseUserInfo
-    ) -> List[Learnware]:
-        user_semantic_spec = user_info.get_semantic_spec()
-        user_input_description = user_semantic_spec["Description"]["Values"]
-        if not user_input_description:
-            return []
-        match_learnwares = []
-        for learnware in learnware_list:
-            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
-            learnware_name = learnware_semantic_spec["Name"]["Values"]
-            if user_input_description in learnware_name:
-                match_learnwares.append(learnware)
-        return match_learnwares
-
     def _search_by_semantic_tags(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
         def match_semantic_tags(semantic_spec1, semantic_spec2):
             if semantic_spec1.keys() != semantic_spec2.keys():
@@ -355,11 +337,22 @@ class EasyMarket(BaseMarket):
                 logger.warning("semantic_spec key error!")
                 return False
             for key in semantic_spec1.keys():
+                if len(semantic_spec1[key]["Values"]) == 0:
+                    continue
+                if len(semantic_spec2[key]["Values"]) == 0:
+                    continue
                 if semantic_spec1[key]["Type"] == "Class":
+                    if isinstance(semantic_spec1[key]["Values"], list):
+                        semantic_spec1[key]["Values"] = semantic_spec1[key]["Values"][0]
+                    if isinstance(semantic_spec2[key]["Values"], list):
+                        semantic_spec2[key]["Values"] = semantic_spec2[key]["Values"][0]
                     if semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]:
                         return False
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(semantic_spec1[key]["Values"]) & set(semantic_spec2[key]["Values"])):
+                        return False
+                elif semantic_spec1[key]["Type"] == "Name":
+                    if semantic_spec2[key]["Values"] not in semantic_spec1[key]["Values"]:
                         return False
             return True
 
@@ -391,9 +384,8 @@ class EasyMarket(BaseMarket):
             the third is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
-        learnware_list_tags = self._search_by_semantic_tags(learnware_list, user_info)
-        learnware_list_description = self._search_by_semantic_description(learnware_list, user_info)
-        learnware_list = list(set(learnware_list_tags + learnware_list_description))
+        learnware_list = self._search_by_semantic_tags(learnware_list, user_info)
+        # learnware_list = list(set(learnware_list_tags + learnware_list_description))
 
         if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
