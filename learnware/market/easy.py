@@ -391,6 +391,8 @@ class EasyMarket(BaseMarket):
 
         if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
+        elif len(learnware_list) == 0:
+            return [], [], []
         else:
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
