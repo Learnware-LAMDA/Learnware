@@ -40,7 +40,10 @@ semantic_specs = [
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {"Values": ["Classification"], "Type": "Class",},
+    "Task": {
+        "Values": ["Classification"],
+        "Type": "Class",
+    },
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "Description"},
@@ -95,7 +98,7 @@ def test_market():
         semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
         easy_market.add_learnware(zip_path, semantic_spec)
-    return
+
     print("Total Item:", len(easy_market))
     curr_inds = easy_market._get_ids()
     print("Available ids:", curr_inds)
@@ -165,8 +168,8 @@ def test_stat_search():
 
 
 if __name__ == "__main__":
-    learnware_num = 5
+    learnware_num = 10
     prepare_learnware(learnware_num)
     test_market()
-    # test_stat_search()
+    test_stat_search()
     test_search_semantics()

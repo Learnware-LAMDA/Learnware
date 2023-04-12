@@ -1,5 +1,15 @@
-import os
 import fire
+import os
+import joblib
+import numpy as np
+import learnware
+
+from sklearn import svm
+from learnware.market import EasyMarket, BaseUserInfo
+from learnware.market import database_ops
+from learnware.learnware import Learnware
+import learnware.specification as specification
+from learnware.utils import get_module_by_module_path
 
 
 class LearnwareMarketWorkflow:
@@ -52,6 +62,18 @@ class LearnwareMarketWorkflow:
         "Description": {"Values": "", "Type": "Description"},
         "Name": {"Values": "", "Type": "Name"},
     }
+
+    def _init_learnware_market(self):
+        """initialize learnware market"""
+        database_ops.clear_learnware_table()
+        learnware.init()
+
+        self.learnware_market = EasyMarket()
+
+    def _generate_learnware_randomly(self):
+        pass
+
+    # def _
 
 
 if __name__ == "__main__":
