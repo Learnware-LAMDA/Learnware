@@ -10,7 +10,7 @@ from ..specification import RKMEStatSpecification
 class BaseUserInfo:
     """User Information for searching learnware"""
 
-    def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
+    def __init__(self, id: str, semantic_spec: dict = None, stat_info: dict = None):
         """Initializing user information
 
         Parameters
@@ -23,8 +23,8 @@ class BaseUserInfo:
             statistical information uploaded by user, by default dict()
         """
         self.id = id
-        self.semantic_spec = semantic_spec
-        self.stat_info = stat_info
+        self.semantic_spec = {} if semantic_spec is None else semantic_spec
+        self.stat_info = {} if stat_info is None else stat_info
 
     def get_semantic_spec(self) -> dict:
         """Return user semantic specifications

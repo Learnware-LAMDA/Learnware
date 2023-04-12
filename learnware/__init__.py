@@ -4,7 +4,7 @@ import os
 from .logger import get_module_logger
 
 
-def init(**kwargs):
+def init(reset=False, **kwargs):
     from .config import C
 
     C.reset()
