@@ -27,7 +27,7 @@ class Specification:
         self.stat_spec = {} if stat_spec is None else stat_spec
 
     def __repr__(self) -> str:
-        return "{}(Semantic Spec: {}, {})".format(
+        return "{}(Semantic Specification: {}, Statistical Specification: {})".format(
             type(self).__name__, type(self.semantic_spec).__name__, self.stat_spec
         )
 
