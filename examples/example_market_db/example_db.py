@@ -44,7 +44,7 @@ user_senmantic = {
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "Description"},
-    "Name": {"Values": "learnware_4", "Type": "Name"},
+    "Name": {"Values": "learnware", "Type": "Name"},
 }
 
 
