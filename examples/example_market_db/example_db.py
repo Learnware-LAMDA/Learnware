@@ -40,14 +40,11 @@ semantic_specs = [
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {
-        "Values": ["Classification"],
-        "Type": "Class",
-    },
+    "Task": {"Values": ["Classification"], "Type": "Class",},
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "Description"},
-    "Name": {"Values": "learnware_4", "Type": "Name"},
+    "Name": {"Values": "learnware", "Type": "Name"},
 }
 
 

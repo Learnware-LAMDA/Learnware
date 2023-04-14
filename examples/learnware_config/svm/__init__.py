@@ -15,5 +15,5 @@ class SVM(BaseModel):
     def predict(self, X: np.ndarray) -> np.ndarray:
         return self.model.predict(X)
 
-    def fintune(self, X: np.ndarray, y: np.ndarray):
+    def finetune(self, X: np.ndarray, y: np.ndarray):
         pass

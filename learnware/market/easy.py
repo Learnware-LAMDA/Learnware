@@ -119,10 +119,7 @@ class EasyMarket(BaseMarket):
             self.learnware_folder_list[id] = target_folder_dir
             self.count += 1
             add_learnware_to_db(
-                id,
-                semantic_spec=semantic_spec,
-                zip_path=target_zip_dir,
-                folder_path=target_folder_dir,
+                id, semantic_spec=semantic_spec, zip_path=target_zip_dir, folder_path=target_folder_dir,
             )
             return id, True
 
@@ -241,7 +238,7 @@ class EasyMarket(BaseMarket):
         return intermediate_K, intermediate_C
 
     def _search_by_rkme_spec_mixture(
-        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, search_num: int
+        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, max_search_num: int = 5, score_cutoff: float = 0.1
     ) -> Tuple[List[float], List[Learnware]]:
         """Get search_num learnwares with their mixture weight from the given learnware_list
 
@@ -251,8 +248,10 @@ class EasyMarket(BaseMarket):
             The list of learnwares whose mixture approximates the user's rkme
         user_rkme : RKMEStatSpecification
             User RKME statistical specification
-        search_num : int
-            The number of the returned learnwares
+        max_search_num : int
+            The maximum number of the returned learnwares
+        score_cutof: float
+            The minimum mmd dist as threshold to stop further rkme_spec matching
 
         Returns
         -------
@@ -265,14 +264,14 @@ class EasyMarket(BaseMarket):
         if learnware_num == 0:
             return [], []
         if learnware_num < search_num:
-            logger.warning("Available Learnware num less than search_num")
+            logger.warning("Available Learnware num less than search_num!")
             search_num = learnware_num
 
-        flag_list = [0 for i in range(learnware_num)]
+        flag_list = [0 for _ in range(learnware_num)]
         mixture_list = []
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
 
-        for k in range(search_num):
+        for k in range(max_search_num):
             idx_min, score_min = -1, -1
             weight_min = None
             mixture_list.append(None)
@@ -294,11 +293,14 @@ class EasyMarket(BaseMarket):
                     if idx_min == -1 or score < score_min:
                         idx_min, score_min, weight_min = idx, score, weight
 
-            flag_list[idx_min] = 1
-            mixture_list[-1] = learnware_list[idx_min]
-            intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
-                mixture_list, user_rkme, intermediate_K, intermediate_C
-            )
+            if score_min >= score_cutoff:
+                flag_list[idx_min] = 1
+                mixture_list[-1] = learnware_list[idx_min]
+                intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
+                    mixture_list, user_rkme, intermediate_K, intermediate_C
+                )
+            else:
+                break
 
         return weight_min, mixture_list
 
@@ -335,8 +337,8 @@ class EasyMarket(BaseMarket):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def _search_by_semantic_tags(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
-        def match_semantic_tags(semantic_spec1, semantic_spec2):
+    def _search_by_semantic_spec(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
+        def match_semantic_spec(semantic_spec1, semantic_spec2):
             if semantic_spec1.keys() != semantic_spec2.keys():
                 # raise Exception("semantic_spec key error")
                 logger.warning("semantic_spec key error!")
@@ -346,18 +348,20 @@ class EasyMarket(BaseMarket):
                     continue
                 if len(semantic_spec2[key]["Values"]) == 0:
                     continue
+                v1 = semantic_spec1[key]["Values"]
+                v2 = semantic_spec2[key]["Values"]
                 if semantic_spec1[key]["Type"] == "Class":
-                    if isinstance(semantic_spec1[key]["Values"], list):
-                        semantic_spec1[key]["Values"] = semantic_spec1[key]["Values"][0]
-                    if isinstance(semantic_spec2[key]["Values"], list):
-                        semantic_spec2[key]["Values"] = semantic_spec2[key]["Values"][0]
-                    if semantic_spec1[key]["Values"] != semantic_spec2[key]["Values"]:
+                    if isinstance(v1, list):
+                        v1 = v1[0]
+                    if isinstance(v2, list):
+                        v2 = v2[0]
+                    if v1 != v2:
                         return False
                 elif semantic_spec1[key]["Type"] == "Tag":
-                    if not (set(semantic_spec1[key]["Values"]) & set(semantic_spec2[key]["Values"])):
+                    if not (set(v1) & set(v2)):
                         return False
                 elif semantic_spec1[key]["Type"] == "Name":
-                    if semantic_spec2[key]["Values"] not in semantic_spec1[key]["Values"]:
+                    if v2 not in v1 and v2 not in semantic_spec1["Description"]["Values"]:
                         return False
             return True
 
@@ -365,7 +369,7 @@ class EasyMarket(BaseMarket):
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
             user_semantic_spec = user_info.get_semantic_spec()
-            if match_semantic_tags(learnware_semantic_spec, user_semantic_spec):
+            if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
                 match_learnwares.append(learnware)
         return match_learnwares
 
@@ -389,7 +393,7 @@ class EasyMarket(BaseMarket):
             the third is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
-        learnware_list = self._search_by_semantic_tags(learnware_list, user_info)
+        learnware_list = self._search_by_semantic_spec(learnware_list, user_info)
         # learnware_list = list(set(learnware_list_tags + learnware_list_description))
 
         if "RKMEStatSpecification" not in user_info.stat_info:

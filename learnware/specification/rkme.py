@@ -10,10 +10,13 @@ import codecs
 import random
 import numpy as np
 from cvxopt import solvers, matrix
+from collections import Counter
 from typing import Tuple, Any, List, Union, Dict
 
 from .base import BaseStatSpecification
+from ..logger import get_module_logger
 
+logger = get_module_logger("rkme")
 
 class RKMEStatSpecification(BaseStatSpecification):
     """Reduced-set Kernel Mean Embedding (RKME) Specification"""
@@ -196,6 +199,59 @@ class RKMEStatSpecification(BaseStatSpecification):
 
         Z = Z - step_size * grad_Z
         self.z = Z
+    
+    def _inner_prod_with_X(self, X: Any) -> float:
+        """Compute the inner product between RKME specification and X
+
+        Parameters
+        ----------
+        X : np.ndarray or torch.tensor
+            Raw data in np.ndarray format or torch.tensor format.
+
+        Returns
+        -------
+        float
+            The inner product between RKME specification and X
+        """
+        beta = self.beta.reshape(1, -1).double().to(self.device)
+        Z = self.z.double().to(self.device)
+        if not torch.is_tensor(X):
+            X = torch.from_numpy(X)
+        X = X.to(self.device).double()
+        
+        v = torch_rbf_kernel(Z, X, self.gamma) * beta.double
+        v = torch.sum(v, axis = 0)
+        return v.detach().cpu().numpy()
+    
+    def _sampling_candidates(self, N: int) -> np.ndarray:
+        """Generate a large set of candidates as preparation for herding
+
+        Parameters
+        ----------
+        N : int
+            The number of herding candidates.
+
+        Returns
+        -------
+        np.ndarray
+            The herding candidates.
+        """
+        beta = self.beta
+        beta[beta < 0] = 0  # currently we cannot use negative weight
+        beta = beta / torch.sum(beta)
+        sample_assign = torch.multinomial(beta, N, replacement=True)
+
+        sample_list = []
+        for i, n in Counter(np.array(sample_assign.cpu())).items():
+            for _ in range(n):
+                sample_list.append(torch.normal(mean=self.z[i], std=0.25).reshape(1, -1))
+        if len(sample_list) > 1:
+            return torch.cat(sample_list, axis=0)
+        elif len(sample_list) == 1:
+            return sample_list[0]
+        else:
+            logger.warning("Not enough candidates for herding!")
+
 
     def inner_prod(self, Phi2: RKMEStatSpecification) -> float:
         """Compute the inner product between two RKME specifications
@@ -226,7 +282,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         Phi2 : RKMEStatSpecification
             The other RKME specification.
         omit_term1 : bool, optional
-            True if the inner product of self with itself can be omitted, by default False
+            True if the inner product of self with itself can be omitted, by default False.
         """
         if omit_term1:
             term1 = 0
@@ -236,6 +292,34 @@ class RKMEStatSpecification(BaseStatSpecification):
         term3 = Phi2.inner_prod(Phi2)
 
         return float(term1 - 2 * term2 + term3)
+    
+    def herding(self, T: int) -> np.ndarray:
+        """Iteratively sample examples from an unknown distribution with the help of its RKME specification
+
+        Parameters
+        ----------
+        T : int
+            Total iteration number for sampling.
+
+        Returns
+        -------
+        np.ndarray
+            A collection of examples which approximate the unknown distribution.
+        """
+        Nstart = 100 * T
+        Xstart = self._sampling_candidates(Nstart).to(self.device)
+        D = self.z[0].shape[0]
+        S = torch.zeros((T, D)).to(self.device)
+        fsX = torch.from_numpy(self._inner_prod_with_X(Xstart)).to(self.device)
+        fsS = torch.zeros(Nstart).to(self.device)
+        for i in range(T):
+            if i > 0:
+                fsS = torch.sum(torch_rbf_kernel(S[:i, :], Xstart, self.gamma), axis=0)
+            fs = (i + 1) * fsX - fsS
+            idx = torch.argmax(fs)
+            S[i, :] = Xstart[idx, :]
+        
+        return S
 
     def save(self, filepath: str):
         """Save the computed RKME specification to a specified path in JSON format.
@@ -255,9 +339,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
         json.dump(
-            rkme_to_save,
-            codecs.open(save_path, "w", encoding="utf-8"),
-            separators=(",", ":"),
+            rkme_to_save, codecs.open(save_path, "w", encoding="utf-8"), separators=(",", ":"),
         )
 
     def load(self, filepath: str) -> bool:
@@ -345,7 +427,7 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
     """
     x1 = x1.double()
     x2 = x2.double()
-    X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
+    X12norm = torch.sum(x1 ** 2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2 ** 2, 1, keepdim=True).T
     return torch.exp(-X12norm * gamma)
 
 
