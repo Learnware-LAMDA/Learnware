@@ -240,7 +240,7 @@ class EasyMarket(BaseMarket):
     def _search_by_rkme_spec_mixture(
         self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, max_search_num: int = 5, score_cutoff: float = 0.1
     ) -> Tuple[List[float], List[Learnware]]:
-        """Get search_num learnwares with their mixture weight from the given learnware_list
+        """Get learnwares with their mixture weight from the given learnware_list
 
         Parameters
         ----------
@@ -258,14 +258,13 @@ class EasyMarket(BaseMarket):
         Tuple[List[float], List[Learnware]]
             The first is the list of weight
             The second is the list of Learnware
-            The size of both list equals search_num
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
             return [], []
-        if learnware_num < search_num:
+        if learnware_num < max_search_num:
             logger.warning("Available Learnware num less than search_num!")
-            search_num = learnware_num
+            max_search_num = learnware_num
 
         flag_list = [0 for _ in range(learnware_num)]
         mixture_list = []
