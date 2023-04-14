@@ -238,7 +238,7 @@ class EasyMarket(BaseMarket):
         return intermediate_K, intermediate_C
 
     def _search_by_rkme_spec_mixture(
-        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, search_num: int
+        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, max_search_num: int = 5, score_cutoff: float = 0.1
     ) -> Tuple[List[float], List[Learnware]]:
         """Get search_num learnwares with their mixture weight from the given learnware_list
 
@@ -248,8 +248,10 @@ class EasyMarket(BaseMarket):
             The list of learnwares whose mixture approximates the user's rkme
         user_rkme : RKMEStatSpecification
             User RKME statistical specification
-        search_num : int
-            The number of the returned learnwares
+        max_search_num : int
+            The maximum number of the returned learnwares
+        score_cutof: float
+            The minimum mmd dist as threshold to stop further rkme_spec matching
 
         Returns
         -------
@@ -262,14 +264,14 @@ class EasyMarket(BaseMarket):
         if learnware_num == 0:
             return [], []
         if learnware_num < search_num:
-            logger.warning("Available Learnware num less than search_num")
+            logger.warning("Available Learnware num less than search_num!")
             search_num = learnware_num
 
-        flag_list = [0 for i in range(learnware_num)]
+        flag_list = [0 for _ in range(learnware_num)]
         mixture_list = []
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
 
-        for k in range(search_num):
+        for k in range(max_search_num):
             idx_min, score_min = -1, -1
             weight_min = None
             mixture_list.append(None)
@@ -291,11 +293,14 @@ class EasyMarket(BaseMarket):
                     if idx_min == -1 or score < score_min:
                         idx_min, score_min, weight_min = idx, score, weight
 
-            flag_list[idx_min] = 1
-            mixture_list[-1] = learnware_list[idx_min]
-            intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
-                mixture_list, user_rkme, intermediate_K, intermediate_C
-            )
+            if score_min >= score_cutoff:
+                flag_list[idx_min] = 1
+                mixture_list[-1] = learnware_list[idx_min]
+                intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
+                    mixture_list, user_rkme, intermediate_K, intermediate_C
+                )
+            else:
+                break
 
         return weight_min, mixture_list
 
