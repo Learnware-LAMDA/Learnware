@@ -135,8 +135,6 @@ class LearnwareMarketWorkflow:
         os.makedirs(unzip_dir, exist_ok=True)
         os.system(f"unzip -o -q {zip_path} -d {unzip_dir}")
 
-        user_spec = specification.rkme.RKMEStatSpecification()
-        user_spec.load(os.path.join(unzip_dir, "svm.json"))
         user_info = BaseUserInfo(id="user_0", semantic_spec=user_senmantic)
         _, single_learnware_list, _ = easy_market.search_learnware(user_info)
 
@@ -151,6 +149,7 @@ class LearnwareMarketWorkflow:
         self._init_learnware_market()
         self.prepare_learnware_randomly(learnware_num)
 
+        print(self.zip_path_list)
         easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
 

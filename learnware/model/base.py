@@ -1,4 +1,5 @@
 import numpy as np
+from abc import abstractmethod
 
 
 class BaseModel:
@@ -11,5 +12,5 @@ class BaseModel:
     def predict(self, X: np.ndarray) -> np.ndarray:
         pass
 
-    def fintune(self, X: np.ndarray, y: np.ndarray):
+    def finetune(self, X: np.ndarray, y: np.ndarray):
         pass
