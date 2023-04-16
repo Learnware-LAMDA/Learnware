@@ -71,7 +71,7 @@ class PFSDatasetWorkflow:
         curr_root = os.path.dirname(os.path.abspath(__file__))
         curr_root = os.path.join(curr_root, "learnware_pool")
         for zip_path in os.listdir(curr_root):
-            zip_path_list.append(zip_path)
+            zip_path_list.append(os.path.join(curr_root, zip_path))
 
         for idx, zip_path in enumerate(zip_path_list):
             semantic_spec = semantic_specs[idx % 3]
@@ -151,7 +151,7 @@ class PFSDatasetWorkflow:
             print(f"search result of user{idx}:")
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 pred_y = learnware.predict(test_x)
-                loss = pfs.score(test_y, pred_y)[0]
+                loss = pfs.score(test_y, pred_y)
                 print(f"score: {score}, learnware_id: {learnware.id}, loss: {loss}")
             
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
