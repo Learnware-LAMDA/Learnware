@@ -33,6 +33,11 @@ class Dataloader:
         test_xs, test_ys, _, _ = load_pfs_data(fpath)
         return train_xs, train_ys, test_xs, test_ys
 
+    def get_model_path(self, idx):
+        shop_ids = [i for i in range(60) if i not in [0, 1, 40]]
+        shop_ids = [i for i in shop_ids if i not in [8, 11, 23, 36]]
+        return os.path.join(model_dir, "{}_Shop{:0>2d}.out".format(self.algo, shop_ids[idx]))
+    
     def retrain_models(self):
         algo = self.algo
         errs = get_errors(algo=algo)
