@@ -18,6 +18,7 @@ from ..logger import get_module_logger
 
 logger = get_module_logger("rkme")
 
+
 class RKMEStatSpecification(BaseStatSpecification):
     """Reduced-set Kernel Mean Embedding (RKME) Specification"""
 
@@ -199,7 +200,7 @@ class RKMEStatSpecification(BaseStatSpecification):
 
         Z = Z - step_size * grad_Z
         self.z = Z
-    
+
     def _inner_prod_with_X(self, X: Any) -> float:
         """Compute the inner product between RKME specification and X
 
@@ -218,11 +219,11 @@ class RKMEStatSpecification(BaseStatSpecification):
         if not torch.is_tensor(X):
             X = torch.from_numpy(X)
         X = X.to(self.device).double()
-        
+
         v = torch_rbf_kernel(Z, X, self.gamma) * beta.double
-        v = torch.sum(v, axis = 0)
+        v = torch.sum(v, axis=0)
         return v.detach().cpu().numpy()
-    
+
     def _sampling_candidates(self, N: int) -> np.ndarray:
         """Generate a large set of candidates as preparation for herding
 
@@ -251,7 +252,6 @@ class RKMEStatSpecification(BaseStatSpecification):
             return sample_list[0]
         else:
             logger.warning("Not enough candidates for herding!")
-
 
     def inner_prod(self, Phi2: RKMEStatSpecification) -> float:
         """Compute the inner product between two RKME specifications
@@ -292,7 +292,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         term3 = Phi2.inner_prod(Phi2)
 
         return float(term1 - 2 * term2 + term3)
-    
+
     def herding(self, T: int) -> np.ndarray:
         """Iteratively sample examples from an unknown distribution with the help of its RKME specification
 
@@ -318,7 +318,7 @@ class RKMEStatSpecification(BaseStatSpecification):
             fs = (i + 1) * fsX - fsS
             idx = torch.argmax(fs)
             S[i, :] = Xstart[idx, :]
-        
+
         return S
 
     def save(self, filepath: str):

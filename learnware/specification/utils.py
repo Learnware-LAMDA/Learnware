@@ -2,6 +2,7 @@ import numpy as np
 
 from .base import BaseStatSpecification
 from .rkme import RKMEStatSpecification
+from ..config import C
 
 
 def generate_rkme_spec(
@@ -45,6 +46,9 @@ def generate_rkme_spec(
             A RKMEStatSpecification object
     """
     X = np.ascontiguousarray(X).astype(np.float32)
+    max_reduced_set_size = C.max_reduced_set_size
+    if K * X[0].size > max_reduced_set_size:
+        K = max(1, max_reduced_set_size // X[0].size)
     rkme_spec = RKMEStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_spec.generate_stat_spec_from_data(X, K, step_size, steps, nonnegative_beta, reduce)
     return rkme_spec

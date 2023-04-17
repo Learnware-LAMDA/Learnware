@@ -90,7 +90,7 @@ class EasyMarket(BaseMarket):
         if not os.path.exists(zip_path):
             logger.warning("Zip Path NOT Found! Fail to add learnware.")
             return None, False
-        
+
         try:
             if len(semantic_spec["Data"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Data.")
@@ -213,7 +213,7 @@ class EasyMarket(BaseMarket):
 
         # beta can be negative
         # weight = torch.linalg.inv(K + torch.eye(K.shape[0]).to(user_rkme.device) * 1e-5) @ C
-        
+
         # beta must be nonnegative
         n = K.shape[0]
         P = matrix(K.cpu().numpy())
@@ -270,7 +270,11 @@ class EasyMarket(BaseMarket):
         return intermediate_K, intermediate_C
 
     def _search_by_rkme_spec_mixture(
-        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, max_search_num: int = 5, score_cutoff: float = 0.05
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: RKMEStatSpecification,
+        max_search_num: int = 5,
+        score_cutoff: float = 0.05,
     ) -> Tuple[List[float], List[Learnware]]:
         """Get learnwares with their mixture weight from the given learnware_list
 
@@ -301,7 +305,7 @@ class EasyMarket(BaseMarket):
         flag_list = [0 for _ in range(learnware_num)]
         mixture_list = []
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
-        
+
         for k in range(max_search_num):
             idx_min, score_min = -1, -1
             weight_min = None
@@ -426,7 +430,7 @@ class EasyMarket(BaseMarket):
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
         learnware_list = self._search_by_semantic_spec(learnware_list, user_info)
         # learnware_list = list(set(learnware_list_tags + learnware_list_description))
-        
+
         if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
         elif len(learnware_list) == 0:

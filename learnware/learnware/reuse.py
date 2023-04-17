@@ -11,13 +11,14 @@ from ..logger import get_module_logger
 
 logger = get_module_logger("BaseReuse")
 
+
 class BaseReuse:
     """Baseline Multiple Learnware Reuse uing Job Selector Method"""
-    
+
     def __init__(self, learnware_list: List[Learnware], herding_num: int = 100):
         self.learnware_list = learnware_list
         self.herding_num = herding_num
-    
+
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """Give prediction for user data using baseline job-selector method
 
@@ -59,7 +60,7 @@ class BaseReuse:
             for j in range(i, len(self.learnware_list)):
                 task_rkme2 = learnware_rkme_spec_list[j]
                 task_matrix[i][j] = task_matrix[j][i] = task_rkme1.inner_prd(task_rkme2)
-        
+
         task_mixture_weight = self._calculate_rkme_spec_mixture_weight(user_data, learnware_rkme_spec_list, task_matrix)
 
         herding_X, train_herding_X, val_herding_X = None, None, None
@@ -74,27 +75,36 @@ class BaseReuse:
             val_X_i = herding_X_i[task_val_num:]
 
             herding_X = herding_X_i if herding_X is None else np.concatenate((herding_X, herding_X_i), axis=0)
-            train_herding_X = train_X_i if train_herding_X is None else np.concatenate((train_herding_X, train_X_i), axis=0)
+            train_herding_X = (
+                train_X_i if train_herding_X is None else np.concatenate((train_herding_X, train_X_i), axis=0)
+            )
             val_herding_X = val_X_i if val_herding_X is None else np.concatenate((val_herding_X, val_X_i), axis=0)
 
             herding_y += [i] * task_herding_num
             train_herding_y += [i] * (task_herding_num - task_val_num)
             val_herding_y += [i] * task_val_num
-        
+
         herding_y = np.array(herding_y)
         train_herding_y = np.array(train_herding_y)
         val_herding_y = np.array(val_herding_y)
 
         # use herding samples to train a job selector
-        job_selector = self._selector_grid_search(herding_X, herding_y, train_herding_X, train_herding_y, val_herding_X, val_herding_y, len(self.learnware_list))
+        job_selector = self._selector_grid_search(
+            herding_X,
+            herding_y,
+            train_herding_X,
+            train_herding_y,
+            val_herding_X,
+            val_herding_y,
+            len(self.learnware_list),
+        )
         job_select_result = np.array(job_selector.predict(user_data))
 
         return job_selector, job_select_result
 
-
     def _calculate_rkme_spec_mixture_weight(
-            self, user_data: np.ndarray, task_rkme_list: List[RKMEStatSpecification], task_rkme_matrix: np.ndarray
-        ) -> List[float]:
+        self, user_data: np.ndarray, task_rkme_list: List[RKMEStatSpecification], task_rkme_matrix: np.ndarray
+    ) -> List[float]:
         """_summary_
 
         Parameters
@@ -122,10 +132,16 @@ class BaseReuse:
         task_mixture_weight = np.array(sol["x"]).reshape(-1)
 
         return task_mixture_weight
-    
+
     def _selector_grid_search(
-            org_train_x: np.ndarray, org_train_y: np.ndarray, train_x: np.ndarray, train_y: np.ndarray, val_x: np.ndarray, val_y: np.ndarray, num_class:int
-        ) -> LGBMClassifier:
+        org_train_x: np.ndarray,
+        org_train_y: np.ndarray,
+        train_x: np.ndarray,
+        train_y: np.ndarray,
+        val_x: np.ndarray,
+        val_y: np.ndarray,
+        num_class: int,
+    ) -> LGBMClassifier:
         """Train a LGBMClassifier as job selector using the herding data as training instances.
 
         Parameters
@@ -169,7 +185,7 @@ class BaseReuse:
                 model.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=100, early_stopping_rounds=300)
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
-                
+
                 if score > score_best:
                     score_best = score
                     params = (lr, md)
@@ -183,6 +199,8 @@ class BaseReuse:
             booster="gbtree",
             seed=0,
         )
-        model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], verbose=100, early_stopping_rounds=300)
-        
+        model.fit(
+            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], verbose=100, early_stopping_rounds=300
+        )
+
         return model

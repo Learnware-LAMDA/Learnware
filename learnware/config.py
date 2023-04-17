@@ -113,6 +113,7 @@ _DEFAULT_CONFIG = {
     "learnware_folder_pool_path": LEARNWARE_FOLDER_POOL_PATH,
     "learnware_folder_config": {"yaml_file": "learnware.yaml", "module_file": "__init__.py",},
     "database_path": DATABASE_PATH,
+    "max_reduced_set_size": 10000,
 }
 
 C = Config(_DEFAULT_CONFIG)

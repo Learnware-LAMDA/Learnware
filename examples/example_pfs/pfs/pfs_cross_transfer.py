@@ -67,7 +67,7 @@ def get_split_errs(algo):
             for tmp in range(len(proportion_list)):
                 model = lgb.LGBMModel(
                     boosting_type="gbdt",
-                    num_leaves=2**7 - 1,
+                    num_leaves=2 ** 7 - 1,
                     learning_rate=0.01,
                     objective="rmse",
                     metric="rmse",
@@ -85,9 +85,7 @@ def get_split_errs(algo):
                 split = train_xs.shape[0] - proportion_list[tmp]
 
                 model.fit(
-                    train_xs[
-                        split:,
-                    ],
+                    train_xs[split:,],
                     train_ys[split:],
                     eval_set=[(val_xs, val_ys)],
                     early_stopping_rounds=50,
@@ -121,7 +119,7 @@ def get_errors(algo):
         if algo == "lgb":
             model = lgb.LGBMModel(
                 boosting_type="gbdt",
-                num_leaves=2**7 - 1,
+                num_leaves=2 ** 7 - 1,
                 learning_rate=0.01,
                 objective="rmse",
                 metric="rmse",
