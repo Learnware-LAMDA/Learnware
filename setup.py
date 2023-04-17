@@ -32,7 +32,7 @@ if os.path.exists("MANIFEST"):
 # What packages are required for this module to be executed?
 # `estimator` may depend on other packages. In order to reduce dependencies, it is not written here.
 REQUIRED = [
-    "numpy>=1.12.0",
+    "numpy>=1.12.0, <1.24",
     "pandas>=0.25.1",
     "scipy>=1.0.0",
     "matplotlib>=3.1.3",
@@ -41,10 +41,11 @@ REQUIRED = [
     # "mkl-service>=2.3.0",
     "cvxopt>=1.3.0",
     "tqdm>=4.65.0",
-    "scikit-learn>=1.2.2",
+    "scikit-learn>=0.22",
     "joblib>=1.2.0",
     "pyyaml>=6.0",
-    "fire>=0.5.0",
+    "fire>=0.3.1",
+    "lightgbm>=3.3.0",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -72,8 +73,8 @@ if __name__ == "__main__":
             "Topic :: Software Development",
             "Topic :: Scientific/Engineering",
             "Operating System :: POSIX :: Linux",
-            "Operating System :: Microsoft :: Windows",
-            "Operating System :: MacOS",
+            # "Operating System :: Microsoft :: Windows",
+            # "Operating System :: MacOS",
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",

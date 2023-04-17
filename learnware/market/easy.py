@@ -4,6 +4,7 @@ import zipfile
 import torch
 import numpy as np
 import pandas as pd
+from cvxopt import solvers, matrix
 from typing import Tuple, Any, List, Union, Dict
 
 from .base import BaseMarket, BaseUserInfo
@@ -210,10 +211,21 @@ class EasyMarket(BaseMarket):
         K = torch.from_numpy(K).double().to(user_rkme.device)
         C = torch.from_numpy(C).double().to(user_rkme.device)
 
-        # if nonnegative_beta:
-        #    w = solve_qp(K, C).double().to(Phi_t.device)
-        # else:
-        weight = torch.linalg.inv(K + torch.eye(K.shape[0]).to(user_rkme.device) * 1e-5) @ C
+        # beta can be negative
+        # weight = torch.linalg.inv(K + torch.eye(K.shape[0]).to(user_rkme.device) * 1e-5) @ C
+        
+        # beta must be nonnegative
+        n = K.shape[0]
+        P = matrix(K.cpu().numpy())
+        q = matrix(-C.cpu().numpy())
+        G = matrix(-np.eye(n))
+        h = matrix(np.zeros((n, 1)))
+        A = matrix(np.ones((1, n)))
+        b = matrix(np.ones((1, 1)))
+        solvers.options["show_progress"] = False
+        sol = solvers.qp(P, q, G, h, A, b)
+        weight = np.array(sol["x"])
+        weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
 
         term1 = user_rkme.inner_prod(user_rkme)
         term2 = weight.T @ C
@@ -258,9 +270,9 @@ class EasyMarket(BaseMarket):
         return intermediate_K, intermediate_C
 
     def _search_by_rkme_spec_mixture(
-        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, search_num: int
+        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, max_search_num: int = 5, score_cutoff: float = 0.05
     ) -> Tuple[List[float], List[Learnware]]:
-        """Get search_num learnwares with their mixture weight from the given learnware_list
+        """Get learnwares with their mixture weight from the given learnware_list
 
         Parameters
         ----------
@@ -268,28 +280,29 @@ class EasyMarket(BaseMarket):
             The list of learnwares whose mixture approximates the user's rkme
         user_rkme : RKMEStatSpecification
             User RKME statistical specification
-        search_num : int
-            The number of the returned learnwares
+        max_search_num : int
+            The maximum number of the returned learnwares
+        score_cutof: float
+            The minimum mmd dist as threshold to stop further rkme_spec matching
 
         Returns
         -------
         Tuple[List[float], List[Learnware]]
             The first is the list of weight
             The second is the list of Learnware
-            The size of both list equals search_num
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
             return [], []
-        if learnware_num < search_num:
-            logger.warning("Available Learnware num less than search_num")
-            search_num = learnware_num
+        if learnware_num < max_search_num:
+            logger.warning("Available Learnware num less than search_num!")
+            max_search_num = learnware_num
 
-        flag_list = [0 for i in range(learnware_num)]
+        flag_list = [0 for _ in range(learnware_num)]
         mixture_list = []
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
-
-        for k in range(search_num):
+        
+        for k in range(max_search_num):
             idx_min, score_min = -1, -1
             weight_min = None
             mixture_list.append(None)
@@ -311,11 +324,14 @@ class EasyMarket(BaseMarket):
                     if idx_min == -1 or score < score_min:
                         idx_min, score_min, weight_min = idx, score, weight
 
-            flag_list[idx_min] = 1
             mixture_list[-1] = learnware_list[idx_min]
-            intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
-                mixture_list, user_rkme, intermediate_K, intermediate_C
-            )
+            if score_min < score_cutoff:
+                break
+            else:
+                flag_list[idx_min] = 1
+                intermediate_K, intermediate_C = self._calculate_intermediate_K_and_C(
+                    mixture_list, user_rkme, intermediate_K, intermediate_C
+                )
 
         return weight_min, mixture_list
 
@@ -410,7 +426,7 @@ class EasyMarket(BaseMarket):
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
         learnware_list = self._search_by_semantic_spec(learnware_list, user_info)
         # learnware_list = list(set(learnware_list_tags + learnware_list_description))
-
+        
         if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
         elif len(learnware_list) == 0:

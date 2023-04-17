@@ -44,6 +44,7 @@ def generate_rkme_spec(
     RKMEStatSpecification
             A RKMEStatSpecification object
     """
+    X = np.ascontiguousarray(X).astype(np.float32)
     rkme_spec = RKMEStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_spec.generate_stat_spec_from_data(X, K, step_size, steps, nonnegative_beta, reduce)
     return rkme_spec
