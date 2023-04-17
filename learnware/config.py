@@ -128,6 +128,7 @@ _DEFAULT_CONFIG = {
         "module_file": "__init__.py",
     },
     "database_path": DATABASE_PATH,
+    "max_reduced_set_size": 1000000,
 }
 
 C = Config(_DEFAULT_CONFIG)

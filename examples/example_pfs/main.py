@@ -142,8 +142,8 @@ class PFSDatasetWorkflow:
                 rmtree(dir_path)
 
     def test(self, regenerate_flag=False):
-        # self.prepare_learnware(regenerate_flag)
-        # self._init_learnware_market()
+        self.prepare_learnware(regenerate_flag)
+        self._init_learnware_market()
 
         easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
@@ -173,7 +173,7 @@ class PFSDatasetWorkflow:
             reuse_baseline = ReuseBaseline(learnware_list=mixture_learnware_list)
             reuse_predict = reuse_baseline.predict(user_data=test_x)
             reuse_score = pfs.score(test_y, reuse_predict)
-            print(f"mixture reuse score: {reuse_score}\n")
+            print(f"mixture reuse score: {reuse_score}")
 
 
 if __name__ == "__main__":
