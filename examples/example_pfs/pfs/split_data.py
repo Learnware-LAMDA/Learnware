@@ -58,7 +58,6 @@ def feature_engineering():
     print("group.shape: ", group.shape)
     print(group.head(5))
 
-
     df = pd.merge(df, group, on=index_cols, how="left")
     df["item_cnt_month"] = (
         df["item_cnt_month"]
@@ -140,7 +139,6 @@ def feature_engineering():
 
     df = pd.merge(df, items, on=["item_id"], how="left")
 
-
     # Weekends count / number of days in a month
     def count_days(date_block_num):
         year = 2013 + date_block_num // 12
@@ -149,22 +147,32 @@ def feature_engineering():
         days_in_month = calendar.monthrange(year, month)[1]
         return weeknd_count, days_in_month, month
 
-
     map_dict = {i: count_days(i) for i in range(35)}
 
     df["weeknd_count"] = df["date_block_num"].apply(lambda x: map_dict[x][0])
     df["days_in_month"] = df["date_block_num"].apply(lambda x: map_dict[x][1])
 
-
     # Interation features: Item is new / Item was bought in this shop before
     first_item_block = df.groupby(["item_id"])["date_block_num"].min().reset_index()
     first_item_block["item_first_interaction"] = 1
 
-    first_shop_item_buy_block = df[df["date_block_num"] > 0].groupby(["shop_id", "item_id"])["date_block_num"].min().reset_index()
+    first_shop_item_buy_block = (
+        df[df["date_block_num"] > 0].groupby(["shop_id", "item_id"])["date_block_num"].min().reset_index()
+    )
     first_shop_item_buy_block["first_date_block_num"] = first_shop_item_buy_block["date_block_num"]
 
-    df = pd.merge(df, first_item_block[["item_id", "date_block_num", "item_first_interaction"]], on=["item_id", "date_block_num"], how="left")
-    df = pd.merge(df, first_shop_item_buy_block[["item_id", "shop_id", "first_date_block_num"]], on=["item_id", "shop_id"], how="left")
+    df = pd.merge(
+        df,
+        first_item_block[["item_id", "date_block_num", "item_first_interaction"]],
+        on=["item_id", "date_block_num"],
+        how="left",
+    )
+    df = pd.merge(
+        df,
+        first_shop_item_buy_block[["item_id", "shop_id", "first_date_block_num"]],
+        on=["item_id", "shop_id"],
+        how="left",
+    )
 
     df["first_date_block_num"].fillna(100, inplace=True)
     df["shop_item_sold_before"] = (df["first_date_block_num"] < df["date_block_num"]).astype("int8")
@@ -175,7 +183,6 @@ def feature_engineering():
 
     df["item_first_interaction"] = df["item_first_interaction"].astype("int8")
     df["shop_item_sold_before"] = df["shop_item_sold_before"].astype("int8")
-
 
     def lag_feature(df, lags, col):
         tmp = df[["date_block_num", "shop_id", "item_id", col]]
@@ -188,18 +195,25 @@ def feature_engineering():
             df[lag_name] = df[lag_name].astype("float32")
         return df
 
-
     df = lag_feature(df, [1, 2, 3], "item_cnt_month")
 
     index_cols = ["shop_id", "item_id", "date_block_num"]
-    group = train.groupby(index_cols)["item_price"].mean().reset_index().rename(columns={"item_price": "avg_shop_price"}, errors="raise")
+    group = (
+        train.groupby(index_cols)["item_price"]
+        .mean()
+        .reset_index()
+        .rename(columns={"item_price": "avg_shop_price"}, errors="raise")
+    )
     df = pd.merge(df, group, on=index_cols, how="left")
 
     df["avg_shop_price"] = df["avg_shop_price"].fillna(0).astype(np.float32)
 
     index_cols = ["item_id", "date_block_num"]
     group = (
-        train.groupby(["date_block_num", "item_id"])["item_price"].mean().reset_index().rename(columns={"item_price": "avg_item_price"}, errors="raise")
+        train.groupby(["date_block_num", "item_id"])["item_price"]
+        .mean()
+        .reset_index()
+        .rename(columns={"item_price": "avg_item_price"}, errors="raise")
     )
 
     df = pd.merge(df, group, on=index_cols, how="left")
@@ -282,7 +296,6 @@ def feature_engineering():
     df = lag_feature(df, [1, 2, 3], "new_item_shop_cat_avg")
     df.drop(["new_item_shop_cat_avg"], axis=1, inplace=True)
 
-
     def lag_feature_adv(df, lags, col):
         tmp = df[["date_block_num", "shop_id", "item_id", col]]
         for i in lags:
@@ -294,7 +307,6 @@ def feature_engineering():
             lag_name = col + "_lag_" + str(i) + "_adv"
             df[lag_name] = df[lag_name].astype("float32")
         return df
-
 
     df = lag_feature_adv(df, [1, 2, 3], "item_cnt_month")
 
@@ -321,13 +333,23 @@ def feature_engineering():
         # fill the null
         cols = shop_df.isnull().any()
         idx = list(cols[cols.values].index)
-        shop_df[idx] = shop_df.groupby("item_id", sort=False)[idx].apply(lambda x: x.fillna(method="ffill").fillna(method="bfill"))
+        shop_df[idx] = shop_df.groupby("item_id", sort=False)[idx].apply(
+            lambda x: x.fillna(method="ffill").fillna(method="bfill")
+        )
         shop_df[idx] = shop_df[idx].fillna(shop_df[idx].mean())
         for col in idx:
             shop_df[col] = shop_df[col].fillna(fill_dict[col])
 
         # min-max scale
-        drop_fea_list = ["shop_id", "city_code", "city_coord_1", "city_coord_2", "country_part", "item_cnt_month", "date_block_num"]
+        drop_fea_list = [
+            "shop_id",
+            "city_code",
+            "city_coord_1",
+            "city_coord_2",
+            "country_part",
+            "item_cnt_month",
+            "date_block_num",
+        ]
         fea_list = [col for col in shop_df.columns if col not in drop_fea_list]
         mms = MinMaxScaler()
         shop_df[fea_list] = mms.fit_transform(shop_df[fea_list])

@@ -120,7 +120,10 @@ class EasyMarket(BaseMarket):
             self.learnware_folder_list[id] = target_folder_dir
             self.count += 1
             add_learnware_to_db(
-                id, semantic_spec=semantic_spec, zip_path=target_zip_dir, folder_path=target_folder_dir,
+                id,
+                semantic_spec=semantic_spec,
+                zip_path=target_zip_dir,
+                folder_path=target_folder_dir,
             )
             return id, True
 
@@ -193,7 +196,7 @@ class EasyMarket(BaseMarket):
 
         # beta can be negative
         # weight = torch.linalg.inv(K + torch.eye(K.shape[0]).to(user_rkme.device) * 1e-5) @ C
-        
+
         # beta must be nonnegative
         n = K.shape[0]
         P = matrix(K.cpu().numpy())
@@ -250,7 +253,11 @@ class EasyMarket(BaseMarket):
         return intermediate_K, intermediate_C
 
     def _search_by_rkme_spec_mixture(
-        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification, max_search_num: int = 5, score_cutoff: float = 0.05
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: RKMEStatSpecification,
+        max_search_num: int,
+        score_cutoff: float = 0.01,
     ) -> Tuple[List[float], List[Learnware]]:
         """Get learnwares with their mixture weight from the given learnware_list
 
@@ -281,7 +288,7 @@ class EasyMarket(BaseMarket):
         flag_list = [0 for _ in range(learnware_num)]
         mixture_list = []
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
-        
+
         for k in range(max_search_num):
             idx_min, score_min = -1, -1
             weight_min = None
@@ -306,6 +313,7 @@ class EasyMarket(BaseMarket):
 
             mixture_list[-1] = learnware_list[idx_min]
             if score_min < score_cutoff:
+                print(score_min)
                 break
             else:
                 flag_list[idx_min] = 1
@@ -385,7 +393,7 @@ class EasyMarket(BaseMarket):
         return match_learnwares
 
     def search_learnware(
-        self, user_info: BaseUserInfo, search_num=3
+        self, user_info: BaseUserInfo, max_search_num=5
     ) -> Tuple[List[float], List[Learnware], List[Learnware]]:
         """Search learnwares based on user_info
 
@@ -393,8 +401,8 @@ class EasyMarket(BaseMarket):
         ----------
         user_info : BaseUserInfo
             user_info contains semantic_spec and stat_info
-        search_num : int
-            The number of the returned learnwares
+        max_search_num : int
+            The maximum number of the returned learnwares
 
         Returns
         -------
@@ -406,7 +414,7 @@ class EasyMarket(BaseMarket):
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
         learnware_list = self._search_by_semantic_spec(learnware_list, user_info)
         # learnware_list = list(set(learnware_list_tags + learnware_list_description))
-        
+
         if "RKMEStatSpecification" not in user_info.stat_info:
             return None, learnware_list, None
         elif len(learnware_list) == 0:
@@ -416,7 +424,7 @@ class EasyMarket(BaseMarket):
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
             weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(
-                learnware_list, user_rkme, search_num
+                learnware_list, user_rkme, max_search_num
             )
             return sorted_score_list, single_learnware_list, mixture_learnware_list
 

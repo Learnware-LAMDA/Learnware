@@ -2,7 +2,7 @@ import os
 import copy
 
 from .base import Learnware
-from .reuse import BaseReuse
+from .reuse import ReuseBaseline
 from .utils import get_stat_spec_from_config, get_model_from_config
 from ..specification import Specification
 from ..utils import read_yaml_to_dict
@@ -30,7 +30,10 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
         The contructed learnware object, return None if build failed
     """
     learnware_config = {
-        "model": {"class_name": "Model", "kwargs": {},},
+        "model": {
+            "class_name": "Model",
+            "kwargs": {},
+        },
         "stat_specifications": [
             {
                 "module_path": "learnware.specification",

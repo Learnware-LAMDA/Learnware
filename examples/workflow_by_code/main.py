@@ -18,7 +18,10 @@ curr_root = os.path.dirname(os.path.abspath(__file__))
 semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class",},
+        "Task": {
+            "Values": ["Classification"],
+            "Type": "Class",
+        },
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Nature"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "Description"},
@@ -26,7 +29,10 @@ semantic_specs = [
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class",},
+        "Task": {
+            "Values": ["Classification"],
+            "Type": "Class",
+        },
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "Description"},
@@ -34,7 +40,10 @@ semantic_specs = [
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class",},
+        "Task": {
+            "Values": ["Classification"],
+            "Type": "Class",
+        },
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "Description"},
@@ -44,7 +53,10 @@ semantic_specs = [
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {"Values": ["Classification"], "Type": "Class",},
+    "Task": {
+        "Values": ["Classification"],
+        "Type": "Class",
+    },
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "Description"},
@@ -78,10 +90,10 @@ class LearnwareMarketWorkflow:
             spec.save(os.path.join(dir_path, "svm.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
-            copyfile("example_init.py", init_file) # cp example_init.py init_file
+            copyfile("example_init.py", init_file)  # cp example_init.py init_file
 
             yaml_file = os.path.join(dir_path, "learnware.yaml")
-            copyfile("example.yaml", yaml_file) # cp example.yaml yaml_file
+            copyfile("example.yaml", yaml_file)  # cp example.yaml yaml_file
 
             zip_file = dir_path + ".zip"
             # zip -q -r -j zip_file dir_path
@@ -93,8 +105,8 @@ class LearnwareMarketWorkflow:
                         zip_info.compress_type = zipfile.ZIP_STORED
                         with open(file_path, "rb") as file:
                             zip_obj.writestr(zip_info, file.read())
-            
-            rmtree(dir_path) # rm -r dir_path
+
+            rmtree(dir_path)  # rm -r dir_path
 
             self.zip_path_list.append(zip_file)
 
@@ -131,7 +143,7 @@ class LearnwareMarketWorkflow:
 
         idx, zip_path = 1, self.zip_path_list[1]
         unzip_dir = os.path.join(test_folder, f"{idx}")
-        
+
         # unzip -o -q zip_path -d unzip_dir
         if os.path.exists(unzip_dir):
             rmtree(unzip_dir)
@@ -147,7 +159,7 @@ class LearnwareMarketWorkflow:
         for learnware in single_learnware_list:
             print("Choose learnware:", learnware.id, learnware.get_specification().get_semantic_spec())
 
-        rmtree(test_folder) # rm -r test_folder
+        rmtree(test_folder)  # rm -r test_folder
 
     def test_stat_search(self, learnware_num=5):
         self._init_learnware_market()
@@ -161,7 +173,7 @@ class LearnwareMarketWorkflow:
 
         for idx, zip_path in enumerate(self.zip_path_list):
             unzip_dir = os.path.join(test_folder, f"{idx}")
-            
+
             # unzip -o -q zip_path -d unzip_dir
             if os.path.exists(unzip_dir):
                 rmtree(unzip_dir)
@@ -182,7 +194,7 @@ class LearnwareMarketWorkflow:
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_learnware: {mixture_id}\n")
 
-        rmtree(test_folder) # rm -r test_folder
+        rmtree(test_folder)  # rm -r test_folder
 
 
 if __name__ == "__main__":

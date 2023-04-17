@@ -9,7 +9,7 @@ from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
 from learnware.learnware import Learnware, ReuseBaseline
 import learnware.specification as specification
-from pfs import Dataloader
+from m5 import DataLoader
 
 
 semantic_specs = [
@@ -61,15 +61,15 @@ user_senmantic = {
 }
 
 
-class PFSDatasetWorkflow:
-    def _init_pfs_dataset(self):
-        pfs = Dataloader()
-        pfs.regenerate_data()
+class M5DatasetWorkflow:
+    def _init_m5_dataset(self):
+        m5 = DataLoader()
+        m5.regenerate_data()
 
         algo_list = ["ridge", "lgb"]
         for algo in algo_list:
-            pfs.set_algo(algo)
-            pfs.retrain_models()
+            m5.set_algo(algo)
+            m5.retrain_models()
 
     def _init_learnware_market(self):
         """initialize learnware market"""
@@ -97,10 +97,10 @@ class PFSDatasetWorkflow:
 
     def prepare_learnware(self, regenerate_flag=False):
         if regenerate_flag:
-            self._init_pfs_dataset()
+            self._init_m5_dataset()
 
-        pfs = Dataloader()
-        idx_list = pfs.get_idx_list()
+        m5 = DataLoader()
+        idx_list = m5.get_idx_list()
         algo_list = ["ridge", "lgb"]
 
         curr_root = os.path.dirname(os.path.abspath(__file__))
@@ -108,18 +108,18 @@ class PFSDatasetWorkflow:
         os.makedirs(curr_root, exist_ok=True)
 
         for idx in tqdm(idx_list):
-            train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
+            train_x, train_y, test_x, test_y = m5.get_idx_data(idx)
             spec = specification.utils.generate_rkme_spec(X=train_x, gamma=0.1, cuda_idx=0)
 
             for algo in algo_list:
-                pfs.set_algo(algo)
+                m5.set_algo(algo)
                 dir_path = os.path.join(curr_root, f"{algo}_{idx}")
                 os.makedirs(dir_path, exist_ok=True)
 
                 spec_path = os.path.join(dir_path, "rkme.json")
                 spec.save(spec_path)
 
-                model_path = pfs.get_model_path(idx)
+                model_path = m5.get_model_path(idx)
                 model_file = os.path.join(dir_path, "model.out")
                 copyfile(model_path, model_file)
 
@@ -142,17 +142,17 @@ class PFSDatasetWorkflow:
                 rmtree(dir_path)
 
     def test(self, regenerate_flag=False):
-        # self.prepare_learnware(regenerate_flag)
-        # self._init_learnware_market()
+        self.prepare_learnware(regenerate_flag)
+        self._init_learnware_market()
 
         easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
 
-        pfs = Dataloader()
-        idx_list = pfs.get_idx_list()
+        m5 = DataLoader()
+        idx_list = m5.get_idx_list()
 
         for idx in idx_list:
-            train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
+            train_x, train_y, test_x, test_y = m5.get_idx_data(idx)
             user_spec = specification.utils.generate_rkme_spec(X=test_x, gamma=0.1, cuda_idx=0)
 
             user_info = BaseUserInfo(
@@ -163,18 +163,18 @@ class PFSDatasetWorkflow:
             print(f"search result of user{idx}:")
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 pred_y = learnware.predict(test_x)
-                loss = pfs.score(test_y, pred_y)
+                loss = m5.score(test_y, pred_y)
                 print(f"score: {score}, learnware_id: {learnware.id}, loss: {loss}")
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-            print(f"mixture_learnware: {mixture_id}")
+            print(f"mixture_learnware: {mixture_id}\n")
 
             # TODO: model reuse score
             reuse_baseline = ReuseBaseline(learnware_list=mixture_learnware_list)
             reuse_predict = reuse_baseline.predict(user_data=test_x)
-            reuse_score = pfs.score(test_y, reuse_predict)
+            reuse_score = m5.score(test_y, reuse_predict)
             print(f"mixture reuse score: {reuse_score}\n")
 
 
 if __name__ == "__main__":
-    fire.Fire(PFSDatasetWorkflow)
+    fire.Fire(M5DatasetWorkflow)

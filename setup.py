@@ -46,6 +46,7 @@ REQUIRED = [
     "pyyaml>=6.0",
     "fire>=0.3.1",
     "lightgbm>=3.3.0",
+    "psutil>=5.9.4",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
