@@ -89,6 +89,26 @@ class EasyMarket(BaseMarket):
         if not os.path.exists(zip_path):
             logger.warning("Zip Path NOT Found! Fail to add learnware.")
             return None, False
+        
+        try:
+            if len(semantic_spec["Data"]["Values"]) == 0:
+                logger.warning("Illegal semantic specification, please choose Data.")
+                return None, False
+            if len(semantic_spec["Task"]["Values"]) == 0:
+                logger.warning("Illegal semantic specification, please choose Task.")
+                return None, False
+            if len(semantic_spec["Device"]["Values"]) == 0:
+                logger.warning("Illegal semantic specification, please choose Device.")
+                return None, False
+            if len(semantic_spec["Name"]["Values"]) == 0:
+                logger.warning("Illegal semantic specification, please provide Name.")
+                return None, False
+            if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
+                logger.warning("Illegal semantic specification, please provide Scenario or Description.")
+                return None, False
+        except:
+            logger.warning("Illegal semantic specification, some keys are missing.")
+            return None, False
 
         logger.info("Get new learnware from %s" % (zip_path))
         id = "%08d" % (self.count)
