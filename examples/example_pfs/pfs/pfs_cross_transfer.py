@@ -67,7 +67,7 @@ def get_split_errs(algo):
             for tmp in range(len(proportion_list)):
                 model = lgb.LGBMModel(
                     boosting_type="gbdt",
-                    num_leaves=2 ** 7 - 1,
+                    num_leaves=2**7 - 1,
                     learning_rate=0.01,
                     objective="rmse",
                     metric="rmse",
@@ -119,7 +119,7 @@ def get_errors(algo):
         if algo == "lgb":
             model = lgb.LGBMModel(
                 boosting_type="gbdt",
-                num_leaves=2 ** 7 - 1,
+                num_leaves=2**7 - 1,
                 learning_rate=0.01,
                 objective="rmse",
                 metric="rmse",

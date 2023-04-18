@@ -144,7 +144,10 @@ class EasyMarket(BaseMarket):
             self.learnware_folder_list[id] = target_folder_dir
             self.count += 1
             add_learnware_to_db(
-                id, semantic_spec=semantic_spec, zip_path=target_zip_dir, folder_path=target_folder_dir,
+                id,
+                semantic_spec=semantic_spec,
+                zip_path=target_zip_dir,
+                folder_path=target_folder_dir,
             )
             return id, True
 
