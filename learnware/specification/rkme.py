@@ -354,7 +354,9 @@ class RKMEStatSpecification(BaseStatSpecification):
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
         json.dump(
-            rkme_to_save, codecs.open(save_path, "w", encoding="utf-8"), separators=(",", ":"),
+            rkme_to_save,
+            codecs.open(save_path, "w", encoding="utf-8"),
+            separators=(",", ":"),
         )
 
     def load(self, filepath: str) -> bool:
@@ -442,7 +444,7 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
     """
     x1 = x1.double()
     x2 = x2.double()
-    X12norm = torch.sum(x1 ** 2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2 ** 2, 1, keepdim=True).T
+    X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
     return torch.exp(-X12norm * gamma)
 
 

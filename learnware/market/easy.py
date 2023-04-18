@@ -42,6 +42,7 @@ class EasyMarket(BaseMarket):
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
             clear_learnware_table()
+            rmtree(C.LEARNWARE_POOL_PATH)
 
         self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db()
 
@@ -140,7 +141,10 @@ class EasyMarket(BaseMarket):
             self.learnware_folder_list[id] = target_folder_dir
             self.count += 1
             add_learnware_to_db(
-                id, semantic_spec=semantic_spec, zip_path=target_zip_dir, folder_path=target_folder_dir,
+                id,
+                semantic_spec=semantic_spec,
+                zip_path=target_zip_dir,
+                folder_path=target_folder_dir,
             )
             return id, True
 
