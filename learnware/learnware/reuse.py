@@ -208,6 +208,8 @@ class ReuseBaseline:
             booster="gbtree",
             seed=0,
         )
-        model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], verbose=-1, early_stopping_rounds=300)
+        model.fit(
+            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], verbose=-1, early_stopping_rounds=300
+        )
 
         return model
