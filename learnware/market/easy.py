@@ -151,23 +151,35 @@ class EasyMarket(BaseMarket):
             )
             return id, True
 
-    def _convert_dist_to_score(self, dist_list: List[float]) -> List[float]:
+    def _convert_dist_to_score(self, dist_list: List[float], dist_epsilon: float = 0.1, min_score: float = 90) -> List[float]:
         """Convert mmd dist list into min_max score list
 
         Parameters
         ----------
         dist_list : List[float]
             The list of mmd distances from learnware rkmes to user rkme
+        dist_epsilon: float
+            The paramter for converting mmd dist to score
+        min_score: float
+            The minimum score for maximum returned score
 
         Returns
         -------
         List[float]
             The list of min_max scores of each learnware
         """
-        if max(dist_list) == min(dist_list):
+        min_dist, max_dist = min(dist_list), max(dist_list)
+        if min_dist == max_dist:
             return [1 for dist in dist_list]
         else:
-            return [(max(dist_list) - dist) / (max(dist_list) - min(dist_list)) for dist in dist_list]
+            max_score = (max_dist - min_dist) / (max_dist - dist_epsilon)
+            
+            if max_score > 100:
+                dist_epsilon = min_dist
+            elif max_score < min_score:
+                dist_epsilon = max_dist - (max_dist - min_dist) / min_score
+            
+            return [(max_dist - dist) / (max_dist - dist_epsilon) for dist in dist_list]
 
     def _calculate_rkme_spec_mixture_weight(
         self,
@@ -326,7 +338,7 @@ class EasyMarket(BaseMarket):
         mixture_weight, _ = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme)
         return mixture_weight, mixture_list
 
-    def _filter_by_rkme_spec_single(self, sorted_score_list: List[float], learnware_list: List[Learnware], filter_score=60, min_num=15) -> Tuple[List[float], List[Learnware]]:
+    def _filter_by_rkme_spec_single(self, sorted_score_list: List[float], learnware_list: List[Learnware], filter_score: float = 30, min_num: int = 15) -> Tuple[List[float], List[Learnware]]:
         """Filter search result of _search_by_rkme_spec_single
 
         Parameters
@@ -335,6 +347,10 @@ class EasyMarket(BaseMarket):
             The list of score transformed by mmd dist
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
+        filter_score: float
+            The learnware whose score is lower than filter_score will be filtered
+        min_num: int
+            The minimum number of returned learnwares
 
         Returns
         -------
