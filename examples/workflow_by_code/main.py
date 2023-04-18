@@ -110,7 +110,7 @@ class LearnwareMarketWorkflow:
 
             self.zip_path_list.append(zip_file)
 
-    def test_upload_delete_learnware(self, learnware_num=5):
+    def test_upload_delete_learnware(self, learnware_num=5, delete=False):
         self._init_learnware_market()
         self.prepare_learnware_randomly(learnware_num)
 
@@ -125,18 +125,19 @@ class LearnwareMarketWorkflow:
 
         print("Total Item:", len(easy_market))
         curr_inds = easy_market._get_ids()
-        print("Available ids:", curr_inds)
+        print("Available ids After Uploading Learnwares:", curr_inds)
 
-        easy_market.delete_learnware(curr_inds[0])
-        easy_market.delete_learnware(curr_inds[1])
-        curr_inds = easy_market._get_ids()
-        print("Available ids:", curr_inds)
+        if delete:
+            for learnware_id in curr_inds:
+                easy_market.delete_learnware(learnware_id)
+                easy_market.delete_learnware(learnware_id)
+            curr_inds = easy_market._get_ids()
+            print("Available ids After Deleting Learnwares:", curr_inds)
+
+        return easy_market
 
     def test_search_semantics(self, learnware_num=5):
-        self._init_learnware_market()
-        self.prepare_learnware_randomly(learnware_num)
-
-        easy_market = EasyMarket()
+        easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))
 
         test_folder = os.path.join(curr_root, "test_semantics")
@@ -148,6 +149,7 @@ class LearnwareMarketWorkflow:
         if os.path.exists(unzip_dir):
             rmtree(unzip_dir)
         os.makedirs(unzip_dir, exist_ok=True)
+
         with zipfile.ZipFile(zip_path, "r") as zip_obj:
             zip_obj.extractall(path=unzip_dir)
 
@@ -162,11 +164,7 @@ class LearnwareMarketWorkflow:
         rmtree(test_folder)  # rm -r test_folder
 
     def test_stat_search(self, learnware_num=5):
-        self._init_learnware_market()
-        self.test_upload_delete_learnware(learnware_num)
-
-        print(self.zip_path_list)
-        easy_market = EasyMarket()
+        easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))
 
         test_folder = os.path.join(curr_root, "test_stat")

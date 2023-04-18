@@ -7,7 +7,7 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
-from learnware.learnware import Learnware, ReuseBaseline
+from learnware.learnware import Learnware, JobSelectorReuser
 import learnware.specification as specification
 from m5 import DataLoader
 
@@ -170,7 +170,7 @@ class M5DatasetWorkflow:
             print(f"mixture_learnware: {mixture_id}\n")
 
             # TODO: model reuse score
-            reuse_baseline = ReuseBaseline(learnware_list=mixture_learnware_list)
+            reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
             reuse_predict = reuse_baseline.predict(user_data=test_x)
             reuse_score = m5.score(test_y, reuse_predict)
             print(f"mixture reuse score: {reuse_score}\n")

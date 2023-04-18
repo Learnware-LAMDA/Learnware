@@ -6,17 +6,18 @@ from sklearn.metrics import accuracy_score
 
 from learnware.learnware import Learnware
 import learnware.specification as specification
+from .base import BaseReuser
 from ..specification import RKMEStatSpecification
 from ..logger import get_module_logger
 
-logger = get_module_logger("ReuseBaseline")
+logger = get_module_logger("BaseReuser")
 
 
-class ReuseBaseline:
+class JobSelectorReuser(BaseReuser):
     """Baseline Multiple Learnware Reuse uing Job Selector Method"""
 
     def __init__(self, learnware_list: List[Learnware], herding_num: int = 1000):
-        self.learnware_list = learnware_list
+        super(JobSelectorReuser, self).__init__(learnware_list)
         self.herding_num = herding_num
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:
