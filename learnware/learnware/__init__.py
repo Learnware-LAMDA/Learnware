@@ -1,8 +1,9 @@
 import os
 import copy
 
-from .base import Learnware
+from .base import Learnware, BaseReuser
 from .reuse import JobSelectorReuser
+
 from .utils import get_stat_spec_from_config, get_model_from_config
 from ..specification import Specification
 from ..utils import read_yaml_to_dict
