@@ -151,7 +151,9 @@ class EasyMarket(BaseMarket):
             )
             return id, True
 
-    def _convert_dist_to_score(self, dist_list: List[float], dist_epsilon: float = 0.1, min_score: float = 90) -> List[float]:
+    def _convert_dist_to_score(
+        self, dist_list: List[float], dist_epsilon: float = 0.1, min_score: float = 90
+    ) -> List[float]:
         """Convert mmd dist list into min_max score list
 
         Parameters
@@ -173,12 +175,12 @@ class EasyMarket(BaseMarket):
             return [1 for dist in dist_list]
         else:
             max_score = (max_dist - min_dist) / (max_dist - dist_epsilon)
-            
+
             if max_score > 100:
                 dist_epsilon = min_dist
             elif max_score < min_score:
                 dist_epsilon = max_dist - (max_dist - min_dist) / min_score
-            
+
             return [(max_dist - dist) / (max_dist - dist_epsilon) for dist in dist_list]
 
     def _calculate_rkme_spec_mixture_weight(
@@ -288,13 +290,13 @@ class EasyMarket(BaseMarket):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
         return intermediate_K, intermediate_C
-    
+
     def _search_by_rkme_spec_mixture_auto(
         self,
         learnware_list: List[Learnware],
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
-        weight_cutoff: float = 0.9
+        weight_cutoff: float = 0.9,
     ) -> Tuple[List[float], List[Learnware]]:
         """Select learnwares based on a total mixture ratio, then recalculate their mixture weights
 
@@ -324,7 +326,7 @@ class EasyMarket(BaseMarket):
 
         weight, _ = self._calculate_rkme_spec_mixture_weight(learnware_list, user_rkme)
         sort_by_weight_idx_list = sorted(range(learnware_num), key=lambda k: weight[k])
-        
+
         weight_sum = 0
         mixture_list = []
         for idx in sort_by_weight_idx_list:
@@ -334,11 +336,17 @@ class EasyMarket(BaseMarket):
 
         if len(mixture_list) > max_search_num:
             mixture_list = mixture_list[:max_search_num]
-        
+
         mixture_weight, _ = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme)
         return mixture_weight, mixture_list
 
-    def _filter_by_rkme_spec_single(self, sorted_score_list: List[float], learnware_list: List[Learnware], filter_score: float = 30, min_num: int = 15) -> Tuple[List[float], List[Learnware]]:
+    def _filter_by_rkme_spec_single(
+        self,
+        sorted_score_list: List[float],
+        learnware_list: List[Learnware],
+        filter_score: float = 30,
+        min_num: int = 15,
+    ) -> Tuple[List[float], List[Learnware]]:
         """Filter search result of _search_by_rkme_spec_single
 
         Parameters
@@ -364,7 +372,7 @@ class EasyMarket(BaseMarket):
                 break
             idx = idx + 1
         return sorted_score_list[:idx], learnware_list[:idx]
-    
+
     def _search_by_rkme_spec_mixture(
         self,
         learnware_list: List[Learnware],
@@ -372,7 +380,7 @@ class EasyMarket(BaseMarket):
         max_search_num: int,
         score_cutoff: float = 0.01,
     ) -> Tuple[List[float], List[Learnware]]:
-        """Greedily match learnwares such that their mixture become more and more closer to user's rkme  
+        """Greedily match learnwares such that their mixture become more and more closer to user's rkme
 
         Parameters
         ----------
@@ -535,7 +543,9 @@ class EasyMarket(BaseMarket):
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
-            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(sorted_score_list, single_learnware_list)
+            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
+                sorted_score_list, single_learnware_list
+            )
             weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(
                 learnware_list, user_rkme, max_search_num
             )
