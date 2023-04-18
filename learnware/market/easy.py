@@ -152,7 +152,7 @@ class EasyMarket(BaseMarket):
             return id, True
 
     def _convert_dist_to_score(
-        self, dist_list: List[float], dist_epsilon: float = 0.1, min_score: float = 90
+        self, dist_list: List[float], dist_epsilon: float = 0.01, min_score: float = 0.92
     ) -> List[float]:
         """Convert mmd dist list into min_max score list
 
@@ -176,7 +176,7 @@ class EasyMarket(BaseMarket):
         else:
             max_score = (max_dist - min_dist) / (max_dist - dist_epsilon)
 
-            if max_score > 100:
+            if max_dist < dist_epsilon or max_score > 1:
                 dist_epsilon = min_dist
             elif max_score < min_score:
                 dist_epsilon = max_dist - (max_dist - min_dist) / min_score
@@ -344,7 +344,7 @@ class EasyMarket(BaseMarket):
         self,
         sorted_score_list: List[float],
         learnware_list: List[Learnware],
-        filter_score: float = 30,
+        filter_score: float = 0.3,
         min_num: int = 15,
     ) -> Tuple[List[float], List[Learnware]]:
         """Filter search result of _search_by_rkme_spec_single
