@@ -3,7 +3,7 @@ import learnware.specification as specification
 
 
 if __name__ == "__main__":
-    data_X = np.random.randn(10000, 20)
+    data_X = np.random.randn(10000, 20, 10, 5)
     for i in range(10):
         data_X[i, i] = np.nan
     spec1 = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=-1)
@@ -24,3 +24,5 @@ if __name__ == "__main__":
 
     print(spec1.inner_prod(spec2))
     print(spec1.dist(spec2))
+    print(spec1.get_z().shape)
+    print(spec2.get_z().shape)
