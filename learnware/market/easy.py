@@ -42,8 +42,11 @@ class EasyMarket(BaseMarket):
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
             clear_learnware_table()
-            rmtree(C.LEARNWARE_POOL_PATH)
+            rmtree(C.learnware_pool_path)
 
+        os.makedirs(C.learnware_pool_path, exist_ok=True)
+        os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
+        os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
         self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db()
 
     def check_learnware(self, learnware: Learnware) -> bool:
@@ -232,6 +235,7 @@ class EasyMarket(BaseMarket):
         weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
 
         term1 = user_rkme.inner_prod(user_rkme)
+        # print('weight:', weight.shape, 'C:', C.shape)
         term2 = weight.T @ C
         term3 = weight.T @ K @ weight
         score = float(term1 - 2 * term2 + term3)

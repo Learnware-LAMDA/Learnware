@@ -158,3 +158,13 @@ def test(test_X, test_y, model, batch_size=128):
     acc = correct / total * 100
     print("Accuracy: %.2f" % (acc))
     return acc
+
+
+def eval_prediction(pred_y, target_y):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    _, predicted = torch.max(pred_y.data, 1)
+    annos = torch.from_numpy(target_y).to(device)
+    total = annos.size(0)
+    correct = (predicted == annos).sum().item()
+    criterion = nn.CrossEntropyLoss()
+    return correct / total
