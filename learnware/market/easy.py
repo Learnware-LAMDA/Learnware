@@ -277,6 +277,29 @@ class EasyMarket(BaseMarket):
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
         return intermediate_K, intermediate_C
 
+    def _filter_by_rkme_spec_single(self, sorted_score_list: List[float], learnware_list: List[Learnware], filter_score=60, min_num=15) -> Tuple[List[float], List[Learnware]]:
+        """Filter search result of _search_by_rkme_spec_single
+
+        Parameters
+        ----------
+        sorted_score_list : List[float]
+            The list of score transformed by mmd dist
+        learnware_list : List[Learnware]
+            The list of learnwares whose mixture approximates the user's rkme
+
+        Returns
+        -------
+        Tuple[List[float], List[Learnware]]
+            the first is the list of score
+            the second is the list of Learnware
+        """
+        idx = min(min_num, len(learnware_list))
+        while idx < len(learnware_list):
+            if sorted_score_list[idx] < filter_score:
+                break
+            idx = idx + 1
+        return sorted_score_list[:idx], learnware_list[:idx]
+    
     def _search_by_rkme_spec_mixture(
         self,
         learnware_list: List[Learnware],
@@ -448,6 +471,7 @@ class EasyMarket(BaseMarket):
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
+            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(sorted_score_list, single_learnware_list)
             weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(
                 learnware_list, user_rkme, max_search_num
             )
