@@ -3,7 +3,7 @@ import torch
 import get_data
 import os
 import random
-from utils import generate_uploader, generate_user, ImageDataLoader, train
+from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
 import time
 
 from learnware.market import EasyMarket, BaseUserInfo
@@ -70,10 +70,6 @@ user_senmantic = {
     "Description": {"Values": "", "Type": "Description"},
     "Name": {"Values": "", "Type": "Name"},
 }
-
-
-def eval_prediction(pred_y, target_y):
-    return 0, 0
 
 
 def prepare_data():
@@ -151,7 +147,8 @@ def test_search(load_market=True):
         image_market = EasyMarket()
     else:
         prepare_market()
-    logger.info("Number of items in the market:", len(image_market))
+        image_market = EasyMarket()
+    logger.info("Number of items in the market: %d" % len(image_market))
 
     for i in range(n_users):
         user_data_path = os.path.join(user_save_root, "user_%d_X.npy" % (i))
@@ -162,14 +159,15 @@ def test_search(load_market=True):
         user_info = BaseUserInfo(
             id=f"user_{i}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_stat_spec}
         )
+        logger.info("Searching Market for user: %d" % (i))
         sorted_score_list, single_learnware_list, mixture_learnware_list = image_market.search_learnware(user_info)
         l = len(sorted_score_list)
         for idx in range(min(l, 10)):
             learnware = single_learnware_list[idx]
             score = sorted_score_list[idx]
             pred_y = learnware.predict(user_data)
-            acc, loss = eval_prediction(pred_y, user_label)
-            logger.info("search rank: %d, score: %.3f, learnware_id: %s, loss: %.3f" % (idx, score, learnware.id, loss))
+            acc = eval_prediction(pred_y, user_label)
+            logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
 
 
 if __name__ == "__main__":

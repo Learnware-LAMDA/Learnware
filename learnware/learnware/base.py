@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from typing import Union
+from typing import Union, List
 
 from ..specification import Specification, BaseStatSpecification
 from ..model import BaseModel
@@ -42,3 +42,22 @@ class Learnware:
     def update(self):
         # Empty Interface.
         raise NotImplementedError("'update' Method is NOT Implemented.")
+
+
+class BaseReuser:
+    def __init__(self, learnware_list: List[Learnware]):
+        self.learnware_list = learnware_list
+
+    def predict(self, user_data: np.ndarray) -> np.ndarray:
+        """Give the final prediction for user data with reused learnware
+
+        Parameters
+        ----------
+        user_data : np.ndarray
+            User's labeled raw data.
+
+        Returns
+        -------
+        np.ndarray
+            The final prediction for user data with reused learnware
+        """

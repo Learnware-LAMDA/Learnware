@@ -32,7 +32,10 @@ Learnware
 .. autoclass:: learnware.learnware.Learnware
     :members:
 
-.. autoclass:: learnware.learnware.BaseReuse
+.. autoclass:: learnware.learnware.BaseReuser
+    :members:
+
+.. autoclass:: learnware.learnware.JobSelectorReuser
     :members:
 
 Specification
