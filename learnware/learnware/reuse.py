@@ -188,7 +188,7 @@ class JobSelectorReuser(BaseReuser):
                     n_estimators=2000,
                     # objective="multiclass",
                     # num_class=num_class,
-                    booster="gbtree",
+                    boosting_type="gbdt",
                     seed=0,
                 )
                 train_y = train_y.astype(np.int)
@@ -206,7 +206,7 @@ class JobSelectorReuser(BaseReuser):
             n_estimators=2000,
             # objective="multiclass",
             # num_class=num_class,
-            booster="gbtree",
+            boosting_type="gbdt",
             seed=0,
         )
         model.fit(
