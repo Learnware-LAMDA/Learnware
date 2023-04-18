@@ -61,3 +61,4 @@ class BaseReuser:
         np.ndarray
             The final prediction for user data with reused learnware
         """
+        raise NotImplementedError("The predict method is not implemented!")

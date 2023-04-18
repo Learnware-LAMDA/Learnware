@@ -10,13 +10,22 @@ from .base import BaseReuser
 from ..specification import RKMEStatSpecification
 from ..logger import get_module_logger
 
-logger = get_module_logger("BaseReuser")
+logger = get_module_logger("Reuser")
 
 
 class JobSelectorReuser(BaseReuser):
-    """Baseline Multiple Learnware Reuse uing Job Selector Method"""
+    """Baseline Multiple Learnware Reuser uing Job Selector Method"""
 
     def __init__(self, learnware_list: List[Learnware], herding_num: int = 1000):
+        """The initialization method for job selector reuser
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The learnware list, which should have RKME Specification for each learnweare
+        herding_num : int, optional
+            The , by default 1000
+        """
         super(JobSelectorReuser, self).__init__(learnware_list)
         self.herding_num = herding_num
 
