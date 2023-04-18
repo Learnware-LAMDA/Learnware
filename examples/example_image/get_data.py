@@ -192,7 +192,7 @@ def get_zca_matrix(X, reg_coef=0.1):
 
 def layernorm_data(X):
     X_processed = X - torch.mean(X, [1, 2, 3], keepdim=True)
-    X_processed = X_processed / torch.sqrt(torch.sum(X_processed**2, [1, 2, 3], keepdim=True))
+    X_processed = X_processed / torch.sqrt(torch.sum(X_processed ** 2, [1, 2, 3], keepdim=True))
 
     return X_processed
 
@@ -240,10 +240,7 @@ def augment(images, dc_aug_param, device):
         def scalefun(i):
             h = int((np.random.uniform(1 - scale, 1 + scale)) * shape[2])
             w = int((np.random.uniform(1 - scale, 1 + scale)) * shape[2])
-            tmp = F.interpolate(
-                images[i : i + 1],
-                [h, w],
-            )[0]
+            tmp = F.interpolate(images[i : i + 1], [h, w],)[0]
             mhw = max(h, w, shape[2], shape[3])
             im_ = torch.zeros(shape[1], mhw, mhw, dtype=torch.float, device=device)
             r = int((mhw - h) / 2)

@@ -275,7 +275,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         beta_1 = self.beta.reshape(1, -1).double().to(self.device)
         beta_2 = Phi2.beta.reshape(1, -1).double().to(self.device)
         Z1 = self.z.double().reshape(self.z.shape[0], -1).to(self.device)
-        Z2 = Phi2.z.double().reshape(Phi2.z.shape[0], -1).to(self.device)        
+        Z2 = Phi2.z.double().reshape(Phi2.z.shape[0], -1).to(self.device)
         v = torch.sum(torch_rbf_kernel(Z1, Z2, self.gamma) * (beta_1.T @ beta_2))
 
         return float(v)
@@ -315,7 +315,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         # Flatten z
         Z_shape = self.z.shape
         self.z = self.z.reshape(self.z.shape[0], -1)
-        
+
         Nstart = 100 * T
         Xstart = self._sampling_candidates(Nstart).to(self.device)
         D = self.z[0].shape[0]
@@ -328,7 +328,7 @@ class RKMEStatSpecification(BaseStatSpecification):
             fs = (i + 1) * fsX - fsS
             idx = torch.argmax(fs)
             S[i, :] = Xstart[idx, :]
-        
+
         # Reshape to orignial dimensions
         self.z = self.z.reshape(Z_shape)
         S_shape = tuple([S.shape[0]] + list(Z_shape)[1:])
@@ -354,9 +354,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
         json.dump(
-            rkme_to_save,
-            codecs.open(save_path, "w", encoding="utf-8"),
-            separators=(",", ":"),
+            rkme_to_save, codecs.open(save_path, "w", encoding="utf-8"), separators=(",", ":"),
         )
 
     def load(self, filepath: str) -> bool:
@@ -444,7 +442,7 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
     """
     x1 = x1.double()
     x2 = x2.double()
-    X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
+    X12norm = torch.sum(x1 ** 2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2 ** 2, 1, keepdim=True).T
     return torch.exp(-X12norm * gamma)
 
 
