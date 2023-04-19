@@ -72,10 +72,10 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
             learnware_spec.update_stat_spec(**{stat_spac_name: stat_spec_inst})
 
         learnware_spec.upload_semantic_spec(copy.deepcopy(semantic_spec))
-        learnware_model = get_model_from_config(learnware_config["model"])
+        # learnware_model = get_model_from_config(learnware_config["model"])
 
     except Exception as e:
         logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")
         return None
 
-    return Learnware(id=id, model=learnware_model, specification=learnware_spec)
+    return Learnware(id=id, model=learnware_config["model"], specification=learnware_spec)

@@ -19,6 +19,10 @@ logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
+    INVALID_LEARNWARE = -1
+    NOPREDICTION_LEARNWARE = 0
+    PREDICTION_LEARWARE = 1
+
     def __init__(self, rebuild: bool = False):
         """Initialize Learnware Market.
         Automatically reload from db if available.
@@ -49,7 +53,8 @@ class EasyMarket(BaseMarket):
         os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
         self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db()
 
-    def check_learnware(self, learnware: Learnware) -> bool:
+    @classmethod
+    def check_learnware(cls, learnware: Learnware) -> int:
         """Check the utility of a learnware
 
         Parameters
@@ -58,16 +63,31 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        bool
+        int
             A flag indicating whether the learnware can be accepted.
+            - The INVALID_LEARNWARE denotes the learnware does not pass the check
+            - The NOPREDICTION_LEARNWARE denotes the learnware pass the check but cannot make prediction due to some env dependency
+            - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
         """
         try:
+            learnware.instantiate_model()
+        except Exception as e:
+            logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {repr(e)}")
+            return cls.INVALID_LEARNWARE
+
+        try:
             spec_data = learnware.specification.stat_spec["RKMEStatSpecification"].get_z()
+        except Exception:
+            logger.warning(f"The learnware [{learnware.id}] statistic specification is not avaliable!")
+            return cls.INVALID_LEARNWARE
+
+        try:
             pred_spec = learnware.predict(spec_data)
         except Exception:
-            logger.warning(f"The learnware [{learnware.id}-{learnware.name}] is not avaliable!")
-            return False
-        return True
+            logger.warning(f"The learnware [{learnware.id}] prediction is not avaliable")
+            return cls.NOPREDICTION_LEARNWARE
+
+        return cls.PREDICTION_LEARWARE
 
     def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
         """Add a learnware into the market.
@@ -139,17 +159,21 @@ class EasyMarket(BaseMarket):
                 pass
             return None, False
         else:
-            self.learnware_list[id] = new_learnware
-            self.learnware_zip_list[id] = target_zip_dir
-            self.learnware_folder_list[id] = target_folder_dir
-            self.count += 1
-            add_learnware_to_db(
-                id,
-                semantic_spec=semantic_spec,
-                zip_path=target_zip_dir,
-                folder_path=target_folder_dir,
-            )
-            return id, True
+            check_flag = self.check_learnware(new_learnware)
+            if not check_flag == self.INVALID_LEARNWARE:
+                self.learnware_list[id] = new_learnware
+                self.learnware_zip_list[id] = target_zip_dir
+                self.learnware_folder_list[id] = target_folder_dir
+                self.count += 1
+                add_learnware_to_db(
+                    id,
+                    semantic_spec=semantic_spec,
+                    zip_path=target_zip_dir,
+                    folder_path=target_folder_dir,
+                )
+                return id, True
+            else:
+                return None, False
 
     def _convert_dist_to_score(self, dist_list: List[float]) -> List[float]:
         """Convert mmd dist list into min_max score list

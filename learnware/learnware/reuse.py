@@ -24,7 +24,7 @@ class JobSelectorReuser(BaseReuser):
         learnware_list : List[Learnware]
             The learnware list, which should have RKME Specification for each learnweare
         herding_num : int, optional
-            The , by default 1000
+            The herding number, by default 1000
         """
         super(JobSelectorReuser, self).__init__(learnware_list)
         self.herding_num = herding_num

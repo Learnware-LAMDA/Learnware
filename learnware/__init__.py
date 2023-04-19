@@ -4,7 +4,7 @@ import os
 from .logger import get_module_logger
 
 
-def init(reset=False, **kwargs):
+def init(make_dir=False, **kwargs):
     from .config import C
 
     C.reset()
@@ -13,10 +13,11 @@ def init(reset=False, **kwargs):
     logger = get_module_logger("Initialization")
 
     ## make dirs
-    os.makedirs(C.root_path, exist_ok=True)
-    os.makedirs(C.database_path, exist_ok=True)
-    os.makedirs(C.learnware_pool_path, exist_ok=True)
-    os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
-    os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
+    if make_dir:
+        os.makedirs(C.root_path, exist_ok=True)
+        os.makedirs(C.database_path, exist_ok=True)
+        os.makedirs(C.learnware_pool_path, exist_ok=True)
+        os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
+        os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
 
     logger.info(f"init learnware market with {kwargs}")

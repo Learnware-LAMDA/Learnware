@@ -4,7 +4,6 @@ import os
 
 import copy
 import torch
-import faiss
 import json
 import codecs
 import random
@@ -12,6 +11,18 @@ import numpy as np
 from cvxopt import solvers, matrix
 from collections import Counter
 from typing import Tuple, Any, List, Union, Dict
+
+try:
+    import faiss
+
+    ver = faiss.__version__
+    _FAISS_INSTALLED = ver >= "1.7.1"
+except ImportError:
+    _FAISS_INSTALLED = False
+
+if not _FAISS_INSTALLED:
+    print("Required faiss version >= 1.7.1 is not detected!")
+    print('Please run "conda install -c pytorch faiss-cpu" first.')
 
 from .base import BaseStatSpecification
 from ..logger import get_module_logger
