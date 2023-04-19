@@ -11,8 +11,8 @@ logger = get_module_logger("database_ops")
 
 
 def init_empty_db(func):
-    def wrapper(*args, **kwargs):
-        conn = sqlite3.connect(os.path.join(C.database_path, "market.db"))
+    def wrapper(market_id, *args, **kwargs):
+        conn = sqlite3.connect(os.path.join(C.database_path, f"market_{market_id}.db"))
         cur = conn.cursor()
         listOfTables = cur.execute(
             """SELECT name FROM sqlite_master WHERE type='table' AND name='LEARNWARE'; """

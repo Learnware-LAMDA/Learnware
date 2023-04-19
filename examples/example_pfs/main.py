@@ -122,10 +122,13 @@ class PFSDatasetWorkflow:
 
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
+        os.makedirs("./user_spec", exist_ok=True)
 
         for idx in idx_list:
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
             user_spec = specification.utils.generate_rkme_spec(X=test_x, gamma=0.1, cuda_idx=0)
+            user_spec_path = f"./user_spec/user_{idx}.json"
+            user_spec.save(user_spec_path)
 
             user_info = BaseUserInfo(
                 id=f"user_{idx}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
