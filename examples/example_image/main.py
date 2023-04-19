@@ -22,7 +22,7 @@ tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
 dataset = "cifar10"
 n_uploaders = 50
-n_users = 10
+n_users = 20
 n_classes = 10
 data_root = os.path.join(origin_data_root, dataset)
 data_save_root = os.path.join(processed_data_root, dataset)
@@ -38,45 +38,17 @@ os.makedirs(model_save_root, exist_ok=True)
 semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_1", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_2", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
+        "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_3", "Type": "String"},
-    },
+        "Name": {"Values": "learnware_1", "Type": "String"},
+    }
 ]
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {
-        "Values": ["Classification"],
-        "Type": "Class",
-    },
+    "Task": {"Values": ["Classification"], "Type": "Class"},
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
@@ -144,14 +116,14 @@ def prepare_market():
         new_learnware_path = prepare_learnware(
             data_path, model_path, init_file_path, yaml_file_path, tmp_dir, "%s_%d" % (dataset, i)
         )
-        semantic_spec = semantic_specs[i % 3]
+        semantic_spec = semantic_specs[0]
         semantic_spec["Name"]["Values"] = "learnware_%d" % (i)
         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (i)
         image_market.add_learnware(new_learnware_path, semantic_spec)
 
-    logger.info("Total Item:", len(image_market))
+    logger.info("Total Item: %d" % (len(image_market)))
     curr_inds = image_market._get_ids()
-    logger.info("Available ids:", curr_inds)
+    logger.info("Available ids: " + str(curr_inds))
 
 
 def test_search(load_market=True):
@@ -162,6 +134,9 @@ def test_search(load_market=True):
         image_market = EasyMarket()
     logger.info("Number of items in the market: %d" % len(image_market))
 
+    select_list = []
+    avg_list = []
+    improve_list = []
     for i in range(n_users):
         user_data_path = os.path.join(user_save_root, "user_%d_X.npy" % (i))
         user_label_path = os.path.join(user_save_root, "user_%d_y.npy" % (i))
@@ -174,15 +149,25 @@ def test_search(load_market=True):
         logger.info("Searching Market for user: %d" % (i))
         sorted_score_list, single_learnware_list, mixture_learnware_list = image_market.search_learnware(user_info)
         l = len(sorted_score_list)
-        for idx in range(min(l, 10)):
+        acc_list = []
+        for idx in range(l):
             learnware = single_learnware_list[idx]
             score = sorted_score_list[idx]
             pred_y = learnware.predict(user_data)
             acc = eval_prediction(pred_y, user_label)
+            acc_list.append(acc)
             logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
+
+        select_list.append(acc_list[0])
+        avg_list.append(np.mean(acc_list))
+        improve_list.append((acc_list[0] - np.mean(acc_list)) / np.mean(acc_list))
+    logger.info(
+        "Accuracy of selected learnware: %.3f, Average performance: %.3f" % (np.mean(select_list), np.mean(avg_list))
+    )
+    logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
 
 
 if __name__ == "__main__":
     # prepare_data()
     # prepare_model()
-    test_search(False)
+    test_search()

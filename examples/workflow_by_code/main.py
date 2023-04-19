@@ -18,37 +18,12 @@ curr_root = os.path.dirname(os.path.abspath(__file__))
 semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_1", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_2", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
+        "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_3", "Type": "String"},
-    },
+        "Name": {"Values": "learnware_1", "Type": "String"},
+    }
 ]
 
 user_senmantic = {
@@ -118,7 +93,7 @@ class LearnwareMarketWorkflow:
         print("Total Item:", len(easy_market))
 
         for idx, zip_path in enumerate(self.zip_path_list):
-            semantic_spec = semantic_specs[idx % 3]
+            semantic_spec = semantic_specs[0]
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
             easy_market.add_learnware(zip_path, semantic_spec)
