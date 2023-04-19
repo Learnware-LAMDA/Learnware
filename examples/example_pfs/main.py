@@ -131,7 +131,12 @@ class PFSDatasetWorkflow:
             user_info = BaseUserInfo(
                 id=f"user_{idx}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
             )
-            sorted_score_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
+            (
+                sorted_score_list,
+                single_learnware_list,
+                mixture_score,
+                mixture_learnware_list,
+            ) = easy_market.search_learnware(user_info)
 
             print(f"search result of user{idx}:")
             print(
@@ -143,7 +148,7 @@ class PFSDatasetWorkflow:
                 print(f"score: {score}, learnware_id: {learnware.id}, loss: {loss}")
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-            print(f"mixture_learnware: {mixture_id}")
+            print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
 
             reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
             reuse_predict = reuse_baseline.predict(user_data=test_x)

@@ -268,8 +268,9 @@ class EasyMarket(BaseMarket):
         else:
             K = np.zeros((learnware_num, learnware_num))
             for i in range(K.shape[0]):
-                for j in range(K.shape[1]):
-                    K[i, j] = RKME_list[i].inner_prod(RKME_list[j])
+                K[i, i] = RKME_list[i].inner_prod(RKME_list[i])
+                for j in range(i + 1, K.shape[0]):
+                    K[i, j] = K[j, i] = RKME_list[i].inner_prod(RKME_list[j])
 
         if type(intermediate_C) == np.ndarray:
             C = intermediate_C
@@ -296,7 +297,7 @@ class EasyMarket(BaseMarket):
         sol = solvers.qp(P, q, G, h, A, b)
         weight = np.array(sol["x"])
         weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
-        score = user_rkme.inner_prod(user_rkme) + sol["primal objective"]
+        score = user_rkme.inner_prod(user_rkme) + 2 * sol["primal objective"]
 
         return weight.detach().cpu().numpy().reshape(-1), score
 
@@ -341,7 +342,7 @@ class EasyMarket(BaseMarket):
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
         weight_cutoff: float = 0.98,
-    ) -> Tuple[List[float], List[Learnware]]:
+    ) -> Tuple[float, List[float], List[Learnware]]:
         """Select learnwares based on a total mixture ratio, then recalculate their mixture weights
 
         Parameters
@@ -357,9 +358,10 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        Tuple[List[float], List[Learnware]]
-            The first is the list of weight
-            The second is the list of Learnware
+        Tuple[float, List[float], List[Learnware]]
+            The first is the mixture mmd dist
+            The second is the list of weight
+            The third is the list of Learnware
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
@@ -383,18 +385,19 @@ class EasyMarket(BaseMarket):
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
             mixture_weight = [1]
+            mmd_dist = user_rkme.dist(mixture_list)
         else:
             if len(mixture_list) > max_search_num:
                 mixture_list = mixture_list[:max_search_num]
-            mixture_weight, _ = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme)
+            mixture_weight, mmd_dist = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme)
 
-        return mixture_weight, mixture_list
+        return mmd_dist, mixture_weight, mixture_list
 
     def _filter_by_rkme_spec_single(
         self,
         sorted_score_list: List[float],
         learnware_list: List[Learnware],
-        filter_score: float = 0.3,
+        filter_score: float = 0.5,
         min_num: int = 15,
     ) -> Tuple[List[float], List[Learnware]]:
         """Filter search result of _search_by_rkme_spec_single
@@ -457,7 +460,7 @@ class EasyMarket(BaseMarket):
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
         score_cutoff: float = 0.001,
-    ) -> Tuple[List[float], List[Learnware]]:
+    ) -> Tuple[float, List[float], List[Learnware]]:
         """Greedily match learnwares such that their mixture become more and more closer to user's rkme
 
         Parameters
@@ -473,9 +476,10 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        Tuple[List[float], List[Learnware]]
-            The first is the list of weight
-            The second is the list of Learnware
+        Tuple[float, List[float], List[Learnware]]
+            The first is the mixture mmd dist
+            The second is the list of weight
+            The third is the list of Learnware
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
@@ -485,7 +489,7 @@ class EasyMarket(BaseMarket):
             max_search_num = learnware_num
 
         flag_list = [0 for _ in range(learnware_num)]
-        mixture_list = []
+        mixture_list, mmd_dist = [], None
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
 
         for k in range(max_search_num):
@@ -510,6 +514,7 @@ class EasyMarket(BaseMarket):
                     if idx_min == -1 or score < score_min:
                         idx_min, score_min, weight_min = idx, score, weight
 
+            mmd_dist = score_min
             mixture_list[-1] = learnware_list[idx_min]
             if score_min < score_cutoff:
                 break
@@ -519,7 +524,7 @@ class EasyMarket(BaseMarket):
                     mixture_list, user_rkme, intermediate_K, intermediate_C
                 )
 
-        return weight_min, mixture_list
+        return mmd_dist, weight_min, mixture_list
 
     def _search_by_rkme_spec_single(
         self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification
@@ -596,7 +601,7 @@ class EasyMarket(BaseMarket):
 
     def search_learnware(
         self, user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy"
-    ) -> Tuple[List[float], List[Learnware], List[Learnware]]:
+    ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
         """Search learnwares based on user_info
 
         Parameters
@@ -608,10 +613,11 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        Tuple[List[float], List[Learnware], List[float], List[Learnware]]
+        Tuple[List[float], List[Learnware], float, List[Learnware]]
             the first is the sorted list of rkme dist
             the second is the sorted list of Learnware (single) by the rkme dist
-            the third is the list of Learnware (mixture), the size is search_num
+            the third is the score of Learnware (mixture)
+            the fourth is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
         learnware_list = self._search_by_semantic_spec(learnware_list, user_info)
@@ -624,22 +630,36 @@ class EasyMarket(BaseMarket):
         else:
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
             learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
+
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
-            sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
-            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
-                sorted_score_list, single_learnware_list
-            )
             if search_method == "auto":
-                weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
+                mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
                     learnware_list, user_rkme, max_search_num
                 )
             elif search_method == "greedy":
-                weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
+                mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
                     learnware_list, user_rkme, max_search_num
                 )
             else:
                 logger.warning("f{search_method} not supported!")
-            return sorted_score_list, single_learnware_list, mixture_learnware_list
+                mixture_dist = None
+                weight_list = []
+                mixture_learnware_list = []
+
+            # convert dist to score
+            if mixture_dist is None:
+                sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
+                mixture_score = None
+            else:
+                merge_score_list = self._convert_dist_to_score(sorted_dist_list + [mixture_dist])
+                sorted_score_list = merge_score_list[:-1]
+                mixture_score = merge_score_list[-1]
+
+            # filter learnware with low score
+            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
+                sorted_score_list, single_learnware_list
+            )
+            return sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list
 
     def delete_learnware(self, id: str) -> bool:
         """Delete Learnware from market
