@@ -19,9 +19,9 @@ logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
-    INVALID_LEARNWARE = -1
-    NOPREDICTION_LEARNWARE = 0
-    PREDICTION_LEARWARE = 1
+    INVALID_LEARNWARE = "INVALID"
+    NONUSABLE_LEARNWARE = "NONUSABLE"
+    USABLE_LEARWARE = "USABLE"
 
     def __init__(self, market_id: str = "default", rebuild: bool = False):
         """Initialize Learnware Market.
@@ -79,8 +79,7 @@ class EasyMarket(BaseMarket):
             learnware.instantiate_model()
         except Exception as e:
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {repr(e)}")
-            raise
-            return cls.INVALID_LEARNWARE
+            return cls.NONUSABLE_LEARNWARE
 
         try:
             spec_data = learnware.specification.stat_spec["RKMEStatSpecification"].get_z()
@@ -92,9 +91,9 @@ class EasyMarket(BaseMarket):
             pred_spec = learnware.predict(spec_data)
         except Exception:
             logger.warning(f"The learnware [{learnware.id}] prediction is not avaliable")
-            return cls.NOPREDICTION_LEARNWARE
+            return cls.NONUSABLE_LEARNWARE
 
-        return cls.PREDICTION_LEARWARE
+        return cls.USABLE_LEARWARE
 
     def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
         """Add a learnware into the market.
@@ -188,6 +187,7 @@ class EasyMarket(BaseMarket):
                     semantic_spec=semantic_spec,
                     zip_path=target_zip_dir,
                     folder_path=target_folder_dir,
+                    use_flag=check_flag,
                 )
                 return id, True
             else:
