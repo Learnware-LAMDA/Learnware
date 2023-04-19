@@ -292,12 +292,7 @@ class EasyMarket(BaseMarket):
         sol = solvers.qp(P, q, G, h, A, b)
         weight = np.array(sol["x"])
         weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
-
-        term1 = user_rkme.inner_prod(user_rkme)
-        # print('weight:', weight.shape, 'C:', C.shape)
-        term2 = weight.T @ C
-        term3 = weight.T @ K @ weight
-        score = float(term1 - 2 * term2 + term3)
+        score = user_rkme.inner_prod(user_rkme) + sol["primal objective"]
 
         return weight.detach().cpu().numpy().reshape(-1), score
 
