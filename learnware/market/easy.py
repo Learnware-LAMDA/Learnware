@@ -581,6 +581,7 @@ class EasyMarket(BaseMarket):
             user_semantic_spec = user_info.get_semantic_spec()
             if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
                 match_learnwares.append(learnware)
+        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
         return match_learnwares
 
     def search_learnware(
