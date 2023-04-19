@@ -499,7 +499,7 @@ class EasyMarket(BaseMarket):
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
                         return False
-                elif semantic_spec1[key]["Type"] == "Name":
+                elif key == "Name":
                     if v2 not in v1 and v2 not in semantic_spec1["Description"]["Values"]:
                         return False
             return True
