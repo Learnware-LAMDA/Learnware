@@ -76,7 +76,7 @@ semantic_config = {
             "Regression",
             "Clustering",
             "Feature Extraction",
-            "Generation",
+            # "Generation",
             "Segmentation",
             "Object Detection",
         ],
