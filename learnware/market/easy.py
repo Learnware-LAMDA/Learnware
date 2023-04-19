@@ -111,6 +111,16 @@ class EasyMarket(BaseMarket):
             if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Scenario or Description.")
                 return None, False
+            if (
+                semantic_spec["Data"]["Type"] != "Class"
+                or semantic_spec["Task"]["Type"] != "Class"
+                or semantic_spec["Device"]["Type"] != "Tag"
+                or semantic_spec["Scenario"]["Type"] != "Tag"
+                or semantic_spec["Name"]["Type"] != "String"
+                or semantic_spec["Description"]["Type"] != "String"
+            ):
+                logger.warning("Illegal semantic specification, please provide the right type.")
+                return None, False
         except:
             logger.warning("Illegal semantic specification, some keys are missing.")
             return None, False
