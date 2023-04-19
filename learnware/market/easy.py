@@ -23,7 +23,7 @@ class EasyMarket(BaseMarket):
     NOPREDICTION_LEARNWARE = 0
     PREDICTION_LEARWARE = 1
 
-    def __init__(self, rebuild: bool = False):
+    def __init__(self, market_id: str = None, rebuild: bool = False):
         """Initialize Learnware Market.
         Automatically reload from db if available.
         Build an empty db otherwise.
