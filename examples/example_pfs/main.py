@@ -122,6 +122,7 @@ class PFSDatasetWorkflow:
 
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
+        os.makedirs("./user_spec", exist_ok=True)
 
         for idx in idx_list:
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
