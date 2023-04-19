@@ -15,45 +15,17 @@ from m5 import DataLoader
 semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_1", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_2", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
+        "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_3", "Type": "String"},
-    },
+        "Name": {"Values": "learnware_1", "Type": "String"},
+    }
 ]
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {
-        "Values": ["Classification"],
-        "Type": "Class",
-    },
+    "Task": {"Values": ["Classification"], "Type": "Class"},
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
@@ -86,7 +58,7 @@ class M5DatasetWorkflow:
             zip_path_list.append(os.path.join(curr_root, zip_path))
 
         for idx, zip_path in enumerate(zip_path_list):
-            semantic_spec = semantic_specs[idx % 3]
+            semantic_spec = semantic_specs[0]
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
             easy_market.add_learnware(zip_path, semantic_spec)
@@ -101,7 +73,7 @@ class M5DatasetWorkflow:
 
         m5 = DataLoader()
         idx_list = m5.get_idx_list()
-        algo_list = ["ridge", "lgb"]
+        algo_list = ["lgb"]  # algo_list = ["ridge", "lgb"]
 
         curr_root = os.path.dirname(os.path.abspath(__file__))
         curr_root = os.path.join(curr_root, "learnware_pool")
@@ -161,6 +133,9 @@ class M5DatasetWorkflow:
             sorted_score_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
             print(f"search result of user{idx}:")
+            print(
+                f"single model num: {len(sorted_score_list)}, max_score: {sorted_score_list[0]}, min_score: {sorted_score_list[-1]}"
+            )
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 pred_y = learnware.predict(test_x)
                 loss = m5.score(test_y, pred_y)
@@ -169,11 +144,10 @@ class M5DatasetWorkflow:
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_learnware: {mixture_id}\n")
 
-            # TODO: model reuse score
             reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
             reuse_predict = reuse_baseline.predict(user_data=test_x)
             reuse_score = m5.score(test_y, reuse_predict)
-            print(f"mixture reuse score: {reuse_score}\n")
+            print(f"mixture reuse loss: {reuse_score}\n")
 
 
 if __name__ == "__main__":

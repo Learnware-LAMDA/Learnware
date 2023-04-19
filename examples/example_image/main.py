@@ -38,45 +38,17 @@ os.makedirs(model_save_root, exist_ok=True)
 semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_1", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
-        "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_2", "Type": "String"},
-    },
-    {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
+        "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_3", "Type": "String"},
-    },
+        "Name": {"Values": "learnware_1", "Type": "String"},
+    }
 ]
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {
-        "Values": ["Classification"],
-        "Type": "Class",
-    },
+    "Task": {"Values": ["Classification"], "Type": "Class"},
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
@@ -144,7 +116,7 @@ def prepare_market():
         new_learnware_path = prepare_learnware(
             data_path, model_path, init_file_path, yaml_file_path, tmp_dir, "%s_%d" % (dataset, i)
         )
-        semantic_spec = semantic_specs[i % 3]
+        semantic_spec = semantic_specs[0]
         semantic_spec["Name"]["Values"] = "learnware_%d" % (i)
         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (i)
         image_market.add_learnware(new_learnware_path, semantic_spec)
