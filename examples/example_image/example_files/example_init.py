@@ -2,7 +2,7 @@ import os
 import joblib
 import numpy as np
 from learnware.model import BaseModel
-from model import ConvModel
+from .model import ConvModel
 import torch
 
 

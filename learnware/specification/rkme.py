@@ -31,7 +31,7 @@ logger = get_module_logger("rkme")
 
 
 class RKMEStatSpecification(BaseStatSpecification):
-    """Reduced-set Kernel Mean Embedding (RKME) Specification"""
+    """Reduced Kernel Mean Embedding (RKME) Specification"""
 
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
         """Initializing RKME parameters.
