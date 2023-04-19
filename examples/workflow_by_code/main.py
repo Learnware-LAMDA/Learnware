@@ -42,9 +42,10 @@ user_senmantic = {
 class LearnwareMarketWorkflow:
     def _init_learnware_market(self):
         """initialize learnware market"""
-        database_ops.clear_learnware_table()
         learnware.init()
         np.random.seed(2023)
+        easy_market = EasyMarket(market_id="workflow_by_code", rebuild=True)
+        return easy_market
 
     def prepare_learnware_randomly(self, learnware_num=10):
         self.zip_path_list = []
@@ -65,10 +66,12 @@ class LearnwareMarketWorkflow:
             spec.save(os.path.join(dir_path, "svm.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
-            copyfile("example_init.py", init_file)  # cp example_init.py init_file
+            copyfile(
+                os.path.join(curr_root, "learnware_example/example_init.py"), init_file
+            )  # cp example_init.py init_file
 
             yaml_file = os.path.join(dir_path, "learnware.yaml")
-            copyfile("example.yaml", yaml_file)  # cp example.yaml yaml_file
+            copyfile(os.path.join(curr_root, "learnware_example/example.yaml"), yaml_file)  # cp example.yaml yaml_file
 
             zip_file = dir_path + ".zip"
             # zip -q -r -j zip_file dir_path
@@ -86,10 +89,9 @@ class LearnwareMarketWorkflow:
             self.zip_path_list.append(zip_file)
 
     def test_upload_delete_learnware(self, learnware_num=5, delete=False):
-        self._init_learnware_market()
+        easy_market = self._init_learnware_market()
         self.prepare_learnware_randomly(learnware_num)
 
-        easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
 
         for idx, zip_path in enumerate(self.zip_path_list):
