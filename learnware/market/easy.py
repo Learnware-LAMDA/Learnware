@@ -19,9 +19,9 @@ logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
-    INVALID_LEARNWARE = -1
-    NOPREDICTION_LEARNWARE = 0
-    PREDICTION_LEARWARE = 1
+    INVALID_LEARNWARE = "INVALID"
+    NONUSABLE_LEARNWARE = "NONUSABLE"
+    USABLE_LEARWARE = "USABLE"
 
     def __init__(self, market_id: str = "default", rebuild: bool = False):
         """Initialize Learnware Market.
@@ -79,8 +79,7 @@ class EasyMarket(BaseMarket):
             learnware.instantiate_model()
         except Exception as e:
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {repr(e)}")
-            raise
-            return cls.INVALID_LEARNWARE
+            return cls.NONUSABLE_LEARNWARE
 
         try:
             spec_data = learnware.specification.stat_spec["RKMEStatSpecification"].get_z()
@@ -92,9 +91,9 @@ class EasyMarket(BaseMarket):
             pred_spec = learnware.predict(spec_data)
         except Exception:
             logger.warning(f"The learnware [{learnware.id}] prediction is not avaliable")
-            return cls.NOPREDICTION_LEARNWARE
+            return cls.NONUSABLE_LEARNWARE
 
-        return cls.PREDICTION_LEARWARE
+        return cls.USABLE_LEARWARE
 
     def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
         """Add a learnware into the market.
@@ -188,6 +187,7 @@ class EasyMarket(BaseMarket):
                     semantic_spec=semantic_spec,
                     zip_path=target_zip_dir,
                     folder_path=target_folder_dir,
+                    use_flag=check_flag,
                 )
                 return id, True
             else:
@@ -292,12 +292,7 @@ class EasyMarket(BaseMarket):
         sol = solvers.qp(P, q, G, h, A, b)
         weight = np.array(sol["x"])
         weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
-
-        term1 = user_rkme.inner_prod(user_rkme)
-        # print('weight:', weight.shape, 'C:', C.shape)
-        term2 = weight.T @ C
-        term3 = weight.T @ K @ weight
-        score = float(term1 - 2 * term2 + term3)
+        score = user_rkme.inner_prod(user_rkme) + sol["primal objective"]
 
         return weight.detach().cpu().numpy().reshape(-1), score
 

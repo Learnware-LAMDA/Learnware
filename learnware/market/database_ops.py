@@ -18,13 +18,14 @@ def init_empty_db(func):
             """SELECT name FROM sqlite_master WHERE type='table' AND name='LEARNWARE'; """
         ).fetchall()
         if len(listOfTables) == 0:
-            logger.info("Initializing Database in %s..." % (os.path.join(C.database_path, "market.db")))
+            logger.info("Initializing Database in %s..." % (os.path.join(C.database_path, f"market_{market_id}.db")))
             cur.execute(
                 """CREATE TABLE LEARNWARE
             (ID CHAR(10) PRIMARY KEY     NOT NULL,
             SEMANTIC_SPEC            TEXT     NOT NULL,
             ZIP_PATH     TEXT NOT NULL,
-            FOLDER_PATH         TEXT NOT NULL);"""
+            FOLDER_PATH         TEXT NOT NULL,
+            USE_FLAG         TEXT NOT NULL);"""
             )
             logger.info("Database Built!")
         kwargs["cur"] = cur
@@ -49,12 +50,12 @@ def clear_learnware_table(cur):
 
 
 @init_empty_db
-def add_learnware_to_db(id: str, semantic_spec: dict, zip_path: str, folder_path: str, cur):
+def add_learnware_to_db(id: str, semantic_spec: dict, zip_path: str, folder_path: str, use_flag: str, cur):
     semantic_spec_str = json.dumps(semantic_spec)
     cur.execute(
-        "INSERT INTO LEARNWARE (ID,SEMANTIC_SPEC,ZIP_PATH,FOLDER_PATH) \
-      VALUES ('%s', '%s', '%s', '%s' )"
-        % (id, semantic_spec_str, zip_path, folder_path)
+        "INSERT INTO LEARNWARE (ID,SEMANTIC_SPEC,ZIP_PATH,FOLDER_PATH,USE_FLAG) \
+      VALUES ('%s', '%s', '%s', '%s', '%s')"
+        % (id, semantic_spec_str, zip_path, folder_path, use_flag)
     )
 
 
