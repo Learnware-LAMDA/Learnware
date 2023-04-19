@@ -114,7 +114,7 @@ class PFSDatasetWorkflow:
     def test(self, regenerate_flag=False):
         # self.prepare_learnware(regenerate_flag)
         # self._init_learnware_market()
-        
+
         easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
 
