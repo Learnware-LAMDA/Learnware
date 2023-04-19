@@ -68,7 +68,7 @@ def main():
                 "Values": "A sales-forecasting model from Predict Future Sales Competition on Kaggle",
                 "Type": "String",
             },
-            "Name": {"Values": {name}, "Type": "String"},
+            "Name": {"Values": name, "Type": "String"},
         }
         res = session.post(
             submit_url,

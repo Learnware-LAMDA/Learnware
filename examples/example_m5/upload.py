@@ -65,7 +65,7 @@ def main():
             "Device": {"Values": ["CPU"], "Type": "Tag"},
             "Scenario": {"Values": ["Business"], "Type": "Tag"},
             "Description": {"Values": "A sales-forecasting model from Walmart store", "Type": "String"},
-            "Name": {"Values": {name}, "Type": "String"},
+            "Name": {"Values": name, "Type": "String"},
         }
         res = session.post(
             submit_url,
