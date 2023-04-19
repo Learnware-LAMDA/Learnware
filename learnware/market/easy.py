@@ -79,6 +79,7 @@ class EasyMarket(BaseMarket):
             learnware.instantiate_model()
         except Exception as e:
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {repr(e)}")
+            raise
             return cls.INVALID_LEARNWARE
 
         try:
@@ -340,7 +341,7 @@ class EasyMarket(BaseMarket):
         learnware_list: List[Learnware],
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
-        weight_cutoff: float = 0.95,
+        weight_cutoff: float = 0.98,
     ) -> Tuple[List[float], List[Learnware]]:
         """Select learnwares based on a total mixture ratio, then recalculate their mixture weights
 
@@ -456,7 +457,7 @@ class EasyMarket(BaseMarket):
         learnware_list: List[Learnware],
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
-        score_cutoff: float = 0.01,
+        score_cutoff: float = 0.001,
     ) -> Tuple[List[float], List[Learnware]]:
         """Greedily match learnwares such that their mixture become more and more closer to user's rkme
 
@@ -588,6 +589,7 @@ class EasyMarket(BaseMarket):
             user_semantic_spec = user_info.get_semantic_spec()
             if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
                 match_learnwares.append(learnware)
+        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
         return match_learnwares
 
     def search_learnware(
