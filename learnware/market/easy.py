@@ -23,17 +23,21 @@ class EasyMarket(BaseMarket):
     NOPREDICTION_LEARNWARE = 0
     PREDICTION_LEARWARE = 1
 
-    def __init__(self, market_id: str = None, rebuild: bool = False):
+    def __init__(self, market_id: str = "default", rebuild: bool = False):
         """Initialize Learnware Market.
         Automatically reload from db if available.
         Build an empty db otherwise.
 
         Parameters
         ----------
+        market_id : str, optional, by default 'default'
+            The unique market id for market database
+            
         rebuild : bool, optional
             Clear current database if set to True, by default False
             !!! Do NOT set to True unless highly necessary !!!
         """
+        self.market_id = market_id
         self.learnware_list = {}  # id: Learnware
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
@@ -45,13 +49,13 @@ class EasyMarket(BaseMarket):
     def reload_market(self, rebuild: bool = False) -> bool:
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
-            clear_learnware_table()
+            clear_learnware_table(market_id=self.market_id)
             rmtree(C.learnware_pool_path)
 
         os.makedirs(C.learnware_pool_path, exist_ok=True)
         os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
         os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
-        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db()
+        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db(market_id=self.market_id)
 
     @classmethod
     def check_learnware(cls, learnware: Learnware) -> int:
@@ -176,7 +180,8 @@ class EasyMarket(BaseMarket):
                 self.learnware_folder_list[id] = target_folder_dir
                 self.count += 1
                 add_learnware_to_db(
-                    id,
+                    market_id=self.market_id,
+                    id=id,
                     semantic_spec=semantic_spec,
                     zip_path=target_zip_dir,
                     folder_path=target_folder_dir,
@@ -655,7 +660,7 @@ class EasyMarket(BaseMarket):
         self.learnware_list.pop(id)
         self.learnware_zip_list.pop(id)
         self.learnware_folder_list.pop(id)
-        delete_learnware_from_db(id)
+        delete_learnware_from_db(market_id=self.market_id, id=id)
 
         return True
 
