@@ -180,6 +180,9 @@ class EasyMarket(BaseMarket):
         List[float]
             The list of min_max scores of each learnware
         """
+        if len(dist_list) == 0:
+            return []
+
         min_dist, max_dist = min(dist_list), max(dist_list)
         if min_dist == max_dist:
             return [1 for dist in dist_list]
