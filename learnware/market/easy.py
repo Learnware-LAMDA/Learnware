@@ -32,7 +32,7 @@ class EasyMarket(BaseMarket):
         ----------
         market_id : str, optional, by default 'default'
             The unique market id for market database
-            
+
         rebuild : bool, optional
             Clear current database if set to True, by default False
             !!! Do NOT set to True unless highly necessary !!!
@@ -55,7 +55,9 @@ class EasyMarket(BaseMarket):
         os.makedirs(C.learnware_pool_path, exist_ok=True)
         os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
         os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
-        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db(market_id=self.market_id)
+        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db(
+            market_id=self.market_id
+        )
 
     @classmethod
     def check_learnware(cls, learnware: Learnware) -> int:
