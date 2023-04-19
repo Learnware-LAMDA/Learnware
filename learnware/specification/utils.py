@@ -16,7 +16,7 @@ def generate_rkme_spec(
     cuda_idx: int = -1,
 ) -> RKMEStatSpecification:
     """
-            Interface for users to generate Reduced-set Kernel Mean Embedding (RKME) specification.
+            Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification.
             Return a RKMEStatSpecification object, use .save() method to save as json file.
 
 
