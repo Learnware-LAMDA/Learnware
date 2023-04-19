@@ -67,7 +67,7 @@ os.makedirs(DATABASE_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {
-        "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
+        "Values": ["Table", "Image", "Video", "Text", "Audio"],
         "Type": "Class",
     },  # Choose only one class
     "Task": {
