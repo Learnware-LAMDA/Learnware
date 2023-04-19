@@ -177,19 +177,23 @@ class EasyMarket(BaseMarket):
         else:
             check_flag = self.check_learnware(new_learnware)
             if not check_flag == self.INVALID_LEARNWARE:
-                self.learnware_list[id] = new_learnware
-                self.learnware_zip_list[id] = target_zip_dir
-                self.learnware_folder_list[id] = target_folder_dir
-                self.count += 1
-                add_learnware_to_db(
-                    market_id=self.market_id,
-                    id=id,
-                    semantic_spec=semantic_spec,
-                    zip_path=target_zip_dir,
-                    folder_path=target_folder_dir,
-                    use_flag=check_flag,
-                )
-                return id, True
+                try:
+                    add_learnware_to_db(
+                        market_id=self.market_id,
+                        id=id,
+                        semantic_spec=semantic_spec,
+                        zip_path=target_zip_dir,
+                        folder_path=target_folder_dir,
+                        use_flag=check_flag,
+                    )
+                    self.learnware_list[id] = new_learnware
+                    self.learnware_zip_list[id] = target_zip_dir
+                    self.learnware_folder_list[id] = target_folder_dir
+                    self.count += 1
+                    return id, True
+                except Exception as e:
+                    logger.warning(f"Add Learnware failed. Error msg: {e}")
+                    return None, False
             else:
                 return None, False
 
