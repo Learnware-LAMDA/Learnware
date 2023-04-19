@@ -49,6 +49,9 @@ class BaseMarket:
         learnmarket = BaseMarket()
     """
 
+    def __init__(self, market_id: str = None):
+        self.market_id = market_id
+
     def reload_market(self, market_path: str, semantic_spec_list_path: str) -> bool:
         """Reload the market when server restared.
 

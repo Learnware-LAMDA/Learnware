@@ -45,7 +45,7 @@ class Learnware:
             logger.info("The learnware had been instantiated, thus the instantiation operation is ignored!")
         elif isinstance(self.model, dict):
             model_module = get_module_by_module_path(self.model["module_path"])
-            return getattr(model_module, self.model["class_name"])(**self.model.get("kwargs", {}))
+            self.model = getattr(model_module, self.model["class_name"])(**self.model.get("kwargs", {}))
         else:
             raise TypeError(f"Model must be BaseModel or dict, not {type(self.model)}")
 
