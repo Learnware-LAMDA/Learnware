@@ -131,6 +131,16 @@ class EasyMarket(BaseMarket):
             if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Scenario or Description.")
                 return None, False
+            if (
+                semantic_spec["Data"]["Type"] != "Class"
+                or semantic_spec["Task"]["Type"] != "Class"
+                or semantic_spec["Device"]["Type"] != "Tag"
+                or semantic_spec["Scenario"]["Type"] != "Tag"
+                or semantic_spec["Name"]["Type"] != "String"
+                or semantic_spec["Description"]["Type"] != "String"
+            ):
+                logger.warning("Illegal semantic specification, please provide the right type.")
+                return None, False
         except:
             logger.warning("Illegal semantic specification, some keys are missing.")
             return None, False
@@ -175,23 +185,40 @@ class EasyMarket(BaseMarket):
             else:
                 return None, False
 
-    def _convert_dist_to_score(self, dist_list: List[float]) -> List[float]:
+    def _convert_dist_to_score(
+        self, dist_list: List[float], dist_epsilon: float = 0.01, min_score: float = 0.92
+    ) -> List[float]:
         """Convert mmd dist list into min_max score list
 
         Parameters
         ----------
         dist_list : List[float]
             The list of mmd distances from learnware rkmes to user rkme
+        dist_epsilon: float
+            The paramter for converting mmd dist to score
+        min_score: float
+            The minimum score for maximum returned score
 
         Returns
         -------
         List[float]
             The list of min_max scores of each learnware
         """
-        if max(dist_list) == min(dist_list):
+        if len(dist_list) == 0:
+            return []
+
+        min_dist, max_dist = min(dist_list), max(dist_list)
+        if min_dist == max_dist:
             return [1 for dist in dist_list]
         else:
-            return [(max(dist_list) - dist) / (max(dist_list) - min(dist_list)) for dist in dist_list]
+            max_score = (max_dist - min_dist) / (max_dist - dist_epsilon)
+
+            if max_dist < dist_epsilon or max_score > 1:
+                dist_epsilon = min_dist
+            elif max_score < min_score:
+                dist_epsilon = max_dist - (max_dist - min_dist) / min_score
+
+            return [(max_dist - dist) / (max_dist - dist_epsilon) for dist in dist_list]
 
     def _calculate_rkme_spec_mixture_weight(
         self,
@@ -301,6 +328,116 @@ class EasyMarket(BaseMarket):
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
         return intermediate_K, intermediate_C
 
+    def _search_by_rkme_spec_mixture_auto(
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: RKMEStatSpecification,
+        max_search_num: int,
+        weight_cutoff: float = 0.9,
+    ) -> Tuple[List[float], List[Learnware]]:
+        """Select learnwares based on a total mixture ratio, then recalculate their mixture weights
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The list of learnwares whose mixture approximates the user's rkme
+        user_rkme : RKMEStatSpecification
+            User RKME statistical specification
+        max_search_num : int
+            The maximum number of the returned learnwares
+        weight_cutoff : float, optional
+            The ratio for selecting out the mose relevant learnwares, by default 0.9
+
+        Returns
+        -------
+        Tuple[List[float], List[Learnware]]
+            The first is the list of weight
+            The second is the list of Learnware
+        """
+        learnware_num = len(learnware_list)
+        if learnware_num == 0:
+            return [], []
+        if learnware_num < max_search_num:
+            logger.warning("Available Learnware num less than search_num!")
+            max_search_num = learnware_num
+
+        weight, _ = self._calculate_rkme_spec_mixture_weight(learnware_list, user_rkme)
+        sort_by_weight_idx_list = sorted(range(learnware_num), key=lambda k: weight[k])
+
+        weight_sum = 0
+        mixture_list = []
+        for idx in sort_by_weight_idx_list:
+            weight_sum += sort_by_weight_idx_list[idx]
+            if weight_sum <= weight_cutoff:
+                mixture_list.append(learnware_list[idx])
+
+        if len(mixture_list) > max_search_num:
+            mixture_list = mixture_list[:max_search_num]
+
+        mixture_weight, _ = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme)
+        return mixture_weight, mixture_list
+
+    def _filter_by_rkme_spec_single(
+        self,
+        sorted_score_list: List[float],
+        learnware_list: List[Learnware],
+        filter_score: float = 0.3,
+        min_num: int = 15,
+    ) -> Tuple[List[float], List[Learnware]]:
+        """Filter search result of _search_by_rkme_spec_single
+
+        Parameters
+        ----------
+        sorted_score_list : List[float]
+            The list of score transformed by mmd dist
+        learnware_list : List[Learnware]
+            The list of learnwares whose mixture approximates the user's rkme
+        filter_score: float
+            The learnware whose score is lower than filter_score will be filtered
+        min_num: int
+            The minimum number of returned learnwares
+
+        Returns
+        -------
+        Tuple[List[float], List[Learnware]]
+            the first is the list of score
+            the second is the list of Learnware
+        """
+        idx = min(min_num, len(learnware_list))
+        while idx < len(learnware_list):
+            if sorted_score_list[idx] < filter_score:
+                break
+            idx = idx + 1
+        return sorted_score_list[:idx], learnware_list[:idx]
+
+    def _filter_by_rkme_spec_dimension(
+        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification
+    ) -> List[Learnware]:
+        """Filter learnwares whose rkme dimension different from user_rkme
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The list of learnwares whose mixture approximates the user's rkme
+        user_rkme : RKMEStatSpecification
+            User RKME statistical specification
+
+        Returns
+        -------
+        List[Learnware]
+            Learnwares whose rkme dimensions equal user_rkme in user_info
+        """
+        filtered_learnware_list = []
+        user_rkme_dim = str(list(user_rkme.get_z().shape)[1:])
+
+        for learnware in learnware_list:
+            rkme = learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
+            rkme_dim = str(list(rkme.get_z().shape)[1:])
+            if rkme_dim == user_rkme_dim:
+                filtered_learnware_list.append(learnware)
+
+        return filtered_learnware_list
+
     def _search_by_rkme_spec_mixture(
         self,
         learnware_list: List[Learnware],
@@ -308,7 +445,7 @@ class EasyMarket(BaseMarket):
         max_search_num: int,
         score_cutoff: float = 0.01,
     ) -> Tuple[List[float], List[Learnware]]:
-        """Get learnwares with their mixture weight from the given learnware_list
+        """Greedily match learnwares such that their mixture become more and more closer to user's rkme
 
         Parameters
         ----------
@@ -362,7 +499,6 @@ class EasyMarket(BaseMarket):
 
             mixture_list[-1] = learnware_list[idx_min]
             if score_min < score_cutoff:
-                print(score_min)
                 break
             else:
                 flag_list[idx_min] = 1
@@ -428,7 +564,7 @@ class EasyMarket(BaseMarket):
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
                         return False
-                elif semantic_spec1[key]["Type"] == "Name":
+                elif key == "Name":
                     if v2 not in v1 and v2 not in semantic_spec1["Description"]["Values"]:
                         return False
             return True
@@ -470,8 +606,12 @@ class EasyMarket(BaseMarket):
             return [], [], []
         else:
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
+            learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
+            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
+                sorted_score_list, single_learnware_list
+            )
             weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture(
                 learnware_list, user_rkme, max_search_num
             )

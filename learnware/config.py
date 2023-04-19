@@ -67,7 +67,7 @@ os.makedirs(DATABASE_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {
-        "Values": ["Tabular", "Image", "Video", "Text", "Audio"],
+        "Values": ["Table", "Image", "Video", "Text", "Audio"],
         "Type": "Class",
     },  # Choose only one class
     "Task": {
@@ -76,7 +76,7 @@ semantic_config = {
             "Regression",
             "Clustering",
             "Feature Extraction",
-            "Generation",
+            # "Generation",
             "Segmentation",
             "Object Detection",
         ],
@@ -107,11 +107,11 @@ semantic_config = {
     },
     "Description": {
         "Values": None,
-        "Type": "Description",
+        "Type": "String",
     },
     "Name": {
         "Values": None,
-        "Type": "Name",
+        "Type": "String",
     },
 }
 
@@ -128,7 +128,7 @@ _DEFAULT_CONFIG = {
         "module_file": "__init__.py",
     },
     "database_path": DATABASE_PATH,
-    "max_reduced_set_size": 1000000,
+    "max_reduced_set_size": 1310720,
 }
 
 C = Config(_DEFAULT_CONFIG)

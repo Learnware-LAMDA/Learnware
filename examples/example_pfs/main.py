@@ -21,8 +21,8 @@ semantic_specs = [
         },
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "Description"},
-        "Name": {"Values": "learnware_1", "Type": "Name"},
+        "Description": {"Values": "", "Type": "String"},
+        "Name": {"Values": "learnware_1", "Type": "String"},
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
@@ -32,8 +32,8 @@ semantic_specs = [
         },
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "Description"},
-        "Name": {"Values": "learnware_2", "Type": "Name"},
+        "Description": {"Values": "", "Type": "String"},
+        "Name": {"Values": "learnware_2", "Type": "String"},
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
@@ -43,8 +43,8 @@ semantic_specs = [
         },
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "Description"},
-        "Name": {"Values": "learnware_3", "Type": "Name"},
+        "Description": {"Values": "", "Type": "String"},
+        "Name": {"Values": "learnware_3", "Type": "String"},
     },
 ]
 
@@ -56,8 +56,8 @@ user_senmantic = {
     },
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
-    "Description": {"Values": "", "Type": "Description"},
-    "Name": {"Values": "", "Type": "Name"},
+    "Description": {"Values": "", "Type": "String"},
+    "Name": {"Values": "", "Type": "String"},
 }
 
 
@@ -101,7 +101,7 @@ class PFSDatasetWorkflow:
 
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
-        algo_list = ["ridge", "lgb"]
+        algo_list = ["lgb"]  # ["ridge", "lgb"]
 
         curr_root = os.path.dirname(os.path.abspath(__file__))
         curr_root = os.path.join(curr_root, "learnware_pool")
@@ -142,8 +142,8 @@ class PFSDatasetWorkflow:
                 rmtree(dir_path)
 
     def test(self, regenerate_flag=False):
-        self.prepare_learnware(regenerate_flag)
-        self._init_learnware_market()
+        # self.prepare_learnware(regenerate_flag)
+        # self._init_learnware_market()
 
         easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
@@ -161,7 +161,10 @@ class PFSDatasetWorkflow:
             sorted_score_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
             print(f"search result of user{idx}:")
-            for score, learnware in zip(sorted_score_list, single_learnware_list):
+            print(
+                f"single model num: {len(sorted_score_list)}, max_score: {sorted_score_list[0]}, min_score: {sorted_score_list[-1]}"
+            )
+            for score, learnware in zip(sorted_score_list[:5], single_learnware_list[:5]):
                 pred_y = learnware.predict(test_x)
                 loss = pfs.score(test_y, pred_y)
                 print(f"score: {score}, learnware_id: {learnware.id}, loss: {loss}")
@@ -169,11 +172,10 @@ class PFSDatasetWorkflow:
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_learnware: {mixture_id}")
 
-            # TODO: model reuse score
             reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
             reuse_predict = reuse_baseline.predict(user_data=test_x)
             reuse_score = pfs.score(test_y, reuse_predict)
-            print(f"mixture reuse score: {reuse_score}")
+            print(f"mixture reuse loss: {reuse_score}\n")
 
 
 if __name__ == "__main__":

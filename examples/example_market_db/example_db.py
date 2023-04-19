@@ -17,24 +17,24 @@ semantic_specs = [
         "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "Description"},
-        "Name": {"Values": "learnware_1", "Type": "Name"},
+        "Description": {"Values": "", "Type": "String"},
+        "Name": {"Values": "learnware_1", "Type": "String"},
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Classification"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "Description"},
-        "Name": {"Values": "learnware_2", "Type": "Name"},
+        "Description": {"Values": "", "Type": "String"},
+        "Name": {"Values": "learnware_2", "Type": "String"},
     },
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Regression"], "Type": "Class"},
         "Device": {"Values": ["GPU"], "Type": "Tag"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "Description"},
-        "Name": {"Values": "learnware_3", "Type": "Name"},
+        "Description": {"Values": "", "Type": "String"},
+        "Name": {"Values": "learnware_3", "Type": "String"},
     },
 ]
 
@@ -46,8 +46,8 @@ user_senmantic = {
     },
     "Device": {"Values": ["GPU"], "Type": "Tag"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
-    "Description": {"Values": "", "Type": "Description"},
-    "Name": {"Values": "learnware", "Type": "Name"},
+    "Description": {"Values": "", "Type": "String"},
+    "Name": {"Values": "learnware", "Type": "String"},
 }
 
 
