@@ -84,6 +84,8 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
     tmp_model_path = os.path.join(save_root, "conv_model.pth")
     tmp_yaml_path = os.path.join(save_root, "learnware.yaml")
     tmp_init_path = os.path.join(save_root, "__init__.py")
+    tmp_model_file_path = os.path.join(save_root, "model.py")
+    mmodel_file_path = "./example_files/model.py"
     X = np.load(data_path)
     st = time.time()
     user_spec = specification.utils.generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
@@ -93,12 +95,14 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
     copyfile(model_path, tmp_model_path)
     copyfile(yaml_path, tmp_yaml_path)
     copyfile(init_file_path, tmp_init_path)
+    copyfile(mmodel_file_path, tmp_model_file_path)
     zip_file_name = os.path.join(learnware_pool_dir, "%s.zip" % (zip_name))
     with zipfile.ZipFile(zip_file_name, "w", compression=zipfile.ZIP_DEFLATED) as zip_obj:
         zip_obj.write(tmp_spec_path, "rkme.json")
         zip_obj.write(tmp_model_path, "conv_model.pth")
         zip_obj.write(tmp_yaml_path, "learnware.yaml")
         zip_obj.write(tmp_init_path, "__init__.py")
+        zip_obj.write(tmp_model_file_path, "model.py")
     rmtree(save_root)
     logger.info("New Learnware Saved to %s" % (zip_file_name))
     return zip_file_name
@@ -111,8 +115,8 @@ def prepare_market():
     for i in range(n_uploaders):
         data_path = os.path.join(uploader_save_root, "uploader_%d_X.npy" % (i))
         model_path = os.path.join(model_save_root, "uploader_%d.pth" % (i))
-        init_file_path = "./example_init.py"
-        yaml_file_path = "./example_yaml.yaml"
+        init_file_path = "./example_files/example_init.py"
+        yaml_file_path = "./example_files/example_yaml.yaml"
         new_learnware_path = prepare_learnware(
             data_path, model_path, init_file_path, yaml_file_path, tmp_dir, "%s_%d" % (dataset, i)
         )
@@ -168,6 +172,6 @@ def test_search(load_market=True):
 
 
 if __name__ == "__main__":
-    # prepare_data()
-    # prepare_model()
-    test_search()
+    prepare_data()
+    prepare_model()
+    test_search(False)
