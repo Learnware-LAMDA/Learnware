@@ -107,11 +107,11 @@ semantic_config = {
     },
     "Description": {
         "Values": None,
-        "Type": "Description",
+        "Type": "String",
     },
     "Name": {
         "Values": None,
-        "Type": "Name",
+        "Type": "String",
     },
 }
 
