@@ -334,7 +334,7 @@ class EasyMarket(BaseMarket):
         learnware_list: List[Learnware],
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
-        weight_cutoff: float = 0.95,
+        weight_cutoff: float = 0.98,
     ) -> Tuple[List[float], List[Learnware]]:
         """Select learnwares based on a total mixture ratio, then recalculate their mixture weights
 
@@ -450,7 +450,7 @@ class EasyMarket(BaseMarket):
         learnware_list: List[Learnware],
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
-        score_cutoff: float = 0.01,
+        score_cutoff: float = 0.001,
     ) -> Tuple[List[float], List[Learnware]]:
         """Greedily match learnwares such that their mixture become more and more closer to user's rkme
 
