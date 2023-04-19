@@ -73,6 +73,7 @@ class EasyMarket(BaseMarket):
             learnware.instantiate_model()
         except Exception as e:
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {repr(e)}")
+            raise
             return cls.INVALID_LEARNWARE
 
         try:
