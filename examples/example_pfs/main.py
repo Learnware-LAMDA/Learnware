@@ -45,10 +45,8 @@ class PFSDatasetWorkflow:
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        database_ops.clear_learnware_table()
         learnware.init()
-
-        easy_market = EasyMarket()
+        easy_market = EasyMarket(rebuild=True)
         print("Total Item:", len(easy_market))
 
         zip_path_list = []
@@ -114,9 +112,9 @@ class PFSDatasetWorkflow:
                 rmtree(dir_path)
 
     def test(self, regenerate_flag=False):
-        self.prepare_learnware(regenerate_flag)
-        self._init_learnware_market()
-
+        # self.prepare_learnware(regenerate_flag)
+        # self._init_learnware_market()
+        
         easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
 
