@@ -383,6 +383,34 @@ class EasyMarket(BaseMarket):
             idx = idx + 1
         return sorted_score_list[:idx], learnware_list[:idx]
 
+    def _filter_by_rkme_spec_dimension(
+        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification
+    ) -> List[Learnware]:
+        """Filter learnwares whose rkme dimension different from user_rkme
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The list of learnwares whose mixture approximates the user's rkme
+        user_rkme : RKMEStatSpecification
+            User RKME statistical specification
+
+        Returns
+        -------
+        List[Learnware]
+            Learnwares whose rkme dimensions equal user_rkme in user_info
+        """
+        filtered_learnware_list = []
+        user_rkme_dim = str(list(user_rkme.get_z().shape)[1:])
+
+        for learnware in learnware_list:
+            rkme = learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
+            rkme_dim = str(list(rkme.get_z().shape)[1:])
+            if rkme_dim == user_rkme_dim:
+                filtered_learnware_list.append(learnware)
+
+        return filtered_learnware_list
+
     def _search_by_rkme_spec_mixture(
         self,
         learnware_list: List[Learnware],
@@ -551,6 +579,7 @@ class EasyMarket(BaseMarket):
             return [], [], []
         else:
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
+            learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
             sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
