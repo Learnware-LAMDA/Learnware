@@ -200,7 +200,7 @@ class JobSelectorReuser(BaseReuser):
                     boosting_type="gbdt",
                     seed=0,
                 )
-                train_y = train_y.astype(np.int)
+                train_y = train_y.astype(int)
                 model.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=-1, early_stopping_rounds=300)
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
