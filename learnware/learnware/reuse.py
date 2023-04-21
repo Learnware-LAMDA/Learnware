@@ -89,13 +89,13 @@ class JobSelectorReuser(BaseReuser):
             herding_y, train_herding_y, val_herding_y = [], [], []
             for i in range(len(self.learnware_list)):
                 task_spec = learnware_rkme_spec_list[i]
-                task_herding_num = max(5, int(self.herding_num * task_mixture_weight[i]))
-                task_val_num = task_herding_num // 5
-
                 if self.use_herding:
+                    task_herding_num = max(5, int(self.herding_num * task_mixture_weight[i]))
                     herding_X_i = task_spec.herding(task_herding_num).detach().cpu().numpy()
                 else:
                     herding_X_i = task_spec.z.detach().cpu().numpy()
+                    task_herding_num = herding_X_i.shape[0]
+                task_val_num = task_herding_num // 5
 
                 train_X_i = herding_X_i[:-task_val_num]
                 val_X_i = herding_X_i[-task_val_num:]
