@@ -73,17 +73,18 @@ class JobSelectorReuser(BaseReuser):
                 for learnware in self.learnware_list
             ]
 
-            task_matrix = np.zeros((len(learnware_rkme_spec_list), len(learnware_rkme_spec_list)))
-            for i in range(len(self.learnware_list)):
-                task_rkme1 = learnware_rkme_spec_list[i]
-                task_matrix[i][i] = task_rkme1.inner_prod(task_rkme1)
-                for j in range(i + 1, len(self.learnware_list)):
-                    task_rkme2 = learnware_rkme_spec_list[j]
-                    task_matrix[i][j] = task_matrix[j][i] = task_rkme1.inner_prod(task_rkme2)
+            if self.use_herding:
+                task_matrix = np.zeros((len(learnware_rkme_spec_list), len(learnware_rkme_spec_list)))
+                for i in range(len(self.learnware_list)):
+                    task_rkme1 = learnware_rkme_spec_list[i]
+                    task_matrix[i][i] = task_rkme1.inner_prod(task_rkme1)
+                    for j in range(i + 1, len(self.learnware_list)):
+                        task_rkme2 = learnware_rkme_spec_list[j]
+                        task_matrix[i][j] = task_matrix[j][i] = task_rkme1.inner_prod(task_rkme2)
 
-            task_mixture_weight = self._calculate_rkme_spec_mixture_weight(
-                user_data, learnware_rkme_spec_list, task_matrix
-            )
+                task_mixture_weight = self._calculate_rkme_spec_mixture_weight(
+                    user_data, learnware_rkme_spec_list, task_matrix
+                )
 
             herding_X, train_herding_X, val_herding_X = None, None, None
             herding_y, train_herding_y, val_herding_y = [], [], []
@@ -275,7 +276,7 @@ class AveragingReuser(BaseReuser):
                 # print(pred_y.shape)
                 if not isinstance(pred_y, np.ndarray):
                     pred_y = pred_y.detach().cpu().numpy()
-                softmax_pred = softmax(pred_y, axis=1)
+                softmax_pred = softmax(pred_y, axis=0)
                 if mean_pred_y is None:
                     mean_pred_y = softmax_pred
                 else:

@@ -122,7 +122,7 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
         os.makedirs("./user_spec", exist_ok=True)
-        sinle_score_list = []
+        single_score_list = []
         random_score_list = []
         job_selector_score_list = []
         ensemble_score_list = []
@@ -152,7 +152,7 @@ class PFSDatasetWorkflow:
                 pred_y = learnware.predict(test_x)
                 loss_list.append(pfs.score(test_y, pred_y))
             print(
-                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[-1]}"
+                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[0]}"
             )
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
@@ -168,12 +168,12 @@ class PFSDatasetWorkflow:
             ensemble_score = pfs.score(test_y, ensemble_predict_y)
             print(f"mixture reuse loss (ensemble): {ensemble_score}\n")
 
-            sinle_score_list.append(loss_list[0])
+            single_score_list.append(loss_list[0])
             random_score_list.append(np.mean(loss_list))
             job_selector_score_list.append(job_selector_score)
             ensemble_score_list.append(ensemble_score)
 
-        print(f"Single search score: {np.mean(sinle_score_list)}")
+        print(f"Single search score: {np.mean(single_score_list)}")
         print(f"Job selector score: {np.mean(job_selector_score_list)}")
         print(f"Average ensemble score: {np.mean(ensemble_score_list)}")
         print(f"Random search score: {np.mean(random_score_list)}")
