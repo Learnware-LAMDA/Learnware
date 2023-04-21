@@ -4,7 +4,7 @@ from get_data import *
 import os
 import random
 from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
-from learnware.learnware import Learnware, JobSelectorReuser, EnsembleReuser
+from learnware.learnware import Learnware, JobSelectorReuser, AveragingReuser
 import time
 
 from learnware.market import EasyMarket, BaseUserInfo
@@ -157,7 +157,6 @@ def test_search(gamma=0.1, load_market=True):
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
             user_info
         )
-        print(sorted_score_list)
         l = len(sorted_score_list)
         acc_list = []
         for idx in range(l):
@@ -176,7 +175,7 @@ def test_search(gamma=0.1, load_market=True):
         print(f"mixture reuse loss: {reuse_score}\n")
         """
 
-        reuse_ensemble = EnsembleReuser(learnware_list=mixture_learnware_list, mode="vote")
+        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
         ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
         ensemble_score = eval_prediction(ensemble_predict_y, user_label)
         ensemble_score_list.append(ensemble_score)
