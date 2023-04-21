@@ -1,13 +1,14 @@
 import os
 import fire
 import zipfile
+import numpy as np
 from tqdm import tqdm
 from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
-from learnware.learnware import Learnware, JobSelectorReuser
+from learnware.learnware import Learnware, JobSelectorReuser, EnsembleReuser
 import learnware.specification as specification
 from pfs import Dataloader
 
@@ -112,8 +113,8 @@ class PFSDatasetWorkflow:
                 rmtree(dir_path)
 
     def test(self, regenerate_flag=False):
-        # self.prepare_learnware(regenerate_flag)
-        # self._init_learnware_market()
+        self.prepare_learnware(regenerate_flag)
+        self._init_learnware_market()
 
         easy_market = EasyMarket()
         print("Total Item:", len(easy_market))
@@ -121,6 +122,10 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
         os.makedirs("./user_spec", exist_ok=True)
+        sinle_score_list = []
+        random_score_list = []
+        job_selector_score_list = []
+        ensemble_score_list = []
 
         for idx in idx_list:
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
@@ -142,18 +147,36 @@ class PFSDatasetWorkflow:
             print(
                 f"single model num: {len(sorted_score_list)}, max_score: {sorted_score_list[0]}, min_score: {sorted_score_list[-1]}"
             )
-            for score, learnware in zip(sorted_score_list[:5], single_learnware_list[:5]):
+            loss_list = []
+            for score, learnware in zip(sorted_score_list, single_learnware_list):
                 pred_y = learnware.predict(test_x)
-                loss = pfs.score(test_y, pred_y)
-                print(f"score: {score}, learnware_id: {learnware.id}, loss: {loss}")
+                loss_list.append(pfs.score(test_y, pred_y))
+            print(
+                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[-1]}"
+            )
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
 
-            reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
-            reuse_predict = reuse_baseline.predict(user_data=test_x)
-            reuse_score = pfs.score(test_y, reuse_predict)
-            print(f"mixture reuse loss: {reuse_score}\n")
+            reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
+            job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
+            job_selector_score = pfs.score(test_y, job_selector_predict_y)
+            print(f"mixture reuse loss (job selector): {job_selector_score}")
+
+            reuse_ensemble = EnsembleReuser(learnware_list=mixture_learnware_list)
+            ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
+            ensemble_score = pfs.score(test_y, ensemble_predict_y)
+            print(f"mixture reuse loss (ensemble): {ensemble_score}\n")
+
+            sinle_score_list.append(loss_list[0])
+            random_score_list.append(np.mean(loss_list))
+            job_selector_score_list.append(job_selector_score)
+            ensemble_score_list.append(ensemble_score)
+
+        print(f"Single search score: {np.mean(sinle_score_list)}")
+        print(f"Job selector score: {np.mean(job_selector_score_list)}")
+        print(f"Average ensemble score: {np.mean(ensemble_score_list)}")
+        print(f"Random search score: {np.mean(random_score_list)}")
 
 
 if __name__ == "__main__":
