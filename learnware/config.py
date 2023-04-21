@@ -79,11 +79,16 @@ semantic_config = {
             # "Generation",
             "Segmentation",
             "Object Detection",
+            "Others",
         ],
         "Type": "Class",  # Choose only one class
     },
-    "Device": {
-        "Values": ["CPU", "GPU"],
+    # "Device": {
+    #     "Values": ["CPU", "GPU"],
+    #     "Type": "Tag",
+    # },  # Choose one or more tags
+    "Library": {
+        "Values": ["Scikit-learn", "PyTorch", "TensorFlow", "Others"],
         "Type": "Tag",
     },  # Choose one or more tags
     "Scenario": {
