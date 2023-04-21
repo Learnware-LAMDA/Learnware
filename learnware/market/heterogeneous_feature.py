@@ -25,6 +25,7 @@ class HeterogeneousFeatureMarket(EvolvedMarket):
         learnware_list : List[Learnware]
             list of learnwares
         """
+        pass
 
     def transform_original_to_subspace(self, original_feature_space_idx: int, original_feature: np.ndarray):
         """Transform feature in a original feature space to the subspace.
@@ -34,7 +35,7 @@ class HeterogeneousFeatureMarket(EvolvedMarket):
         original_feature_space_idx: int
             index of the original feature space
         original_feature: np.ndarray
-            data in the original feature space  
+            data in the original feature space
         """
         pass
 
@@ -46,6 +47,6 @@ class HeterogeneousFeatureMarket(EvolvedMarket):
         original_feature_space_idx: int
             index of the original feature space
         subspace_feature: np.ndarray
-            data in the subspace  
+            data in the subspace
         """
         pass
