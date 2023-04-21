@@ -639,7 +639,6 @@ class EasyMarket(BaseMarket):
                 weight_list = []
                 mixture_learnware_list = []
 
-            # convert dist to score
             if mixture_dist is None:
                 sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
                 mixture_score = None
