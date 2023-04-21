@@ -73,12 +73,12 @@ Learnware Market Workflow
 
 Users can start an Learnware Market workflow according to the following steps:
 
-- Initialize a Learware Market:
+1. Initialize a Learware Market:
 
-- Upload leanware:
+2. Upload leanware:
 
-- Semantic specification search:
+3. Semantic specification search:
 
-- Statistical specification search:
+4. Statistical specification search:
 
-- Reuse learnwares:
+5. Reuse learnwares:
