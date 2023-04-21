@@ -4,7 +4,7 @@ from get_data import *
 import os
 import random
 from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
-from learnware.learnware import Learnware, JobSelectorReuser
+from learnware.learnware import Learnware, JobSelectorReuser, EnsembleReuser
 import time
 
 from learnware.market import EasyMarket, BaseUserInfo
@@ -143,6 +143,7 @@ def test_search(gamma=0.1, load_market=True):
     avg_list = []
     improve_list = []
     job_selector_score_list = []
+    ensemble_score_list = []
     for i in range(n_users):
         user_data_path = os.path.join(user_save_root, "user_%d_X.npy" % (i))
         user_label_path = os.path.join(user_save_root, "user_%d_y.npy" % (i))
@@ -171,8 +172,14 @@ def test_search(gamma=0.1, load_market=True):
         reuse_predict = reuse_baseline.predict(user_data=user_data)
         reuse_score = eval_prediction(reuse_predict, user_label)
         job_selector_score_list.append(reuse_score)
-        """
         print(f"mixture reuse loss: {reuse_score}\n")
+        """
+
+        reuse_ensemble = EnsembleReuser(learnware_list=mixture_learnware_list, mode="vote")
+        ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
+        ensemble_score = eval_prediction(ensemble_predict_y, user_label)
+        ensemble_score_list.append(ensemble_score)
+        print(f"mixture reuse accuracy (ensemble): {ensemble_score}\n")
         select_list.append(acc_list[0])
         avg_list.append(np.mean(acc_list))
         improve_list.append((acc_list[0] - np.mean(acc_list)) / np.mean(acc_list))
@@ -182,6 +189,9 @@ def test_search(gamma=0.1, load_market=True):
     )
     logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
     # logger.info("Average Job Selector Reuse Performance: %.3f +/- %.3f"%(np.mean(job_selector_score_list), np.std(job_selector_score_list)))
+    logger.info(
+        "Ensemble Reuse Performance: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
+    )
 
 
 if __name__ == "__main__":

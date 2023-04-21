@@ -9,6 +9,7 @@ import learnware.specification as specification
 from .base import BaseReuser
 from ..specification import RKMEStatSpecification
 from ..logger import get_module_logger
+from scipy.special import softmax
 
 logger = get_module_logger("Reuser")
 
@@ -228,7 +229,7 @@ class JobSelectorReuser(BaseReuser):
 class EnsembleReuser(BaseReuser):
     """Baseline Multiple Learnware Reuser uing Ensemble Method"""
 
-    def __init__(self, learnware_list: List[Learnware]):
+    def __init__(self, learnware_list: List[Learnware], mode="mean"):
         """The initialization method for ensemble reuser
 
         Parameters
@@ -237,6 +238,7 @@ class EnsembleReuser(BaseReuser):
             The learnware list, which should have RKME Specification for each learnweare
         """
         super(EnsembleReuser, self).__init__(learnware_list)
+        self.mode = mode
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """Give prediction for user data using baseline ensemble method
@@ -256,10 +258,20 @@ class EnsembleReuser(BaseReuser):
         for idx in range(len(self.learnware_list)):
             pred_y = self.learnware_list[idx].predict(user_data)
 
-            if mean_pred_y is None:
-                mean_pred_y = pred_y
-            else:
-                mean_pred_y += pred_y
+            if self.mode == "mean":
+                if mean_pred_y is None:
+                    mean_pred_y = pred_y
+                else:
+                    mean_pred_y += pred_y
+            elif self.mode == "vote":
+                # print(pred_y.shape)
+                if not isinstance(pred_y, np.ndarray):
+                    pred_y = pred_y.detach().cpu().numpy()
+                softmax_pred = softmax(pred_y, axis=1)
+                if mean_pred_y is None:
+                    mean_pred_y = softmax_pred
+                else:
+                    mean_pred_y += softmax_pred
 
         mean_pred_y /= len(self.learnware_list)
 
