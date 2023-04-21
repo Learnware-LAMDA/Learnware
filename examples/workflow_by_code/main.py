@@ -26,7 +26,7 @@ semantic_specs = [
     }
 ]
 
-user_senmantic = {
+user_semantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {
         "Values": ["Classification"],
@@ -130,7 +130,7 @@ class LearnwareMarketWorkflow:
         with zipfile.ZipFile(zip_path, "r") as zip_obj:
             zip_obj.extractall(path=unzip_dir)
 
-        user_info = BaseUserInfo(id="user_0", semantic_spec=user_senmantic)
+        user_info = BaseUserInfo(id="user_0", semantic_spec=user_semantic)
         _, single_learnware_list, _ = easy_market.search_learnware(user_info)
 
         print("User info:", user_info.get_semantic_spec())
@@ -159,7 +159,7 @@ class LearnwareMarketWorkflow:
             user_spec = specification.rkme.RKMEStatSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
             user_info = BaseUserInfo(
-                id="user_0", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
+                id="user_0", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
             )
             (
                 sorted_score_list,

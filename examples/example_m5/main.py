@@ -24,7 +24,7 @@ semantic_specs = [
     }
 ]
 
-user_senmantic = {
+user_semantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
     "Device": {"Values": ["GPU"], "Type": "Tag"},
@@ -115,7 +115,7 @@ class M5DatasetWorkflow:
                 rmtree(dir_path)
 
     def test(self, regenerate_flag=False):
-        #self.prepare_learnware(regenerate_flag)
+        self.prepare_learnware(regenerate_flag)
         self._init_learnware_market()
 
         easy_market = EasyMarket()
@@ -136,7 +136,7 @@ class M5DatasetWorkflow:
             user_spec.save(user_spec_path)
 
             user_info = BaseUserInfo(
-                id=f"user_{idx}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
+                id=f"user_{idx}", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
             )
             (
                 sorted_score_list,
@@ -160,7 +160,7 @@ class M5DatasetWorkflow:
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
 
-            reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
+            reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list, use_herding=False)
             job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
             job_selector_score = m5.score(test_y, job_selector_predict_y)
             print(f"mixture reuse loss (job selector): {job_selector_score}")
