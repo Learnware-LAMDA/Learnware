@@ -2,7 +2,7 @@ import os
 import copy
 
 from .base import Learnware, BaseReuser
-from .reuse import JobSelectorReuser, EnsembleReuser
+from .reuse import JobSelectorReuser, AveragingReuser
 
 from .utils import get_stat_spec_from_config, get_model_from_config
 from ..specification import Specification

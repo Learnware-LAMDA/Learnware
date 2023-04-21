@@ -78,12 +78,12 @@ class EasyMarket(BaseMarket):
         try:
             learnware.instantiate_model()
         except Exception as e:
-            logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {repr(e)}")
+            logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {e}")
             return cls.NONUSABLE_LEARNWARE
 
         try:
             learnware_model = learnware.get_model()
-            inputs = np.random.randn((10, *learnware_model.input_shape))
+            inputs = np.random.randn(10, *learnware_model.input_shape)
             outputs = learnware.predict(inputs)
             if outputs.shape[1:] != learnware_model.output_shape:
                 logger.warning(f"The learnware [{learnware.id}] input and output dimention is error")

@@ -226,7 +226,7 @@ class JobSelectorReuser(BaseReuser):
         return model
 
 
-class EnsembleReuser(BaseReuser):
+class AveragingReuser(BaseReuser):
     """Baseline Multiple Learnware Reuser uing Ensemble Method"""
 
     def __init__(self, learnware_list: List[Learnware], mode="mean"):
@@ -237,7 +237,7 @@ class EnsembleReuser(BaseReuser):
         learnware_list : List[Learnware]
             The learnware list, which should have RKME Specification for each learnweare
         """
-        super(EnsembleReuser, self).__init__(learnware_list)
+        super(AveragingReuser, self).__init__(learnware_list)
         self.mode = mode
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:

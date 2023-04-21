@@ -8,7 +8,7 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
-from learnware.learnware import Learnware, JobSelectorReuser, EnsembleReuser
+from learnware.learnware import Learnware, JobSelectorReuser, AveragingReuser
 import learnware.specification as specification
 from pfs import Dataloader
 
@@ -163,7 +163,7 @@ class PFSDatasetWorkflow:
             job_selector_score = pfs.score(test_y, job_selector_predict_y)
             print(f"mixture reuse loss (job selector): {job_selector_score}")
 
-            reuse_ensemble = EnsembleReuser(learnware_list=mixture_learnware_list)
+            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
             ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
             ensemble_score = pfs.score(test_y, ensemble_predict_y)
             print(f"mixture reuse loss (ensemble): {ensemble_score}\n")
