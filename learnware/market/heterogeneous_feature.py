@@ -15,7 +15,7 @@ class HeterogeneousFeatureMarket(EvolvedMarket):
     """
 
     def __init__(self):
-        super(EvolvedMarket, self).__init__()
+        super(HeterogeneousFeatureMarket, self).__init__()
 
     def learn_mapping_functions(self, learnware_list: List[Learnware]):
         """Use all statistical specifications of submitted learnwares to generate mapping functions from each original feature space to subsapce and vice verse.
