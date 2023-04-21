@@ -124,7 +124,7 @@ class EasyMarket(BaseMarket):
         try:
             if len(semantic_spec["Data"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Data.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Task"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Task.")
                 return None, self.INVALID_LEARNWARE
