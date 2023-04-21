@@ -45,10 +45,10 @@ class M5DatasetWorkflow:
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        database_ops.clear_learnware_table()
+        # database_ops.clear_learnware_table()
         learnware.init()
 
-        easy_market = EasyMarket()
+        easy_market = EasyMarket(rebuild=True)
         print("Total Item:", len(easy_market))
 
         zip_path_list = []
@@ -130,7 +130,12 @@ class M5DatasetWorkflow:
             user_info = BaseUserInfo(
                 id=f"user_{idx}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
             )
-            sorted_score_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
+            (
+                sorted_score_list,
+                single_learnware_list,
+                mixture_score,
+                mixture_learnware_list,
+            ) = easy_market.search_learnware(user_info)
 
             print(f"search result of user{idx}:")
             print(
