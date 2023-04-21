@@ -121,6 +121,10 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
         os.makedirs("./user_spec", exist_ok=True)
+        sinle_score_list = []
+        random_score_list = []
+        job_selector_score_list = []
+        ensemble_score_list = []
 
         for idx in idx_list:
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
@@ -142,10 +146,11 @@ class PFSDatasetWorkflow:
             print(
                 f"single model num: {len(sorted_score_list)}, max_score: {sorted_score_list[0]}, min_score: {sorted_score_list[-1]}"
             )
-            for score, learnware in zip(sorted_score_list[:5], single_learnware_list[:5]):
+            loss_list = []
+            for score, learnware in zip(sorted_score_list, single_learnware_list):
                 pred_y = learnware.predict(test_x)
-                loss = pfs.score(test_y, pred_y)
-                print(f"score: {score}, learnware_id: {learnware.id}, loss: {loss}")
+                loss_list.append(pfs.score(test_y, pred_y))
+            print(f"Top1-score: {sorted_score_list[0]}, learnware_id: {learnware.id}, loss: {loss_list[-1]}")
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
@@ -154,6 +159,8 @@ class PFSDatasetWorkflow:
             reuse_predict = reuse_baseline.predict(user_data=test_x)
             reuse_score = pfs.score(test_y, reuse_predict)
             print(f"mixture reuse loss: {reuse_score}\n")
+
+            sinle_score_list.append()
 
 
 if __name__ == "__main__":
