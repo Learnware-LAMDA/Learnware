@@ -133,10 +133,10 @@ def prepare_market():
 
 def test_search(gamma=0.1, load_market=True):
     if load_market:
-        image_market = EasyMarket()
+        image_market = EasyMarket(market_id="image")
     else:
         prepare_market()
-        image_market = EasyMarket()
+        image_market = EasyMarket(market_id="image")
     logger.info("Number of items in the market: %d" % len(image_market))
 
     select_list = []
