@@ -53,17 +53,17 @@ The Learnware Market consists of a vast amount of learnwares. A valid learnware 
 - ``environment.yaml``
 
     A Conda environment configuration file for running the model (if the model environment is incompatible, you can rely on this for manual configuration). 
-    You can generate this file according to the follo steps:
+    You can generate this file according to the following steps:
 
     - create env config for conda:
 
-        ..code_block::
+        .. code_block::
 
             conda env export | grep -v "^prefix: " > environment.yml
         
     - recover env from config:
 
-        ..code_block::
+        .. code_block::
 
             conda env create -f environment.yml
 
