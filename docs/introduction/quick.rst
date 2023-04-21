@@ -35,9 +35,13 @@ Prepare Learnware
 ============
 
 The Learnware Market consists of a vast amount of learnwares. A valid learnware is composed of the following parts:
+
 - `learnware.yaml`
+
 - `__init__.py`
+
 - `environment.yaml`
+
 - `rkme.json`
 
 .. code-block::
