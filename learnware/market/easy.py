@@ -378,7 +378,7 @@ class EasyMarket(BaseMarket):
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
             mixture_weight = [1]
-            mmd_dist = user_rkme.dist(mixture_list)
+            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name("RKMEStatSpecification"))
         else:
             if len(mixture_list) > max_search_num:
                 mixture_list = mixture_list[:max_search_num]
