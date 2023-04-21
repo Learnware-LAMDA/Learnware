@@ -34,23 +34,39 @@ Learnware is currently hosted on `PyPI <https://pypi.org/>`__. You can easily in
 Prepare Learnware
 ============
 
-The Learnware Market consists of a vast amount of learnwares. A valid learnware is composed of the following parts:
+The Learnware Market consists of a vast amount of learnwares. A valid learnware is composed of four parts. Please refer to
+:ref:`script` for examples of these components.
 
-- `learnware.yaml`
+- ``__init__.py``
 
-- `__init__.py`
+    A python file offering interfaces for your model's fitting, predicting and fine-tuning.
 
-- `environment.yaml`
+- ``rkme.json``
 
-- `rkme.json`
+    A json file containing the statistical specification of your data. 
 
-.. code-block::
+- ``learnware.yaml``
+    
+    A config file describing your model class name, type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMEStatSpecification``), and 
+    the file name of your statistical specification file.
 
-    python scripts/get_data.py qlib_data --target_dir ~/.qlib/qlib_data/cn_data --region cn
+- ``environment.yaml``
 
-This dataset is created by public data collected by crawler scripts in ``scripts/data_collector/``, which have been released in the same repository. Users could create the same dataset with it.
+    A Conda environment configuration file for running the model (if the model environment is incompatible, you can rely on this for manual configuration). 
+    You can generate this file according to the follo steps:
 
-To known more about `prepare data`, please refer to `Data Preparation <../component/data.html#data-preparation>`_.
+    - create env config for conda:
+
+        ..code_block::
+
+            conda env export | grep -v "^prefix: " > environment.yml
+        
+    - recover env from config:
+
+        ..code_block::
+
+            conda env create -f environment.yml
+
 
 Auto Quant Research Workflow
 ============================
