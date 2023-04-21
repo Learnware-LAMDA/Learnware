@@ -32,7 +32,8 @@ Learnware is currently hosted on `PyPI <https://pypi.org/>`__. You can easily in
 Prepare Learnware
 ============
 
-The Learnware Market consists of a vast amount of learnwares. A valid learnware is composed of four parts. Please refer to
+The Learnware Market consists of a wide range of learnwares. A valid learnware is a zip file which 
+is composed of the following four parts. Please refer to
 :ref:`script` for examples of these components.
 
 - ``__init__.py``
@@ -73,10 +74,58 @@ Users can start an Learnware Market workflow according to the following steps:
 
 1. Initialize a Learware Market:
 
+    .. code-block:: python
+        
+        import learnware
+        from learnware.market import EasyMarket
+
+        learnware.init()
+        easy_market = EasyMarket(market_id="demo", rebuild=True)
+
 2. Upload leanware:
 
+    Here, ``zip_path`` is the directory of your learnware zip file.
+
+    .. code-block:: python
+
+        semantic_spec = {
+            "Data": {"Values": ["Tabular"], "Type": "Class"},
+            "Task": {"Values": ["Classification"], "Type": "Class"},
+            "Device": {"Values": ["GPU"], "Type": "Tag"},
+            "Scenario": {"Values": ["Business"], "Type": "Tag"},
+            "Description": {"Values": "", "Type": "String"},
+            "Name": {"Values": "learnware_1", "Type": "String"},
+        }
+        semantic_spec["Name"]["Values"] = "learnware_user"
+        semantic_spec["Description"]["Values"] = "test_learnware_user" 
+        easy_market.add_learnware(zip_path, semantic_spec) 
+
 3. Semantic specification search:
+
+    .. code-block:: python
+
+        user_semantic = {
+        "Data": {"Values": ["Tabular"], "Type": "Class"},
+        "Task": {
+            "Values": ["Classification"],
+            "Type": "Class",
+        },
+        "Device": {"Values": ["GPU"], "Type": "Tag"},
+        "Scenario": {"Values": ["Business"], "Type": "Tag"},
+        "Description": {"Values": "", "Type": "String"},
+        "Name": {"Values": "", "Type": "String"},
+    }
+    user_info = BaseUserInfo(id="user_0", semantic_spec=user_semantic)
+    _, single_learnware_list, _ = easy_market.search_learnware(user_info)
 
 4. Statistical specification search:
 
 5. Reuse learnwares:
+
+.. _script:
+
+Example: Learnware Files
+-------
+
+Below is an example learnware that includes an SVM model and uses Reduced Kernel Mean Embedding as its statistical reduction method. 
+We have listed the files that it needs to include.
