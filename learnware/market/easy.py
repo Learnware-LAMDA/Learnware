@@ -476,7 +476,7 @@ class EasyMarket(BaseMarket):
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
-            return [], []
+            return None, [], []
         if learnware_num < max_search_num:
             logger.warning("Available Learnware num less than search_num!")
             max_search_num = learnware_num
