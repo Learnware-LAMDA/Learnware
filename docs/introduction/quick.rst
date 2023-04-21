@@ -8,8 +8,6 @@ Introduction
 This ``Quick Start`` guide tries to demonstrate
 
 - It's very easy to build a complete Learnware Market workflow and use ``learnware`` to deal with users' tasks.
-- Though with public data and simple models, machine learning technologies work very well in practical Quant investment.
-
 
 
 Installation
