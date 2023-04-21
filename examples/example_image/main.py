@@ -151,7 +151,9 @@ def test_search(load_market=True):
             id=f"user_{i}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_stat_spec}
         )
         logger.info("Searching Market for user: %d" % (i))
-        sorted_score_list, single_learnware_list, mixture_learnware_list = image_market.search_learnware(user_info)
+        sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
+            user_info
+        )
         l = len(sorted_score_list)
         acc_list = []
         for idx in range(l):
@@ -172,6 +174,6 @@ def test_search(load_market=True):
 
 
 if __name__ == "__main__":
-    prepare_data()
-    prepare_model()
-    test_search(False)
+    # prepare_data()
+    # prepare_model()
+    test_search()
