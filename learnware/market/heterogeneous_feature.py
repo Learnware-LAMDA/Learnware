@@ -39,6 +39,13 @@ class HeterogeneousFeatureMarket(EvolvedMarket):
         self.mapping_function_list={}
 
     def _mapping_function_list_initialization(self, learnware_list: List[Learnware]):
+        """Initialize mapping functions with all submitted learnwares
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            list of learnwares
+        """
         self.mapping_function_list=self.learn_mapping_functions(learnware_list) 
 
     def learn_mapping_functions(self, learnware_list: List[Learnware])-> List[MappingFunction]:
