@@ -89,7 +89,7 @@ semantic_config = {
     # },  # Choose one or more tags
     "Library": {
         "Values": ["Scikit-learn", "PyTorch", "TensorFlow", "Others"],
-        "Type": "Tag",
+        "Type": "Class",
     },  # Choose one or more tags
     "Scenario": {
         "Values": [
