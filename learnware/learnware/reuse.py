@@ -54,7 +54,7 @@ class JobSelectorReuser(BaseReuser):
 
         return selector_pred_y
 
-    def job_selector(self, user_data: np.ndarray, use_herding: bool):
+    def job_selector(self, user_data: np.ndarray, use_herding: bool = True):
         """Train job selector based on user's data, which predicts which learnware in the pool should be selected
 
         Parameters
