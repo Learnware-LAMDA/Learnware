@@ -141,7 +141,7 @@ class PFSDatasetWorkflow:
                 single_learnware_list,
                 mixture_score,
                 mixture_learnware_list,
-            ) = easy_market.search_learnware(user_info)
+            ) = easy_market.search_learnware(user_info, search_method = "auto")
 
             print(f"search result of user{idx}:")
             print(
