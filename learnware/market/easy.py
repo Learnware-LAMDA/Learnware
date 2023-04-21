@@ -119,7 +119,7 @@ class EasyMarket(BaseMarket):
         """
         if not os.path.exists(zip_path):
             logger.warning("Zip Path NOT Found! Fail to add learnware.")
-            return None, False
+            return None, self.INVALID_LEARNWARE
 
         try:
             if len(semantic_spec["Data"]["Values"]) == 0:
@@ -127,16 +127,16 @@ class EasyMarket(BaseMarket):
                 return None, False
             if len(semantic_spec["Task"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Task.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Library"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Device.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Name"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Name.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Scenario or Description.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if (
                 semantic_spec["Data"]["Type"] != "Class"
                 or semantic_spec["Task"]["Type"] != "Class"
@@ -146,11 +146,11 @@ class EasyMarket(BaseMarket):
                 or semantic_spec["Description"]["Type"] != "String"
             ):
                 logger.warning("Illegal semantic specification, please provide the right type.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
         except:
             print(semantic_spec)
             logger.warning("Illegal semantic specification, some keys are missing.")
-            return None, False
+            return None, self.INVALID_LEARNWARE
 
         logger.info("Get new learnware from %s" % (zip_path))
         id = "%08d" % (self.count)
