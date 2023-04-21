@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from model import ConvModel
+from example_files.model import ConvModel
 
 
 class ImageDataLoader:

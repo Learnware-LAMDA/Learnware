@@ -46,7 +46,7 @@ class Learnware:
         elif isinstance(self.model, dict):
             model_module = get_module_by_module_path(self.model["module_path"])
             self.model = getattr(model_module, self.model["class_name"])(**self.model.get("kwargs", {}))
-            print(self.model)
+            # print(self.model)
         else:
             raise TypeError(f"Model must be BaseModel or dict, not {type(self.model)}")
 

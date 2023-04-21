@@ -200,7 +200,7 @@ class JobSelectorReuser(BaseReuser):
                     boosting_type="gbdt",
                     seed=0,
                 )
-                train_y = train_y.astype(np.int)
+                train_y = train_y.astype(int)
                 model.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=-1, early_stopping_rounds=300)
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
@@ -223,3 +223,44 @@ class JobSelectorReuser(BaseReuser):
         )
 
         return model
+
+
+class EnsembleReuser(BaseReuser):
+    """Baseline Multiple Learnware Reuser uing Ensemble Method"""
+
+    def __init__(self, learnware_list: List[Learnware]):
+        """The initialization method for ensemble reuser
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The learnware list, which should have RKME Specification for each learnweare
+        """
+        super(EnsembleReuser, self).__init__(learnware_list)
+
+    def predict(self, user_data: np.ndarray) -> np.ndarray:
+        """Give prediction for user data using baseline ensemble method
+
+        Parameters
+        ----------
+        user_data : np.ndarray
+            User's labeled raw data.
+
+        Returns
+        -------
+        np.ndarray
+            Prediction given by ensemble method
+        """
+        mean_pred_y = None
+
+        for idx in range(len(self.learnware_list)):
+            pred_y = self.learnware_list[idx].predict(user_data)
+
+            if mean_pred_y is None:
+                mean_pred_y = pred_y
+            else:
+                mean_pred_y += pred_y
+
+        mean_pred_y /= len(self.learnware_list)
+
+        return mean_pred_y
