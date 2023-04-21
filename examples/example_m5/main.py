@@ -1,13 +1,14 @@
 import os
 import fire
 import zipfile
+import numpy as np
 from tqdm import tqdm
 from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
-from learnware.learnware import Learnware, JobSelectorReuser
+from learnware.learnware import Learnware, JobSelectorReuser, AveragingReuser
 import learnware.specification as specification
 from m5 import DataLoader
 
@@ -23,7 +24,7 @@ semantic_specs = [
     }
 ]
 
-user_senmantic = {
+user_semantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
     "Device": {"Values": ["GPU"], "Type": "Tag"},
@@ -122,13 +123,20 @@ class M5DatasetWorkflow:
 
         m5 = DataLoader()
         idx_list = m5.get_idx_list()
+        os.makedirs("./user_spec", exist_ok=True)
+        sinle_score_list = []
+        random_score_list = []
+        job_selector_score_list = []
+        ensemble_score_list = []
 
         for idx in idx_list:
             train_x, train_y, test_x, test_y = m5.get_idx_data(idx)
             user_spec = specification.utils.generate_rkme_spec(X=test_x, gamma=0.1, cuda_idx=0)
+            user_spec_path = f"./user_spec/user_{idx}.json"
+            user_spec.save(user_spec_path)
 
             user_info = BaseUserInfo(
-                id=f"user_{idx}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
+                id=f"user_{idx}", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
             )
             (
                 sorted_score_list,
@@ -141,18 +149,36 @@ class M5DatasetWorkflow:
             print(
                 f"single model num: {len(sorted_score_list)}, max_score: {sorted_score_list[0]}, min_score: {sorted_score_list[-1]}"
             )
+            loss_list = []
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 pred_y = learnware.predict(test_x)
-                loss = m5.score(test_y, pred_y)
-                print(f"score: {score}, learnware_id: {learnware.id}, loss: {loss}")
+                loss_list.append(m5.score(test_y, pred_y))
+            print(
+                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[-1]}"
+            )
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-            print(f"mixture_learnware: {mixture_id}\n")
+            print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
 
-            reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
-            reuse_predict = reuse_baseline.predict(user_data=test_x)
-            reuse_score = m5.score(test_y, reuse_predict)
-            print(f"mixture reuse loss: {reuse_score}\n")
+            reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list, use_herding=False)
+            job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
+            job_selector_score = m5.score(test_y, job_selector_predict_y)
+            print(f"mixture reuse loss (job selector): {job_selector_score}")
+
+            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
+            ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
+            ensemble_score = m5.score(test_y, ensemble_predict_y)
+            print(f"mixture reuse loss (ensemble): {ensemble_score}\n")
+
+            sinle_score_list.append(loss_list[0])
+            random_score_list.append(np.mean(loss_list))
+            job_selector_score_list.append(job_selector_score)
+            ensemble_score_list.append(ensemble_score)
+
+        print(f"Single search score: {np.mean(sinle_score_list)}")
+        print(f"Job selector score: {np.mean(job_selector_score_list)}")
+        print(f"Average ensemble score: {np.mean(ensemble_score_list)}")
+        print(f"Random search score: {np.mean(random_score_list)}")
 
 
 if __name__ == "__main__":

@@ -167,13 +167,12 @@ def test_search(gamma=0.1, load_market=True):
             acc_list.append(acc)
             logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
         # test reuse
-        """
+
         reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
         reuse_predict = reuse_baseline.predict(user_data=user_data)
         reuse_score = eval_prediction(reuse_predict, user_label)
         job_selector_score_list.append(reuse_score)
         print(f"mixture reuse loss: {reuse_score}\n")
-        """
 
         reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
         ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
@@ -188,10 +187,10 @@ def test_search(gamma=0.1, load_market=True):
         % (np.mean(select_list), np.std(select_list), np.mean(avg_list), np.std(avg_list))
     )
     logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
-    # logger.info(
-    #     "Average Job Selector Reuse Performance: %.3f +/- %.3f"
-    #     % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
-    # )
+    logger.info(
+        "Average Job Selector Reuse Performance: %.3f +/- %.3f"
+        % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
+    )
     logger.info(
         "Ensemble Reuse Performance: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
     )

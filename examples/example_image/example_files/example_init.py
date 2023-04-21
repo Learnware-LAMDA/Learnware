@@ -8,6 +8,7 @@ import torch
 
 class Model(BaseModel):
     def __init__(self):
+        super().__init__(input_shape=(3, 32, 32), output_shape=(10,))
         dir_path = os.path.dirname(os.path.abspath(__file__))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model = ConvModel(channel=3, n_random_features=10).to(self.device)
