@@ -23,7 +23,9 @@ Document Structure
    :maxdepth: 3
    :caption: GETTING STARTED:
 
-   Introduction <introduction/intro.rst>
+   Introduction <start/intro.rst>
+   Quick Start <start/quick.rst>
+   Installation Guide <start/install.rst>
 
 .. toctree::
    :maxdepth: 3
