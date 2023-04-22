@@ -110,7 +110,7 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
 
 
 def prepare_market():
-    image_market = EasyMarket(rebuild=True)
+    image_market = EasyMarket(market_id="image")
     rmtree(learnware_pool_dir)
     os.makedirs(learnware_pool_dir, exist_ok=True)
     for i in range(n_uploaders):
@@ -166,22 +166,25 @@ def test_search(gamma=0.1, load_market=True):
             acc = eval_prediction(pred_y, user_label)
             acc_list.append(acc)
             logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
-        # test reuse
 
-        reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
+        # test reuse (job selector)
+        reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
         reuse_predict = reuse_baseline.predict(user_data=user_data)
         reuse_score = eval_prediction(reuse_predict, user_label)
         job_selector_score_list.append(reuse_score)
-        print(f"mixture reuse loss: {reuse_score}\n")
+        print(f"mixture reuse loss: {reuse_score}")
 
+        # test reuse (ensemble)
         reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
         ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
         ensemble_score = eval_prediction(ensemble_predict_y, user_label)
         ensemble_score_list.append(ensemble_score)
         print(f"mixture reuse accuracy (ensemble): {ensemble_score}\n")
+
         select_list.append(acc_list[0])
         avg_list.append(np.mean(acc_list))
         improve_list.append((acc_list[0] - np.mean(acc_list)) / np.mean(acc_list))
+
     logger.info(
         "Accuracy of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f"
         % (np.mean(select_list), np.std(select_list), np.mean(avg_list), np.std(avg_list))
@@ -199,4 +202,4 @@ def test_search(gamma=0.1, load_market=True):
 if __name__ == "__main__":
     # prepare_data()
     # prepare_model()
-    test_search(load_market=False)
+    test_search(load_market=True)

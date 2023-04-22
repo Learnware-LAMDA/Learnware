@@ -1,4 +1,6 @@
+import torch
 import numpy as np
+import tensorflow as tf
 from typing import Tuple, Any, List, Union, Dict
 from cvxopt import matrix, solvers
 from lightgbm import LGBMClassifier
@@ -45,24 +47,37 @@ class JobSelectorReuser(BaseReuser):
             Prediction given by job-selector method
         """
         select_result = self.job_selector(user_data)
-        selector_pred_y = np.zeros(user_data.shape[0])
+        pred_y_list = []
+        data_idxs_list = []
 
         for idx in range(len(self.learnware_list)):
             data_idx_list = np.where(select_result == idx)[0]
             if len(data_idx_list) > 0:
-                selector_pred_y[data_idx_list] = self.learnware_list[idx].predict(user_data[data_idx_list])
+                pred_y = self.learnware_list[idx].predict(user_data[data_idx_list])
+                if isinstance(pred_y, torch.Tensor):
+                    pred_y = pred_y.detach().cpu().numpy()
+                elif isinstance(pred_y, tf.Tensor):
+                    pred_y = pred_y.numpy()
+
+                pred_y_list.append(pred_y)
+                data_idxs_list.append(data_idx_list)
+
+        if pred_y_list[0].ndim == 1:
+            selector_pred_y = np.zeros(user_data.shape[0])
+        else:
+            selector_pred_y = np.zeros((user_data.shape[0], pred_y_list[0].shape[1]))
+        for pred_y, data_idx_list in zip(pred_y_list, data_idxs_list):
+            selector_pred_y[data_idx_list] = pred_y
 
         return selector_pred_y
 
-    def job_selector(self, user_data: np.ndarray, use_herding: bool = True):
+    def job_selector(self, user_data: np.ndarray):
         """Train job selector based on user's data, which predicts which learnware in the pool should be selected
 
         Parameters
         ----------
         user_data : np.ndarray
             User's labeled raw data.
-        use_herding: bool
-            Whether create job selector training samples by herding
         """
         if len(self.learnware_list) == 1:
             user_data_num = user_data.shape[0]
@@ -116,6 +131,13 @@ class JobSelectorReuser(BaseReuser):
             val_herding_y = np.array(val_herding_y)
 
             # use herding samples to train a job selector
+            herding_X = herding_X.reshape(herding_X.shape[0], -1)
+            train_herding_X = train_herding_X.reshape(train_herding_X.shape[0], -1)
+            val_herding_X = val_herding_X.reshape(val_herding_X.shape[0], -1)
+            herding_y = herding_y.astype(int)
+            train_herding_y = train_herding_y.astype(int)
+            val_herding_y = val_herding_y.astype(int)
+
             job_selector = self._selector_grid_search(
                 herding_X,
                 herding_y,
@@ -125,7 +147,7 @@ class JobSelectorReuser(BaseReuser):
                 val_herding_y,
                 len(self.learnware_list),
             )
-            job_select_result = np.array(job_selector.predict(user_data))
+            job_select_result = np.array(job_selector.predict(user_data.reshape(user_data.shape[0], -1)))
 
             return job_select_result
 
@@ -155,7 +177,8 @@ class JobSelectorReuser(BaseReuser):
         A = matrix(np.ones((1, task_num)))
         b = matrix(np.ones((1, 1)))
         solvers.options["show_progress"] = False
-        sol = solvers.qp(P, q, G, h, A, b)
+
+        sol = solvers.qp(P, q, G, h, A, b, kktsolver="ldl")
         task_mixture_weight = np.array(sol["x"]).reshape(-1)
 
         return task_mixture_weight
@@ -266,6 +289,10 @@ class AveragingReuser(BaseReuser):
 
         for idx in range(len(self.learnware_list)):
             pred_y = self.learnware_list[idx].predict(user_data)
+            if isinstance(pred_y, torch.Tensor):
+                pred_y = pred_y.detach().cpu().numpy()
+            elif isinstance(pred_y, tf.Tensor):
+                pred_y = pred_y.numpy()
 
             if self.mode == "mean":
                 if mean_pred_y is None:
@@ -273,10 +300,7 @@ class AveragingReuser(BaseReuser):
                 else:
                     mean_pred_y += pred_y
             elif self.mode == "vote":
-                # print(pred_y.shape)
-                if not isinstance(pred_y, np.ndarray):
-                    pred_y = pred_y.detach().cpu().numpy()
-                softmax_pred = softmax(pred_y, axis=0)
+                softmax_pred = softmax(pred_y, axis=1)
                 if mean_pred_y is None:
                     mean_pred_y = softmax_pred
                 else:
