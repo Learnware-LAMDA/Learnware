@@ -76,8 +76,8 @@ Users can start an Learnware Market workflow according to the following steps:
 Initialize a Learware Market
 -------------------------------
 
- The ``EasyMarket`` class implements the most basic set of functions in a Learnware Market. 
- You can use the following code snippet to initialize a basic Learnware Market:
+The ``EasyMarket`` class implements the most basic set of functions in a Learnware Market. 
+You can use the following code snippet to initialize a basic Learnware Market named "demo":
 
 .. code-block:: python
     
@@ -91,11 +91,11 @@ Upload Leanwares
 -------------------------------
 
 Before uploading your learnware into the Learnware Market,
-create a semantic specification ``semantic_spec`` by selecting or filling certain semantic tags 
+create a semantic specification ``semantic_spec`` by selecting or filling in values for the predefined semantic tags 
 to describe the features of your task and model.
 
-For example, the code snippet below defines the semantic specification of a Scikit-Learn type 
-model designed for business scenario, which performs classification on tabular data.
+For example, the following code snippet demonstrates the semantic specification 
+of a Scikit-Learn type model, which is designed for business scenario and performs classification on tabular data:
 
 .. code-block:: python
 
@@ -108,48 +108,41 @@ model designed for business scenario, which performs classification on tabular d
         "Name": {"Values": "user learnware", "Type": "String"},
     }
 
-Once the semantic specification is defined and combined with your learnware zip file, 
-you can easily upload your learnware with a single line of code.
-Here, ``zip_path`` is the directory of your learnware zip file.
+Once the semantic specification is defined, 
+you can easily upload your learnware with a single line of code:
     
 .. code-block:: python
     
     easy_market.add_learnware(zip_path, semantic_spec) 
 
+Here, ``zip_path`` is the directory of your learnware zip file.
+
 Semantic Specification Search
 -------------------------------
 
 To search for learnwares that fit your task purpose, 
-you should also provide a semantic specification ``user_semantic``that describes the characteristics of your task.
-The Learnware Market will perform an initial search based on ``user_semantic``,
+you should also provide a semantic specification ``user_semantic`` that describes the characteristics of your task.
+The Learnware Market will perform a first-stage search based on ``user_semantic``,
 identifying potentially helpful leranwares whose models solve tasks similar to your requirements. 
 
 .. code-block:: python
 
-    user_semantic = {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
-        },
-        "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
-        "Scenario": {"Values": ["Business"], "Type": "Class"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "", "Type": "String"},
-    }
+    user_semantic = semantic_spec
+    user_semantic["Name"]["Values"] = ""
     user_info = BaseUserInfo(id="user", semantic_spec=user_semantic)
-    _, single_learnware_list, _ = easy_market.search_learnware(user_info)
+    _, single_learnware_list, _ = easy_market.search_learnware(user_info) 
+    # search_learnware performs semantic specification search if user_info doesn't include a statistical specification
 
 Statistical Specification Search
 ---------------------------------
 
-If you choose to porvide your own statistical specification file ``rkme.json``, 
+If you choose to porvide your own statistical specification file ``stat.json``, 
 the Learnware Market can perform a more accurate leanware selection from 
-the learnwares returned by the previous step. This second-step searching is carried out 
-at the level of data distribution information and returns 
+the learnwares returned by the previous step. This second-stage search is carried out 
+based on statistical information and returns 
 one or more learnwares that are most likely to be helpful for your task.
 
-Here, ``unzip_path`` is the directory where you unzip your learnware file.
+For example, the following code is designed to work with Reduced Set Kernel Embedding as a statistical specification:
 
 .. code-block:: python
 
@@ -168,7 +161,7 @@ Reuse Learnwares
 
 Based on the returned list of learnwares ``mixture_learnware_list`` in the previous step, 
 you can easily reuse them to make predictions your own data, instead of training a model from scratch. 
-We provide two baseline methods for reusing a given list of learnwares, namely ``JobSelectorReuser`` and ``AveragingReuser``.
+We provide two baseline methods for reusing a given list of learnwares, namely ``JobSelectorReuser`` and ``AveragingReuser``:
 
 .. code-block:: python
 
