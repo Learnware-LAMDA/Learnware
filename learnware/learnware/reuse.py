@@ -224,15 +224,17 @@ class JobSelectorReuser(BaseReuser):
 
         for lr in learning_rate:
             for md in max_depth:
-                model = LGBMClassifier(
-                    max_depth=md,
-                    learning_rate=lr,
-                    n_estimators=2000,
-                    # objective="multiclass",
-                    # num_class=num_class,
-                    boosting_type="gbdt",
-                    seed=0,
-                )
+                lgb_params = {
+                    "boosting_type": "gbdt",
+                    "objective": "binary",
+                    "metric": "binary_logloss",
+                    "learning_rate": lr,
+                    "max_depth": md,
+                    "n_estimators": 2000,
+                    "boost_from_average": False,
+                    "silent": False,
+                }
+                model = LGBMClassifier(**lgb_params)
                 train_y = train_y.astype(int)
                 model.fit(train_x, train_y, eval_set=[(val_x, val_y)], early_stopping_rounds=300)
                 pred_y = model.predict(org_train_x)
@@ -242,15 +244,17 @@ class JobSelectorReuser(BaseReuser):
                     score_best = score
                     params = (lr, md)
 
-        model = LGBMClassifier(
-            max_depth=params[1],
-            learning_rate=params[0],
-            n_estimators=2000,
-            # objective="multiclass",
-            # num_class=num_class,
-            boosting_type="gbdt",
-            seed=0,
-        )
+        lgb_params = {
+            "boosting_type": "gbdt",
+            "objective": "binary",
+            "metric": "binary_logloss",
+            "learning_rate": params[0],
+            "max_depth": params[1],
+            "n_estimators": 2000,
+            "boost_from_average": False,
+            "silent": False,
+        }
+        model = LGBMClassifier(**lgb_params)
         model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300)
 
         return model
