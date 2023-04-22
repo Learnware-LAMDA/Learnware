@@ -138,9 +138,8 @@ Statistical Specification Search
 
 If you choose to porvide your own statistical specification file ``stat.json``, 
 the Learnware Market can perform a more accurate leanware selection from 
-the learnwares returned by the previous step. This second-stage search is carried out 
-based on statistical information and returns 
-one or more learnwares that are most likely to be helpful for your task.
+the learnwares returned by the previous step. This second-stage search is based on statistical information 
+and returns one or more learnwares that are most likely to be helpful for your task. 
 
 For example, the following code is designed to work with Reduced Set Kernel Embedding as a statistical specification:
 
@@ -155,13 +154,19 @@ For example, the following code is designed to work with Reduced Set Kernel Embe
     )
     (sorted_score_list, single_learnware_list,
         mixture_score, mixture_learnware_list) = easy_market.search_learnware(user_info)
+    print(sorted_score_list) # learnware scores based on MMD distances, sorted in descending order
+    print(single_learnware_list) # learnwares sorted in descending order based on their scores
+    print(mixture_learnware_list) # learnwares whose mixture is helpful for your task
+    print(mixture_score) # the score of the mixture of learnwares
+
 
 Reuse Learnwares
 -------------------------------
 
 Based on the returned list of learnwares ``mixture_learnware_list`` in the previous step, 
 you can easily reuse them to make predictions your own data, instead of training a model from scratch. 
-We provide two baseline methods for reusing a given list of learnwares, namely ``JobSelectorReuser`` and ``AveragingReuser``:
+We provide two baseline methods for reusing a given list of learnwares, namely ``JobSelectorReuser`` and ``AveragingReuser``.
+Simply replace ``test_x`` in the code snippet below with your own testing data and start reusing learnwares!
 
 .. code-block:: python
 
