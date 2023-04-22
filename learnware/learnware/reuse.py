@@ -234,7 +234,7 @@ class JobSelectorReuser(BaseReuser):
                     seed=0,
                 )
                 train_y = train_y.astype(int)
-                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=-1, early_stopping_rounds=300)
+                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], early_stopping_rounds=300)
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
 
@@ -251,9 +251,7 @@ class JobSelectorReuser(BaseReuser):
             boosting_type="gbdt",
             seed=0,
         )
-        model.fit(
-            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], verbose=-1, early_stopping_rounds=300
-        )
+        model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300)
 
         return model
 
