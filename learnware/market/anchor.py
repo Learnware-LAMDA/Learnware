@@ -51,8 +51,8 @@ class AnchoredMarket(BaseMarket):
         Basic market version
     """
 
-    def __init__(self):
-        super(AnchoredMarket, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(AnchoredMarket, self).__init__(*args, **kwargs)
         self.anchor_learnware_list = {}  # anchor_id: anchor learnware
 
     def _update_anchor_learnware(self, anchor_id: str, anchor_learnware: Learnware):

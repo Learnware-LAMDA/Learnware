@@ -14,8 +14,8 @@ class EvolvedMarket(BaseMarket):
         Basic market version
     """
 
-    def __init__(self):
-        super(EvolvedMarket, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(EvolvedMarket, self).__init__(*args, **kwargs)
 
     def generate_new_stat_specification(self, learnware: Learnware) -> BaseStatSpecification:
         """Generate new statistical specification for learnwares
