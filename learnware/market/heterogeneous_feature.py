@@ -34,8 +34,8 @@ class HeterogeneousFeatureMarket(EvolvedMarket):
         Market version with evolved learnwares
     """
 
-    def __init__(self):
-        super(HeterogeneousFeatureMarket, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(HeterogeneousFeatureMarket, self).__init__(*args, **kwargs)
         self.mapping_function_list = {}
 
     def _mapping_function_list_initialization(self, learnware_list: List[Learnware]):

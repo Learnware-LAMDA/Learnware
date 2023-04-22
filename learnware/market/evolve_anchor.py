@@ -15,8 +15,8 @@ class EvolvedAnchoredMarket(AnchoredMarket, EvolvedMarket):
         Market version with evolved learnwares
     """
 
-    def __init__(self):
-        super(EvolvedAnchoredMarket, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super(EvolvedAnchoredMarket, self).__init__(*args, **kwargs)
 
     def evolve_anchor_learnware_list(self, anchor_id_list: List[str]):
         """Enable anchor learnwares to evolve, e.g., new stat_spec
