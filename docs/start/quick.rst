@@ -76,6 +76,9 @@ Users can start an Learnware Market workflow according to the following steps:
 Initialize a Learware Market
 -------------------------------
 
+ The ``EasyMarket`` class implements the most basic set of functions in a Learnware Market. 
+ You can use the following code snippet to initialize a basic Learnware Market:
+
 .. code-block:: python
     
     import learnware
@@ -87,7 +90,12 @@ Initialize a Learware Market
 Upload Leanwares
 -------------------------------
 
-Here, ``zip_path`` is the directory of your learnware zip file.
+Before uploading your learnware into the Learnware Market,
+create a semantic specification ``semantic_spec`` by selecting or filling certain semantic tags 
+to describe the features of your task and model.
+
+For example, the code snippet below defines the semantic specification of a Scikit-Learn type 
+model designed for business scenario, which performs classification on tabular data.
 
 .. code-block:: python
 
@@ -97,19 +105,24 @@ Here, ``zip_path`` is the directory of your learnware zip file.
         "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_1", "Type": "String"},
+        "Name": {"Values": "user learnware", "Type": "String"},
     }
-    semantic_spec["Name"]["Values"] = "learnware_user"
-    semantic_spec["Description"]["Values"] = "test_learnware_user" 
+
+Once the semantic specification is defined and combined with your learnware zip file, 
+you can easily upload your learnware with a single line of code.
+Here, ``zip_path`` is the directory of your learnware zip file.
+    
+.. code-block:: python
+    
     easy_market.add_learnware(zip_path, semantic_spec) 
 
 Semantic Specification Search
 -------------------------------
 
-The Learnware Market will perform first-step searching based on the semantic specification 
-``semantic_spec`` you provided. 
-This searching process will indentify potentially helpful leranwares whose models
-solve tasks similar to your requirements.
+To search for learnwares that fit your task purpose, 
+you should also provide a semantic specification ``user_semantic``that describes the characteristics of your task.
+The Learnware Market will perform an initial search based on ``user_semantic``,
+identifying potentially helpful leranwares whose models solve tasks similar to your requirements. 
 
 .. code-block:: python
 
@@ -162,5 +175,5 @@ We provide two baseline methods for reusing a given list of learnwares, namely `
     reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
     job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
 
-    reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode='vote')
+    reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
     ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
