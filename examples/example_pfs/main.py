@@ -47,7 +47,7 @@ class PFSDatasetWorkflow:
     def _init_learnware_market(self):
         """initialize learnware market"""
         learnware.init()
-        easy_market = EasyMarket(market_id="pfs")
+        easy_market = EasyMarket(market_id="pfs", rebuild=True)
         print("Total Item:", len(easy_market))
 
         zip_path_list = []

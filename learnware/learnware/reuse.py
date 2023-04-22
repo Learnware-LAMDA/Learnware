@@ -221,22 +221,27 @@ class JobSelectorReuser(BaseReuser):
         learning_rate = [0.01]
         max_depth = [66]
         params = (0, 0)
+        
+        lgb_params = {
+            "boosting_type": "gbdt",
+            "n_estimators": 2000,
+            "boost_from_average": False,
+        }
+        
+        if num_class == 2:
+            lgb_params["objective"] = "binary"
+            lgb_params["metric"] = "binary_logloss"
+        else:
+            lgb_params["objective"] = "multiclass"
+            lgb_params["metric"] = "multi_logloss"
 
         for lr in learning_rate:
             for md in max_depth:
-                lgb_params = {
-                    "boosting_type": "gbdt",
-                    "objective": "binary",
-                    "metric": "binary_logloss",
-                    "learning_rate": lr,
-                    "max_depth": md,
-                    "n_estimators": 2000,
-                    "boost_from_average": False,
-                    "silent": False,
-                }
+                lgb_params["learning_rate"] = lr
+                lgb_params["max_depth"] = md
                 model = LGBMClassifier(**lgb_params)
                 train_y = train_y.astype(int)
-                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], early_stopping_rounds=300)
+                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], early_stopping_rounds=300, verbose=False)
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
 
@@ -244,18 +249,10 @@ class JobSelectorReuser(BaseReuser):
                     score_best = score
                     params = (lr, md)
 
-        lgb_params = {
-            "boosting_type": "gbdt",
-            "objective": "binary",
-            "metric": "binary_logloss",
-            "learning_rate": params[0],
-            "max_depth": params[1],
-            "n_estimators": 2000,
-            "boost_from_average": False,
-            "silent": False,
-        }
+        lgb_params["learning_rate"] = params[0]
+        lgb_params["max_depth"] = params[1]
         model = LGBMClassifier(**lgb_params)
-        model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300)
+        model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False)
 
         return model
 
