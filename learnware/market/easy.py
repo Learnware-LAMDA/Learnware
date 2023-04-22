@@ -119,37 +119,38 @@ class EasyMarket(BaseMarket):
         """
         if not os.path.exists(zip_path):
             logger.warning("Zip Path NOT Found! Fail to add learnware.")
-            return None, False
+            return None, self.INVALID_LEARNWARE
 
         try:
             if len(semantic_spec["Data"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Data.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Task"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Task.")
-                return None, False
-            if len(semantic_spec["Device"]["Values"]) == 0:
+                return None, self.INVALID_LEARNWARE
+            if len(semantic_spec["Library"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Device.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Name"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Name.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Scenario or Description.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if (
                 semantic_spec["Data"]["Type"] != "Class"
                 or semantic_spec["Task"]["Type"] != "Class"
-                or semantic_spec["Device"]["Type"] != "Tag"
+                or semantic_spec["Library"]["Type"] != "Class"
                 or semantic_spec["Scenario"]["Type"] != "Tag"
                 or semantic_spec["Name"]["Type"] != "String"
                 or semantic_spec["Description"]["Type"] != "String"
             ):
                 logger.warning("Illegal semantic specification, please provide the right type.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
         except:
+            print(semantic_spec)
             logger.warning("Illegal semantic specification, some keys are missing.")
-            return None, False
+            return None, self.INVALID_LEARNWARE
 
         logger.info("Get new learnware from %s" % (zip_path))
         id = "%08d" % (self.count)
@@ -476,7 +477,7 @@ class EasyMarket(BaseMarket):
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
-            return [], []
+            return None, [], []
         if learnware_num < max_search_num:
             logger.warning("Available Learnware num less than search_num!")
             max_search_num = learnware_num
@@ -639,7 +640,6 @@ class EasyMarket(BaseMarket):
                 weight_list = []
                 mixture_learnware_list = []
 
-            # convert dist to score
             if mixture_dist is None:
                 sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
                 mixture_score = None

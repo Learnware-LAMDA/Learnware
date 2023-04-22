@@ -17,17 +17,17 @@ semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
+        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
     }
 ]
 
-user_senmantic = {
+user_semantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
-    "Device": {"Values": ["GPU"], "Type": "Tag"},
+    "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
@@ -122,7 +122,7 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
         os.makedirs("./user_spec", exist_ok=True)
-        sinle_score_list = []
+        single_score_list = []
         random_score_list = []
         job_selector_score_list = []
         ensemble_score_list = []
@@ -134,7 +134,7 @@ class PFSDatasetWorkflow:
             user_spec.save(user_spec_path)
 
             user_info = BaseUserInfo(
-                id=f"user_{idx}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
+                id=f"user_{idx}", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
             )
             (
                 sorted_score_list,
@@ -152,13 +152,13 @@ class PFSDatasetWorkflow:
                 pred_y = learnware.predict(test_x)
                 loss_list.append(pfs.score(test_y, pred_y))
             print(
-                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[-1]}"
+                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[0]}"
             )
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
 
-            reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
+            reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list, use_herding=False)
             job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
             job_selector_score = pfs.score(test_y, job_selector_predict_y)
             print(f"mixture reuse loss (job selector): {job_selector_score}")
@@ -168,12 +168,12 @@ class PFSDatasetWorkflow:
             ensemble_score = pfs.score(test_y, ensemble_predict_y)
             print(f"mixture reuse loss (ensemble): {ensemble_score}\n")
 
-            sinle_score_list.append(loss_list[0])
+            single_score_list.append(loss_list[0])
             random_score_list.append(np.mean(loss_list))
             job_selector_score_list.append(job_selector_score)
             ensemble_score_list.append(ensemble_score)
 
-        print(f"Single search score: {np.mean(sinle_score_list)}")
+        print(f"Single search score: {np.mean(single_score_list)}")
         print(f"Job selector score: {np.mean(job_selector_score_list)}")
         print(f"Average ensemble score: {np.mean(ensemble_score_list)}")
         print(f"Random search score: {np.mean(random_score_list)}")

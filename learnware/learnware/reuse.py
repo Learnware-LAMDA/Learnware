@@ -17,7 +17,7 @@ logger = get_module_logger("Reuser")
 class JobSelectorReuser(BaseReuser):
     """Baseline Multiple Learnware Reuser uing Job Selector Method"""
 
-    def __init__(self, learnware_list: List[Learnware], herding_num: int = 1000):
+    def __init__(self, learnware_list: List[Learnware], herding_num: int = 1000, use_herding: bool = True):
         """The initialization method for job selector reuser
 
         Parameters
@@ -29,6 +29,7 @@ class JobSelectorReuser(BaseReuser):
         """
         super(JobSelectorReuser, self).__init__(learnware_list)
         self.herding_num = herding_num
+        self.use_herding = use_herding
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """Give prediction for user data using baseline job-selector method
@@ -53,13 +54,15 @@ class JobSelectorReuser(BaseReuser):
 
         return selector_pred_y
 
-    def job_selector(self, user_data: np.ndarray):
+    def job_selector(self, user_data: np.ndarray, use_herding: bool = True):
         """Train job selector based on user's data, which predicts which learnware in the pool should be selected
 
         Parameters
         ----------
         user_data : np.ndarray
             User's labeled raw data.
+        use_herding: bool
+            Whether create job selector training samples by herding
         """
         if len(self.learnware_list) == 1:
             user_data_num = user_data.shape[0]
@@ -69,26 +72,32 @@ class JobSelectorReuser(BaseReuser):
                 learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
                 for learnware in self.learnware_list
             ]
-            task_matrix = np.zeros((len(learnware_rkme_spec_list), len(learnware_rkme_spec_list)))
 
-            for i in range(len(self.learnware_list)):
-                task_rkme1 = learnware_rkme_spec_list[i]
-                for j in range(i, len(self.learnware_list)):
-                    task_rkme2 = learnware_rkme_spec_list[j]
-                    task_matrix[i][j] = task_matrix[j][i] = task_rkme1.inner_prod(task_rkme2)
+            if self.use_herding:
+                task_matrix = np.zeros((len(learnware_rkme_spec_list), len(learnware_rkme_spec_list)))
+                for i in range(len(self.learnware_list)):
+                    task_rkme1 = learnware_rkme_spec_list[i]
+                    task_matrix[i][i] = task_rkme1.inner_prod(task_rkme1)
+                    for j in range(i + 1, len(self.learnware_list)):
+                        task_rkme2 = learnware_rkme_spec_list[j]
+                        task_matrix[i][j] = task_matrix[j][i] = task_rkme1.inner_prod(task_rkme2)
 
-            task_mixture_weight = self._calculate_rkme_spec_mixture_weight(
-                user_data, learnware_rkme_spec_list, task_matrix
-            )
+                task_mixture_weight = self._calculate_rkme_spec_mixture_weight(
+                    user_data, learnware_rkme_spec_list, task_matrix
+                )
 
             herding_X, train_herding_X, val_herding_X = None, None, None
             herding_y, train_herding_y, val_herding_y = [], [], []
             for i in range(len(self.learnware_list)):
                 task_spec = learnware_rkme_spec_list[i]
-                task_herding_num = max(5, int(self.herding_num * task_mixture_weight[i]))
+                if self.use_herding:
+                    task_herding_num = max(5, int(self.herding_num * task_mixture_weight[i]))
+                    herding_X_i = task_spec.herding(task_herding_num).detach().cpu().numpy()
+                else:
+                    herding_X_i = task_spec.z.detach().cpu().numpy()
+                    task_herding_num = herding_X_i.shape[0]
                 task_val_num = task_herding_num // 5
 
-                herding_X_i = task_spec.herding(task_herding_num).detach().cpu().numpy()
                 train_X_i = herding_X_i[:-task_val_num]
                 val_X_i = herding_X_i[-task_val_num:]
 
@@ -267,7 +276,7 @@ class AveragingReuser(BaseReuser):
                 # print(pred_y.shape)
                 if not isinstance(pred_y, np.ndarray):
                     pred_y = pred_y.detach().cpu().numpy()
-                softmax_pred = softmax(pred_y, axis=1)
+                softmax_pred = softmax(pred_y, axis=0)
                 if mean_pred_y is None:
                     mean_pred_y = softmax_pred
                 else:

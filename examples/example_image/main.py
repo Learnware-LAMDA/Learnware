@@ -4,7 +4,7 @@ from get_data import *
 import os
 import random
 from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
-from learnware.learnware import Learnware, JobSelectorReuser, EnsembleReuser
+from learnware.learnware import Learnware, JobSelectorReuser, AveragingReuser
 import time
 
 from learnware.market import EasyMarket, BaseUserInfo
@@ -40,17 +40,17 @@ semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Device": {"Values": ["GPU"], "Type": "Tag"},
+        "Library": {"Values": ["Pytorch"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
     }
 ]
 
-user_senmantic = {
+user_semantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
-    "Device": {"Values": ["GPU"], "Type": "Tag"},
+    "Library": {"Values": ["Pytorch"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
@@ -133,10 +133,10 @@ def prepare_market():
 
 def test_search(gamma=0.1, load_market=True):
     if load_market:
-        image_market = EasyMarket()
+        image_market = EasyMarket(market_id="image")
     else:
         prepare_market()
-        image_market = EasyMarket()
+        image_market = EasyMarket(market_id="image")
     logger.info("Number of items in the market: %d" % len(image_market))
 
     select_list = []
@@ -151,7 +151,7 @@ def test_search(gamma=0.1, load_market=True):
         user_label = np.load(user_label_path)
         user_stat_spec = specification.utils.generate_rkme_spec(X=user_data, gamma=gamma, cuda_idx=0)
         user_info = BaseUserInfo(
-            id=f"user_{i}", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_stat_spec}
+            id=f"user_{i}", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec}
         )
         logger.info("Searching Market for user: %d" % (i))
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
@@ -167,13 +167,14 @@ def test_search(gamma=0.1, load_market=True):
             acc_list.append(acc)
             logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
         # test reuse
+
         reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list)
         reuse_predict = reuse_baseline.predict(user_data=user_data)
         reuse_score = eval_prediction(reuse_predict, user_label)
         job_selector_score_list.append(reuse_score)
         print(f"mixture reuse loss: {reuse_score}\n")
 
-        reuse_ensemble = EnsembleReuser(learnware_list=mixture_learnware_list, mode="vote")
+        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
         ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
         ensemble_score = eval_prediction(ensemble_predict_y, user_label)
         ensemble_score_list.append(ensemble_score)
@@ -198,4 +199,4 @@ def test_search(gamma=0.1, load_market=True):
 if __name__ == "__main__":
     # prepare_data()
     # prepare_model()
-    test_search(load_market=True)
+    test_search(load_market=False)
