@@ -26,4 +26,6 @@ def init(make_dir: bool = False, tf_loglevel: str = "2", **kwargs):
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = tf_loglevel
     logger.info(f"The tensorflow log level is setted to {tf_loglevel}")
 
-    ##
+
+## call init method by default
+init()
