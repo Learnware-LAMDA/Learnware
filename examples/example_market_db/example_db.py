@@ -15,7 +15,7 @@ semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
+        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Nature"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
@@ -23,7 +23,7 @@ semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
+        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business", "Nature"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_2", "Type": "String"},
@@ -31,7 +31,7 @@ semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Regression"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
+        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_3", "Type": "String"},
@@ -40,11 +40,8 @@ semantic_specs = [
 
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {
-        "Values": ["Classification"],
-        "Type": "Class",
-    },
-    "Device": {"Values": ["GPU"], "Type": "Tag"},
+    "Task": {"Values": ["Classification"], "Type": "Class"},
+    "Device": {"Values": ["GPU"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "learnware", "Type": "String"},

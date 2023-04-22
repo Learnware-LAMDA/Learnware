@@ -19,7 +19,7 @@ semantic_specs = [
     {
         "Data": {"Values": ["Tabular"], "Type": "Class"},
         "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
+        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
@@ -33,7 +33,7 @@ user_semantic = {
         "Type": "Class",
     },
     "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
-    "Scenario": {"Values": ["Business"], "Type": "Tag"},
+    "Scenario": {"Values": ["Business"], "Type": "Class"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
 }
