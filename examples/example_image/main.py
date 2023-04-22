@@ -22,7 +22,7 @@ processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
 dataset = "cifar10"
-n_uploaders = 50
+n_uploaders = 20
 n_users = 20
 n_classes = 10
 data_root = os.path.join(origin_data_root, dataset)
@@ -110,8 +110,11 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
 
 
 def prepare_market():
-    image_market = EasyMarket(market_id="image")
-    rmtree(learnware_pool_dir)
+    image_market = EasyMarket(market_id='cifar10',rebuild=True)
+    try:
+        rmtree(learnware_pool_dir)
+    except:
+        pass
     os.makedirs(learnware_pool_dir, exist_ok=True)
     for i in range(n_uploaders):
         data_path = os.path.join(uploader_save_root, "uploader_%d_X.npy" % (i))
@@ -201,5 +204,5 @@ def test_search(gamma=0.1, load_market=True):
 
 if __name__ == "__main__":
     # prepare_data()
-    # prepare_model()
-    test_search(load_market=True)
+    prepare_model()
+    test_search(load_market=False)
