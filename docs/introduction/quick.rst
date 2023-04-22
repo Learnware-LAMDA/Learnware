@@ -91,7 +91,7 @@ Users can start an Learnware Market workflow according to the following steps:
         semantic_spec = {
             "Data": {"Values": ["Tabular"], "Type": "Class"},
             "Task": {"Values": ["Classification"], "Type": "Class"},
-            "Device": {"Values": ["GPU"], "Type": "Tag"},
+            "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
             "Scenario": {"Values": ["Business"], "Type": "Tag"},
             "Description": {"Values": "", "Type": "String"},
             "Name": {"Values": "learnware_1", "Type": "String"},
@@ -102,16 +102,21 @@ Users can start an Learnware Market workflow according to the following steps:
 
 3. Semantic specification search:
 
+    The Learnware Market will perform first-step searching based on the semantic specification 
+    ``semantic_spec`` you provided. 
+    This searching process will indentify potentially helpful leranwares whose models
+    solve tasks similar to your requirements.
+
     .. code-block:: python
 
         user_semantic = {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {
-            "Values": ["Classification"],
-            "Type": "Class",
+            "Data": {"Values": ["Tabular"], "Type": "Class"},
+            "Task": {
+                "Values": ["Classification"],
+                "Type": "Class",
             },
-            "Device": {"Values": ["GPU"], "Type": "Tag"},
-            "Scenario": {"Values": ["Business"], "Type": "Tag"},
+            "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
+            "Scenario": {"Values": ["Business"], "Type": "Class"},
             "Description": {"Values": "", "Type": "String"},
             "Name": {"Values": "", "Type": "String"},
         }
@@ -120,8 +125,13 @@ Users can start an Learnware Market workflow according to the following steps:
 
 4. Statistical specification search:
 
-    Here, ``unzip_path`` is the directory where you unzip your learnware file, and ``rkme.json`` is your learnware's 
-    statistical specification. 
+    If you choose to porvide your own statistical specification file ``rkme.json``, 
+    the Learnware Market can perform a more accurate leanware selection from 
+    the learnwares returned by the previous step. This second-step searching is carried out 
+    at the level of data distribution information and returns 
+    one or more learnwares that are most likely to be helpful for your task.
+
+    Here, ``unzip_path`` is the directory where you unzip your learnware file.
 
     .. code-block:: python
 
