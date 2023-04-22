@@ -1,9 +1,11 @@
-===========
+.. _quick:
+============================================================
 Quick Start
-===========
+============================================================
+
 
 Introduction
-============
+====================
 
 This ``Quick Start`` guide tries to demonstrate
 
@@ -11,7 +13,7 @@ This ``Quick Start`` guide tries to demonstrate
 
 
 Installation
-============
+====================
 
 Learnware is currently hosted on `PyPI <https://pypi.org/>`__. You can easily intsall ``learnware`` according to the following steps:
 
@@ -30,7 +32,7 @@ Learnware is currently hosted on `PyPI <https://pypi.org/>`__. You can easily in
 
 
 Prepare Learnware
-============
+====================
 
 The Learnware Market consists of a wide range of learnwares. A valid learnware is a zip file which 
 is composed of the following four parts. Please refer to
