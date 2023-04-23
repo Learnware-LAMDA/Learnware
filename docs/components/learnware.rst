@@ -15,6 +15,7 @@ Addressing Concerns with Learnware
 
 The learnware approach aims to address several challenges:
 
+
 +------------------------+----------------------------------------------------------------------------------------+
 | Concern                | Solution                                                                               |
 +========================+========================================================================================+
@@ -37,7 +38,6 @@ The learnware approach aims to address several challenges:
 | Carbon emissions       | Reduce the need to train numerous large models by assembling smaller models that       |
 |                        | provide satisfactory performance.                                                       |
 +------------------------+----------------------------------------------------------------------------------------+
-
 Future Work and Progress
 ------------------------
 
