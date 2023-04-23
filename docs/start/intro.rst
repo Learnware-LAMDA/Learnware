@@ -16,10 +16,10 @@ To better address the entangled issues in machine learning, we should consider t
 | Aspect                                                                             |
 +====================================================================================+
 | 1. Investigate techniques that address multiple challenges simultaneously,         |
-|    recognizing that these issues are often intertwined in real-world applications.|
+|    recognizing that these issues are often intertwined in real-world applications. |
 +------------------------------------------------------------------------------------+
-| 2. Explore paradigms like learnware, which offers the possibility of              |
-|    systematically reusing small models for tasks beyond their original purposes,  |
+| 2. Explore paradigms like learnware, which offers the possibility of               |
+|    systematically reusing small models for tasks beyond their original purposes,   |
 |    reducing the need for users to build models from scratch.                       |
 +------------------------------------------------------------------------------------+
 | 3. Develop solutions that enable ordinary users to create well-performing models  |
@@ -28,7 +28,7 @@ To better address the entangled issues in machine learning, we should consider t
 | 4. Address data privacy and proprietary concerns to facilitate experience          |
 |    sharing among different users while respecting confidentiality.                 |
 +------------------------------------------------------------------------------------+
-| 5. Adapt to the constraints of big data applications, where it may be             |
+| 5. Adapt to the constraints of big data applications, where it may be              |
 |    unaffordable or infeasible to hold all data for multiple passes of scanning.    |
 +------------------------------------------------------------------------------------+
 | 6. Consider the environmental impact of training large models, as their carbon     |
