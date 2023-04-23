@@ -5,7 +5,7 @@ Quick Start
 
 
 Introduction
-====================
+==================== 
 
 This ``Quick Start`` guide tries to demonstrate
 
