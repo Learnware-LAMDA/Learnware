@@ -6,8 +6,8 @@ import json
 import time
 from tqdm import tqdm
 
-email = "tanzh@lamda.nju.edu.cn"
-password = hashlib.md5(b"Qwerty123").hexdigest()
+email = "liujd@lamda.nju.edu.cn"
+password = hashlib.md5(b"liujdlamda").hexdigest()
 login_url = "http://210.28.134.201:8089/auth/login"
 submit_url = "http://210.28.134.201:8089/user/add_learnware"
 all_data_type = ["Table", "Image", "Video", "Text", "Audio"]
@@ -61,8 +61,8 @@ def main():
         scenario = list(set(random.choices(all_scenario, k=5)))
         semantic_specification = {
             "Data": {"Values": ["Table"], "Type": "Class"},
+            "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
             "Task": {"Values": ["Regression"], "Type": "Class"},
-            "Device": {"Values": ["CPU"], "Type": "Tag"},
             "Scenario": {"Values": ["Business"], "Type": "Tag"},
             "Description": {
                 "Values": "A sales-forecasting model from Predict Future Sales Competition on Kaggle",

@@ -262,7 +262,9 @@ class RKMEStatSpecification(BaseStatSpecification):
         sample_list = []
         for i, n in Counter(np.array(sample_assign.cpu())).items():
             for _ in range(n):
-                sample_list.append(torch.normal(mean=self.z[i], std=0.25).reshape(1, -1))
+                sample_list.append(
+                    torch.normal(mean=self.z[i].reshape(self.z[i].shape[0], -1), std=0.25).reshape(1, -1)
+                )
         if len(sample_list) > 1:
             return torch.cat(sample_list, axis=0)
         elif len(sample_list) == 1:

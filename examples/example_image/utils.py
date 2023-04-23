@@ -162,9 +162,13 @@ def test(test_X, test_y, model, batch_size=128):
 
 def eval_prediction(pred_y, target_y):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    _, predicted = torch.max(pred_y.data, 1)
-    annos = torch.from_numpy(target_y).to(device)
-    total = annos.size(0)
+    if not isinstance(pred_y, np.ndarray):
+        pred_y = pred_y.detach().cpu().numpy()
+    predicted = np.argmax(pred_y, 1)
+    # print(predicted)
+    # annos = torch.from_numpy(target_y).to(device)
+    annos = target_y
+    total = annos.shape[0]
     correct = (predicted == annos).sum().item()
     criterion = nn.CrossEntropyLoss()
     return correct / total

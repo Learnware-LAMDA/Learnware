@@ -60,9 +60,6 @@ DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
 
 # TODO: Delete them later
 os.makedirs(ROOT_DIRPATH, exist_ok=True)
-os.makedirs(LEARNWARE_POOL_PATH, exist_ok=True)
-os.makedirs(LEARNWARE_ZIP_POOL_PATH, exist_ok=True)
-os.makedirs(LEARNWARE_FOLDER_POOL_PATH, exist_ok=True)
 os.makedirs(DATABASE_PATH, exist_ok=True)
 
 semantic_config = {
@@ -79,12 +76,17 @@ semantic_config = {
             # "Generation",
             "Segmentation",
             "Object Detection",
+            "Others",
         ],
         "Type": "Class",  # Choose only one class
     },
-    "Device": {
-        "Values": ["CPU", "GPU"],
-        "Type": "Tag",
+    # "Device": {
+    #     "Values": ["CPU", "GPU"],
+    #     "Type": "Tag",
+    # },  # Choose one or more tags
+    "Library": {
+        "Values": ["Scikit-learn", "PyTorch", "TensorFlow", "Others"],
+        "Type": "Class",
     },  # Choose one or more tags
     "Scenario": {
         "Values": [
@@ -120,6 +122,7 @@ _DEFAULT_CONFIG = {
     "logging_level": logging.INFO,
     "logging_outfile": None,
     "semantic_specs": semantic_config,
+    "market_root_path": ROOT_DIRPATH,
     "learnware_pool_path": LEARNWARE_POOL_PATH,
     "learnware_zip_pool_path": LEARNWARE_ZIP_POOL_PATH,
     "learnware_folder_pool_path": LEARNWARE_FOLDER_POOL_PATH,

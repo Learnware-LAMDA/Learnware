@@ -13,15 +13,15 @@ from .database_ops import load_market_from_db, add_learnware_to_db, delete_learn
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..specification import RKMEStatSpecification, Specification
 from ..logger import get_module_logger
-from ..config import C
+from ..config import C as conf
 
 logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
-    INVALID_LEARNWARE = "INVALID"
-    NONUSABLE_LEARNWARE = "NONUSABLE"
-    USABLE_LEARWARE = "USABLE"
+    INVALID_LEARNWARE = -1
+    NONUSABLE_LEARNWARE = 0
+    USABLE_LEARWARE = 1
 
     def __init__(self, market_id: str = "default", rebuild: bool = False):
         """Initialize Learnware Market.
@@ -38,23 +38,30 @@ class EasyMarket(BaseMarket):
             !!! Do NOT set to True unless highly necessary !!!
         """
         self.market_id = market_id
+        self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
+        self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
+        self.learnware_zip_pool_path = os.path.join(self.learnware_pool_path, "zips")
+        self.learnware_folder_pool_path = os.path.join(self.learnware_pool_path, "unzipped_learnwares")
         self.learnware_list = {}  # id: Learnware
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
         self.count = 0
-        self.semantic_spec_list = C.semantic_specs
+        self.semantic_spec_list = conf.semantic_specs
         self.reload_market(rebuild=rebuild)  # Automatically reload the market
         logger.info("Market Initialized!")
 
     def reload_market(self, rebuild: bool = False) -> bool:
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
-            clear_learnware_table(market_id=self.market_id)
-            rmtree(C.learnware_pool_path)
+            try:
+                clear_learnware_table(market_id=self.market_id)
+                rmtree(self.learnware_pool_path)
+            except:
+                pass
 
-        os.makedirs(C.learnware_pool_path, exist_ok=True)
-        os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
-        os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
+        os.makedirs(self.learnware_pool_path, exist_ok=True)
+        os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
+        os.makedirs(self.learnware_folder_pool_path, exist_ok=True)
         self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db(
             market_id=self.market_id
         )
@@ -78,19 +85,19 @@ class EasyMarket(BaseMarket):
         try:
             learnware.instantiate_model()
         except Exception as e:
-            logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {repr(e)}")
+            logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {e}")
             return cls.NONUSABLE_LEARNWARE
 
         try:
-            spec_data = learnware.specification.stat_spec["RKMEStatSpecification"].get_z()
-        except Exception:
-            logger.warning(f"The learnware [{learnware.id}] statistic specification is not avaliable!")
-            return cls.INVALID_LEARNWARE
+            learnware_model = learnware.get_model()
+            inputs = np.random.randn(10, *learnware_model.input_shape)
+            outputs = learnware.predict(inputs)
+            if outputs.shape[1:] != learnware_model.output_shape:
+                logger.warning(f"The learnware [{learnware.id}] input and output dimention is error")
+                return cls.NONUSABLE_LEARNWARE
 
-        try:
-            pred_spec = learnware.predict(spec_data)
-        except Exception:
-            logger.warning(f"The learnware [{learnware.id}] prediction is not avaliable")
+        except Exception as e:
+            logger.warning(f"The learnware [{learnware.id}] prediction is not avaliable! Due to {repr(e)}")
             return cls.NONUSABLE_LEARNWARE
 
         return cls.USABLE_LEARWARE
@@ -112,90 +119,84 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        Tuple[str, bool]
+        Tuple[str, int]
             - str indicating model_id
-            - bool indicating whether the learnware is added successfully.
+            - int indicating what the flag of learnware is added.
 
         """
         if not os.path.exists(zip_path):
             logger.warning("Zip Path NOT Found! Fail to add learnware.")
-            return None, False
+            return None, self.INVALID_LEARNWARE
 
         try:
             if len(semantic_spec["Data"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Data.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Task"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Task.")
-                return None, False
-            if len(semantic_spec["Device"]["Values"]) == 0:
+                return None, self.INVALID_LEARNWARE
+            if len(semantic_spec["Library"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Device.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Name"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Name.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Scenario or Description.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
             if (
                 semantic_spec["Data"]["Type"] != "Class"
                 or semantic_spec["Task"]["Type"] != "Class"
-                or semantic_spec["Device"]["Type"] != "Tag"
+                or semantic_spec["Library"]["Type"] != "Class"
                 or semantic_spec["Scenario"]["Type"] != "Tag"
                 or semantic_spec["Name"]["Type"] != "String"
                 or semantic_spec["Description"]["Type"] != "String"
             ):
                 logger.warning("Illegal semantic specification, please provide the right type.")
-                return None, False
+                return None, self.INVALID_LEARNWARE
         except:
+            print(semantic_spec)
             logger.warning("Illegal semantic specification, some keys are missing.")
-            return None, False
+            return None, self.INVALID_LEARNWARE
 
         logger.info("Get new learnware from %s" % (zip_path))
         id = "%08d" % (self.count)
-        target_zip_dir = os.path.join(C.learnware_zip_pool_path, "%s.zip" % (id))
-        target_folder_dir = os.path.join(C.learnware_folder_pool_path, id)
+        target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (id))
+        target_folder_dir = os.path.join(self.learnware_folder_pool_path, id)
         copyfile(zip_path, target_zip_dir)
 
         with zipfile.ZipFile(target_zip_dir, "r") as z_file:
             z_file.extractall(target_folder_dir)
         logger.info("Learnware move to %s, and unzip to %s" % (target_zip_dir, target_folder_dir))
+
         try:
             new_learnware = get_learnware_from_dirpath(
                 id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
         except:
-            new_learnware = None
-
-        if new_learnware is None:
             try:
                 os.remove(target_zip_dir)
                 rmtree(target_folder_dir)
             except:
                 pass
-            return None, False
-        else:
-            check_flag = self.check_learnware(new_learnware)
-            if not check_flag == self.INVALID_LEARNWARE:
-                try:
-                    add_learnware_to_db(
-                        market_id=self.market_id,
-                        id=id,
-                        semantic_spec=semantic_spec,
-                        zip_path=target_zip_dir,
-                        folder_path=target_folder_dir,
-                        use_flag=check_flag,
-                    )
-                    self.learnware_list[id] = new_learnware
-                    self.learnware_zip_list[id] = target_zip_dir
-                    self.learnware_folder_list[id] = target_folder_dir
-                    self.count += 1
-                    return id, True
-                except Exception as e:
-                    logger.warning(f"Add Learnware failed. Error msg: {e}")
-                    return None, False
-            else:
-                return None, False
+            return None, self.INVALID_LEARNWARE
+
+        check_flag = self.check_learnware(new_learnware)
+
+        add_learnware_to_db(
+            market_id=self.market_id,
+            id=id,
+            semantic_spec=semantic_spec,
+            zip_path=target_zip_dir,
+            folder_path=target_folder_dir,
+            use_flag=check_flag,
+        )
+
+        self.learnware_list[id] = new_learnware
+        self.learnware_zip_list[id] = target_zip_dir
+        self.learnware_folder_list[id] = target_folder_dir
+        self.count += 1
+        return id, check_flag
 
     def _convert_dist_to_score(
         self, dist_list: List[float], dist_epsilon: float = 0.01, min_score: float = 0.92
@@ -268,8 +269,9 @@ class EasyMarket(BaseMarket):
         else:
             K = np.zeros((learnware_num, learnware_num))
             for i in range(K.shape[0]):
-                for j in range(K.shape[1]):
-                    K[i, j] = RKME_list[i].inner_prod(RKME_list[j])
+                K[i, i] = RKME_list[i].inner_prod(RKME_list[i])
+                for j in range(i + 1, K.shape[0]):
+                    K[i, j] = K[j, i] = RKME_list[i].inner_prod(RKME_list[j])
 
         if type(intermediate_C) == np.ndarray:
             C = intermediate_C
@@ -296,7 +298,7 @@ class EasyMarket(BaseMarket):
         sol = solvers.qp(P, q, G, h, A, b)
         weight = np.array(sol["x"])
         weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
-        score = user_rkme.inner_prod(user_rkme) + sol["primal objective"]
+        score = user_rkme.inner_prod(user_rkme) + 2 * sol["primal objective"]
 
         return weight.detach().cpu().numpy().reshape(-1), score
 
@@ -341,7 +343,7 @@ class EasyMarket(BaseMarket):
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
         weight_cutoff: float = 0.98,
-    ) -> Tuple[List[float], List[Learnware]]:
+    ) -> Tuple[float, List[float], List[Learnware]]:
         """Select learnwares based on a total mixture ratio, then recalculate their mixture weights
 
         Parameters
@@ -357,9 +359,10 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        Tuple[List[float], List[Learnware]]
-            The first is the list of weight
-            The second is the list of Learnware
+        Tuple[float, List[float], List[Learnware]]
+            The first is the mixture mmd dist
+            The second is the list of weight
+            The third is the list of Learnware
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
@@ -383,18 +386,19 @@ class EasyMarket(BaseMarket):
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
             mixture_weight = [1]
+            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name("RKMEStatSpecification"))
         else:
             if len(mixture_list) > max_search_num:
                 mixture_list = mixture_list[:max_search_num]
-            mixture_weight, _ = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme)
+            mixture_weight, mmd_dist = self._calculate_rkme_spec_mixture_weight(mixture_list, user_rkme)
 
-        return mixture_weight, mixture_list
+        return mmd_dist, mixture_weight, mixture_list
 
     def _filter_by_rkme_spec_single(
         self,
         sorted_score_list: List[float],
         learnware_list: List[Learnware],
-        filter_score: float = 0.3,
+        filter_score: float = 0.5,
         min_num: int = 15,
     ) -> Tuple[List[float], List[Learnware]]:
         """Filter search result of _search_by_rkme_spec_single
@@ -457,7 +461,7 @@ class EasyMarket(BaseMarket):
         user_rkme: RKMEStatSpecification,
         max_search_num: int,
         score_cutoff: float = 0.001,
-    ) -> Tuple[List[float], List[Learnware]]:
+    ) -> Tuple[float, List[float], List[Learnware]]:
         """Greedily match learnwares such that their mixture become more and more closer to user's rkme
 
         Parameters
@@ -473,19 +477,20 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        Tuple[List[float], List[Learnware]]
-            The first is the list of weight
-            The second is the list of Learnware
+        Tuple[float, List[float], List[Learnware]]
+            The first is the mixture mmd dist
+            The second is the list of weight
+            The third is the list of Learnware
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
-            return [], []
+            return None, [], []
         if learnware_num < max_search_num:
             logger.warning("Available Learnware num less than search_num!")
             max_search_num = learnware_num
 
         flag_list = [0 for _ in range(learnware_num)]
-        mixture_list = []
+        mixture_list, mmd_dist = [], None
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
 
         for k in range(max_search_num):
@@ -510,6 +515,7 @@ class EasyMarket(BaseMarket):
                     if idx_min == -1 or score < score_min:
                         idx_min, score_min, weight_min = idx, score, weight
 
+            mmd_dist = score_min
             mixture_list[-1] = learnware_list[idx_min]
             if score_min < score_cutoff:
                 break
@@ -519,7 +525,7 @@ class EasyMarket(BaseMarket):
                     mixture_list, user_rkme, intermediate_K, intermediate_C
                 )
 
-        return weight_min, mixture_list
+        return mmd_dist, weight_min, mixture_list
 
     def _search_by_rkme_spec_single(
         self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification
@@ -596,7 +602,7 @@ class EasyMarket(BaseMarket):
 
     def search_learnware(
         self, user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy"
-    ) -> Tuple[List[float], List[Learnware], List[Learnware]]:
+    ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
         """Search learnwares based on user_info
 
         Parameters
@@ -608,38 +614,52 @@ class EasyMarket(BaseMarket):
 
         Returns
         -------
-        Tuple[List[float], List[Learnware], List[float], List[Learnware]]
+        Tuple[List[float], List[Learnware], float, List[Learnware]]
             the first is the sorted list of rkme dist
             the second is the sorted list of Learnware (single) by the rkme dist
-            the third is the list of Learnware (mixture), the size is search_num
+            the third is the score of Learnware (mixture)
+            the fourth is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
         learnware_list = self._search_by_semantic_spec(learnware_list, user_info)
         # learnware_list = list(set(learnware_list_tags + learnware_list_description))
 
         if "RKMEStatSpecification" not in user_info.stat_info:
-            return None, learnware_list, None
+            return None, learnware_list, 0.0, None
         elif len(learnware_list) == 0:
-            return [], [], []
+            return [], [], 0.0, []
         else:
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
             learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
+
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
-            sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
-            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
-                sorted_score_list, single_learnware_list
-            )
             if search_method == "auto":
-                weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
+                mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
                     learnware_list, user_rkme, max_search_num
                 )
             elif search_method == "greedy":
-                weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
+                mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
                     learnware_list, user_rkme, max_search_num
                 )
             else:
                 logger.warning("f{search_method} not supported!")
-            return sorted_score_list, single_learnware_list, mixture_learnware_list
+                mixture_dist = None
+                weight_list = []
+                mixture_learnware_list = []
+
+            if mixture_dist is None:
+                sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
+                mixture_score = None
+            else:
+                merge_score_list = self._convert_dist_to_score(sorted_dist_list + [mixture_dist])
+                sorted_score_list = merge_score_list[:-1]
+                mixture_score = merge_score_list[-1]
+
+            # filter learnware with low score
+            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
+                sorted_score_list, single_learnware_list
+            )
+            return sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list
 
     def delete_learnware(self, id: str) -> bool:
         """Delete Learnware from market
