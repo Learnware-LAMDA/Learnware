@@ -32,12 +32,6 @@ Learnware
 .. autoclass:: learnware.learnware.Learnware
     :members:
 
-.. autoclass:: learnware.learnware.BaseReuser
-    :members:
-
-.. autoclass:: learnware.learnware.JobSelectorReuser
-    :members:
-
 Specification
 ====================
 
@@ -48,4 +42,22 @@ Specification
     :members:
 
 .. autoclass:: learnware.specification.RKMEStatSpecification
+    :members:
+
+Model
+====================
+
+.. autoclass:: learnware.model.BaseModel
+    :members:
+
+Reuser
+====================
+
+.. autoclass:: learnware.learnware.BaseReuser
+    :members:
+
+.. autoclass:: learnware.learnware.JobSelectorReuser
+    :members:
+
+.. autoclass:: learnware.learnware.AveragingReuser
     :members:
