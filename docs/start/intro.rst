@@ -36,7 +36,7 @@ To better address the entangled issues in machine learning, we should consider t
 +------------------------------------------------------------------------------------+
 
 By considering these factors, we can develop a more comprehensive framework for tackling the complex challenges in machine learning, moving beyond the limitations of the big model paradigm, called Learnware.
-.. contents:: Table of Contents
+
 
 =======================
 Framework
@@ -80,7 +80,7 @@ Challenges and Future Work
 --------------------------
 
 Although the learnware proposal shows promise, much work remains to make it a reality. The next sections will present some of the progress made so far.
-.. contents:: Table of Contents
+
 
 
 
