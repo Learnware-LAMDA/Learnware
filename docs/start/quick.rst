@@ -59,14 +59,15 @@ is composed of the following four parts.
 
         .. code-block::
 
-            conda env export | grep -v "^prefix: " > environment.yml
+            conda env export | grep -v "^prefix: " > environment.yaml
         
     - Recover env from config:
 
         .. code-block::
 
-            conda env create -f environment.yml
+            conda env create -f environment.yaml
 
+We also demonstrate the detail format of learnware zipfile in [DOC link], and also please refer to [Code link] for concrete learnware zipfile example.
 
 Learnware Market Workflow
 ============================
@@ -105,7 +106,7 @@ of a Scikit-Learn type model, which is designed for business scenario and perfor
         "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "user learnware", "Type": "String"},
+        "Name": {"Values": "demo_learnware", "Type": "String"},
     }
 
 Once the semantic specification is defined, 
@@ -127,11 +128,15 @@ identifying potentially helpful leranwares whose models solve tasks similar to y
 
 .. code-block:: python
 
-    user_semantic = semantic_spec
-    user_semantic["Name"]["Values"] = ""
-    user_info = BaseUserInfo(id="user", semantic_spec=user_semantic)
-    _, single_learnware_list, _ = easy_market.search_learnware(user_info) 
+    # construct user_info which includes semantic specification for searching learnware
+    user_info = BaseUserInfo(id="user", semantic_spec=semantic_spec)
+
     # search_learnware performs semantic specification search if user_info doesn't include a statistical specification
+    _, single_learnware_list, _ = easy_market.search_learnware(user_info) 
+
+    # single_learnware_list is the learnware list by semantic specification searching
+    print(single_learnware_list)
+    
 
 Statistical Specification Search
 ---------------------------------
@@ -154,10 +159,18 @@ For example, the following code is designed to work with Reduced Set Kernel Embe
     )
     (sorted_score_list, single_learnware_list,
         mixture_score, mixture_learnware_list) = easy_market.search_learnware(user_info)
-    print(sorted_score_list) # learnware scores based on MMD distances, sorted in descending order
-    print(single_learnware_list) # learnwares sorted in descending order based on their scores
-    print(mixture_learnware_list) # learnwares whose mixture is helpful for your task
-    print(mixture_score) # the score of the mixture of learnwares
+
+    # sorted_score_list is the learnware scores based on MMD distances, sorted in descending order
+    print(sorted_score_list) 
+
+    # single_learnware_list is the learnwares sorted in descending order based on their scores
+    print(single_learnware_list)
+
+    # mixture_learnware_list is the learnwares whose mixture is helpful for your task
+    print(mixture_learnware_list) 
+
+    # mixture_score is the score of the mixture of learnwares
+    print(mixture_score)
 
 
 Reuse Learnwares
@@ -170,8 +183,15 @@ Simply replace ``test_x`` in the code snippet below with your own testing data a
 
 .. code-block:: python
 
+    # using jobselector reuser to reuse the searched learnwares to make prediction
     reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
     job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
 
+    # using averaging ensemble reuser to reuse the searched learnwares to make prediction
     reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
     ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
+
+Auto Workflow Example
+============================
+
+``Learnware Market`` also provides an auto workflow example, which includes preparing learnwares, upload and delete learnware from markets, search learnware with semantic specifications and statistical specifications. The users can run ``examples/workflow_by_code.py`` to try the basic workflow of ``Learnware Market``
