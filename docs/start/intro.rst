@@ -22,7 +22,7 @@ To better address the entangled issues in machine learning, we should consider t
 |    systematically reusing small models for tasks beyond their original purposes,   |
 |    reducing the need for users to build models from scratch.                       |
 +------------------------------------------------------------------------------------+
-| 3. Develop solutions that enable ordinary users to create well-performing models  |
+| 3. Develop solutions that enable ordinary users to create well-performing models   |
 |    without requiring proficient training skills.                                   |
 +------------------------------------------------------------------------------------+
 | 4. Address data privacy and proprietary concerns to facilitate experience          |
