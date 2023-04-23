@@ -36,7 +36,7 @@ The learnware approach aims to address several challenges:
 |                        | to all legal developers.                                                               |
 +------------------------+----------------------------------------------------------------------------------------+
 | Carbon emissions       | Reduce the need to train numerous large models by assembling smaller models that       |
-|                        | provide satisfactory performance.                                                       |
+|                        | provide satisfactory performance.                                                      |
 +------------------------+----------------------------------------------------------------------------------------+
 Future Work and Progress
 ------------------------
