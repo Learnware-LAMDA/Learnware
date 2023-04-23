@@ -38,6 +38,9 @@ Learnware
 .. autoclass:: learnware.learnware.JobSelectorReuser
     :members:
 
+.. autoclass:: learnware.learnware.AveragingReuser
+    :members:
+    
 Specification
 ====================
 
