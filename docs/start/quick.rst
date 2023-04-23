@@ -7,9 +7,7 @@ Quick Start
 Introduction
 ==================== 
 
-This ``Quick Start`` guide tries to demonstrate
-
-- It's very easy to build a complete Learnware Market workflow and use ``learnware`` to deal with users' tasks.
+This ``Quick Start`` guide tries to demonstrate that it's very easy to build a complete Learnware Market workflow and use ``Learnware Market`` to deal with users' tasks.
 
 
 Installation
@@ -194,4 +192,4 @@ Simply replace ``test_x`` in the code snippet below with your own testing data a
 Auto Workflow Example
 ============================
 
-``Learnware Market`` also provides an auto workflow example, which includes preparing learnwares, upload and delete learnware from markets, search learnware with semantic specifications and statistical specifications. The users can run ``examples/workflow_by_code.py`` to try the basic workflow of ``Learnware Market``
+``Learnware Market`` also provides an auto workflow example, which includes preparing learnwares, upload and delete learnware from markets, search learnware with semantic specifications and statistical specifications. The users can run ``examples/workflow_by_code.py`` to try the basic workflow of ``Learnware Market``.

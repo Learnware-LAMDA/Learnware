@@ -88,7 +88,7 @@ todo_include_todos = True
 #
 html_theme = "sphinx_rtd_theme"
 
-html_logo = "_static/img/logo/1.svg"
+html_logo = "_static/img/logo/logo1.png"
 
 
 # Theme options are theme-specific and customize the look and feel of a theme
