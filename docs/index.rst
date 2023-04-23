@@ -32,6 +32,7 @@ Document Structure
    :caption: COMPONENTS:
 
    Market <components/market.rst>
+   Learnware <components/learnware.rst>
    Specification <components/spec.rst>
 
 .. toctree::
