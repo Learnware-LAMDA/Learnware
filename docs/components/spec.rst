@@ -6,7 +6,7 @@ Specification
 Learnware Specification
 -----------------------------
 
-The learnware specification should ideally provide essential information about every model in the learnware market, enabling efficient and accurate identification for future users. As mentioned in Section 3.1, our current specification design has two components. The first part consists of a string of descriptions or tags assigned by the learnware market based on developer-submitted information. These descriptions or tags help identify the model's specification island. Different learnware market enterprises may use different descriptions or tags.
+The learnware specification should ideally provide essential information about every model in the learnware market, enabling efficient and accurate identification for future users. Our current specification design has two components. The first part consists of a string of descriptions or tags assigned by the learnware market based on developer-submitted information. These descriptions or tags help identify the model's specification island. Different learnware market enterprises may use different descriptions or tags.
 
 The second part of the specification is crucial for determining the model's position in the functional space :math:`F: \mathcal{X} \mapsto \mathcal{Y}` with respect to obj. A recent development in this area is the RKME (Reduced Kernel Mean Embedding) specification, which builds on the reduced set of KME (Kernel Mean Embedding) techniques. KME is a powerful method for mapping a probability distribution to a point in RKHS (Reproducing Kernel Hilbert Space), while the reduced set retains this ability with a concise representation that doesn't reveal the original data.
 
