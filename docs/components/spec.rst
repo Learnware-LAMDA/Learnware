@@ -4,7 +4,7 @@ Specification
 ================================
 
 Learnware Specification
------------------------------
+----------------------------- 
 
 The learnware specification should ideally provide essential information about every model in the learnware market, enabling efficient and accurate identification for future users. Our current specification design has two components. The first part consists of a string of descriptions or tags assigned by the learnware market based on developer-submitted information. These descriptions or tags help identify the model's specification island. Different learnware market enterprises may use different descriptions or tags.
 
