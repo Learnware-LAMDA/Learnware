@@ -8,7 +8,7 @@ Developers or owners of trained machine learning models can voluntarily submit t
 Utilizing Learnware in Practice
 -------------------------------
 
-With a learnware marketplace in place, users can tackle machine learning tasks without having to create models from scratch.
+With a learnware marketplace in place, users can tackle machine learning tasks without having to create models from scratch. 
 
 Addressing Concerns with Learnware
 ----------------------------------
