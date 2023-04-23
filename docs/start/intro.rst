@@ -53,27 +53,27 @@ Benefits of the Learnware Paradigm
 ----------------------------------
 
 +-----------------------+-----------------------------------------------------------------------------------------------+
-| Benefit               | Description                                                                                   |
+| Benefit               | Description                                                                                     |
 +=======================+===============================================================================================+
-| When lack of training data | Strong models can be built with small data by adapting well-performed learnwares.             |
+| When lack of training data | Strong models can be built with small data by adapting well-performed learnwares.                                                                                     |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | When lack of training      | Ordinary users can obtain strong models by leveraging well-performed learnwares instead of    |
-| skills                | building models from scratch.                                                                 |
+| skills                | building models from scratch.                                                                                        |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Catastrophic          | Accepted learnwares are always stored in the learnware market, retaining old knowledge.       |
 | forgetting            |                                                                                               |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Continual learning    | The learnware market continually enriches its knowledge with constant submissions of          |
-|                       | well-performed learnwares.                                                                    |
+|                       | well-performed learnwares.                                                                                     |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Data privacy/         | Developers only submit models, not data, preserving data privacy/proprietary.                |
 | proprietary           |                                                                                               |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Unplanned tasks       | Open to all legal developers, the learnware market can accommodate helpful learnwares for     |
-|                       | various tasks.                                                                                |
+|                       | various tasks.                                                                                          |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Carbon emission       | Assembling small models may offer good-enough performance, reducing interest in training      |
-|                       | large models and the carbon footprint.                                                        |
+|                       | large models and the carbon footprint.                                                                                      |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 
 Challenges and Future Work
