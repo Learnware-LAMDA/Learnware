@@ -38,3 +38,11 @@ If ``use_herding`` is true, the algorithm estimates the mixture weight based on 
 AveragingReuser
 ====================
 
+The ``AveragingReuser`` is a class that inherits from the base reuse class ``BaseReuser``, that implements the average ensemble method by averaging each learnware's output to predict user data.
+There are two parameters required to initialize the class:
+
+- ``learnware_list``: A list of objects of type ``Learnware``.
+- ``mode``: The mode of averaging leanrware outputs, which can be set to "mean" or "vote" and defaults to "mean".
+
+If ``mode`` is set to "mean", the ``AveragingReuser`` computes the mean of the learnware's output to predict user data, which is commonly used in regression tasks.
+If ``mode`` is set to "vote", the ``AveragingReuser`` computes the mean of the softmax of the learnware's output to predict each label probability of user data, which is commonly used in classification tasks.
