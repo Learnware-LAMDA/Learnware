@@ -6,14 +6,20 @@ This part introduces two baseline methods for reusing a given list of learnwares
 Instead of training a model from scratch, you can easily reuse a list of learnwares ``learnware_list (List[Learnware])`` to make predictions on your own data ``test_data (numpy.ndarray or torch.Tensor)`` in the following way:
 
 .. code-block:: python
-
+    
+    from sklearn.datasets import load_digits
     from learnware.learnware import JobSelectorReuser, AveragingReuser
 
-    # using jobselector reuser to reuse the searched learnwares to make prediction
+    # Load user data
+    X, y = load_digits(return_X_y=True)
+    test_data = X
+
+    # Based on user information, the learnware market returns a list of learnwares (learnware_list)
+    # Use jobselector reuser to reuse the searched learnwares to make prediction
     reuse_job_selector = JobSelectorReuser(learnware_list=learnware_list)
     job_selector_predict_y = reuse_job_selector.predict(user_data=test_data)
 
-    # using averaging ensemble reuser to reuse the searched learnwares to make prediction
+    # Use averaging ensemble reuser to reuse the searched learnwares to make prediction
     reuse_ensemble = AveragingReuser(learnware_list=learnware_list)
     ensemble_predict_y = reuse_ensemble.predict(user_data=test_data)
 
