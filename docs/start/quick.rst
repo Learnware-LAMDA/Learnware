@@ -114,7 +114,7 @@ you can easily upload your learnware with a single line of code:
     
     easy_market.add_learnware(zip_path, semantic_spec) 
 
-Here, ``zip_path`` is the directory of your learnware zip file.
+Here, ``zip_path`` is the directory of your learnware zipfile.
 
 Semantic Specification Search
 -------------------------------
