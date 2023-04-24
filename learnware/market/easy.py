@@ -481,7 +481,7 @@ class EasyMarket(BaseMarket):
         max_search_num: int,
         score_cutoff: float = 0.001,
     ) -> Tuple[float, List[float], List[Learnware]]:
-        """Greedily match learnwares such that their mixture become more and more closer to user's rkme
+        """Greedily match learnwares such that their mixture become closer and closer to user's rkme
 
         Parameters
         ----------
