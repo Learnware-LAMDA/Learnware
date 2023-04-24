@@ -15,8 +15,8 @@ class BaseUserInfo:
 
         Parameters
         ----------
-        id : str
-            user id
+        id : str, optional
+            user id, could be ignored in easy market
         semantic_spec : dict, optional
             semantic_spec selected by user, by default dict()
         stat_info : dict, optional
@@ -41,13 +41,7 @@ class BaseUserInfo:
 
 
 class BaseMarket:
-    """Market for Learnware
-
-    .. code-block:: python
-
-        # Provide some python examples
-        learnmarket = BaseMarket()
-    """
+    """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
 
     def __init__(self, market_id: str = None):
         self.market_id = market_id
