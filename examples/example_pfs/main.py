@@ -47,7 +47,7 @@ class PFSDatasetWorkflow:
     def _init_learnware_market(self):
         """initialize learnware market"""
         learnware.init()
-        easy_market = EasyMarket(market_id="pfs")
+        easy_market = EasyMarket(market_id="pfs", rebuild=True)
         print("Total Item:", len(easy_market))
 
         zip_path_list = []
@@ -133,9 +133,7 @@ class PFSDatasetWorkflow:
             user_spec_path = f"./user_spec/user_{idx}.json"
             user_spec.save(user_spec_path)
 
-            user_info = BaseUserInfo(
-                id=f"user_{idx}", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
-            )
+            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec})
             (
                 sorted_score_list,
                 single_learnware_list,

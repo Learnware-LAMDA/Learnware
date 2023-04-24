@@ -1,6 +1,7 @@
 import torch
 import numpy as np
-import tensorflow as tf
+
+# import tensorflow as tf
 from typing import Tuple, Any, List, Union, Dict
 from cvxopt import matrix, solvers
 from lightgbm import LGBMClassifier
@@ -56,8 +57,11 @@ class JobSelectorReuser(BaseReuser):
                 pred_y = self.learnware_list[idx].predict(user_data[data_idx_list])
                 if isinstance(pred_y, torch.Tensor):
                     pred_y = pred_y.detach().cpu().numpy()
-                elif isinstance(pred_y, tf.Tensor):
-                    pred_y = pred_y.numpy()
+                # elif isinstance(pred_y, tf.Tensor):
+                #     pred_y = pred_y.numpy()
+
+                if not isinstance(pred_y, np.ndarray):
+                    raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
 
                 pred_y_list.append(pred_y)
                 data_idxs_list.append(data_idx_list)
@@ -222,19 +226,26 @@ class JobSelectorReuser(BaseReuser):
         max_depth = [66]
         params = (0, 0)
 
+        lgb_params = {
+            "boosting_type": "gbdt",
+            "n_estimators": 2000,
+            "boost_from_average": False,
+        }
+
+        if num_class == 2:
+            lgb_params["objective"] = "binary"
+            lgb_params["metric"] = "binary_logloss"
+        else:
+            lgb_params["objective"] = "multiclass"
+            lgb_params["metric"] = "multi_logloss"
+
         for lr in learning_rate:
             for md in max_depth:
-                model = LGBMClassifier(
-                    max_depth=md,
-                    learning_rate=lr,
-                    n_estimators=2000,
-                    # objective="multiclass",
-                    # num_class=num_class,
-                    boosting_type="gbdt",
-                    seed=0,
-                )
+                lgb_params["learning_rate"] = lr
+                lgb_params["max_depth"] = md
+                model = LGBMClassifier(**lgb_params)
                 train_y = train_y.astype(int)
-                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], verbose=-1, early_stopping_rounds=300)
+                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], early_stopping_rounds=300, verbose=False)
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
 
@@ -242,17 +253,11 @@ class JobSelectorReuser(BaseReuser):
                     score_best = score
                     params = (lr, md)
 
-        model = LGBMClassifier(
-            max_depth=params[1],
-            learning_rate=params[0],
-            n_estimators=2000,
-            # objective="multiclass",
-            # num_class=num_class,
-            boosting_type="gbdt",
-            seed=0,
-        )
+        lgb_params["learning_rate"] = params[0]
+        lgb_params["max_depth"] = params[1]
+        model = LGBMClassifier(**lgb_params)
         model.fit(
-            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], verbose=-1, early_stopping_rounds=300
+            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False
         )
 
         return model
@@ -291,8 +296,11 @@ class AveragingReuser(BaseReuser):
             pred_y = self.learnware_list[idx].predict(user_data)
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
-            elif isinstance(pred_y, tf.Tensor):
-                pred_y = pred_y.numpy()
+            # elif isinstance(pred_y, tf.Tensor):
+            #     pred_y = pred_y.numpy()
+
+            if not isinstance(pred_y, np.ndarray):
+                raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
 
             if self.mode == "mean":
                 if mean_pred_y is None:

@@ -110,8 +110,11 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
 
 
 def prepare_market():
-    image_market = EasyMarket(market_id="image")
-    rmtree(learnware_pool_dir)
+    image_market = EasyMarket(market_id="cifar10", rebuild=True)
+    try:
+        rmtree(learnware_pool_dir)
+    except:
+        pass
     os.makedirs(learnware_pool_dir, exist_ok=True)
     for i in range(n_uploaders):
         data_path = os.path.join(uploader_save_root, "uploader_%d_X.npy" % (i))
@@ -133,10 +136,10 @@ def prepare_market():
 
 def test_search(gamma=0.1, load_market=True):
     if load_market:
-        image_market = EasyMarket(market_id="image")
+        image_market = EasyMarket(market_id="cifar10")
     else:
         prepare_market()
-        image_market = EasyMarket(market_id="image")
+        image_market = EasyMarket(market_id="cifar10")
     logger.info("Number of items in the market: %d" % len(image_market))
 
     select_list = []
@@ -150,9 +153,7 @@ def test_search(gamma=0.1, load_market=True):
         user_data = np.load(user_data_path)
         user_label = np.load(user_label_path)
         user_stat_spec = specification.utils.generate_rkme_spec(X=user_data, gamma=gamma, cuda_idx=0)
-        user_info = BaseUserInfo(
-            id=f"user_{i}", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec}
-        )
+        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec})
         logger.info("Searching Market for user: %d" % (i))
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
             user_info
@@ -200,6 +201,6 @@ def test_search(gamma=0.1, load_market=True):
 
 
 if __name__ == "__main__":
-    # prepare_data()
-    # prepare_model()
-    test_search(load_market=True)
+    prepare_data()
+    prepare_model()
+    test_search(load_market=False)

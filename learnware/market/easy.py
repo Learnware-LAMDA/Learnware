@@ -13,7 +13,7 @@ from .database_ops import load_market_from_db, add_learnware_to_db, delete_learn
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..specification import RKMEStatSpecification, Specification
 from ..logger import get_module_logger
-from ..config import C
+from ..config import C as conf
 
 logger = get_module_logger("market", "INFO")
 
@@ -38,23 +38,30 @@ class EasyMarket(BaseMarket):
             !!! Do NOT set to True unless highly necessary !!!
         """
         self.market_id = market_id
+        self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
+        self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
+        self.learnware_zip_pool_path = os.path.join(self.learnware_pool_path, "zips")
+        self.learnware_folder_pool_path = os.path.join(self.learnware_pool_path, "unzipped_learnwares")
         self.learnware_list = {}  # id: Learnware
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
         self.count = 0
-        self.semantic_spec_list = C.semantic_specs
+        self.semantic_spec_list = conf.semantic_specs
         self.reload_market(rebuild=rebuild)  # Automatically reload the market
         logger.info("Market Initialized!")
 
     def reload_market(self, rebuild: bool = False) -> bool:
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
-            clear_learnware_table(market_id=self.market_id)
-            rmtree(C.learnware_pool_path)
+            try:
+                clear_learnware_table(market_id=self.market_id)
+                rmtree(self.learnware_pool_path)
+            except:
+                pass
 
-        os.makedirs(C.learnware_pool_path, exist_ok=True)
-        os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
-        os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
+        os.makedirs(self.learnware_pool_path, exist_ok=True)
+        os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
+        os.makedirs(self.learnware_folder_pool_path, exist_ok=True)
         self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db(
             market_id=self.market_id
         )
@@ -76,15 +83,28 @@ class EasyMarket(BaseMarket):
             - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
         """
         try:
+            # check model instantiation
             learnware.instantiate_model()
+
         except Exception as e:
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {e}")
             return cls.NONUSABLE_LEARNWARE
 
         try:
             learnware_model = learnware.get_model()
+
+            # check input shape
             inputs = np.random.randn(10, *learnware_model.input_shape)
             outputs = learnware.predict(inputs)
+
+            # check output type
+            if isinstance(outputs, torch.Tensor):
+                outputs = outputs.detach().cpu().numpy()
+            if not isinstance(outputs, np.ndarray):
+                logger.warning(f"The learnware [{learnware.id}] output must be np.ndarray or torch.Tensor")
+                return cls.NONUSABLE_LEARNWARE
+
+            # check output shape
             if outputs.shape[1:] != learnware_model.output_shape:
                 logger.warning(f"The learnware [{learnware.id}] input and output dimention is error")
                 return cls.NONUSABLE_LEARNWARE
@@ -154,8 +174,8 @@ class EasyMarket(BaseMarket):
 
         logger.info("Get new learnware from %s" % (zip_path))
         id = "%08d" % (self.count)
-        target_zip_dir = os.path.join(C.learnware_zip_pool_path, "%s.zip" % (id))
-        target_folder_dir = os.path.join(C.learnware_folder_pool_path, id)
+        target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (id))
+        target_folder_dir = os.path.join(self.learnware_folder_pool_path, id)
         copyfile(zip_path, target_zip_dir)
 
         with zipfile.ZipFile(target_zip_dir, "r") as z_file:
