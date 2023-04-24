@@ -19,6 +19,12 @@ logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
+    """EasyMarket provide an easy and simple implementation for BaseMarket
+    - EasyMarket stores learnwares with file system and database
+    - EasyMarket search the learnwares with the match of semantical tag and the statistical RKME
+    - EasyMarket does not support the search between heterogeneous features learnwars
+    """
+
     INVALID_LEARNWARE = -1
     NONUSABLE_LEARNWARE = 0
     USABLE_LEARWARE = 1
@@ -475,7 +481,7 @@ class EasyMarket(BaseMarket):
         max_search_num: int,
         score_cutoff: float = 0.001,
     ) -> Tuple[float, List[float], List[Learnware]]:
-        """Greedily match learnwares such that their mixture become more and more closer to user's rkme
+        """Greedily match learnwares such that their mixture become closer and closer to user's rkme
 
         Parameters
         ----------

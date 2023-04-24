@@ -163,7 +163,7 @@ class JobSelectorReuser(BaseReuser):
         Parameters
         ----------
         user_data : np.ndarray
-            User's labeld raw data.
+            Raw user data.
         task_rkme_list : List[RKMEStatSpecification]
             The list of learwares' rkmes whose mixture approximates the user's rkme
         task_rkme_matrix : np.ndarray
@@ -272,7 +272,7 @@ class AveragingReuser(BaseReuser):
         Parameters
         ----------
         learnware_list : List[Learnware]
-            The learnware list, which should have RKME Specification for each learnweare
+            The learnware list
         """
         super(AveragingReuser, self).__init__(learnware_list)
         self.mode = mode
@@ -283,7 +283,7 @@ class AveragingReuser(BaseReuser):
         Parameters
         ----------
         user_data : np.ndarray
-            User's labeled raw data.
+            Raw user data.
 
         Returns
         -------
