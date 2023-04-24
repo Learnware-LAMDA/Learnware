@@ -21,9 +21,13 @@ identifying potentially helpful leranwares whose models solve tasks similar to y
     print(single_learnware_list)
 
 In semantic specification search, we go through all learnwares in the market to compare their semantic specifications with the user's one, and return all the learnwares that pass through the comparation. When comparing two learnwares' semantic specifications, we design different ways for different semantic keys:
+
 - For semantic keys with type 'Class', they are matched only if they have the same value.
+
 - For semantic keys with type 'Tag', they are matched only if they have nonempty intersections.
+
 - For the user's input in the search box, it matchs with a learnware's semantic specification only if it's a substring of its 'Name' or 'Description'. All the strings are converted to the lower case before matching.
+
 - When a key value is missing, it will not participate in the match. The user could upload no semantic specifications if he wants.
 
 Statistical Specification Search
