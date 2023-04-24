@@ -158,9 +158,7 @@ class LearnwareMarketWorkflow:
 
             user_spec = specification.rkme.RKMEStatSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
-            user_info = BaseUserInfo(
-                semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
-            )
+            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec})
             (
                 sorted_score_list,
                 single_learnware_list,

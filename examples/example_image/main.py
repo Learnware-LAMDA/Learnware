@@ -153,9 +153,7 @@ def test_search(gamma=0.1, load_market=True):
         user_data = np.load(user_data_path)
         user_label = np.load(user_label_path)
         user_stat_spec = specification.utils.generate_rkme_spec(X=user_data, gamma=gamma, cuda_idx=0)
-        user_info = BaseUserInfo(
-            semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec}
-        )
+        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec})
         logger.info("Searching Market for user: %d" % (i))
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
             user_info

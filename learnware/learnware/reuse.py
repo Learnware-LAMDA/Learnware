@@ -221,13 +221,13 @@ class JobSelectorReuser(BaseReuser):
         learning_rate = [0.01]
         max_depth = [66]
         params = (0, 0)
-        
+
         lgb_params = {
             "boosting_type": "gbdt",
             "n_estimators": 2000,
             "boost_from_average": False,
         }
-        
+
         if num_class == 2:
             lgb_params["objective"] = "binary"
             lgb_params["metric"] = "binary_logloss"
@@ -252,7 +252,9 @@ class JobSelectorReuser(BaseReuser):
         lgb_params["learning_rate"] = params[0]
         lgb_params["max_depth"] = params[1]
         model = LGBMClassifier(**lgb_params)
-        model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False)
+        model.fit(
+            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False
+        )
 
         return model
 

@@ -150,9 +150,7 @@ def test_stat_search():
 
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(os.path.join(unzip_dir, "svm.json"))
-        user_info = BaseUserInfo(
-            semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
-        )
+        user_info = BaseUserInfo(semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec})
         sorted_score_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
         print(f"search result of user{idx}:")
