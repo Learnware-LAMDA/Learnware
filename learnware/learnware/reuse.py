@@ -1,6 +1,7 @@
 import torch
 import numpy as np
-import tensorflow as tf
+
+# import tensorflow as tf
 from typing import Tuple, Any, List, Union, Dict
 from cvxopt import matrix, solvers
 from lightgbm import LGBMClassifier
@@ -56,8 +57,11 @@ class JobSelectorReuser(BaseReuser):
                 pred_y = self.learnware_list[idx].predict(user_data[data_idx_list])
                 if isinstance(pred_y, torch.Tensor):
                     pred_y = pred_y.detach().cpu().numpy()
-                elif isinstance(pred_y, tf.Tensor):
-                    pred_y = pred_y.numpy()
+                # elif isinstance(pred_y, tf.Tensor):
+                #     pred_y = pred_y.numpy()
+
+                if not isinstance(pred_y, np.ndarray):
+                    raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
 
                 pred_y_list.append(pred_y)
                 data_idxs_list.append(data_idx_list)
@@ -221,13 +225,13 @@ class JobSelectorReuser(BaseReuser):
         learning_rate = [0.01]
         max_depth = [66]
         params = (0, 0)
-        
+
         lgb_params = {
             "boosting_type": "gbdt",
             "n_estimators": 2000,
             "boost_from_average": False,
         }
-        
+
         if num_class == 2:
             lgb_params["objective"] = "binary"
             lgb_params["metric"] = "binary_logloss"
@@ -252,7 +256,9 @@ class JobSelectorReuser(BaseReuser):
         lgb_params["learning_rate"] = params[0]
         lgb_params["max_depth"] = params[1]
         model = LGBMClassifier(**lgb_params)
-        model.fit(org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False)
+        model.fit(
+            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False
+        )
 
         return model
 
@@ -290,8 +296,11 @@ class AveragingReuser(BaseReuser):
             pred_y = self.learnware_list[idx].predict(user_data)
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
-            elif isinstance(pred_y, tf.Tensor):
-                pred_y = pred_y.numpy()
+            # elif isinstance(pred_y, tf.Tensor):
+            #     pred_y = pred_y.numpy()
+
+            if not isinstance(pred_y, np.ndarray):
+                raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
 
             if self.mode == "mean":
                 if mean_pred_y is None:

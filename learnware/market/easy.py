@@ -19,6 +19,12 @@ logger = get_module_logger("market", "INFO")
 
 
 class EasyMarket(BaseMarket):
+    """EasyMarket provide an easy and simple implementation for BaseMarket
+    - EasyMarket stores learnwares with file system and database
+    - EasyMarket search the learnwares with the match of semantical tag and the statistical RKME
+    - EasyMarket does not support the search between heterogeneous features learnwars
+    """
+
     INVALID_LEARNWARE = -1
     NONUSABLE_LEARNWARE = 0
     USABLE_LEARWARE = 1
@@ -83,15 +89,28 @@ class EasyMarket(BaseMarket):
             - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
         """
         try:
+            # check model instantiation
             learnware.instantiate_model()
+
         except Exception as e:
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {e}")
             return cls.NONUSABLE_LEARNWARE
 
         try:
             learnware_model = learnware.get_model()
+
+            # check input shape
             inputs = np.random.randn(10, *learnware_model.input_shape)
             outputs = learnware.predict(inputs)
+
+            # check output type
+            if isinstance(outputs, torch.Tensor):
+                outputs = outputs.detach().cpu().numpy()
+            if not isinstance(outputs, np.ndarray):
+                logger.warning(f"The learnware [{learnware.id}] output must be np.ndarray or torch.Tensor")
+                return cls.NONUSABLE_LEARNWARE
+
+            # check output shape
             if outputs.shape[1:] != learnware_model.output_shape:
                 logger.warning(f"The learnware [{learnware.id}] input and output dimention is error")
                 return cls.NONUSABLE_LEARNWARE
@@ -462,7 +481,7 @@ class EasyMarket(BaseMarket):
         max_search_num: int,
         score_cutoff: float = 0.001,
     ) -> Tuple[float, List[float], List[Learnware]]:
-        """Greedily match learnwares such that their mixture become more and more closer to user's rkme
+        """Greedily match learnwares such that their mixture become closer and closer to user's rkme
 
         Parameters
         ----------

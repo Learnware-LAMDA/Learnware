@@ -41,7 +41,7 @@ semantic_specs = [
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
-    "Device": {"Values": ["GPU"], "Type": "Class"},
+    "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "learnware", "Type": "String"},
@@ -92,7 +92,7 @@ def test_market():
 
     for idx, zip_path in enumerate(zip_path_list):
         semantic_spec = semantic_specs[idx % 3]
-        semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
+        semantic_spec["Name"]["Values"] = "Learnware_%d" % (idx)
         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
         easy_market.add_learnware(zip_path, semantic_spec)
 
@@ -125,7 +125,7 @@ def test_search_semantics():
 
     user_spec = specification.rkme.RKMEStatSpecification()
     user_spec.load(os.path.join(unzip_dir, "svm.json"))
-    user_info = BaseUserInfo(id="user_0", semantic_spec=user_senmantic)
+    user_info = BaseUserInfo(semantic_spec=user_senmantic)
     _, single_learnware_list, _ = easy_market.search_learnware(user_info)
 
     print("User info:", user_info.get_semantic_spec())
@@ -150,9 +150,7 @@ def test_stat_search():
 
         user_spec = specification.rkme.RKMEStatSpecification()
         user_spec.load(os.path.join(unzip_dir, "svm.json"))
-        user_info = BaseUserInfo(
-            id="user_0", semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec}
-        )
+        user_info = BaseUserInfo(semantic_spec=user_senmantic, stat_info={"RKMEStatSpecification": user_spec})
         sorted_score_list, single_learnware_list, mixture_learnware_list = easy_market.search_learnware(user_info)
 
         print(f"search result of user{idx}:")
