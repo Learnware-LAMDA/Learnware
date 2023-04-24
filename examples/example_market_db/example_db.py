@@ -41,7 +41,7 @@ semantic_specs = [
 user_senmantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
-    "Device": {"Values": ["GPU"], "Type": "Class"},
+    "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "learnware", "Type": "String"},
@@ -92,7 +92,7 @@ def test_market():
 
     for idx, zip_path in enumerate(zip_path_list):
         semantic_spec = semantic_specs[idx % 3]
-        semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
+        semantic_spec["Name"]["Values"] = "Learnware_%d" % (idx)
         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
         easy_market.add_learnware(zip_path, semantic_spec)
 
