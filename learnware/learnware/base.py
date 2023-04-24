@@ -11,8 +11,10 @@ logger = get_module_logger("Learnware")
 
 
 class Learnware:
+    """The learnware class, which is the basic components in learnware market."""
+
     def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification):
-        """_summary_
+        """The initialization method for learnware
 
         Parameters
         ----------
@@ -72,7 +74,16 @@ class Learnware:
 
 
 class BaseReuser:
+    """Providing the interfaces to reuse the learnwares which is searched by learnware"""
+
     def __init__(self, learnware_list: List[Learnware]):
+        """The initializaiton method for base reuser
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The learnware list to reuse and make predictions
+        """
         self.learnware_list = learnware_list
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:
