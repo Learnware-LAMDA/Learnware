@@ -1,4 +1,5 @@
 import os
+import copy
 from shutil import copyfile, rmtree
 import zipfile
 import torch
@@ -143,6 +144,8 @@ class EasyMarket(BaseMarket):
             - int indicating what the flag of learnware is added.
 
         """
+        semantic_spec = copy.deepcopy(semantic_spec)
+
         if not os.path.exists(zip_path):
             logger.warning("Zip Path NOT Found! Fail to add learnware.")
             return None, self.INVALID_LEARNWARE

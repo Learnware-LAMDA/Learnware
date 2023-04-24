@@ -4,10 +4,10 @@
    contain the root `toctree` directive.
 
 ============================================================
-``Learnware`` Documentation
+``Learnware Market`` Documentation
 ============================================================
 
-``Learnware`` is ...
+``Learnware Market`` is an AI-oriented paradigm aimed at empowering users to create versatile and efficient machine learning models. By reusing small models for tasks beyond their original purposes, Learnware enables users to experiment with and develop better strategies without building models from scratch efficient and safe.
 
 .. _user_guide:
 
