@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+
 # import tensorflow as tf
 from typing import Tuple, Any, List, Union, Dict
 from cvxopt import matrix, solvers
@@ -58,7 +59,7 @@ class JobSelectorReuser(BaseReuser):
                     pred_y = pred_y.detach().cpu().numpy()
                 # elif isinstance(pred_y, tf.Tensor):
                 #     pred_y = pred_y.numpy()
-                
+
                 if not isinstance(pred_y, np.ndarray):
                     raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
 
@@ -300,7 +301,7 @@ class AveragingReuser(BaseReuser):
 
             if not isinstance(pred_y, np.ndarray):
                 raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
-            
+
             if self.mode == "mean":
                 if mean_pred_y is None:
                     mean_pred_y = pred_y
