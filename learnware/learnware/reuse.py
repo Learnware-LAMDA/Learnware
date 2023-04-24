@@ -47,7 +47,7 @@ class JobSelectorReuser(BaseReuser):
         np.ndarray
             Prediction given by job-selector method
         """
-        select_result = self._job_selector(user_data)
+        select_result = self.job_selector(user_data)
         pred_y_list = []
         data_idxs_list = []
 
@@ -75,7 +75,7 @@ class JobSelectorReuser(BaseReuser):
 
         return selector_pred_y
 
-    def _job_selector(self, user_data: np.ndarray):
+    def job_selector(self, user_data: np.ndarray):
         """Train job selector based on user's data, which predicts which learnware in the pool should be selected
 
         Parameters
