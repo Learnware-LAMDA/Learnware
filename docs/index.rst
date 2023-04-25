@@ -54,9 +54,9 @@ Document Structure
 
 .. toctree::
    :maxdepth: 3
-   :caption: VISUAL INTERATIONS:
+   :caption: VISUAL INTERACTIONS:
 
-   Visual Interations <visual_interations/visual_interations.rst>
+   Visual Interations <visual_interactions/visual_interactions.rst>
 
 .. toctree::
    :maxdepth: 3
