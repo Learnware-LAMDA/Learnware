@@ -171,7 +171,7 @@ class M5DatasetWorkflow:
             job_selector_score = m5.score(test_y, job_selector_predict_y)
             print(f"mixture reuse loss (job selector): {job_selector_score}")
 
-            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode='vote')
+            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
             ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
             ensemble_score = m5.score(test_y, ensemble_predict_y)
             print(f"mixture reuse loss (ensemble): {ensemble_score}\n")
@@ -185,8 +185,12 @@ class M5DatasetWorkflow:
         logger.info("Single search score %.3f +/- %.3f" % (np.mean(single_score_list), np.std(single_score_list)))
         logger.info("Random search score: %.3f +/- %.3f" % (np.mean(random_score_list), np.std(random_score_list)))
         logger.info("Average score improvement: %.3f" % (np.mean(improve_list)))
-        logger.info("Job selector score: %.3f +/- %.3f" % (np.mean(job_selector_score_list), np.std(job_selector_score_list)))
-        logger.info("Average ensemble score: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list)))
+        logger.info(
+            "Job selector score: %.3f +/- %.3f" % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
+        )
+        logger.info(
+            "Average ensemble score: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
+        )
 
 
 if __name__ == "__main__":

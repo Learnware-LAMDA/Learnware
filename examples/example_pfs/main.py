@@ -183,8 +183,12 @@ class PFSDatasetWorkflow:
         logger.info("Single search score %.3f +/- %.3f" % (np.mean(single_score_list), np.std(single_score_list)))
         logger.info("Random search score: %.3f +/- %.3f" % (np.mean(random_score_list), np.std(random_score_list)))
         logger.info("Average score improvement: %.3f" % (np.mean(improve_list)))
-        logger.info("Job selector score: %.3f +/- %.3f" % (np.mean(job_selector_score_list), np.std(job_selector_score_list)))
-        logger.info("Average ensemble score: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list)))
+        logger.info(
+            "Job selector score: %.3f +/- %.3f" % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
+        )
+        logger.info(
+            "Average ensemble score: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
+        )
 
 
 if __name__ == "__main__":
