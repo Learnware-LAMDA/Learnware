@@ -1,8 +1,21 @@
-All Contributors
+================
+Contributors
 ================
 
+
+
+Contributors
+================
+
+We thank all the contributors for the development of learnware package:
+
+TODO: Here paste the github API after publishing:
+
+
+In LAMDA Group, also many people participate the discussions, learnware package design and development, visual intersections and so on. Here is their name and homepage for connections:
+
 +----------------+----------------------------------------------------------------------+
-| Contributor    | Homepage                                                             |
+| Name           | Homepage                                                             |
 +================+======================================================================+
 | Zhi-Hao Tan    | `Zhi-Hao Tan's Homepage <http://www.lamda.nju.edu.cn/tanzh/>`_       |
 +----------------+----------------------------------------------------------------------+

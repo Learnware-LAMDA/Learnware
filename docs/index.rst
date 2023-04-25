@@ -64,3 +64,13 @@ Document Structure
 
    API <references/api.rst>
 
+.. toctree::
+   :maxdepth: 3
+   :caption: ABOUTS:
+
+   Contributors <about/about.rst>
+   Changelog <about/changelog.rst>
+   About us <http://www.lamda.nju.edu.cn/>
+
+
+

@@ -255,6 +255,6 @@ TODO: Here paste the github API after publishing:
 
 [Pic after publish]()
 
-## About Us
+## About us
 
 Visit [LAMDA's official website](http://www.lamda.nju.edu.cn/MainPage.ashx),
