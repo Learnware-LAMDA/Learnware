@@ -233,8 +233,8 @@ The time-consuming specification generation is shown in the table below:
 
 | Dataset | Data Dimensions | Specification Generation Time (s) |
 |  ----  | ----  | ----  |
-|  PFS  | NAN  | NAN  |
-|  M5  | NAN | 9~15  |
+|  PFS  | 8714274*31  | < 1.5  |
+|  M5  | 46027957*82 | 9~15  |
 |  CIFAR 10 | 9000*3*32*32 | 7~10  |
 
 
@@ -242,7 +242,7 @@ The accuracy of search and reuse is shown in the table below:
 
 | Dataset | Top-1 Performance | Job Selector Reuse | Average Ensemble Reuse |
 |  ----  | ----  | ----  | ----  |
-|  PFS  | NAN  | NAN  |  NAN  |
+|  PFS  | 1.955 +/- 2.866  | 2.175 +/- 2.847  |  1.950 +/- 2.888  |
 |  M5  | 2.066 +/- 0.424 | 2.116 +/- 0.472  |  2.512 +/- 0.573  |
 |  CIFAR 10 | 0.619 +/- 0.138 | 0.585 +/- 0.056  |  .715 +/- 0.075  |
 

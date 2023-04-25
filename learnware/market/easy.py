@@ -205,7 +205,6 @@ class EasyMarket(BaseMarket):
 
         if new_learnware is None:
             return None, self.INVALID_LEARNWARE
-
         check_flag = self.check_learnware(new_learnware)
 
         add_learnware_to_db(
