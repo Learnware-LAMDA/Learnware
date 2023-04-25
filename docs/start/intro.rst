@@ -4,7 +4,7 @@ Introduction
 
 Learnware is an AI-oriented paradigm aimed at empowering users to create versatile and efficient machine learning models. By reusing small models for tasks beyond their original purposes, Learnware enables users to experiment with and develop better strategies without building models from scratch efficient and safe.
 
-=================
+
 Motivation
 =================
 
@@ -38,7 +38,7 @@ To better address the entangled issues in machine learning, we should consider t
 By considering these factors, we can develop a more comprehensive framework for tackling the complex challenges in machine learning, moving beyond the limitations of the big model paradigm, called Learnware.
 
 
-=======================
+
 Framework
 =======================
 
@@ -50,7 +50,7 @@ Developers or owners of trained machine learning models can submit their models 
 Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their model. This process is more efficient and less expensive than building a model from scratch.
 
 Benefits of the Learnware Paradigm
-----------------------------------
+=======================
 
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Benefit               | Description                                                                                   |
@@ -77,7 +77,7 @@ Benefits of the Learnware Paradigm
 +-----------------------+-----------------------------------------------------------------------------------------------+
 
 Challenges and Future Work
---------------------------
+=======================
 
 Although the learnware proposal shows promise, much work remains to make it a reality. The next sections will present some of the progress made so far.
 

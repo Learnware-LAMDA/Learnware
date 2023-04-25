@@ -7,7 +7,7 @@ Quick Start
 Introduction
 ==================== 
 
-This ``Quick Start`` guide tries to demonstrate that it's very easy to build a complete Learnware Market workflow and use ``Learnware Market`` to deal with users' tasks.
+This ``Quick Start`` guide tries to demonstrate that it's very easy to build a complete ``Learnware Market`` workflow and use ``Learnware Market`` to deal with users' tasks.
 
 
 Installation
@@ -32,7 +32,7 @@ Learnware is currently hosted on `PyPI <https://pypi.org/>`__. You can easily in
 Prepare Learnware
 ====================
 
-The Learnware Market consists of a wide range of learnwares. A valid learnware is a zip file which 
+The Learnware Market consists of a wide range of learnwares. A valid learnware is a zipfile which 
 is composed of the following four parts.
 
 - ``__init__.py``
@@ -70,13 +70,13 @@ We also demonstrate the detail format of learnware zipfile in [DOC link], and al
 Learnware Market Workflow
 ============================
 
-Users can start an Learnware Market workflow according to the following steps:
+Users can start an ``Learnware Market`` workflow according to the following steps:
 
 Initialize a Learware Market
 -------------------------------
 
-The ``EasyMarket`` class implements the most basic set of functions in a Learnware Market. 
-You can use the following code snippet to initialize a basic Learnware Market named "demo":
+The ``EasyMarket`` class implements the most basic set of functions in a ``Learnware Market``. 
+You can use the following code snippet to initialize a basic ``Learnware Market`` named "demo":
 
 .. code-block:: python
     
@@ -89,7 +89,7 @@ You can use the following code snippet to initialize a basic Learnware Market na
 Upload Leanwares
 -------------------------------
 
-Before uploading your learnware into the Learnware Market,
+Before uploading your learnware into the ``Learnware Market``,
 create a semantic specification ``semantic_spec`` by selecting or filling in values for the predefined semantic tags 
 to describe the features of your task and model.
 
@@ -114,14 +114,14 @@ you can easily upload your learnware with a single line of code:
     
     easy_market.add_learnware(zip_path, semantic_spec) 
 
-Here, ``zip_path`` is the directory of your learnware zip file.
+Here, ``zip_path`` is the directory of your learnware zipfile.
 
 Semantic Specification Search
 -------------------------------
 
 To search for learnwares that fit your task purpose, 
 you should also provide a semantic specification ``user_semantic`` that describes the characteristics of your task.
-The Learnware Market will perform a first-stage search based on ``user_semantic``,
+The ``Learnware Market`` will perform a first-stage search based on ``user_semantic``,
 identifying potentially helpful leranwares whose models solve tasks similar to your requirements. 
 
 .. code-block:: python
@@ -140,7 +140,7 @@ Statistical Specification Search
 ---------------------------------
 
 If you choose to porvide your own statistical specification file ``stat.json``, 
-the Learnware Market can perform a more accurate leanware selection from 
+the ``Learnware Market`` can perform a more accurate leanware selection from 
 the learnwares returned by the previous step. This second-stage search is based on statistical information 
 and returns one or more learnwares that are most likely to be helpful for your task. 
 
