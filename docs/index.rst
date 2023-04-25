@@ -30,7 +30,7 @@ Document Structure
 
 .. toctree::
    :maxdepth: 3
-   :caption: MAIN WORKFLOWS:
+   :caption: WORKFLOWS:
 
    Learnware Preparation and Submission <workflow/submit.rst>
    Helpful Learnwares Identification <workflow/identify.rst>
@@ -38,7 +38,7 @@ Document Structure
 
 .. toctree::
    :maxdepth: 3
-   :caption: MAIN COMPONENTS:
+   :caption: CONCEPTS:
 
    Market <components/market.rst>
    Learnware <components/learnware.rst>
