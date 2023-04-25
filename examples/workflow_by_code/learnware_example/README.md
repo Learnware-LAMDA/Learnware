@@ -1,5 +1,5 @@
+## How to Generate Environment Yaml
 
-## 2 Environment
 * create env config for conda:
 ```shell
 conda env export | grep -v "^prefix: " > environment.yml

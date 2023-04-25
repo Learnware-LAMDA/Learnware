@@ -23,13 +23,9 @@ The semantic specification ``user_semantic`` is stored in a ``dict``, with keywo
         "Name": {"Values": "digits", "Type": "String"},
     }
 
-.. _semantic_specification:
 
-.. figure: ..\_static\img\semantic_spec.png
-   :alt: Semantic Specification
+.. image:: ../_static/img/semantic_spec.png
    :align: center
-
-引用方式 :ref:`semantic_specification` 。
 
 
 The user's statistical information ``stat_info`` is stored in a ``json`` file, e.g., ``stat.json``. The generation of this file is seen in `这是一个语义规约生成的链接`_.
