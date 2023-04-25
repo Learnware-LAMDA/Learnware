@@ -6,7 +6,7 @@ from learnware.model import BaseModel
 
 class SVM(BaseModel):
     def __init__(self):
-        super(SVM, self).__init__(input_shape=(20,), output_shape=())
+        super(SVM, self).__init__(input_shape=(64,), output_shape=(10,))
         dir_path = os.path.dirname(os.path.abspath(__file__))
         self.model = joblib.load(os.path.join(dir_path, "svm.pkl"))
 
@@ -14,7 +14,7 @@ class SVM(BaseModel):
         pass
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        return self.model.predict(X)
+        return self.model.predict_proba(X)
 
     def finetune(self, X: np.ndarray, y: np.ndarray):
         pass

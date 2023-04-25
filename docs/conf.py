@@ -90,24 +90,39 @@ html_theme = "sphinx_rtd_theme"
 
 html_logo = "_static/img/logo/logo1.png"
 
-
-# Theme options are theme-specific and customize the look and feel of a theme
-# further.  For a list of options available for each theme, see the
-# documentation.
-# html_context = {
-#     "display_github": False,
-#     "last_updated": True,
-#     "commit": True,
-#     "github_user": "Microsoft",
-#     "github_repo": "QLib",
-#     'github_version': 'master',
-#     'conf_py_path': '/docs/',
-
-# }
-#
 html_theme_options = {
     "logo_only": True,
     "collapse_navigation": False,
     "display_version": False,
-    "navigation_depth": 3,
+    "navigation_depth": 4,
+}
+
+
+# Custom sidebar templates, must be a dictionary that maps document names
+# to template names.
+#
+# This is required for the alabaster theme
+# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
+html_sidebars = {
+    "**": [
+        "about.html",
+        "navigation.html",
+        "relations.html",  # needs 'show_related': True theme option to display
+        "searchbox.html",
+    ]
+}
+
+
+# -- Options for HTMLHelp output ------------------------------------------
+
+# Output file base name for HTML help builder.
+htmlhelp_basename = "learnwaredoc"
+
+
+autodoc_member_order = "bysource"
+autodoc_default_flags = ["members"]
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource",
+    "special-members": "__init__",
 }

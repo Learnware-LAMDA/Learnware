@@ -25,7 +25,7 @@ Learnware is currently hosted on `PyPI <https://pypi.org/>`__. You can easily in
 
     .. code-block::
 
-        conda install -c pytorch fais
+        conda install -c pytorch faiss
         pip install learnware
 
 
@@ -153,7 +153,7 @@ For example, the following code is designed to work with Reduced Set Kernel Embe
     user_spec = specification.rkme.RKMEStatSpecification()
     user_spec.load(os.path.join(unzip_path, "rkme.json"))
     user_info = BaseUserInfo(
-        id="user", semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
+        semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
     )
     (sorted_score_list, single_learnware_list,
         mixture_score, mixture_learnware_list) = easy_market.search_learnware(user_info)
