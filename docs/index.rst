@@ -68,6 +68,7 @@ Document Structure
    :maxdepth: 3
    :caption: ABOUTS:
 
+   For Developer <about/standard.rst>
    Contributors <about/about.rst>
    Changelog <about/changelog.rst>
    About us <http://www.lamda.nju.edu.cn/>
