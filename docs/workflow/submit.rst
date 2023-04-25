@@ -1,5 +1,5 @@
 ==========================================
-Submit Learnware
+Learnware Preparation and Submission
 ==========================================
 
 In this section, a detailed guide on how to submit your own learnware to the Learnware Market will be provided.

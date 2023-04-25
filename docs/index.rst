@@ -26,12 +26,19 @@ Document Structure
    Introduction <start/intro.rst>
    Quick Start <start/quick.rst>
    Installation Guide <start/install.rst>
-   Workflow <start/workflow.rst>
-   Examples <start/performance.rst>
+   Experiments and Examples <start/performance.rst>
 
 .. toctree::
    :maxdepth: 3
-   :caption: COMPONENTS:
+   :caption: WORKFLOWS:
+
+   Learnware Preparation and Submission <workflow/submit.rst>
+   Helpful Learnwares Identification <workflow/identify.rst>
+   Learnwares Reuse <workflow/reuse.rst>
+
+.. toctree::
+   :maxdepth: 3
+   :caption: MAIN COMPONENTS:
 
    Market <components/market.rst>
    Learnware <components/learnware.rst>

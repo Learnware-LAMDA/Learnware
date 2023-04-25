@@ -1,6 +1,6 @@
 .. _performance:
 ================================
-Experiments
+Experiments and Examples
 ================================
 
 This chapter will introduce related experiments to illustrate the search and reuse performance of our learnware system.

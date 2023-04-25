@@ -1,5 +1,5 @@
 ==========================================
-Getting Started-Workflow-Reuse learnware
+Learnwares Reuse
 ==========================================
 
 This part introduces two baseline methods for reusing a given list of learnwares, namely ``JobSelectorReuser`` and ``AveragingReuser``.
