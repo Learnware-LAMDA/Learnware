@@ -1,6 +1,7 @@
 import os
 import fire
 import zipfile
+import time
 import numpy as np
 from tqdm import tqdm
 from shutil import copyfile, rmtree
@@ -11,6 +12,9 @@ from learnware.market import database_ops
 from learnware.learnware import Learnware, JobSelectorReuser, AveragingReuser
 import learnware.specification as specification
 from pfs import Dataloader
+from learnware.logger import get_module_logger
+
+logger = get_module_logger("m5_test", level="INFO")
 
 
 semantic_specs = [
@@ -80,7 +84,10 @@ class PFSDatasetWorkflow:
 
         for idx in tqdm(idx_list):
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
+            st = time.time()
             spec = specification.utils.generate_rkme_spec(X=train_x, gamma=0.1, cuda_idx=0)
+            ed = time.time()
+            logger.info("Stat spec generated in %.3f s" % (ed - st))
 
             for algo in algo_list:
                 pfs.set_algo(algo)
@@ -126,6 +133,7 @@ class PFSDatasetWorkflow:
         random_score_list = []
         job_selector_score_list = []
         ensemble_score_list = []
+        improve_list = []
 
         for idx in idx_list:
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
@@ -170,11 +178,13 @@ class PFSDatasetWorkflow:
             random_score_list.append(np.mean(loss_list))
             job_selector_score_list.append(job_selector_score)
             ensemble_score_list.append(ensemble_score)
+            improve_list.append((np.mean(loss_list) - loss_list[0]) / np.mean(loss_list))
 
-        print(f"Single search score: {np.mean(single_score_list)}")
-        print(f"Job selector score: {np.mean(job_selector_score_list)}")
-        print(f"Average ensemble score: {np.mean(ensemble_score_list)}")
-        print(f"Random search score: {np.mean(random_score_list)}")
+        logger.info("Single search score %.3f +/- %.3f" % (np.mean(single_score_list), np.std(single_score_list)))
+        logger.info("Random search score: %.3f +/- %.3f" % (np.mean(random_score_list), np.std(random_score_list)))
+        logger.info("Average score improvement: %.3f" % (np.mean(improve_list)))
+        logger.info("Job selector score: %.3f +/- %.3f" % (np.mean(job_selector_score_list), np.std(job_selector_score_list)))
+        logger.info("Average ensemble score: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list)))
 
 
 if __name__ == "__main__":
