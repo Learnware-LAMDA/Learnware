@@ -18,7 +18,7 @@ from learnware.utils import get_module_by_module_path
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
 user_semantic = {
-    "Data": {"Values": ["Tabular"], "Type": "Class"},
+    "Data": {"Values": ["Table"], "Type": "Class"},
     "Task": {
         "Values": ["Classification"],
         "Type": "Class",
