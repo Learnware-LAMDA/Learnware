@@ -1,11 +1,11 @@
 .. _performance:
 ================================
-Experiments & Get Start Examples
+Experiments
 ================================
 
 This chapter will introduce related experiments to illustrate the search and reuse performance of our learnware system.
 
-================
+
 Environment
 ================
 For all experiments, we used a single linux server. Details on the specifications are listed in the table below. All processors were used for training and evaluating.
@@ -17,12 +17,12 @@ Ubuntu 20.04.4 LTS    Nvidia Tesla V100S    Intel(R) Xeon(R) Gold 6240R
 ====================  ====================  ===============================
 
 
-================
+
 Experiments
 ================
 
 Datasets
-================
+------------------
 We designed experiments on three publicly available datasets, namely `Prediction Future Sales (PFS) <https://www.kaggle.com/c/competitive-data-science-predict-future-sales/data>`_,
 `M5 Forecasting (M5) <https://www.kaggle.com/competitions/m5-forecasting-accuracy/data>`_ and `CIFAR 10 <https://www.cs.toronto.edu/~kriz/cifar.html>`_.
 For the two sales forecasting data sets of PFS and M5, we divide the user data according to different stores, and train the Ridge model and LightGBM model on the corresponding data respectively.
@@ -33,7 +33,7 @@ We tested the efficiency of the specification generation and the accuracy of the
 The evaluation index on PFS and M5 data is RMSE, and the evaluation index on CIFAR10 classification task is classification accuracy
 
 Results
-================
+----------------
 
 The time-consuming specification generation is shown in the table below:
 
@@ -55,7 +55,7 @@ M5                      2.066 +/- 0.424    2.116 +/- 0.472                    2.
 CIFAR10                 0.619 +/- 0.138    0.585 +/- 0.056                    0.715 +/- 0.075
 ====================  ==================== ================================= =================================
 
-=========================
+
 Get Start Examples
 =========================
 Examples for `PFS, M5` and `CIFAR10` are available at [xxx]. You can run { main.py } directly to reproduce related experiments.
