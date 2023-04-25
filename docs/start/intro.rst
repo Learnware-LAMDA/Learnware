@@ -8,6 +8,9 @@ Learnware is an AI-oriented paradigm aimed at empowering users to create versati
 Motivation
 =================
 
+.. image:: ../_static/img/learnware_paradigm.jpg
+   :align: center
+
 Machine learning, especially the prevailing big model paradigm, has achieved great success in natural language processing and computer vision applications. However, it still faces challenges such as the requirement of a large amount of labeled training data, difficulty in adapting to changing environments, and catastrophic forgetting when refining trained models incrementally. These big models, while useful in their targeted tasks, often fail to address the above issues and struggle to generalize beyond their specific purposes.
 
 To better address the entangled issues in machine learning, we should consider the following aspects:
@@ -42,6 +45,8 @@ By considering these factors, we can develop a more comprehensive framework for 
 Framework
 =======================
 
+.. image:: ../_static/img/learnware_market.jpg
+   :align: center
 
 The learnware paradigm introduces the concept of a well-performed, trained machine learning model with a specification that allows future users, who have no prior knowledge of the learnware, to reuse it based on their requirements.
 
