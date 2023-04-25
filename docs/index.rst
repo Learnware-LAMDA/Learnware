@@ -25,7 +25,7 @@ Document Structure
 
    Introduction <start/intro.rst>
    Quick Start <start/quick.rst>
-   Installation Guide <start/install.rst>
+   Installation <start/install.rst>
    Experiments and Examples <start/performance.rst>
 
 .. toctree::

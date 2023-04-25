@@ -28,7 +28,7 @@ The semantic specification ``user_semantic`` is stored in a ``dict``, with keywo
    :align: center
 
 
-The user's statistical information ``stat_info`` is stored in a ``json`` file, e.g., ``stat.json``. The generation of this file is seen in `这是一个语义规约生成的链接`_.
+The user's statistical information ``stat_info`` is stored in a ``json`` file, e.g., ``stat.json``. The generation of this file is seen in `Learnware Preparation <./submit>`_.
 
 
 
@@ -37,7 +37,7 @@ Semantic Specification Search
 To search for learnwares that fit your task purpose, 
 the user should first provide a semantic specification ``user_semantic`` that describes the characteristics of your task.
 The Learnware Market will perform a first-stage search based on ``user_semantic``,
-identifying potentially helpful leranwares whose models solve tasks similar to your requirements. 
+identifying potentially helpful leaarnwares whose models solve tasks similar to your requirements. 
 
 .. code-block:: python
 
