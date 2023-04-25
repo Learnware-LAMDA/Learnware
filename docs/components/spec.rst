@@ -3,8 +3,10 @@
 Specification
 ================================
 
-Learnware Specification
------------------------------ 
+The search of helpful learnwares can be divided into two stages: statistical specification and semantic specification.
+
+Statistical Specification
+---------------------------
 
 The learnware specification should ideally provide essential information about every model in the learnware market, enabling efficient and accurate identification for future users. Our current specification design has two components. The first part consists of a string of descriptions or tags assigned by the learnware market based on developer-submitted information. These descriptions or tags help identify the model's specification island. Different learnware market enterprises may use different descriptions or tags.
 
@@ -57,3 +59,9 @@ a more general result has been achieved:
 where :math:`R(g)=\sum_{i=1}^N w_i \mathbb{E}_{\mathcal{D}_1}\left[\ell_{01}(g(\boldsymbol{x}), i)\right]` represents the weighted risk of any learnware selector :math:`g(x)`, which takes unlabeled data as input and assigns it to the appropriate model, :math:`f(\boldsymbol{x})=\widehat{f}_{g(\boldsymbol{x})}(\boldsymbol{x})` is the final model for the user's task.
 
 Efforts have been made to enable the learnware market to handle unseen tasks, where the user's task involves some unseen aspects that have never been addressed by the current learnwares in the market. A more general theoretical analysis has been presented based on mixture proportion estimation.
+
+
+Semantic Specification
+---------------------------
+
+The semantic specification describes the characteristics of user's task and the market will identify potentially helpful leaarnwares whose models solve tasks similar to your requirements. The detail semantic specification is in `Indentification Learnwares <../workflow/identify.html>`_.

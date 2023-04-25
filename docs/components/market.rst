@@ -13,7 +13,7 @@ In the learnware paradigm, there are three key players: *developers*, *users*, a
 This process can be broken down into two main stages.
 
 Submitting Stage
----------------------
+======================================
 
 During the *submitting stage*, developers can voluntarily submit their trained models to the learnware market. The market will then implement a quality assurance mechanism, such as performance validation, to determine if a submitted model is suitable for acceptance. In a learnware market with millions of models, identifying potentially helpful models for a new user is a challenge.
 
@@ -23,8 +23,8 @@ The solution's crux lies in the *specification*, which is central to the learnwa
 
 In a learnware market, heterogeneous models may have different :math:`\mathcal{X}`, :math:`\mathcal{Y}`, or objectives. If we refer to the specification space that covers all possible models in all possible functional spaces as the 'specification world' analogously, then each specification space corresponding to one possible functional space can be called a 'specification island.' Designing an elegant specification format that encompasses the entire specification world and allows all possible models to be efficiently and adequately identified is a significant challenge. Currently, we adopt a practical design, where each learnware's specification consists of two parts.
 
-======================================
-Learnware Market and Specifications
+
+Reusing Stage
 ======================================
 
 Creating Learnware Specifications
@@ -50,6 +50,3 @@ Reusing Learnwares
 Once helpful learnwares are identified and delivered to the user, they can be reused in various ways. Users can apply the received learnware directly to their data, use multiple learnwares to create an ensemble, or adapt and polish the received learnware(s) using their own data. Learnwares can also be used as feature augmentors, with their outputs used as augmented features for building the final model.
 
 Helpful learnwares may be trained for tasks that are not exactly the same as the user's current task. In such cases, users can tackle their tasks in a divide-and-conquer way or reuse the learnwares collectively through measuring the utility of each model on each testing instance. If users find it difficult to express their requirements accurately, they can adapt and polish the received learnwares directly using their own data.
-
-
-

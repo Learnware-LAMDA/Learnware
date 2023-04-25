@@ -30,7 +30,7 @@ Document Structure
 
 .. toctree::
    :maxdepth: 3
-   :caption: WORKFLOWS:
+   :caption: MAIN WORKFLOWS:
 
    Learnware Preparation and Submission <workflow/submit.rst>
    Helpful Learnwares Identification <workflow/identify.rst>
