@@ -117,7 +117,6 @@ For example, the following code snippet demonstrates the semantic specification
 of a Scikit-Learn type model, which is designed for business scenario and performs classification on tabular data:
 
 ```python
-
 semantic_spec = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
@@ -126,16 +125,13 @@ semantic_spec = {
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "demo_learnware", "Type": "String"},
 }
-
 ```
 
 Once the semantic specification is defined, 
 you can easily upload your learnware with a single line of code:
     
 ```python
-    
 easy_market.add_learnware(zip_path, semantic_spec) 
-
 ```
 
 Here, ``zip_path`` is the directory of your learnware zipfile.
@@ -148,7 +144,6 @@ The ``Learnware Market`` will perform a first-stage search based on ``user_seman
 identifying potentially helpful leranwares whose models solve tasks similar to your requirements. 
 
 ```python
-
 # construct user_info which includes semantic specification for searching learnware
 user_info = BaseUserInfo(id="user", semantic_spec=semantic_spec)
 
@@ -157,7 +152,6 @@ _, single_learnware_list, _ = easy_market.search_learnware(user_info)
 
 # single_learnware_list is the learnware list by semantic specification searching
 print(single_learnware_list)
-
 ```
 
 ### Statistical Specification Search
@@ -170,7 +164,6 @@ and returns one or more learnwares that are most likely to be helpful for your t
 For example, the following code is designed to work with Reduced Set Kernel Embedding as a statistical specification:
 
 ```python
-
 import learnware.specification as specification
 
 user_spec = specification.rkme.RKMEStatSpecification()
@@ -192,7 +185,6 @@ print(mixture_learnware_list)
 
 # mixture_score is the score of the mixture of learnwares
 print(mixture_score)
-
 ```
 
 ### Reuse Learnwares
@@ -203,7 +195,6 @@ We provide two baseline methods for reusing a given list of learnwares, namely `
 Simply replace ``test_x`` in the code snippet below with your own testing data and start reusing learnwares!
 
 ```python
-
 # using jobselector reuser to reuse the searched learnwares to make prediction
 reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
 job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
@@ -211,7 +202,6 @@ job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
 # using averaging ensemble reuser to reuse the searched learnwares to make prediction
 reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
 ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
-
 ```
 
 ## Auto Workflow Example
@@ -265,7 +255,6 @@ TODO: Here paste the github API after publishing:
 
 [Pic after publish]()
 
-About us
-================
+## About Us
 
 Visit [LAMDA's official website](http://www.lamda.nju.edu.cn/MainPage.ashx),
