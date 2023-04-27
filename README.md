@@ -16,6 +16,16 @@
 
 ## Framework 
 
+<p align="center">
+  <img src="./docs/_static/img/learnware_paradigm.jpg" />
+</p>
+
+Machine learning, especially the prevailing big model paradigm, has achieved great success in natural language processing and computer vision applications. However, it still faces challenges such as the requirement of a large amount of labeled training data, difficulty in adapting to changing environments, and catastrophic forgetting when refining trained models incrementally. These big models, while useful in their targeted tasks, often fail to address the above issues and struggle to generalize beyond their specific purposes.
+
+<p align="center">
+  <img src="./docs/_static/img/learnware_market.jpg" />
+</p>
+
 The learnware paradigm introduces the concept of a well-performed, trained machine learning model with a specification that allows future users, who have no prior knowledge of the learnware, to reuse it based on their requirements.
 
 Developers or owners of trained machine learning models can submit their models to a learnware market. If accepted, the market assigns a specification to the model and accommodates it. The learnware market could host thousands or millions of well-performed models from different developers, for various tasks, using diverse data, and optimizing different objectives.
