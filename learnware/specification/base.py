@@ -1,5 +1,6 @@
 import copy
 import numpy as np
+from typing import Dict
 
 
 class BaseStatSpecification:
@@ -37,14 +38,14 @@ class BaseStatSpecification:
 class Specification:
     """The specification interface, which manages the semantic specifications and statistical specifications"""
 
-    def __init__(self, semantic_spec: dict = None, stat_spec: dict = None):
+    def __init__(self, semantic_spec: dict = None, stat_spec: Dict[str, BaseStatSpecification] = None):
         """The initialization method
 
         Parameters
         ----------
         semantic_spec : dict, optional
             The initiailzed semantic specification, by default None
-        stat_spec : dict, optional
+        stat_spec : Dict[str, BaseStatSpecification], optional
             The initiailzaed statistical specification, by default None
         """
         self.semantic_spec = semantic_spec
