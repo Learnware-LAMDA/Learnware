@@ -6,7 +6,7 @@
 
 
 <p align="center">
-  <img src="./docs/_static/img/logo/logo1.png"  width="45%"/>
+  <img src="./docs/_static/img/logo/logo1.png"  width="40%"/>
 </p>
 
 ``Learnware Market`` is a model sharing platform, which give a basic implementation of the learnware paradigm. A learnware is a well-performed trained machine learning model with a specification that enables it to be adequately identified to reuse according to the requirement of future users who may know nothing about the learnware in advance. The learnware paradigm can solve entangled problems in the current machine learning paradigm, like continual learning and catastrophic forgetting. It also reduces resources for training a well-performed model.
@@ -17,13 +17,13 @@
 ## Framework 
 
 <p align="center">
-  <img src="./docs/_static/img/learnware_paradigm.jpg" width="80%"/>
+  <img src="./docs/_static/img/learnware_paradigm.jpg" width="75%"/>
 </p>
 
 Machine learning, especially the prevailing big model paradigm, has achieved great success in natural language processing and computer vision applications. However, it still faces challenges such as the requirement of a large amount of labeled training data, difficulty in adapting to changing environments, and catastrophic forgetting when refining trained models incrementally. These big models, while useful in their targeted tasks, often fail to address the above issues and struggle to generalize beyond their specific purposes.
 
 <p align="center">
-  <img src="./docs/_static/img/learnware_market.jpg" width="80%" />
+  <img src="./docs/_static/img/learnware_market.jpg" width="75%" />
 </p>
 
 The learnware paradigm introduces the concept of a well-performed, trained machine learning model with a specification that allows future users, who have no prior knowledge of the learnware, to reuse it based on their requirements.
