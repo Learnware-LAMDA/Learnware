@@ -19,13 +19,13 @@
 ## Framework 
 
 <div align="center">
-  <img src="./docs/_static/img/learnware_paradigm.jpg" width="75%"/>
+  <img src="./docs/_static/img/learnware_paradigm.jpg" width="70%"/>
 </div>
 
 Machine learning, especially the prevailing big model paradigm, has achieved great success in natural language processing and computer vision applications. However, it still faces challenges such as the requirement of a large amount of labeled training data, difficulty in adapting to changing environments, and catastrophic forgetting when refining trained models incrementally. These big models, while useful in their targeted tasks, often fail to address the above issues and struggle to generalize beyond their specific purposes.
 
 <div align="center">
-  <img src="./docs/_static/img/learnware_market.jpg" width="75%" />
+  <img src="./docs/_static/img/learnware_market.jpg" width="70%" />
 </div>
 
 The learnware paradigm introduces the concept of a well-performed, trained machine learning model with a specification that allows future users, who have no prior knowledge of the learnware, to reuse it based on their requirements.
