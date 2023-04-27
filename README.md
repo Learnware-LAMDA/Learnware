@@ -11,7 +11,7 @@
 </div>
 
 
-``Learnware Market`` is a model sharing platform, which give a basic implementation of the learnware paradigm. A learnware is a well-performed trained machine learning model with a specification that enables it to be adequately identified to reuse according to the requirement of future users who may know nothing about the learnware in advance. The learnware paradigm can solve entangled problems in the current machine learning paradigm, like continual learning and catastrophic forgetting. It also reduces resources for training a well-performed model.
+``Learnware`` is a model sharing platform, which give a basic implementation of the learnware paradigm. A learnware is a well-performed trained machine learning model with a specification that enables it to be adequately identified to reuse according to the requirement of future users who may know nothing about the learnware in advance. The learnware paradigm can solve entangled problems in the current machine learning paradigm, like continual learning and catastrophic forgetting. It also reduces resources for training a well-performed model.
 
 
 # Introduction
@@ -50,7 +50,7 @@ Instead of building a model from scratch, users can submit their requirements to
 
 ## Installation
 
-Learnware is currently hosted on [PyPI](https://pypi.org/). You can easily intsall ``Learnware Market`` according to the following steps:
+Learnware is currently hosted on [PyPI](https://pypi.org/). You can easily intsall ``Learnware`` according to the following steps:
 
 - For Windows and Linux users:
 
@@ -104,12 +104,12 @@ We also demonstrate the detail format of learnware zipfile in [DOC link], and al
 
 ## Learnware Market Workflow
 
-Users can start an ``Learnware Market`` workflow according to the following steps:
+Users can start an ``Learnware`` workflow according to the following steps:
 
 ### Initialize a Learware Market
 
-The ``EasyMarket`` class implements the most basic set of functions in a ``Learnware Market``. 
-You can use the following code snippet to initialize a basic ``Learnware Market`` named "demo":
+The ``EasyMarket`` class implements the most basic set of functions in a ``Learnware``. 
+You can use the following code snippet to initialize a basic ``Learnware`` named "demo":
 
 ```python
 import learnware
@@ -121,7 +121,7 @@ easy_market = EasyMarket(market_id="demo", rebuild=True)
 
 ### Upload Leanwares
 
-Before uploading your learnware into the ``Learnware Market``,
+Before uploading your learnware into the ``Learnware``,
 create a semantic specification ``semantic_spec`` by selecting or filling in values for the predefined semantic tags 
 to describe the features of your task and model.
 
@@ -152,7 +152,7 @@ Here, ``zip_path`` is the directory of your learnware zipfile.
 
 To search for learnwares that fit your task purpose, 
 you should also provide a semantic specification ``user_semantic`` that describes the characteristics of your task.
-The ``Learnware Market`` will perform a first-stage search based on ``user_semantic``,
+The ``Learnware`` will perform a first-stage search based on ``user_semantic``,
 identifying potentially helpful leranwares whose models solve tasks similar to your requirements. 
 
 ```python
@@ -169,7 +169,7 @@ print(single_learnware_list)
 ### Statistical Specification Search
 
 If you choose to porvide your own statistical specification file ``stat.json``, 
-the ``Learnware Market`` can perform a more accurate leanware selection from 
+the ``Learnware`` can perform a more accurate leanware selection from 
 the learnwares returned by the previous step. This second-stage search is based on statistical information 
 and returns one or more learnwares that are most likely to be helpful for your task. 
 
@@ -218,7 +218,7 @@ ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
 
 ## Auto Workflow Example
 
-``Learnware Market`` also provides an auto workflow example, which includes preparing learnwares, upload and delete learnware from markets, search learnware with semantic specifications and statistical specifications. The users can run ``examples/workflow_by_code.py`` to try the basic workflow of ``Learnware Market``.
+``Learnware`` also provides an auto workflow example, which includes preparing learnwares, upload and delete learnware from markets, search learnware with semantic specifications and statistical specifications. The users can run ``examples/workflow_by_code.py`` to try the basic workflow of ``Learnware``.
 
 
 # Experiments and Examples
