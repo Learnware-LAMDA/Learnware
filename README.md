@@ -247,7 +247,7 @@ The time-consuming specification generation is shown in the table below:
 |  ----  | ----  | ----  |
 |  PFS  | 8714274*31  | < 1.5  |
 |  M5  | 46027957*82 | 9~15  |
-|  CIFAR 10 | 9000*3*32*32 | 7~10  |
+|  CIFAR 10 | 9000\*3\*32\*32 | 7~10  |
 
 
 The accuracy of search and reuse is shown in the table below:
