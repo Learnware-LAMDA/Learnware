@@ -2,4 +2,4 @@
 Visual Interactions
 ====================
 
-`Clik here for visual interaction <http://210.28.134.201:8080/#/>`_
+`Clik here for visual interaction <http://36.111.128.21:30007/>`_
