@@ -10,7 +10,7 @@ how learnwares are uploaded and removed within ``Learnware Market``.
 Prepare Learnware
 ====================
 
-A valid learnware is a zipfile which consists of four essentia parts. Here we demonstrate the detail format of a learnware zipfile.
+A valid learnware is a zipfile which consists of four essential parts. Here we demonstrate the detail format of a learnware zipfile.
 
 ``__init__.py``
 ---------------
@@ -26,7 +26,7 @@ the code snippet below trains and saves a SVM model for a sample dataset on skle
     from sklearn.datasets import load_digits
     from sklearn.model_selection import train_test_split
 
-    X,y = load_digits(return_X_y=True) 
+    X, y = load_digits(return_X_y=True) 
     data_X, _, data_y, _ = train_test_split(X, y, test_size=0.3, shuffle=True)
 
     # input dimension: (64, ), output dimension: (10, )
@@ -69,11 +69,11 @@ As a kind reminder, don't forget to fill in ``input_shape`` and ``output_shape``
 -------------
 
 In order to better match users with learnwares suitable for their tasks, 
-we do need the information of your training dataset. Specifically, you need to provide a statistical specification 
+we need the information of your training dataset. Specifically, you need to provide a statistical specification 
 stored as a json file, e.g., ``stat.json``, which contains statistical information of the dataset. 
 This json file is all we required regarding your training data, and there is no need for you to upload your own data.
 
-Statistical specification can have many implementation approaches. 
+There are multiple approaches to generate statistical specification.
 If Reduced Kernel Mean Embedding (RKME) is chosen to be as statistical specification, 
 the following code snippet provides guidance on how to build and store the RKME of a dataset:
 
