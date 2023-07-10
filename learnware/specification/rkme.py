@@ -388,7 +388,8 @@ class RKMEStatSpecification(BaseStatSpecification):
         # Load JSON file:
         load_path = filepath
         if os.path.exists(load_path):
-            obj_text = codecs.open(load_path, "r", encoding="utf-8").read()
+            with codecs.open(load_path, "r", encoding="utf-8") as fin:
+                obj_text = fin.read()
             rkme_load = json.loads(obj_text)
             rkme_load["device"] = choose_device(rkme_load["cuda_idx"])
             rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"]))

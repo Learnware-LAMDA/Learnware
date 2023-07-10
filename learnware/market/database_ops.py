@@ -1,89 +1,151 @@
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine, text
+from sqlalchemy import (
+    Column, Integer, Text, DateTime, String
+)
 import os
 import json
-import sqlite3
-from copy import deepcopy
-
-from ..logger import get_module_logger
 from ..learnware import get_learnware_from_dirpath
-from ..config import C
-
-logger = get_module_logger("database_ops")
 
 
-def init_empty_db(func):
-    def wrapper(market_id, *args, **kwargs):
-        conn = sqlite3.connect(os.path.join(C.database_path, f"market_{market_id}.db"))
-        cur = conn.cursor()
-        listOfTables = cur.execute(
-            """SELECT name FROM sqlite_master WHERE type='table' AND name='LEARNWARE'; """
-        ).fetchall()
-        if len(listOfTables) == 0:
-            logger.info("Initializing Database in %s..." % (os.path.join(C.database_path, f"market_{market_id}.db")))
-            cur.execute(
-                """CREATE TABLE LEARNWARE
-            (ID CHAR(10) PRIMARY KEY     NOT NULL,
-            SEMANTIC_SPEC            TEXT     NOT NULL,
-            ZIP_PATH     TEXT NOT NULL,
-            FOLDER_PATH         TEXT NOT NULL,
-            USE_FLAG         TEXT NOT NULL);"""
+DeclarativeBase = declarative_base()
+
+
+class Learnware(DeclarativeBase):
+    __tablename__ = 'tb_learnware'
+
+    id = Column(String(10), primary_key=True, nullable=False)
+    semantic_spec = Column(Text, nullable=False)
+    zip_path = Column(Text, nullable=False)
+    folder_path = Column(Text, nullable=False)
+    use_flag = Column(Text, nullable=False)
+
+    pass
+
+
+class DatabaseOperations(object):
+
+    def __init__(self, url: str, database_name: str):
+        if url.startswith("sqlite"):
+            url = os.path.join(url, f"{database_name}.db")
+        else:
+            url = f"{url}/{database_name}"
+            pass
+
+        self.url = url
+        self.create_database_if_not_exists(url)
+
+        pass
+
+    
+    def create_database_if_not_exists(self, url):
+        database_exists = True
+
+        if url.startswith("sqlite"):
+            # it is sqlite
+            start = url.find(":///")
+            path = url[start+4:]
+            if os.path.exists(path):
+                database_exists = True
+                pass
+            else:
+                database_exists = False
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                pass
+            pass
+        elif self.url.startswith("postgresql"):
+            # it is postgresql
+            dbname_start = url.rfind("/")
+            dbname = url[dbname_start+1:]
+            url_no_dbname = url[:dbname_start]
+            engine = create_engine(url_no_dbname)
+
+            with engine.connect() as conn:
+                result = conn.execute(text("SELECT datname FROM pg_database;"))
+                db_list = set()
+
+                for row in  result.fetchall():
+                    db_list.add(row[0].lower())
+                    pass
+
+                if dbname.lower() not in db_list:
+                    database_exists = False
+                    conn.execution_options(isolation_level="AUTOCOMMIT").execute(
+                    text("CREATE DATABASE {0};".format(dbname)))
+                    pass
+                else:
+                    database_exists = True
+                    pass
+                pass
+            engine.dispose()
+            pass
+        else:
+            raise Exception(f"Unsupported database url: {self.url}")
+            pass
+        
+        self.engine = create_engine(url, future=True)
+
+        if not database_exists:
+            DeclarativeBase.metadata.create_all(self.engine)
+            pass
+        pass
+
+    def clear_learnware_table(self):
+        with self.engine.connect() as conn:
+            conn.execute(text("DELETE FROM tb_learnware;"))
+            conn.commit()
+            pass
+        pass
+
+    def add_learnware(self, id: str, semantic_spec: dict, zip_path, folder_path, use_flag: str):
+        with self.engine.connect() as conn:
+            semantic_spec_str = json.dumps(semantic_spec)
+            conn.execute(
+                text(
+                ("INSERT INTO tb_learnware (id, semantic_spec, zip_path, folder_path, use_flag)"
+                 "VALUES (:id, :semantic_spec, :zip_path, :folder_path, :use_flag);")
+                ),
+                dict(id=id, semantic_spec=semantic_spec_str, zip_path=zip_path,
+                folder_path=folder_path, use_flag=use_flag)
             )
-            logger.info("Database Built!")
-        kwargs["cur"] = cur
-        item = func(*args, **kwargs)
-        conn.commit()
-        conn.close()
-        return item
+            conn.commit()
+            pass
+        pass
+    
+    def delete_learnware(self, id: str):
+        with self.engine.connect() as conn:
+            conn.execute(
+                text("DELETE FROM tb_learnware WHERE id=:id;"),
+                dict(id=id)
+            )
+            conn.commit()
+            pass
+        pass
 
-    return wrapper
+    def load_market(self):
+        with self.engine.connect() as conn:
+            cursor = conn.execute(text("SELECT id, semantic_spec, zip_path, folder_path, use_flag FROM tb_learnware;"))
 
+            learnware_list = {}
+            zip_list = {}
+            folder_list = {}
+            max_count = 0
 
-# Clear Learnware Database
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# !!!!!                                    !!!!!
-# !!!!! Do NOT use unless highly necessary !!!!!
-# !!!!!                                    !!!!!
-# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-@init_empty_db
-def clear_learnware_table(cur):
-    logger.warning("!!! Drop Learnware Table !!!")
-    cur.execute("DROP TABLE LEARNWARE")
+            for id, semantic_spec, zip_path, folder_path, use_flag in cursor:
+                id = id.strip()
+                semantic_spec_dict = json.loads(semantic_spec)
+                new_learnware = get_learnware_from_dirpath(
+                    id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
+                )
+                print(f'load learnware: {id}')
+                learnware_list[id] = new_learnware
+                # assert new_learnware is not None
+                zip_list[id] = zip_path
+                folder_list[id] = folder_path
+                max_count = max(max_count, int(id))
+            pass
 
+        return learnware_list, zip_list, folder_list, max_count + 1
+        pass
 
-@init_empty_db
-def add_learnware_to_db(id: str, semantic_spec: dict, zip_path: str, folder_path: str, use_flag: str, cur):
-    semantic_spec_str = json.dumps(semantic_spec)
-    cur.execute(
-        "INSERT INTO LEARNWARE (ID,SEMANTIC_SPEC,ZIP_PATH,FOLDER_PATH,USE_FLAG) \
-      VALUES ('%s', '%s', '%s', '%s', '%s')"
-        % (id, semantic_spec_str, zip_path, folder_path, use_flag)
-    )
-
-
-@init_empty_db
-def delete_learnware_from_db(id: str, cur):
-    cur.execute("DELETE from LEARNWARE where ID='%s';" % (id))
-
-
-@init_empty_db
-def load_market_from_db(cur):
-    logger.info("Reload from Database")
-    cursor = cur.execute("SELECT id, semantic_spec, zip_path, FOLDER_PATH from LEARNWARE")
-
-    learnware_list = {}
-    zip_list = {}
-    folder_list = {}
-    max_count = 0
-
-    for id, semantic_spec, zip_path, folder_path in cursor:
-        semantic_spec_dict = json.loads(semantic_spec)
-        new_learnware = get_learnware_from_dirpath(
-            id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
-        )
-
-        learnware_list[id] = new_learnware
-        zip_list[id] = zip_path
-        folder_list[id] = folder_path
-        max_count = max(max_count, int(id))
-
-    logger.info("Market Reloaded from DB.")
-    return learnware_list, zip_list, folder_list, max_count + 1
+    pass

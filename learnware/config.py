@@ -1,12 +1,20 @@
 import os
 import copy
 import logging
+import json
 
 
 class Config:
     def __init__(self, default_conf):
         self.__dict__["_default_config"] = copy.deepcopy(default_conf)  # avoiding conflictions with __getattr__
         self.reset()
+
+        config_file = os.path.join(self.root_path, "config.json")
+        if os.path.exists(config_file):
+           with open(config_file, "r") as f:
+               self.__dict__["_config"].update(json.load(f))
+               pass
+           pass
 
     def __getitem__(self, key):
         return self.__dict__["_config"][key]
@@ -130,7 +138,7 @@ _DEFAULT_CONFIG = {
         "yaml_file": "learnware.yaml",
         "module_file": "__init__.py",
     },
-    "database_path": DATABASE_PATH,
+    "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
 }
 
