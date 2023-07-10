@@ -9,7 +9,7 @@ from cvxopt import solvers, matrix
 from typing import Tuple, Any, List, Union, Dict
 
 from .base import BaseMarket, BaseUserInfo
-from .database_ops import load_market_from_db, add_learnware_to_db, delete_learnware_from_db, clear_learnware_table
+from .database_ops import DatabaseOperations
 
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..specification import RKMEStatSpecification, Specification
@@ -54,6 +54,7 @@ class EasyMarket(BaseMarket):
         self.learnware_folder_list = {}
         self.count = 0
         self.semantic_spec_list = conf.semantic_specs
+        self.dbops = DatabaseOperations(conf.database_url, 'market_' + self.market_id)
         self.reload_market(rebuild=rebuild)  # Automatically reload the market
         logger.info("Market Initialized!")
 
@@ -61,7 +62,7 @@ class EasyMarket(BaseMarket):
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
             try:
-                clear_learnware_table(market_id=self.market_id)
+                self.dbops.clear_learnware_table()
                 rmtree(self.learnware_pool_path)
             except:
                 pass
@@ -69,9 +70,7 @@ class EasyMarket(BaseMarket):
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
         os.makedirs(self.learnware_folder_pool_path, exist_ok=True)
-        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = load_market_from_db(
-            market_id=self.market_id
-        )
+        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = self.dbops.load_market()
 
     @classmethod
     def check_learnware(cls, learnware: Learnware) -> int:
@@ -205,10 +204,10 @@ class EasyMarket(BaseMarket):
 
         if new_learnware is None:
             return None, self.INVALID_LEARNWARE
+        
         check_flag = self.check_learnware(new_learnware)
 
-        add_learnware_to_db(
-            market_id=self.market_id,
+        self.dbops.add_learnware(
             id=id,
             semantic_spec=semantic_spec,
             zip_path=target_zip_dir,
@@ -655,6 +654,7 @@ class EasyMarket(BaseMarket):
         else:
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
             learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
+            print('after filter by rkme dimension, learnware_list length is %d' % len(learnware_list))
 
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             if search_method == "auto":
@@ -679,10 +679,13 @@ class EasyMarket(BaseMarket):
                 sorted_score_list = merge_score_list[:-1]
                 mixture_score = merge_score_list[-1]
 
+            print('after search by rkme spec, learnware_list length is %d' % len(learnware_list))
             # filter learnware with low score
             sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
                 sorted_score_list, single_learnware_list
             )
+
+            print('after filter by rkme spec, learnware_list length is %d' % len(learnware_list))
             return sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list
 
     def delete_learnware(self, id: str) -> bool:
@@ -710,7 +713,7 @@ class EasyMarket(BaseMarket):
         self.learnware_list.pop(id)
         self.learnware_zip_list.pop(id)
         self.learnware_folder_list.pop(id)
-        delete_learnware_from_db(market_id=self.market_id, id=id)
+        self.dbops.delete_learnware(id=id)
 
         return True
 
