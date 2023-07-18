@@ -365,7 +365,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         if torch.is_tensor(rkme_to_save["beta"]):
             rkme_to_save["beta"] = rkme_to_save["beta"].detach().cpu().numpy()
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
-        rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
+        rkme_to_save["device"] = "gpu" if torch.cuda.is_available() else "cpu"
         json.dump(
             rkme_to_save,
             codecs.open(save_path, "w", encoding="utf-8"),
@@ -433,7 +433,6 @@ def choose_device(cuda_idx=-1):
     """
     if cuda_idx != -1:
         device = torch.device(f"cuda:{cuda_idx}" if torch.cuda.is_available() else "cpu")
-        # device = torch.device(f"cuda:{cuda_idx}")
     else:
         device = torch.device("cpu")
     return device

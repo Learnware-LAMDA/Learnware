@@ -13,7 +13,7 @@ def generate_rkme_spec(
     steps: int = 3,
     nonnegative_beta: bool = True,
     reduce: bool = True,
-    cuda_idx: int = -1,
+    cuda_idx: int = None,
 ) -> RKMEStatSpecification:
     """
             Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification.
@@ -39,6 +39,7 @@ def generate_rkme_spec(
             Whether shrink original data to a smaller set, by default True
     cuda_idx : int
             A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
+            None indicates that cuda is automatically selected.
 
     Returns
     -------
