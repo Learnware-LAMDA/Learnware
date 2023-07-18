@@ -104,12 +104,17 @@ class RKMEStatSpecification(BaseStatSpecification):
         Z_shape = tuple([K] + list(X_shape)[1:])
         X = X.reshape(self.num_points, -1)
 
-        # fill np.nan
-        X_nan = np.isnan(X)
-        if X_nan.max() == 1:
+        # Check data values
+        X[np.isinf(X) | np.isneginf(X) | np.isposinf(X) | np.isneginf(X)] = np.nan
+        if np.any(np.isnan(X)):
             for col in range(X.shape[1]):
-                col_mean = np.nanmean(X[:, col])
-                X[:, col] = np.where(X_nan[:, col], col_mean, X[:, col])
+                is_nan = np.isnan(X[:, col])
+                if np.any(is_nan):
+                    if np.all(is_nan):
+                        raise ValueError(f"All values in column {col} are exceptional, e.g., NaN and Inf.")
+                    # Fill np.nan with np.nanmean
+                    col_mean = np.nanmean(X[:, col])
+                    X[:, col] = np.where(is_nan, col_mean, X[:, col])
 
         if not reduce:
             self.z = X.reshape(X_shape)
@@ -365,7 +370,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         if torch.is_tensor(rkme_to_save["beta"]):
             rkme_to_save["beta"] = rkme_to_save["beta"].detach().cpu().numpy()
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
-        rkme_to_save["device"] = "gpu" if torch.cuda.is_available() else "cpu"
+        rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
         json.dump(
             rkme_to_save,
             codecs.open(save_path, "w", encoding="utf-8"),
