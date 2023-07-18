@@ -1,4 +1,4 @@
-__version__ = "0.1.0.dev"
+__version__ = "0.1.0.999"
 
 import os
 from .logger import get_module_logger
