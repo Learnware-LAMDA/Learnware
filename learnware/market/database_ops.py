@@ -122,6 +122,17 @@ class DatabaseOperations(object):
             pass
         pass
 
+    def update_learnware_semantic_specification(self, id: str, semantic_spec: dict):
+        with self.engine.connect() as conn:
+            semantic_spec_str = json.dumps(semantic_spec)
+            r = conn.execute(
+                text("UPDATE tb_learnware SET semantic_spec=:semantic_spec WHERE id=:id;"),
+                dict(id=id, semantic_spec=semantic_spec_str)
+            )
+            conn.commit()
+            pass
+        pass
+
     def load_market(self):
         with self.engine.connect() as conn:
             cursor = conn.execute(text("SELECT id, semantic_spec, zip_path, folder_path, use_flag FROM tb_learnware;"))
