@@ -2,23 +2,23 @@
 Learnware Preparation and Submission
 ==========================================
 
-In this section, a detailed guide on how to submit your own learnware to the Learnware Market will be provided.
-Specifically, we will first elaborate on the components that a valid learnware file should include, then explain
-how learnwares are uploaded and removed within ``Learnware Market``.
+In this section, we provide a comprehensive guide on submitting your custom learnware to the Learnware Market.
+We will first discuss the necessary components of a valid learnware, followed by a detailed explanation on how to upload and remove learnwares within ``Learnware Market``.
 
 
 Prepare Learnware
 ====================
 
-A valid learnware is a zipfile which consists of four essential parts. Here we demonstrate the detail format of a learnware zipfile.
+A valid learnware is encapsulated in a zipfile, comprising four essential components.
+Below, we illustrate the detailed structure of a learnware zipfile.
 
 ``__init__.py``
 ---------------
 
-In ``Learnware Market``, each uploader is required to provide a set of unified interfaces for their model, 
-which enables convenient usage by future users.
-``__init__.py`` is the python file offering interfaces for your model's fitting, predicting and fine-tuning. For example,
-the code snippet below trains and saves a SVM model for a sample dataset on sklearn digits classification:
+Within ``Learnware Market``, every uploader must provide a unified set of interfaces for their model, 
+facilitating easy utilization for future users.
+The ``__init__.py`` file serves as the Python interface for your model's fitting, prediction, and fine-tuning processes.
+For example, the code snippet below is used to train and save a SVM model for a sample dataset on sklearn digits classification:
 
 .. code-block:: python
 
@@ -36,7 +36,7 @@ the code snippet below trains and saves a SVM model for a sample dataset on skle
     joblib.dump(clf, "svm.pkl") # model is stored as file "svm.pkl"
 
 
-Then the ``__init__.py`` for this SVM model should be as follows:
+Then the corresponding ``__init__.py`` for this SVM model should be structured as follows:
 
 .. code-block:: python
     
@@ -61,38 +61,41 @@ Then the ``__init__.py`` for this SVM model should be as follows:
         def finetune(self, X: np.ndarray, y: np.ndarray):
             pass
     
-As a kind reminder, don't forget to fill in ``input_shape`` and ``output_shape`` corresponding to the model 
-(in our sklearn digits classification example, (64,) and (10,) respectively).
+Please remember to specify the ``input_shape`` and ``output_shape`` corresponding to your model. 
+In our sklearn digits classification example, these would be (64,) and (10,) respectively.
 
 
 ``stat.json``
 -------------
 
-In order to better match users with learnwares suitable for their tasks, 
-we need the information of your training dataset. Specifically, you need to provide a statistical specification 
-stored as a json file, e.g., ``stat.json``, which contains statistical information of the dataset. 
-This json file is all we required regarding your training data, and there is no need for you to upload your own data.
+To accurately and effectively match users with appropriate learnwares for their tasks, we require information about your training dataset.
+Specifically, you are required to provide a statistical specification 
+stored as a json file, such as ``stat.json``, which contains the statistical information of the dataset. 
+This json file meets all our requirements regarding your training data, so you don't need to upload the local original data.
 
-There are multiple approaches to generate statistical specification.
-If Reduced Kernel Mean Embedding (RKME) is chosen to be as statistical specification, 
-the following code snippet provides guidance on how to build and store the RKME of a dataset:
+There are various methods to generate a statistical specification.
+If you choose to use Reduced Kernel Mean Embedding (RKME) as your statistical specification, 
+the following code snippet offers guidance on how to construct and store the RKME of a dataset:
 
 .. code-block:: python
     
     import learnware.specification as specification
     
     # generate rkme specification for digits dataset
-    spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
-    spec.save(os.path.join("stat.json"))
+    spec = specification.utils.generate_rkme_spec(X=data_X)
+    spec.save("stat.json")
+
+Significantly, the RKME generation process is entirely conducted on your local machine, without any involvement of cloud services, 
+guaranteeing the security and privacy of your local original data.
 
 
 ``learnware.yaml``
 ------------------
 
-We also require you to prepare a configuration file in YAML format,
-which describes your model class name, type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMEStatSpecification``), and 
-the file name of your statistical specification file. The following ``learnware.yaml`` demonstrates 
-how your learnware configuration file should be structured based on our previous example:
+Additionally, you are asked to prepare a configuration file in YAML format.
+The file should detail your model's class name, the type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMEStatSpecification``), and 
+the file name of your statistical specification file. The following ``learnware.yaml`` provides an example of
+how your learnware configuration file should be structured, based on our previous discussion:
 
 .. code-block:: yaml
 
@@ -109,14 +112,14 @@ how your learnware configuration file should be structured based on our previous
 ``environment.yaml`` or ``requirements.txt``
 --------------------------------------------
 
-In order to allow others to run your learnware, you need to specify the dependencies of your model. You
-can either provide an ``environment.yaml`` file or an ``requirements.txt`` file.
+In order to allow others to execute your learnware, it's necessary to specify your model's dependencies. 
+You can do this by providing either an ``environment.yaml`` file or a ``requirements.txt`` file.
 
 
 - ``environment.yaml`` for conda:
 
-   if you provide ``environment.yaml``, a new conda environment will be created according to this file 
-   when users install your learnware. The yaml file can be generated by the following command:
+   If you provide an ``environment.yaml``, a new conda environment will be created based on this file 
+   when users install your learnware. You can generate this yaml file using the following command:
 
     .. code-block::
 
@@ -125,26 +128,26 @@ can either provide an ``environment.yaml`` file or an ``requirements.txt`` file.
 
 - ``requirements.txt`` for pip:
 
-    if you provide ``requirements.txt``, dependent packages will be installed through -r option of pip.
-    More description of ``requirements.txt`` can be found in 
+    If you provide a ``requirements.txt``, the dependent packages will be installed using the `-r` option of pip.
+    You can find more information about ``requirements.txt`` in 
     `pip documentation <https://pip.pypa.io/en/stable/user_guide/#requirements-files>`_.
     
         
-It is recommended to use ``environment.yaml`` which can reduce conflics between different packages.
+We recommend using ``environment.yaml`` as it can help minimize conflicts between different packages.
 
 .. note::
-    Wether you use ``environment.yaml`` or ``requirements.txt``, you should make the dependencies as minimal as possible.
-    You may need to open the file and delete unnecessary packages manually.
+    Whether you choose to use ``environment.yaml`` or ``requirements.txt``, 
+    it's important to keep your dependencies as minimal as possible. 
+    This may involve manually opening the file and removing any unnecessary packages.
 
 
 Upload Learnware 
 ==================
 
-Once you have prepared the four required files mentioned above, 
-you can package them as your own learnware zipfile. Combined with the generated semantic specification that 
-briefly describes the features of your task and model (
-Please refer to :ref:`semantic specification<components/spec:Semantic Specification>` for more details), 
-you can easily upload your learnware to the ``Learnware Market`` with a single line of code:
+After preparing the four required files mentioned above, 
+you can bundle them into your own learnware zipfile. Along with the generated semantic specification that 
+succinctly describes the features of your task and model (for more details, please refer to :ref:`semantic specification<components/spec:Semantic Specification>`), 
+you can effortlessly upload your learnware to the ``Learnware Market`` using a single line of code:
 
 .. code-block:: python
 
@@ -159,18 +162,18 @@ you can easily upload your learnware to the ``Learnware Market`` with a single l
     # single line uploading
     easy_market.add_learnware(zip_path, semantic_spec) 
 
-Here, ``zip_path`` is the directory of your learnware zipfile.
+Here, ``zip_path`` refers to the directory of your learnware zipfile.
 
 
 Remove Learnware
 ==================
 
-As ``Learnware Market`` administrators, it is necessary to remove learnwares with suspicious uploading motives.
-With required permissions and approvals, you can use the following code to remove a learnware 
+As administrators of the ``Learnware Market``, it's crucial to remove learnwares that exhibit suspicious uploading motives.
+Once you have the necessary permissions and approvals, you can use the following code to remove a learnware 
 from the ``Learnware Market``:
 
 .. code-block:: python
 
     easy_market.delete_learnware(learnware_id)
 
-Here,  ``learnware_id`` is the market ID of the learnware to be removed.
+Here,  ``learnware_id`` refers to the market ID of the learnware to be removed.
