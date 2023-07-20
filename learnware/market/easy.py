@@ -585,10 +585,14 @@ class EasyMarket(BaseMarket):
 
     def _search_by_semantic_spec(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
         def match_semantic_spec(semantic_spec1, semantic_spec2):
+            '''
+            semantic_spec1: semantic spec input by user
+            semantic_spec2: semantic spec in database
+            '''
             if semantic_spec1.keys() != semantic_spec2.keys():
-                # raise Exception("semantic_spec key error")
-                logger.warning("semantic_spec key error!")
-                return False
+                # sematic spec in database may contain more keys than user input
+                pass
+
             for key in semantic_spec1.keys():
                 if len(semantic_spec1[key]["Values"]) == 0:
                     continue
@@ -618,7 +622,7 @@ class EasyMarket(BaseMarket):
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
             user_semantic_spec = user_info.get_semantic_spec()
-            if match_semantic_spec(learnware_semantic_spec, user_semantic_spec):
+            if match_semantic_spec(user_semantic_spec, learnware_semantic_spec):
                 match_learnwares.append(learnware)
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
         return match_learnwares
