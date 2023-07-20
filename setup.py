@@ -51,7 +51,7 @@ def get_platform():
 # What packages are required for this module to be executed?
 # `estimator` may depend on other packages. In order to reduce dependencies, it is not written here.
 REQUIRED = [
-    "numpy>=1.20.0, <1.24",
+    "numpy>=1.20.0",
     "pandas>=0.25.1",
     "scipy>=1.0.0",
     "matplotlib>=3.1.3",
@@ -65,6 +65,7 @@ REQUIRED = [
     "lightgbm>=3.3.0",
     "psutil>=5.9.4",
     "torchvision>=0.15.1",
+    "sqlalchemy",
 ]
 
 if get_platform() != MACOS:
