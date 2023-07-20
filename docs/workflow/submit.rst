@@ -71,7 +71,7 @@ In our sklearn digits classification example, these would be (64,) and (10,) res
 To accurately and effectively match users with appropriate learnwares for their tasks, we require information about your training dataset.
 Specifically, you are required to provide a statistical specification 
 stored as a json file, such as ``stat.json``, which contains the statistical information of the dataset. 
-This json file meets all our requirements regarding your training data, so you don't need to upload the actual data.
+This json file meets all our requirements regarding your training data, so you don't need to upload the local original data.
 
 There are various methods to generate a statistical specification.
 If you choose to use Reduced Kernel Mean Embedding (RKME) as your statistical specification, 
@@ -84,6 +84,9 @@ the following code snippet offers guidance on how to construct and store the RKM
     # generate rkme specification for digits dataset
     spec = specification.utils.generate_rkme_spec(X=data_X)
     spec.save("stat.json")
+
+Significantly, the RKME generation process is entirely conducted on your local machine, without any involvement of cloud services, 
+guaranteeing the security and privacy of your local original data.
 
 
 ``learnware.yaml``
