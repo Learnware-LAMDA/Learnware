@@ -50,7 +50,7 @@ Then the corresponding ``__init__.py`` for this SVM model should be structured a
         def __init__(self):
             super(SVM, self).__init__(input_shape=(64,), output_shape=(10,))
             dir_path = os.path.dirname(os.path.abspath(__file__))
-            self.model = joblib.load(os.path.join("svm.pkl"))
+            self.model = joblib.load(os.path.join(dir_path, "svm.pkl"))
 
         def fit(self, X: np.ndarray, y: np.ndarray):
             pass
@@ -120,11 +120,18 @@ You can do this by providing either an ``environment.yaml`` file or a ``requirem
 
    If you provide an ``environment.yaml``, a new conda environment will be created based on this file 
    when users install your learnware. You can generate this yaml file using the following command:
+   
+   - For Windows users:
+
+    .. code-block::
+
+        conda env export | findstr /v "^prefix: " > environment.yaml
+
+   - For macOS and Linux users:
 
     .. code-block::
 
         conda env export | grep -v "^prefix: " > environment.yaml
-
 
 - ``requirements.txt`` for pip:
 
