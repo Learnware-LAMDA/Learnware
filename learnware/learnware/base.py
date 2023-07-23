@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from typing import Union, List
+import sys
 
 from ..specification import Specification, BaseStatSpecification
 from ..model import BaseModel
@@ -48,7 +49,9 @@ class Learnware:
             logger.info("The learnware had been instantiated, thus the instantiation operation is ignored!")
         elif isinstance(self.model, dict):
             model_module = get_module_by_module_path(self.model["module_path"])
-            self.model = getattr(model_module, self.model["class_name"])(**self.model.get("kwargs", {}))
+            cls = getattr(model_module, self.model["class_name"])
+            setattr(sys.modules["__main__"], self.model["class_name"], cls)
+            self.model = cls(**self.model.get("kwargs", {}))
             # print(self.model)
         else:
             raise TypeError(f"Model must be BaseModel or dict, not {type(self.model)}")
