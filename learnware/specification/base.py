@@ -62,8 +62,8 @@ class Specification:
     def get_semantic_spec(self) -> dict:
         return self.semantic_spec
 
-    def upload_semantic_spec(self, semantic_spec: dict):
-        """Upload or update semantic specification
+    def update_semantic_spec(self, semantic_spec: dict):
+        """Update semantic specification
 
         Parameters
         ----------
@@ -72,8 +72,13 @@ class Specification:
         """
         self.semantic_spec = semantic_spec
 
-    def update_stat_spec(self, **kwargs):
-        """Update the statistical specification by the way of 'name'='value'"""
+    def update_stat_spec(self, *args, **kwargs):
+        """Update the statistical specification by the way of 'name'='value'
+             or use class name as default name
+        """
+        for _v in args:
+            self.stat_spec[_v.__class__.__name__] = _v
+
         for _k, _v in kwargs.items():
             self.stat_spec[_k] = _v
 
