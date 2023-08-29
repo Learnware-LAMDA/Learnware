@@ -1,2 +1,2 @@
 
-from .learnware_client import LearnwareClient
+from .learnware_client import LearnwareClient, SemanticSpecificationKey

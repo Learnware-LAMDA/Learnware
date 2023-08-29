@@ -140,7 +140,7 @@ _DEFAULT_CONFIG = {
     },
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
-    "backend_host": "http://36.111.128.21:30008"
+    "backend_host": "http://www.lamda.nju.edu.cn/learnware/api"
 }
 
 C = Config(_DEFAULT_CONFIG)

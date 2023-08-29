@@ -25,6 +25,7 @@ Document Structure
 
    Introduction <start/intro.rst>
    Quick Start <start/quick.rst>
+   Use Api <start/client.rst>
    Installation <start/install.rst>
    Experiments and Examples <start/performance.rst>
 
