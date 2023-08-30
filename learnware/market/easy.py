@@ -624,29 +624,42 @@ class EasyMarket(BaseMarket):
                 # sematic spec in database may contain more keys than user input
                 pass
 
+            name2 = semantic_spec2["Name"]["Values"].lower()
+            description2 = semantic_spec2["Description"]["Values"].lower()
+
             for key in semantic_spec1.keys():
-                if len(semantic_spec1[key]["Values"]) == 0:
-                    continue
-                if len(semantic_spec2[key]["Values"]) == 0:
-                    continue
                 v1 = semantic_spec1[key]["Values"]
                 v2 = semantic_spec2[key]["Values"]
-                if semantic_spec1[key]["Type"] == "Class":
-                    if isinstance(v1, list):
-                        v1 = v1[0]
-                    if isinstance(v2, list):
-                        v2 = v2[0]
-                    if v1 != v2:
+
+                if len(v1) == 0:
+                    # user input is empty, no need to search
+                    continue
+
+                if key in ("Name", "Description"):
+                    # print(f'{v1},{name2},{description2}')
+                    v1 = v1.lower()
+                    if v1 not in name2 and v1 not in description2:
                         return False
-                elif semantic_spec1[key]["Type"] == "Tag":
-                    if not (set(v1) & set(v2)):
+                    pass
+                else:
+                    if len(v2) == 0:
+                        # user input contains some key that is not in database
                         return False
-                elif key == "Name":
-                    if (
-                        v2.lower() not in v1.lower()
-                        and v2.lower() not in semantic_spec1["Description"]["Values"].lower()
-                    ):
-                        return False
+
+                    if semantic_spec1[key]["Type"] == "Class":
+                        if isinstance(v1, list):
+                            v1 = v1[0]
+                        if isinstance(v2, list):
+                            v2 = v2[0]
+                        if v1 != v2:
+                            return False
+                    elif semantic_spec1[key]["Type"] == "Tag":
+                        if not (set(v1) & set(v2)):
+                            return False
+                        pass
+                    pass
+                pass
+
             return True
 
         match_learnwares = []
