@@ -370,4 +370,29 @@ class LearnwareClient:
                 pass
             pass
         pass
+
+    def test_learnware(self, zip_path, semantic_specification=None):
+        if semantic_specification is None:
+            semantic_specification = dict()
+            pass
+
+        with tempfile.TemporaryDirectory(prefix='learnware_') as tempdir:
+            with zipfile.ZipFile(zip_path, "r") as z_file:
+                z_file.extractall(tempdir)
+                pass
+            
+            learnware_obj = learnware.get_learnware_from_dirpath('test_id', semantic_specification, tempdir)
+
+            if learnware_obj is None:
+                raise Exception("The learnware is not valid.")
+            
+            learnware_obj.instantiate_model()
+
+            if len(semantic_specification) > 0:
+                if EasyMarket.check_learnware(learnware_obj) != EasyMarket.USABLE_LEARWARE:
+                    raise Exception("The learnware is not usable.")
+                pass
+            pass
+        print('test ok')
+        pass
     pass
