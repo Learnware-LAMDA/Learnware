@@ -81,7 +81,7 @@ def generate_rkme_spec(
     # Check reduced_set_size
     max_reduced_set_size = C.max_reduced_set_size
     if reduced_set_size * X[0].size > max_reduced_set_size:
-        reduced_set_size = max(1, max_reduced_set_size // X[0].size)
+        reduced_set_size = max(20, max_reduced_set_size // X[0].size)
     
     # Check cuda_idx
     if not torch.cuda.is_available() or cuda_idx == -1:
