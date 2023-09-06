@@ -484,10 +484,15 @@ def choose_device(cuda_idx=-1):
     torch.device
             A torch.device object
     """
-    if cuda_idx != -1:
-        device = torch.device(f"cuda:{cuda_idx}" if torch.cuda.is_available() else "cpu")
-    else:
+    cuda_idx = int(cuda_idx)
+    if cuda_idx == -1 or not torch.cuda.is_available():
         device = torch.device("cpu")
+    else:
+        device_count = torch.cuda.device_count()
+        if cuda_idx >= 0 and cuda_idx < device_count:
+            device = torch.device(f"cuda:{cuda_idx}")
+        else:
+            device = torch.device("cuda:0")
     return device
 
 
