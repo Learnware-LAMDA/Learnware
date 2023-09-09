@@ -5,6 +5,7 @@ import numpy as np
 from typing import Tuple, Any, List, Union, Dict
 from cvxopt import matrix, solvers
 from lightgbm import LGBMClassifier
+from scipy.special import softmax
 from sklearn.metrics import accuracy_score
 
 from learnware.learnware import Learnware
@@ -12,7 +13,6 @@ import learnware.specification as specification
 from .base import BaseReuser
 from ..specification import RKMEStatSpecification
 from ..logger import get_module_logger
-from scipy.special import softmax
 
 logger = get_module_logger("Reuser")
 
