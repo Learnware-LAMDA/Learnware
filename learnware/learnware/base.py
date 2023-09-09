@@ -52,7 +52,6 @@ class Learnware:
             cls = getattr(model_module, self.model["class_name"])
             setattr(sys.modules["__main__"], self.model["class_name"], cls)
             self.model = cls(**self.model.get("kwargs", {}))
-            # print(self.model)
         else:
             raise TypeError(f"Model must be BaseModel or dict, not {type(self.model)}")
 
