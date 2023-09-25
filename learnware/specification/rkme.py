@@ -20,14 +20,14 @@ try:
 except ImportError:
     _FAISS_INSTALLED = False
 
-if not _FAISS_INSTALLED:
-    print("Required faiss version >= 1.7.1 is not detected!")
-    print('Please run "conda install -c pytorch faiss-cpu" first.')
-
 from .base import BaseStatSpecification
 from ..logger import get_module_logger
 
 logger = get_module_logger("rkme")
+
+if not _FAISS_INSTALLED:
+    logger.warning("Required faiss version >= 1.7.1 is not detected!")
+    logger.warning('Please run "conda install -c pytorch faiss-cpu" first.')
 
 
 class RKMEStatSpecification(BaseStatSpecification):
