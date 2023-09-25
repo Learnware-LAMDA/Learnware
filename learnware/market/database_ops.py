@@ -6,8 +6,9 @@ from sqlalchemy import (
 import os
 import json
 from ..learnware import get_learnware_from_dirpath
+from ..logger import get_module_logger
 
-
+logger = get_module_logger("database")
 DeclarativeBase = declarative_base()
 
 
@@ -148,7 +149,7 @@ class DatabaseOperations(object):
                 new_learnware = get_learnware_from_dirpath(
                     id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
                 )
-                print(f'load learnware: {id}')
+                logger.info(f"Load learnware: {id}")
                 learnware_list[id] = new_learnware
                 # assert new_learnware is not None
                 zip_list[id] = zip_path

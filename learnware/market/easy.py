@@ -208,7 +208,7 @@ class EasyMarket(BaseMarket):
                 logger.warning("Illegal semantic specification, please provide the right type.")
                 return None, self.INVALID_LEARNWARE
         except:
-            print(semantic_spec)
+            logger.info(f"Semantic specification: {semantic_spec}")
             logger.warning("Illegal semantic specification, some keys are missing.")
             return None, self.INVALID_LEARNWARE
 
@@ -637,7 +637,6 @@ class EasyMarket(BaseMarket):
                     continue
 
                 if key in ("Name", "Description"):
-                    # print(f'{v1},{name2},{description2}')
                     v1 = v1.lower()
                     if v1 not in name2 and v1 not in description2:
                         return False
@@ -703,7 +702,7 @@ class EasyMarket(BaseMarket):
         else:
             user_rkme = user_info.stat_info["RKMEStatSpecification"]
             learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
-            print('after filter by rkme dimension, learnware_list length is %d' % len(learnware_list))
+            logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
             sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
             if search_method == "auto":
@@ -728,13 +727,13 @@ class EasyMarket(BaseMarket):
                 sorted_score_list = merge_score_list[:-1]
                 mixture_score = merge_score_list[-1]
 
-            print('after search by rkme spec, learnware_list length is %d' % len(learnware_list))
+            logger.info(f"After search by rkme spec, learnware_list length is {len(learnware_list)}")
             # filter learnware with low score
             sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
                 sorted_score_list, single_learnware_list
             )
 
-            print('after filter by rkme spec, learnware_list length is %d' % len(learnware_list))
+            logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
             return sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list
 
     def delete_learnware(self, id: str) -> bool:
