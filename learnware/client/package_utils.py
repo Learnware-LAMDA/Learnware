@@ -6,6 +6,7 @@ from typing import List, Tuple
 
 
 from ..logger import get_module_logger
+
 logger = get_module_logger("package_utils")
 
 
@@ -27,7 +28,7 @@ def try_to_run(args, timeout=5, retry=5):
 def parse_pip_requirement(line: str):
     """Parse pip requirement line to package name
     """
-    
+
     line = line.strip()
 
     if len(line) == 0:
