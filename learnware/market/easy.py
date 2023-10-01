@@ -55,7 +55,7 @@ class EasyMarket(BaseMarket):
         self.learnware_folder_list = {}
         self.count = 0
         self.semantic_spec_list = conf.semantic_specs
-        self.dbops = DatabaseOperations(conf.database_url, 'market_' + self.market_id)
+        self.dbops = DatabaseOperations(conf.database_url, "market_" + self.market_id)
         self.reload_market(rebuild=rebuild)  # Automatically reload the market
         logger.info("Market Initialized!")
 
@@ -105,8 +105,8 @@ class EasyMarket(BaseMarket):
             learnware_model = learnware.get_model()
 
             # check input shape
-            if semantic_spec['Data']['Values'][0] == 'Table':
-                input_shape = (semantic_spec['Input']['Dimension'], )
+            if semantic_spec["Data"]["Values"][0] == "Table":
+                input_shape = (semantic_spec["Input"]["Dimension"],)
             else:
                 input_shape = learnware_model.input_shape
                 pass
@@ -126,17 +126,17 @@ class EasyMarket(BaseMarket):
             if outputs.ndim == 1:
                 outputs = outputs.reshape(-1, 1)
                 pass
-            
-            if semantic_spec['Task']['Values'][0] in ('Classification', 'Regression', 'Feature Extraction'):
+
+            if semantic_spec["Task"]["Values"][0] in ("Classification", "Regression", "Feature Extraction"):
                 # check output type
                 if isinstance(outputs, torch.Tensor):
                     outputs = outputs.detach().cpu().numpy()
                 if not isinstance(outputs, np.ndarray):
                     logger.warning(f"The learnware [{learnware.id}] output must be np.ndarray or torch.Tensor")
                     return cls.NONUSABLE_LEARNWARE
-                
+
                 # check output shape
-                output_dim = int(semantic_spec['Output']['Dimension'])
+                output_dim = int(semantic_spec["Output"]["Dimension"])
                 if outputs[0].shape[0] != output_dim:
                     logger.warning(f"The learnware [{learnware.id}] input and output dimention is error")
                     return cls.NONUSABLE_LEARNWARE
@@ -236,7 +236,7 @@ class EasyMarket(BaseMarket):
 
         if new_learnware is None:
             return None, self.INVALID_LEARNWARE
-        
+
         check_flag = self.check_learnware(new_learnware)
 
         self.dbops.add_learnware(
@@ -617,10 +617,10 @@ class EasyMarket(BaseMarket):
 
     def _search_by_semantic_spec(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
         def match_semantic_spec(semantic_spec1, semantic_spec2):
-            '''
+            """
             semantic_spec1: semantic spec input by user
             semantic_spec2: semantic spec in database
-            '''
+            """
             if semantic_spec1.keys() != semantic_spec2.keys():
                 # sematic spec in database may contain more keys than user input
                 pass

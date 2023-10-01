@@ -28,7 +28,9 @@ def convert_to_numpy(data: Union[np.ndarray, pd.DataFrame, torch.Tensor]):
     elif isinstance(data, torch.Tensor):
         return data.detach().cpu().numpy()
     else:
-        raise TypeError("Unsupported data format. Please provide a NumPy array, a Pandas DataFrame, or a PyTorch Tensor.")
+        raise TypeError(
+            "Unsupported data format. Please provide a NumPy array, a Pandas DataFrame, or a PyTorch Tensor."
+        )
 
 
 def generate_rkme_spec(
@@ -77,12 +79,12 @@ def generate_rkme_spec(
     # Convert data type
     X = convert_to_numpy(X)
     X = np.ascontiguousarray(X).astype(np.float32)
-    
+
     # Check reduced_set_size
     max_reduced_set_size = C.max_reduced_set_size
     if reduced_set_size * X[0].size > max_reduced_set_size:
         reduced_set_size = max(20, max_reduced_set_size // X[0].size)
-    
+
     # Check cuda_idx
     if not torch.cuda.is_available() or cuda_idx == -1:
         cuda_idx = -1
@@ -90,7 +92,7 @@ def generate_rkme_spec(
         num_cuda_devices = torch.cuda.device_count()
         if cuda_idx is None or not (cuda_idx >= 0 and cuda_idx < num_cuda_devices):
             cuda_idx = 0
-    
+
     # Generate rkme spec
     rkme_spec = RKMEStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)

@@ -215,16 +215,24 @@ class RKMEStatSpecification(BaseStatSpecification):
 
         grad_Z = torch.zeros_like(Z)
         for i in range(0, Z.shape[0], batch_size):
-            Z_ = Z[i: i + batch_size]
-            term_1 = torch.bmm(torch.unsqueeze((torch.unsqueeze(beta, dim=0) * torch_rbf_kernel(Z_, Z, gamma)), dim=1),
-                               torch.unsqueeze(Z_, dim=1) - torch.unsqueeze(Z, dim=0))
+            Z_ = Z[i : i + batch_size]
+            term_1 = torch.bmm(
+                torch.unsqueeze((torch.unsqueeze(beta, dim=0) * torch_rbf_kernel(Z_, Z, gamma)), dim=1),
+                torch.unsqueeze(Z_, dim=1) - torch.unsqueeze(Z, dim=0),
+            )
             if alpha is not None:
-                term_2 = -2 * torch.bmm(torch.unsqueeze(alpha * torch_rbf_kernel(Z_, X, gamma), dim=1),
-                                        torch.unsqueeze(Z_, dim=1) - torch.unsqueeze(X, dim=0))
+                term_2 = -2 * torch.bmm(
+                    torch.unsqueeze(alpha * torch_rbf_kernel(Z_, X, gamma), dim=1),
+                    torch.unsqueeze(Z_, dim=1) - torch.unsqueeze(X, dim=0),
+                )
             else:
-                term_2 = -2 * torch.bmm(torch.unsqueeze(torch_rbf_kernel(Z_, X, gamma) / self.num_points, dim=1),
-                                        torch.unsqueeze(Z_, dim=1) - torch.unsqueeze(X, dim=0))
-            grad_Z[i: i + batch_size] = -2 * gamma * torch.unsqueeze(beta[i: i + batch_size], dim=1) * torch.squeeze(term_1 + term_2)
+                term_2 = -2 * torch.bmm(
+                    torch.unsqueeze(torch_rbf_kernel(Z_, X, gamma) / self.num_points, dim=1),
+                    torch.unsqueeze(Z_, dim=1) - torch.unsqueeze(X, dim=0),
+                )
+            grad_Z[i : i + batch_size] = (
+                -2 * gamma * torch.unsqueeze(beta[i : i + batch_size], dim=1) * torch.squeeze(term_1 + term_2)
+            )
 
         Z = Z - step_size * grad_Z
         self.z = Z
@@ -420,9 +428,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
         json.dump(
-            rkme_to_save,
-            codecs.open(save_path, "w", encoding="utf-8"),
-            separators=(",", ":"),
+            rkme_to_save, codecs.open(save_path, "w", encoding="utf-8"), separators=(",", ":"),
         )
 
     def load(self, filepath: str) -> bool:
@@ -515,7 +521,7 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
     """
     x1 = x1.double()
     x2 = x2.double()
-    X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
+    X12norm = torch.sum(x1 ** 2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2 ** 2, 1, keepdim=True).T
     return torch.exp(-X12norm * gamma)
 
 

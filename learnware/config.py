@@ -11,10 +11,10 @@ class Config:
 
         config_file = os.path.join(self.root_path, "config.json")
         if os.path.exists(config_file):
-           with open(config_file, "r") as f:
-               self.__dict__["_config"].update(json.load(f))
-               pass
-           pass
+            with open(config_file, "r") as f:
+                self.__dict__["_config"].update(json.load(f))
+                pass
+            pass
 
     def __getitem__(self, key):
         return self.__dict__["_config"][key]
@@ -71,10 +71,7 @@ os.makedirs(ROOT_DIRPATH, exist_ok=True)
 os.makedirs(DATABASE_PATH, exist_ok=True)
 
 semantic_config = {
-    "Data": {
-        "Values": ["Table", "Image", "Video", "Text", "Audio"],
-        "Type": "Class",
-    },  # Choose only one class
+    "Data": {"Values": ["Table", "Image", "Video", "Text", "Audio"], "Type": "Class",},  # Choose only one class
     "Task": {
         "Values": [
             "Classification",
@@ -115,14 +112,8 @@ semantic_config = {
         ],
         "Type": "Tag",  # Choose one or more tags
     },
-    "Description": {
-        "Values": None,
-        "Type": "String",
-    },
-    "Name": {
-        "Values": None,
-        "Type": "String",
-    },
+    "Description": {"Values": None, "Type": "String",},
+    "Name": {"Values": None, "Type": "String",},
 }
 
 _DEFAULT_CONFIG = {
@@ -134,13 +125,10 @@ _DEFAULT_CONFIG = {
     "learnware_pool_path": LEARNWARE_POOL_PATH,
     "learnware_zip_pool_path": LEARNWARE_ZIP_POOL_PATH,
     "learnware_folder_pool_path": LEARNWARE_FOLDER_POOL_PATH,
-    "learnware_folder_config": {
-        "yaml_file": "learnware.yaml",
-        "module_file": "__init__.py",
-    },
+    "learnware_folder_config": {"yaml_file": "learnware.yaml", "module_file": "__init__.py",},
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
-    "backend_host": "http://www.lamda.nju.edu.cn/learnware/api"
+    "backend_host": "http://www.lamda.nju.edu.cn/learnware/api",
 }
 
 C = Config(_DEFAULT_CONFIG)

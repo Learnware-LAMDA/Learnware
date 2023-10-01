@@ -1,8 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, text
-from sqlalchemy import (
-    Column, Integer, Text, DateTime, String
-)
+from sqlalchemy import Column, Integer, Text, DateTime, String
 import os
 import json
 from ..learnware import get_learnware_from_dirpath
@@ -13,7 +11,7 @@ DeclarativeBase = declarative_base()
 
 
 class Learnware(DeclarativeBase):
-    __tablename__ = 'tb_learnware'
+    __tablename__ = "tb_learnware"
 
     id = Column(String(10), primary_key=True, nullable=False)
     semantic_spec = Column(Text, nullable=False)
@@ -25,7 +23,6 @@ class Learnware(DeclarativeBase):
 
 
 class DatabaseOperations(object):
-
     def __init__(self, url: str, database_name: str):
         if url.startswith("sqlite"):
             url = os.path.join(url, f"{database_name}.db")
@@ -38,14 +35,13 @@ class DatabaseOperations(object):
 
         pass
 
-    
     def create_database_if_not_exists(self, url):
         database_exists = True
 
         if url.startswith("sqlite"):
             # it is sqlite
             start = url.find(":///")
-            path = url[start+4:]
+            path = url[start + 4 :]
             if os.path.exists(path):
                 database_exists = True
                 pass
@@ -57,7 +53,7 @@ class DatabaseOperations(object):
         elif self.url.startswith("postgresql"):
             # it is postgresql
             dbname_start = url.rfind("/")
-            dbname = url[dbname_start+1:]
+            dbname = url[dbname_start + 1 :]
             url_no_dbname = url[:dbname_start] + "/postgres"
             engine = create_engine(url_no_dbname)
 
@@ -65,14 +61,15 @@ class DatabaseOperations(object):
                 result = conn.execute(text("SELECT datname FROM pg_database;"))
                 db_list = set()
 
-                for row in  result.fetchall():
+                for row in result.fetchall():
                     db_list.add(row[0].lower())
                     pass
 
                 if dbname.lower() not in db_list:
                     database_exists = False
                     conn.execution_options(isolation_level="AUTOCOMMIT").execute(
-                    text("CREATE DATABASE {0};".format(dbname)))
+                        text("CREATE DATABASE {0};".format(dbname))
+                    )
                     pass
                 else:
                     database_exists = True
@@ -83,7 +80,7 @@ class DatabaseOperations(object):
         else:
             raise Exception(f"Unsupported database url: {self.url}")
             pass
-        
+
         self.engine = create_engine(url, future=True)
 
         if not database_exists:
@@ -103,22 +100,26 @@ class DatabaseOperations(object):
             semantic_spec_str = json.dumps(semantic_spec)
             conn.execute(
                 text(
-                ("INSERT INTO tb_learnware (id, semantic_spec, zip_path, folder_path, use_flag)"
-                 "VALUES (:id, :semantic_spec, :zip_path, :folder_path, :use_flag);")
+                    (
+                        "INSERT INTO tb_learnware (id, semantic_spec, zip_path, folder_path, use_flag)"
+                        "VALUES (:id, :semantic_spec, :zip_path, :folder_path, :use_flag);"
+                    )
                 ),
-                dict(id=id, semantic_spec=semantic_spec_str, zip_path=zip_path,
-                folder_path=folder_path, use_flag=use_flag)
+                dict(
+                    id=id,
+                    semantic_spec=semantic_spec_str,
+                    zip_path=zip_path,
+                    folder_path=folder_path,
+                    use_flag=use_flag,
+                ),
             )
             conn.commit()
             pass
         pass
-    
+
     def delete_learnware(self, id: str):
         with self.engine.connect() as conn:
-            conn.execute(
-                text("DELETE FROM tb_learnware WHERE id=:id;"),
-                dict(id=id)
-            )
+            conn.execute(text("DELETE FROM tb_learnware WHERE id=:id;"), dict(id=id))
             conn.commit()
             pass
         pass
@@ -128,7 +129,7 @@ class DatabaseOperations(object):
             semantic_spec_str = json.dumps(semantic_spec)
             r = conn.execute(
                 text("UPDATE tb_learnware SET semantic_spec=:semantic_spec WHERE id=:id;"),
-                dict(id=id, semantic_spec=semantic_spec_str)
+                dict(id=id, semantic_spec=semantic_spec_str),
             )
             conn.commit()
             pass
