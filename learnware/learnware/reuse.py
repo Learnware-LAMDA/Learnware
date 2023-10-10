@@ -481,7 +481,9 @@ class EnsemblePruningReuser(BaseReuser):
             v_true_count = (select == v_true.reshape(-1, 1)).sum(axis=1)
             error_v = (result[:, 0] != v_true.reshape(-1)).sum()
             margin = result[:, 1] - result[:, 3]
-            margin[result[:, 0] != v_true.reshape(-1)] = (v_true_count - result[:, 1])[result[:, 0] != v_true.reshape(-1)]
+            margin[result[:, 0] != v_true.reshape(-1)] = (v_true_count - result[:, 1])[
+                result[:, 0] != v_true.reshape(-1)
+            ]
 
             margin = margin / Vars.sum()
             mean_margin = np.mean(margin)
@@ -640,9 +642,9 @@ class EnsemblePruningReuser(BaseReuser):
 
         v_predict[v_predict == -1.0] = 0
         v_true[v_true == -1.0] = 0
-        
+
         return res["Vars"][bst_pop]
-    
+
     def fit(self, val_X: np.ndarray, val_y: np.ndarray, maxgen: int = 500):
         """Ensemble pruning based on the validation set
 
@@ -662,7 +664,7 @@ class EnsemblePruningReuser(BaseReuser):
             v_predict.append(pred_y)
         v_predict = np.concatenate(v_predict, axis=1)
         v_true = val_y.reshape(-1, 1)
-        
+
         # Run ensemble pruning algorithm
         if self.mode == "regression":
             res = self._MEDP_regression(v_predict, v_true, maxgen)
@@ -670,9 +672,9 @@ class EnsemblePruningReuser(BaseReuser):
             res = self._MEDP_multiclass(v_predict, v_true, maxgen)
         elif self.mode == "binary":
             res = self._MEDP_binaryclass(v_predict, v_true, maxgen)
-            
+
         self.selected_idxes = np.where(res == 1)[0].tolist()
-    
+
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """Prediction for user data using the final pruned ensemble
 

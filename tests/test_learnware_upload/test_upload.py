@@ -12,7 +12,7 @@ if __name__ == "__main__":
     semantic_specification["Scenario"] = {"Type": "Tag", "Values": "Financial"}
     semantic_specification["Name"] = {"Type": "String", "Values": "test"}
     semantic_specification["Description"] = {"Type": "String", "Values": "test"}
-    
+
     zip_path = "test.zip"
     client = LearnwareClient()
     client.install_environment(zip_path)

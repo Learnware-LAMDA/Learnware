@@ -12,7 +12,7 @@ if __name__ == "__main__":
     semantic_specification["Scenario"] = {"Type": "Tag", "Values": "Financial"}
     semantic_specification["Name"] = {"Type": "String", "Values": "test"}
     semantic_specification["Description"] = {"Type": "String", "Values": "test"}
-    
-    zip_path = '/home/bixd/workspace/learnware/Learnware/tests/test_workflow/learnware_pool/svm_0.zip'
-    
-    learnware = get_learnware_from_dirpath('test_id', semantic_specification, zip_path)
+
+    zip_path = "/home/bixd/workspace/learnware/Learnware/tests/test_workflow/learnware_pool/svm_0.zip"
+
+    learnware = get_learnware_from_dirpath("test_id", semantic_specification, zip_path)
