@@ -187,7 +187,7 @@ class TestAllWorkflow(unittest.TestCase):
         job_selector_predict_y = reuse_job_selector.predict(user_data=data_X)
 
         # Use averaging ensemble reuser to reuse the searched learnwares to make prediction
-        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
+        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
         ensemble_predict_y = reuse_ensemble.predict(user_data=data_X)
 
         print("Job Selector Acc:", np.sum(np.argmax(job_selector_predict_y, axis=1) == data_y) / len(data_y))

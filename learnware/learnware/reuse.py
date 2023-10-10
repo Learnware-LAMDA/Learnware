@@ -6,7 +6,7 @@ import geatpy as ea
 # import tensorflow as tf
 from typing import Tuple, Any, List, Union, Dict
 from cvxopt import matrix, solvers
-from lightgbm import LGBMClassifier
+from lightgbm import LGBMClassifier, early_stopping
 from scipy.special import softmax
 from sklearn.metrics import accuracy_score
 
@@ -247,7 +247,7 @@ class JobSelectorReuser(BaseReuser):
                 lgb_params["max_depth"] = md
                 model = LGBMClassifier(**lgb_params)
                 train_y = train_y.astype(int)
-                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], early_stopping_rounds=300, verbose=False)
+                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], callbacks=[early_stopping(300, verbose=False)])
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
 
@@ -258,9 +258,7 @@ class JobSelectorReuser(BaseReuser):
         lgb_params["learning_rate"] = params[0]
         lgb_params["max_depth"] = params[1]
         model = LGBMClassifier(**lgb_params)
-        model.fit(
-            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False
-        )
+        model.fit(org_train_x, org_train_y)
 
         return model
 
