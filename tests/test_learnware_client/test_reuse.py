@@ -1,4 +1,5 @@
 from learnware.learnware import get_learnware_from_dirpath, Learnware
+from learnware.market import EasyMarket
 from learnware.client.container import ModelEnvContainer
 
 if __name__ == "__main__":
@@ -16,4 +17,5 @@ if __name__ == "__main__":
     
     env_leanware = Learnware(id=learnware.id, model=ModelEnvContainer(learnware.get_model(), zip_path), specification=learnware.get_specification())
     
+    print('check', EasyMarket.check_learnware(env_leanware))
     

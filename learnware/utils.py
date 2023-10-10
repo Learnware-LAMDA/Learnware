@@ -50,6 +50,6 @@ def save_dict_to_yaml(dict_value: dict, save_path: str):
 
 def read_yaml_to_dict(yaml_path: str):
     """load yaml file into dict object"""
-    with open(yaml_path) as file:
+    with open(yaml_path, 'r') as file:
         dict_value = yaml.load(file.read(), Loader=yaml.FullLoader)
         return dict_value

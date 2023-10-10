@@ -2,10 +2,6 @@ import os
 import zipfile
 import tempfile
 
-from . import package_utils
-from .utils import system_execute
-
-
 from ..logger import get_module_logger
 from .package_utils import filter_nonexist_conda_packages_file, filter_nonexist_pip_packages_file
 

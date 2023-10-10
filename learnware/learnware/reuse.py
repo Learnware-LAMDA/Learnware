@@ -695,6 +695,6 @@ class EnsemblePruningReuser(BaseReuser):
 
         if self.mode == "regression":
             return np.concatenate(preds, axis=1).mean(axis=1)
-        elif option == "binary" or option == "multiclass":
+        elif self.option == "binary" or self.option == "multiclass":
             preds = np.concatenate(preds, axis=1)
             return np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=1, arr=preds)
