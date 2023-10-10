@@ -65,7 +65,9 @@ REQUIRED = [
     "lightgbm>=3.3.0",
     "psutil>=5.9.4",
     "torchvision>=0.15.1",
-    "sqlalchemy",
+    "sqlalchemy>=2.0.21",
+    "shortuuid>=1.0.11",
+    "geatpy>=2.7.0",
 ]
 
 if get_platform() != MACOS:
@@ -81,7 +83,7 @@ if __name__ == "__main__":
         name=NAME,
         version=VERSION,
         license="MIT Licence",
-        url="https://git.nju.edu.cn/learnware/learnware-market",
+        url="https://github.com/Learnware-LAMDA/Learnware",
         packages=find_packages(),
         include_package_data=True,
         description=DESCRIPTION,

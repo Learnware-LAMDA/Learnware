@@ -57,7 +57,7 @@ class Config:
 
 
 ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), ".learnware")
-SPEC_DIRPATH = None
+PACKAGE_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
 LEARNWARE_POOL_PATH = os.path.join(ROOT_DIRPATH, "learnware_pool")
 LEARNWARE_ZIP_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "zips")
@@ -118,6 +118,7 @@ semantic_config = {
 
 _DEFAULT_CONFIG = {
     "root_path": ROOT_DIRPATH,
+    "package_path": PACKAGE_DIRPATH,
     "logging_level": logging.INFO,
     "logging_outfile": None,
     "semantic_specs": semantic_config,

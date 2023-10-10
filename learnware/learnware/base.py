@@ -51,7 +51,7 @@ class Learnware:
             model_module = get_module_by_module_path(self.model["module_path"])
             cls = getattr(model_module, self.model["class_name"])
             setattr(sys.modules["__main__"], self.model["class_name"], cls)
-            self.model = cls(**self.model.get("kwargs", {}))
+            self.model: BaseModel = cls(**self.model.get("kwargs", {}))
         else:
             raise TypeError(f"Model must be BaseModel or dict, not {type(self.model)}")
 
@@ -60,9 +60,7 @@ class Learnware:
             self.instantiate_model()
         return self.model.predict(X)
 
-    def get_model(self) -> BaseModel:
-        if isinstance(self.model, dict):
-            self.instantiate_model()
+    def get_model(self) -> Union[dict, BaseModel]:
         return self.model
 
     def get_specification(self) -> Specification:
