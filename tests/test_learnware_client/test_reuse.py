@@ -1,8 +1,5 @@
-import os
-
-from learnware.learnware import get_learnware_from_dirpath
-from learnware.client.learnware_client import LearnwareClient
-
+from learnware.learnware import get_learnware_from_dirpath, Learnware
+from learnware.client.container import ModelEnvContainer
 
 if __name__ == "__main__":
     semantic_specification = dict()
@@ -12,7 +9,11 @@ if __name__ == "__main__":
     semantic_specification["Scenario"] = {"Type": "Tag", "Values": "Financial"}
     semantic_specification["Name"] = {"Type": "String", "Values": "test"}
     semantic_specification["Description"] = {"Type": "String", "Values": "test"}
-
-    zip_path = "/home/bixd/workspace/learnware/Learnware/tests/test_workflow/learnware_pool/svm_0.zip"
-
-    learnware = get_learnware_from_dirpath("test_id", semantic_specification, zip_path)
+    
+    zip_path = '/home/bixd/workspace/learnware/Learnware/tests/test_workflow/learnware_pool/svm_0.zip'
+    
+    learnware = get_learnware_from_dirpath('test_id', semantic_specification, zip_path)
+    
+    env_leanware = Learnware(id=learnware.id, model=ModelEnvContainer(learnware.get_model(), zip_path), specification=learnware.get_specification())
+    
+    

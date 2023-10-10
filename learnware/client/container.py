@@ -78,3 +78,6 @@ class ModelEnvContainer(BaseModel):
 
     def finetune(self, X, y):
         self.run_model_with_script("finetune", X=X, y=y)
+
+    def __del__(self):
+        system_execute(f"conda env remove -n {self.conda_env}")
