@@ -12,7 +12,7 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
-from learnware.learnware import JobSelectorReuser, AveragingReuser
+from learnware.learnware import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
 import learnware.specification as specification
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
@@ -172,14 +172,12 @@ class TestAllWorkflow(unittest.TestCase):
         print("Total Item:", len(easy_market))
 
         X, y = load_digits(return_X_y=True)
-        _, data_X, _, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
+        train_X, data_X, train_y, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
 
         stat_spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": stat_spec})
 
         _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)
-
-        # print("Mixture Learnware:", mixture_learnware_list)
 
         # Based on user information, the learnware market returns a list of learnwares (learnware_list)
         # Use jobselector reuser to reuse the searched learnwares to make prediction
@@ -189,9 +187,15 @@ class TestAllWorkflow(unittest.TestCase):
         # Use averaging ensemble reuser to reuse the searched learnwares to make prediction
         reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
         ensemble_predict_y = reuse_ensemble.predict(user_data=data_X)
+        
+        # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
+        reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_learnware_list, mode="multiclass")
+        reuse_ensemble.fit(train_X[-200:], train_y[-200:])
+        ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
 
         print("Job Selector Acc:", np.sum(np.argmax(job_selector_predict_y, axis=1) == data_y) / len(data_y))
-        print("Averaging Selector Acc:", np.sum(np.argmax(ensemble_predict_y, axis=1) == data_y) / len(data_y))
+        print("Averaging Reuser Acc:", np.sum(np.argmax(ensemble_predict_y, axis=1) == data_y) / len(data_y))
+        print("Ensemble Pruning Reuser Acc:", np.sum(ensemble_pruning_predict_y == data_y) / len(data_y))
 
 
 def suite():

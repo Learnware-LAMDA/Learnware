@@ -643,6 +643,21 @@ class EnsemblePruningReuser(BaseReuser):
 
         return res["Vars"][bst_pop]
 
+    def _get_predict(self, X, selected_idxes):
+        preds = []
+        for idx in selected_idxes:
+            pred_y = self.learnware_list[idx].predict(X)
+            if len(pred_y.shape) == 1:
+                pred_y = pred_y.reshape(-1, 1)
+            elif len(pred_y.shape) == 2:
+                if pred_y.shape[1] > 1:
+                    pred_y = pred_y.argmax(axis=1).reshape(-1, 1)
+            else:
+                raise ValueError("Model output must be a 1D or 2D vector")
+            preds.append(pred_y)
+        
+        return np.concatenate(preds, axis=1)
+    
     def fit(self, val_X: np.ndarray, val_y: np.ndarray, maxgen: int = 500):
         """Ensemble pruning based on the validation set
 
@@ -656,11 +671,7 @@ class EnsemblePruningReuser(BaseReuser):
             The maximum number of iteration rounds in ensemble pruning algorithms.
         """
         # Get the prediction of each learnware on the validation set
-        v_predict = []
-        for idx in range(len(self.learnware_list)):
-            pred_y = self.learnware_list[idx].predict(val_X).reshape(-1, 1)
-            v_predict.append(pred_y)
-        v_predict = np.concatenate(v_predict, axis=1)
+        v_predict = self._get_predict(val_X, list(range(len(self.learnware_list))))
         v_true = val_y.reshape(-1, 1)
 
         # Run ensemble pruning algorithm
@@ -686,13 +697,9 @@ class EnsemblePruningReuser(BaseReuser):
         np.ndarray
             Prediction given by ensemble method
         """
-        preds = []
-        for idx in self.selected_idxes:
-            pred_y = self.learnware_list[idx].predict(user_data).reshape(-1, 1)
-            preds.append(pred_y)
+        preds = self._get_predict(user_data, self.selected_idxes)
 
         if self.mode == "regression":
-            return np.concatenate(preds, axis=1).mean(axis=1)
-        elif self.option == "binary" or self.option == "multiclass":
-            preds = np.concatenate(preds, axis=1)
+            return preds.mean(axis=1)
+        elif self.mode == "binary" or self.mode == "multiclass":
             return np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=1, arr=preds)
