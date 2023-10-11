@@ -62,7 +62,7 @@ class ModelEnvContainer(BaseModel):
                 pickle.dump({"method": method, "kargs": kargs}, input_fp)
 
             system_execute(
-                ["conda", "run", "-n", f"{self.conda_env}", "--no-capture-output", "python3", f"{self.model_script}", f"--model-path", f"{model_path}", f"--input-path", f"{input_path}", f"--output-path", "{output_path}"]
+                ["conda", "run", "-n", f"{self.conda_env}", "--no-capture-output", "python3", f"{self.model_script}", f"--model-path", f"{model_path}", f"--input-path", f"{input_path}", f"--output-path", f"{output_path}"]
             )
 
             with open(output_path, "rb") as output_fp:
@@ -124,7 +124,6 @@ class LearnwaresContainer:
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
         with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._destroy_model_container, model_list)
-        return self
     
     def get_learnware_list_with_container(self):
         return self.learnware_list

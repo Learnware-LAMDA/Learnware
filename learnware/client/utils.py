@@ -8,9 +8,9 @@ from .package_utils import filter_nonexist_conda_packages_file, filter_nonexist_
 
 logger = get_module_logger(module_name="client_utils")
 
-def system_execute(args):
+def system_execute(args, timeout=None):
     try:
-        com_process = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=True)
+        com_process = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=True, timeout=timeout)
     except subprocess.CalledProcessError as err:
         print(com_process.stderr)
         raise err
