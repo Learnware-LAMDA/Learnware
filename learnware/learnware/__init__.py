@@ -47,6 +47,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
             yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"]))
         except FileNotFoundError:
             yaml_config = {}
+            raise
 
     if "name" in yaml_config:
         learnware_config["name"] = yaml_config["name"]

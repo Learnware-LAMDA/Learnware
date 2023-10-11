@@ -1,10 +1,11 @@
 import torch
+import random
 import numpy as np
+import geatpy as ea
 
-# import tensorflow as tf
-from typing import Tuple, Any, List, Union, Dict
+from typing import List
 from cvxopt import matrix, solvers
-from lightgbm import LGBMClassifier
+from lightgbm import LGBMClassifier, early_stopping
 from scipy.special import softmax
 from sklearn.metrics import accuracy_score
 
@@ -245,7 +246,7 @@ class JobSelectorReuser(BaseReuser):
                 lgb_params["max_depth"] = md
                 model = LGBMClassifier(**lgb_params)
                 train_y = train_y.astype(int)
-                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], early_stopping_rounds=300, verbose=False)
+                model.fit(train_x, train_y, eval_set=[(val_x, val_y)], callbacks=[early_stopping(300, verbose=False)])
                 pred_y = model.predict(org_train_x)
                 score = accuracy_score(pred_y, org_train_y)
 
@@ -256,9 +257,7 @@ class JobSelectorReuser(BaseReuser):
         lgb_params["learning_rate"] = params[0]
         lgb_params["max_depth"] = params[1]
         model = LGBMClassifier(**lgb_params)
-        model.fit(
-            org_train_x, org_train_y, eval_set=[(org_train_x, org_train_y)], early_stopping_rounds=300, verbose=False
-        )
+        model.fit(org_train_x, org_train_y)
 
         return model
 
@@ -299,8 +298,6 @@ class AveragingReuser(BaseReuser):
             pred_y = self.learnware_list[idx].predict(user_data)
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
-            # elif isinstance(pred_y, tf.Tensor):
-            #     pred_y = pred_y.numpy()
 
             if not isinstance(pred_y, np.ndarray):
                 raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
@@ -338,12 +335,11 @@ class EnsemblePruningReuser(BaseReuser):
             The learnware list
         mode : str
             - "regression" for regression task (learnware output is a real number)
-            - "binary" for binary classification task (learnware output belongs to the set {0, 1})
-            - "multiclass" for multi-classification task (learnware output belongs to the set {0, 1, ..., class_num})
+            - "classification" for classification task (learnware output belongs to the set {0, 1, ..., class_num})
         """
         super(EnsemblePruningReuser, self).__init__(learnware_list)
-        if mode not in ["regression", "binary", "multiclass"]:
-            raise ValueError(f"Mode must be one of ['regression', 'binary', 'multiclass'], but got {mode}")
+        if mode not in ["regression", "classification"]:
+            raise ValueError(f"Mode must be one of ['regression', 'classification'], but got {mode}")
         self.mode = mode
         self.selected_idxes = list(range(len(learnware_list)))
 
@@ -479,7 +475,9 @@ class EnsemblePruningReuser(BaseReuser):
             v_true_count = (select == v_true.reshape(-1, 1)).sum(axis=1)
             error_v = (result[:, 0] != v_true.reshape(-1)).sum()
             margin = result[:, 1] - result[:, 3]
-            margin[result[:, 0] != v_true.reshape(-1)] = (v_true_count - result[:, 1])[result[:, 0] != v_true.reshape(-1)]
+            margin[result[:, 0] != v_true.reshape(-1)] = (v_true_count - result[:, 1])[
+                result[:, 0] != v_true.reshape(-1)
+            ]
 
             margin = margin / Vars.sum()
             mean_margin = np.mean(margin)
@@ -638,9 +636,29 @@ class EnsemblePruningReuser(BaseReuser):
 
         v_predict[v_predict == -1.0] = 0
         v_true[v_true == -1.0] = 0
-        
+
         return res["Vars"][bst_pop]
-    
+
+    def _get_predict(self, X, selected_idxes):
+        preds = []
+        for idx in selected_idxes:
+            pred_y = self.learnware_list[idx].predict(X)
+            if isinstance(pred_y, torch.Tensor):
+                pred_y = pred_y.detach().cpu().numpy()
+            if not isinstance(pred_y, np.ndarray):
+                raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
+
+            if len(pred_y.shape) == 1:
+                pred_y = pred_y.reshape(-1, 1)
+            elif len(pred_y.shape) == 2:
+                if pred_y.shape[1] > 1:
+                    pred_y = pred_y.argmax(axis=1).reshape(-1, 1)
+            else:
+                raise ValueError("Model output must be a 1D or 2D vector")
+            preds.append(pred_y)
+
+        return np.concatenate(preds, axis=1)
+
     def fit(self, val_X: np.ndarray, val_y: np.ndarray, maxgen: int = 500):
         """Ensemble pruning based on the validation set
 
@@ -654,23 +672,20 @@ class EnsemblePruningReuser(BaseReuser):
             The maximum number of iteration rounds in ensemble pruning algorithms.
         """
         # Get the prediction of each learnware on the validation set
-        v_predict = []
-        for idx in range(len(self.learnware_list)):
-            pred_y = self.learnware_list[idx].predict(val_X).reshape(-1, 1)
-            v_predict.append(pred_y)
-        v_predict = np.concatenate(v_predict, axis=1)
+        v_predict = self._get_predict(val_X, list(range(len(self.learnware_list))))
         v_true = val_y.reshape(-1, 1)
-        
+
         # Run ensemble pruning algorithm
         if self.mode == "regression":
             res = self._MEDP_regression(v_predict, v_true, maxgen)
-        elif self.mode == "multiclass":
-            res = self._MEDP_multiclass(v_predict, v_true, maxgen)
-        elif self.mode == "binary":
-            res = self._MEDP_binaryclass(v_predict, v_true, maxgen)
-            
+        elif self.mode == "classification":
+            if np.all((v_predict == 0) | (v_predict == 1)) and np.all((v_true == 0) | (v_true == 1)):
+                res = self._MEDP_binaryclass(v_predict, v_true, maxgen)
+            else:
+                res = self._MEDP_multiclass(v_predict, v_true, maxgen)
+
         self.selected_idxes = np.where(res == 1)[0].tolist()
-    
+
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """Prediction for user data using the final pruned ensemble
 
@@ -684,13 +699,9 @@ class EnsemblePruningReuser(BaseReuser):
         np.ndarray
             Prediction given by ensemble method
         """
-        preds = []
-        for idx in self.selected_idxes:
-            pred_y = self.learnware_list[idx].predict(user_data).reshape(-1, 1)
-            preds.append(pred_y)
+        preds = self._get_predict(user_data, self.selected_idxes)
 
         if self.mode == "regression":
-            return np.concatenate(preds, axis=1).mean(axis=1)
-        elif option == "binary" or option == "multiclass":
-            preds = np.concatenate(preds, axis=1)
+            return preds.mean(axis=1)
+        elif self.mode == "classification":
             return np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=1, arr=preds)

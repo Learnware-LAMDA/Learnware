@@ -57,18 +57,19 @@ class Config:
 
 
 ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), ".learnware")
-SPEC_DIRPATH = None
+PACKAGE_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
 LEARNWARE_POOL_PATH = os.path.join(ROOT_DIRPATH, "learnware_pool")
 LEARNWARE_ZIP_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "zips")
 LEARNWARE_FOLDER_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "learnwares")
 
 DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
-
+STDOUT_PATH = os.path.join(ROOT_DIRPATH, "stdout")
 
 # TODO: Delete them later
 os.makedirs(ROOT_DIRPATH, exist_ok=True)
 os.makedirs(DATABASE_PATH, exist_ok=True)
+os.makedirs(STDOUT_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {"Values": ["Table", "Image", "Video", "Text", "Audio"], "Type": "Class",},  # Choose only one class
@@ -118,6 +119,8 @@ semantic_config = {
 
 _DEFAULT_CONFIG = {
     "root_path": ROOT_DIRPATH,
+    "package_path": PACKAGE_DIRPATH,
+    "stdout_path": STDOUT_PATH,
     "logging_level": logging.INFO,
     "logging_outfile": None,
     "semantic_specs": semantic_config,

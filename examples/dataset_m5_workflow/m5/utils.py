@@ -70,7 +70,7 @@ def measure_aux_algo(idx, test_sample, model):
 
 # Simple "Memory profilers" to see memory usage
 def get_memory_usage():
-    return np.round(psutil.Process(os.getpid()).memory_info()[0] / 2.0**30, 2)
+    return np.round(psutil.Process(os.getpid()).memory_info()[0] / 2.0 ** 30, 2)
 
 
 def sizeof_fmt(num, suffix="B"):
@@ -84,7 +84,7 @@ def sizeof_fmt(num, suffix="B"):
 # Memory Reducer
 def reduce_mem_usage(df, float16_flag=True, verbose=True):
     numerics = ["int16", "int32", "int64", "float16", "float32", "float64"]
-    start_mem = df.memory_usage().sum() / 1024**2
+    start_mem = df.memory_usage().sum() / 1024 ** 2
     for col in df.columns:
         col_type = df[col].dtypes
         if col_type in numerics:
@@ -106,7 +106,7 @@ def reduce_mem_usage(df, float16_flag=True, verbose=True):
                     df[col] = df[col].astype(np.float32)
                 else:
                     df[col] = df[col].astype(np.float64)
-    end_mem = df.memory_usage().sum() / 1024**2
+    end_mem = df.memory_usage().sum() / 1024 ** 2
     if verbose:
         print(
             "Mem. usage decreased to {:5.2f} Mb ({:.1f}% reduction)".format(

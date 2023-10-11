@@ -16,7 +16,7 @@ from ..logger import get_module_logger
 from ..specification import Specification
 
 CHUNK_SIZE = 1024 * 1024
-logger = get_module_logger("LearnwareClient")
+logger = get_module_logger(module_name="LearnwareClient")
 
 
 def require_login(func):
@@ -394,7 +394,7 @@ class LearnwareClient:
             pass
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-            with zipfile.ZipFile(zip_path, "r") as z_file:
+            with zipfile.ZipFile(zip_path, mode="r") as z_file:
                 z_file.extractall(tempdir)
                 pass
 
