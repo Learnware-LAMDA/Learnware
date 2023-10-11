@@ -1,6 +1,4 @@
-import os
 import yaml
-import time
 import subprocess
 from typing import List, Tuple
 
@@ -14,7 +12,7 @@ def try_to_run(args, timeout=5, retry=5):
     sucess = False
     for i in range(retry):
         try:
-            subprocess.check_call(args=args, timeout=timeout)
+            subprocess.check_call(args=args, timeout=timeout, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             sucess = True
             break
         except subprocess.TimeoutExpired as e:
@@ -79,7 +77,6 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
     for package in packages:
         try:
             # os.system("python3 -m pip index versions {0}".format(package))
-            logger.info("check package existence: {0}".format(package))
             try_to_run(args=["python3", "-m", "pip", "index", "versions", package], timeout=5)
             exist_packages.append(package)
         except Exception as e:

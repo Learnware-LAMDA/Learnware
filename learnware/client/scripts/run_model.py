@@ -30,8 +30,9 @@ def run_model(model_path, input_path, output_path):
     except Exception as e:
         output_results["status"] = "fail"
         output_results["error_info"] = e
+        raise e
 
-    with open(output_path, "rb") as output_file:
+    with open(output_path, "wb") as output_file:
         pickle.dump(output_results, output_file)
 
 
@@ -47,4 +48,4 @@ if __name__ == "__main__":
     input_path = args.input_path
     output_path = args.output_path
 
-    print(model_path, input_path, output_path)
+    run_model(model_path, input_path, output_path)
