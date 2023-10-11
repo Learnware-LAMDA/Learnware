@@ -6,7 +6,7 @@ from learnware.utils import get_module_by_module_path
 
 def run_model(model_path, input_path, output_path):
     output_results = {"status": "success"}
-    
+
     try:
         with open(model_path, "rb") as model_file:
             model_config = pickle.load(file=model_file)

@@ -647,7 +647,7 @@ class EnsemblePruningReuser(BaseReuser):
                 pred_y = pred_y.detach().cpu().numpy()
             if not isinstance(pred_y, np.ndarray):
                 raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
-            
+
             if len(pred_y.shape) == 1:
                 pred_y = pred_y.reshape(-1, 1)
             elif len(pred_y.shape) == 2:
@@ -656,9 +656,9 @@ class EnsemblePruningReuser(BaseReuser):
             else:
                 raise ValueError("Model output must be a 1D or 2D vector")
             preds.append(pred_y)
-        
+
         return np.concatenate(preds, axis=1)
-    
+
     def fit(self, val_X: np.ndarray, val_y: np.ndarray, maxgen: int = 500):
         """Ensemble pruning based on the validation set
 

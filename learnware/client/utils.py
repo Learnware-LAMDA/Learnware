@@ -8,15 +8,20 @@ from .package_utils import filter_nonexist_conda_packages_file, filter_nonexist_
 
 logger = get_module_logger(module_name="client_utils")
 
+
 def system_execute(args, timeout=None):
     try:
-        com_process = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=True, timeout=timeout)
+        com_process = subprocess.run(
+            args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=True, timeout=timeout
+        )
     except subprocess.CalledProcessError as err:
         print(com_process.stderr)
         raise err
-    
+
+
 def remove_enviroment(conda_env):
-    system_execute(args=["conda", "env", "remove", "-n", F"{conda_env}"])
+    system_execute(args=["conda", "env", "remove", "-n", f"{conda_env}"])
+
 
 def install_environment(zip_path, conda_env):
     """Install environment of a learnware
@@ -44,7 +49,9 @@ def install_environment(zip_path, conda_env):
                 filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
                 # create environment
                 logger.info(f"create and update conda env [{conda_env}] according to .yaml file")
-                system_execute(args=["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"])
+                system_execute(
+                    args=["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"]
+                )
 
             elif "requirements.txt" in z_file.namelist():
                 z_file.extract(member="requirements.txt", path=tempdir)
@@ -58,10 +65,20 @@ def install_environment(zip_path, conda_env):
                 system_execute(args=["conda", "create", "--name", f"{conda_env}", "python=3.8"])
                 logger.info(f"install pip requirements for conda env [{conda_env}]")
                 system_execute(
-                    args=["conda", "run", "--no-capture-output", "python3", "-m", "pip", "install", "-r", f"{requirements_path_filter}"]
+                    args=[
+                        "conda",
+                        "run",
+                        "--no-capture-output",
+                        "python3",
+                        "-m",
+                        "pip",
+                        "install",
+                        "-r",
+                        f"{requirements_path_filter}",
+                    ]
                 )
             else:
                 raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
 
     logger.info(f"install learnware package for conda env [{conda_env}]")
-    system_execute(args=["conda", "run", "--no-capture-output", "python3", "-m",  "pip",  "install", "learnware"])
+    system_execute(args=["conda", "run", "--no-capture-output", "python3", "-m", "pip", "install", "learnware"])
