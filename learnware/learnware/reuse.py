@@ -647,6 +647,9 @@ class EnsemblePruningReuser(BaseReuser):
         preds = []
         for idx in selected_idxes:
             pred_y = self.learnware_list[idx].predict(X)
+            if isinstance(pred_y, torch.Tensor):
+                pred_y = pred_y.detach().cpu().numpy()
+            
             if len(pred_y.shape) == 1:
                 pred_y = pred_y.reshape(-1, 1)
             elif len(pred_y.shape) == 2:
