@@ -3,7 +3,6 @@ import random
 import numpy as np
 import geatpy as ea
 
-# import tensorflow as tf
 from typing import Tuple, Any, List, Union, Dict
 from cvxopt import matrix, solvers
 from lightgbm import LGBMClassifier, early_stopping
@@ -299,8 +298,6 @@ class AveragingReuser(BaseReuser):
             pred_y = self.learnware_list[idx].predict(user_data)
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
-            # elif isinstance(pred_y, tf.Tensor):
-            #     pred_y = pred_y.numpy()
 
             if not isinstance(pred_y, np.ndarray):
                 raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
@@ -338,12 +335,11 @@ class EnsemblePruningReuser(BaseReuser):
             The learnware list
         mode : str
             - "regression" for regression task (learnware output is a real number)
-            - "binary" for binary classification task (learnware output belongs to the set {0, 1})
-            - "multiclass" for multi-classification task (learnware output belongs to the set {0, 1, ..., class_num})
+            - "classification" for classification task (learnware output belongs to the set {0, 1, ..., class_num})
         """
         super(EnsemblePruningReuser, self).__init__(learnware_list)
-        if mode not in ["regression", "binary", "multiclass"]:
-            raise ValueError(f"Mode must be one of ['regression', 'binary', 'multiclass'], but got {mode}")
+        if mode not in ["regression", "classification"]:
+            raise ValueError(f"Mode must be one of ['regression', 'classification'], but got {mode}")
         self.mode = mode
         self.selected_idxes = list(range(len(learnware_list)))
 
@@ -649,6 +645,8 @@ class EnsemblePruningReuser(BaseReuser):
             pred_y = self.learnware_list[idx].predict(X)
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
+            if not isinstance(pred_y, np.ndarray):
+                raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
             
             if len(pred_y.shape) == 1:
                 pred_y = pred_y.reshape(-1, 1)
@@ -680,10 +678,11 @@ class EnsemblePruningReuser(BaseReuser):
         # Run ensemble pruning algorithm
         if self.mode == "regression":
             res = self._MEDP_regression(v_predict, v_true, maxgen)
-        elif self.mode == "multiclass":
-            res = self._MEDP_multiclass(v_predict, v_true, maxgen)
-        elif self.mode == "binary":
-            res = self._MEDP_binaryclass(v_predict, v_true, maxgen)
+        elif self.mode == "classification":
+            if np.all((v_predict == 0) | (v_predict == 1)) and np.all((v_true == 0) | (v_true == 1)):
+                res = self._MEDP_binaryclass(v_predict, v_true, maxgen)
+            else:
+                res = self._MEDP_multiclass(v_predict, v_true, maxgen)
 
         self.selected_idxes = np.where(res == 1)[0].tolist()
 
@@ -704,5 +703,5 @@ class EnsemblePruningReuser(BaseReuser):
 
         if self.mode == "regression":
             return preds.mean(axis=1)
-        elif self.mode == "binary" or self.mode == "multiclass":
+        elif self.mode == "classification":
             return np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=1, arr=preds)
