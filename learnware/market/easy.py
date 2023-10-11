@@ -149,6 +149,7 @@ class EasyMarket(BaseMarket):
         except Exception as e:
             logger.exception
             logger.warning(f"The learnware [{learnware.id}] prediction is not avaliable! Due to {repr(e)}")
+            raise e
             return cls.NONUSABLE_LEARNWARE
 
         return cls.USABLE_LEARWARE

@@ -4,7 +4,7 @@ import numpy as np
 import geatpy as ea
 
 # import tensorflow as tf
-from typing import Tuple, Any, List, Union, Dict
+from typing import List
 from cvxopt import matrix, solvers
 from lightgbm import LGBMClassifier
 from scipy.special import softmax
