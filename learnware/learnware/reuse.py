@@ -266,17 +266,20 @@ class AveragingReuser(BaseReuser):
     """Baseline Multiple Learnware Reuser using Ensemble Method"""
 
     def __init__(self, learnware_list: List[Learnware], mode: str):
-        """The initialization method for ensemble reuser
+        """The initialization method for averaging ensemble reuser
 
         Parameters
         ----------
         learnware_list : List[Learnware]
             The learnware list
-        mode : str, optional
-            - "mean" for regression task
-            - "vote" for classification task
+        mode : str
+            - "mean": average the output of all learnwares for regression task (learnware output is a real number)
+            - "vote_by_label": vote by labels for classification task, learnware output belongs to the set {0, 1, ..., class_num}
+            - "vote_by_prob": vote by probabilities for classification task, learnware output is a logits vector, denoting the probability of each class
         """
         super(AveragingReuser, self).__init__(learnware_list)
+        if mode not in ["mean", "vote_by_label", "vote_by_prob"]:
+            raise ValueError(f"Mode must be one of ['mean', 'vote_by_label', 'vote_by_prob'], but got {mode}")
         self.mode = mode
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:
@@ -292,31 +295,32 @@ class AveragingReuser(BaseReuser):
         np.ndarray
             Prediction given by ensemble method
         """
-        mean_pred_y = None
-
-        for idx in range(len(self.learnware_list)):
-            pred_y = self.learnware_list[idx].predict(user_data)
+        preds = []
+        for learnware in self.learnware_list:
+            pred_y = learnware.predict(user_data)
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
-
             if not isinstance(pred_y, np.ndarray):
                 raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
-
+            
+            if len(pred_y.shape) == 1:
+                pred_y = pred_y.reshape(-1, 1)
+            else:
+                if self.mode == "vote_by_label":
+                    if pred_y.shape[1] > 1:
+                        pred_y = pred_y.argmax(axis=1).reshape(-1, 1)
+                elif self.mode == "vote_by_prob":
+                    pred_y = softmax(pred_y, axis=-1)
+            preds.append(pred_y)
+        
+        if self.mode == "vote_by_prob":
+            return np.mean(preds, axis=0)
+        else:
+            preds = np.concatenate(preds, axis=1)
             if self.mode == "mean":
-                if mean_pred_y is None:
-                    mean_pred_y = pred_y
-                else:
-                    mean_pred_y += pred_y
-            elif self.mode == "vote":
-                softmax_pred = softmax(pred_y, axis=-1)
-                if mean_pred_y is None:
-                    mean_pred_y = softmax_pred
-                else:
-                    mean_pred_y += softmax_pred
-
-        mean_pred_y /= len(self.learnware_list)
-
-        return mean_pred_y
+                return preds.mean(axis=1)
+            elif self.mode == "vote_by_label":
+                return np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=1, arr=preds)
 
 
 class EnsemblePruningReuser(BaseReuser):
@@ -327,7 +331,7 @@ class EnsemblePruningReuser(BaseReuser):
     """
 
     def __init__(self, learnware_list: List[Learnware], mode: str):
-        """The initialization method for ensemble reuser
+        """The initialization method for ensemble pruning reuser
 
         Parameters
         ----------
@@ -335,7 +339,7 @@ class EnsemblePruningReuser(BaseReuser):
             The learnware list
         mode : str
             - "regression" for regression task (learnware output is a real number)
-            - "classification" for classification task (learnware output belongs to the set {0, 1, ..., class_num})
+            - "classification" for classification task (learnware output is a logitis vector or belongs to the set {0, 1, ..., class_num})
         """
         super(EnsemblePruningReuser, self).__init__(learnware_list)
         if mode not in ["regression", "classification"]:
@@ -639,7 +643,21 @@ class EnsemblePruningReuser(BaseReuser):
 
         return res["Vars"][bst_pop]
 
-    def _get_predict(self, X, selected_idxes):
+    def _get_predict(self, X: np.ndarray, selected_idxes: List[int]):
+        """Concatenate the output of learnwares corresponding to selected_idxes
+        
+        Parameters
+        ----------
+        X : np.ndarray
+            Data that needs to be predicted
+        selected_idxes : List[int]
+            Learnware index list
+
+        Returns
+        -------
+        np.ndarray
+            Prediction given by each selected learnware
+        """
         preds = []
         for idx in selected_idxes:
             pred_y = self.learnware_list[idx].predict(X)

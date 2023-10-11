@@ -185,7 +185,7 @@ class TestAllWorkflow(unittest.TestCase):
         job_selector_predict_y = reuse_job_selector.predict(user_data=data_X)
 
         # Use averaging ensemble reuser to reuse the searched learnwares to make prediction
-        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
+        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_prob")
         ensemble_predict_y = reuse_ensemble.predict(user_data=data_X)
         
         # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
