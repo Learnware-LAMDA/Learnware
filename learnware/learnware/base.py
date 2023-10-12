@@ -77,7 +77,7 @@ class Learnware:
 class BaseReuser:
     """Providing the interfaces to reuse the learnwares which is searched by learnware"""
 
-    def __init__(self, learnware_list: List[Learnware]):
+    def __init__(self, learnware_list: List[Learnware] = None):
         """The initializaiton method for base reuser
 
         Parameters
@@ -87,6 +87,11 @@ class BaseReuser:
         """
         self.learnware_list = learnware_list
 
+    def reset(self, **kwargs):
+        for _k, _v in kwargs.items():
+            if hasattr(_k):
+                setattr(_k, _v)
+        
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """Give the final prediction for user data with reused learnware
 

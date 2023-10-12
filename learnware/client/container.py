@@ -129,19 +129,11 @@ class LearnwaresContainer:
 
     @staticmethod
     def _initialize_model_container(model: ModelEnvContainer):
-        try:
-            model.init_env_and_metadata()
-        except Exception as e:
-            logger.warning(f"fail to initialize model container, due to {e}")
-            pass
+        model.init_env_and_metadata()
 
     @staticmethod
     def _destroy_model_container(model: ModelEnvContainer):
-        try:
-            model.remove_env()
-        except Exception as e:
-            logger.warning(f"fail to destroy model container, due to {e}")
-            pass
+        model.remove_env()
 
     def __enter__(self):
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
