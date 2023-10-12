@@ -31,7 +31,7 @@ class ModelEnvContainer(BaseModel):
 
             with open(model_path, "wb") as model_fp:
                 pickle.dump(self.model_config, model_fp)
-            
+
             system_execute(
                 [
                     "conda",

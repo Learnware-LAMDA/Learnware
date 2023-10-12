@@ -337,7 +337,7 @@ class LearnwareClient:
 
             if load_model:
                 learnware_obj.instantiate_model()
-            
+
             return learnware_obj
 
     def system(self, command):
