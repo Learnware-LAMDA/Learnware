@@ -388,9 +388,9 @@ class LearnwareClient:
                     package_utils.filter_nonexist_pip_packages_file(requirements_path, requirements_path_filter)
 
                     if conda_env is not None:
-                        self.system(f"conda create --name {conda_env}")
+                        self.system(f"conda create -y --name {conda_env} python=3.8")
                         self.system(
-                            f"conda run --no-capture-output python3 -m pip install -r {requirements_path_filter}"
+                            f"conda run --name {conda_env} --no-capture-output python3 -m pip install -r {requirements_path_filter}"
                         )
                     else:
                         self.system(f"python3 -m pip install -r {requirements_path_filter}")
