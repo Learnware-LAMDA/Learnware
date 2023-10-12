@@ -17,7 +17,7 @@ def system_execute(args, timeout=None):
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
-        print(com_process.stderr)
+        print('System Execute Error:', str(com_process.stderr))
         raise err
 
 
@@ -59,7 +59,7 @@ def install_environment(zip_path, conda_env):
                 z_file.extract(member="requirements.txt", path=tempdir)
                 requirements_path: str = os.path.join(tempdir, "requirements.txt")
                 requirements_path_filter: str = os.path.join(tempdir, "requirements_filter.txt")
-                logger.info(f"checking the avaliabe pip packages for {yaml_path}")
+                logger.info(f"checking the avaliabe pip packages for {conda_env}")
                 filter_nonexist_pip_packages_file(
                     requirements_file=requirements_path, output_file=requirements_path_filter
                 )
