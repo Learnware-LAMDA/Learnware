@@ -72,8 +72,15 @@ def main():
         }
         res = session.post(
             submit_url,
-            data={"semantic_specification": json.dumps(semantic_specification),},
-            files={"learnware_file": open(os.path.join(os.path.abspath("."), "learnware_pool", learnware), "rb",)},
+            data={
+                "semantic_specification": json.dumps(semantic_specification),
+            },
+            files={
+                "learnware_file": open(
+                    os.path.join(os.path.abspath("."), "learnware_pool", learnware),
+                    "rb",
+                )
+            },
         )
         assert json.loads(res.text)["code"] == 0, "Upload error"
 

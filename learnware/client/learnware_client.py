@@ -104,8 +104,13 @@ class LearnwareClient:
         for chunk in file_chunks(learnware_file):
             response = requests.post(
                 url_upload,
-                files={"chunk_file": chunk,},
-                data={"file_hash": file_hash, "chunk_begin": begin,},
+                files={
+                    "chunk_file": chunk,
+                },
+                data={
+                    "file_hash": file_hash,
+                    "chunk_begin": begin,
+                },
                 headers=self.headers,
             )
 
@@ -123,7 +128,10 @@ class LearnwareClient:
 
         response = requests.post(
             url_add,
-            json={"file_hash": file_hash, "semantic_specification": json.dumps(semantic_specification),},
+            json={
+                "file_hash": file_hash,
+                "semantic_specification": json.dumps(semantic_specification),
+            },
             headers=self.headers,
         )
 
@@ -137,7 +145,14 @@ class LearnwareClient:
     def download_learnware(self, learnware_id, save_path):
         url = f"{self.host}/engine/download_learnware"
 
-        response = requests.get(url, params={"learnware_id": learnware_id,}, headers=self.headers, stream=True,)
+        response = requests.get(
+            url,
+            params={
+                "learnware_id": learnware_id,
+            },
+            headers=self.headers,
+            stream=True,
+        )
 
         if response.status_code != 200:
             raise Exception("download failed: " + json.dumps(response.json()))
@@ -269,7 +284,6 @@ class LearnwareClient:
     def create_semantic_specification(
         self, name, description, data_type, task_type, library_type, senarioes, input_description, output_description
     ):
-
         semantic_specification = dict()
         semantic_specification["Input"] = input_description
         semantic_specification["Output"] = output_description

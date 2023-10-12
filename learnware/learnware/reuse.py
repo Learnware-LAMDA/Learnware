@@ -302,7 +302,7 @@ class AveragingReuser(BaseReuser):
                 pred_y = pred_y.detach().cpu().numpy()
             if not isinstance(pred_y, np.ndarray):
                 raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
-            
+
             if len(pred_y.shape) == 1:
                 pred_y = pred_y.reshape(-1, 1)
             else:
@@ -312,7 +312,7 @@ class AveragingReuser(BaseReuser):
                 elif self.mode == "vote_by_prob":
                     pred_y = softmax(pred_y, axis=-1)
             preds.append(pred_y)
-        
+
         if self.mode == "vote_by_prob":
             return np.mean(preds, axis=0)
         else:
@@ -325,9 +325,9 @@ class AveragingReuser(BaseReuser):
 
 class EnsemblePruningReuser(BaseReuser):
     """
-        Baseline Multiple Learnware Reuser uing Marign Distribution guided multi-objective evolutionary Ensemble Pruning (MDEP) Method.
-                
-        References: [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective Evolutionary Ensemble Pruning Guided by Margin Distribution. In: Proceedings of the 17th International Conference on Parallel Problem Solving from Nature (PPSN'22), Dortmund, Germany, 2022.
+    Baseline Multiple Learnware Reuser uing Marign Distribution guided multi-objective evolutionary Ensemble Pruning (MDEP) Method.
+
+    References: [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective Evolutionary Ensemble Pruning Guided by Margin Distribution. In: Proceedings of the 17th International Conference on Parallel Problem Solving from Nature (PPSN'22), Dortmund, Germany, 2022.
     """
 
     def __init__(self, learnware_list: List[Learnware], mode: str):
@@ -359,7 +359,7 @@ class EnsemblePruningReuser(BaseReuser):
             - The ground truth of validation set.
             - The dimension is (number of instances, 1).
         maxgen : int
-            - The maximum number of iteration rounds. 
+            - The maximum number of iteration rounds.
 
         Returns
         -------
@@ -443,7 +443,7 @@ class EnsemblePruningReuser(BaseReuser):
             - The ground truth of validation set.
             - The dimension is (number of instances, 1).
         maxgen : int
-            - The maximum number of iteration rounds. 
+            - The maximum number of iteration rounds.
 
         Returns
         -------
@@ -557,7 +557,7 @@ class EnsemblePruningReuser(BaseReuser):
             - The ground truth of validation set.
             - The dimension is (number of instances, 1).
         maxgen : int
-            - The maximum number of iteration rounds. 
+            - The maximum number of iteration rounds.
 
         Returns
         -------
@@ -645,7 +645,7 @@ class EnsemblePruningReuser(BaseReuser):
 
     def _get_predict(self, X: np.ndarray, selected_idxes: List[int]):
         """Concatenate the output of learnwares corresponding to selected_idxes
-        
+
         Parameters
         ----------
         X : np.ndarray

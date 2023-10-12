@@ -24,8 +24,7 @@ def try_to_run(args, timeout=5, retry=5):
 
 
 def parse_pip_requirement(line: str):
-    """Parse pip requirement line to package name
-    """
+    """Parse pip requirement line to package name"""
 
     line = line.strip()
 
@@ -47,8 +46,7 @@ def parse_pip_requirement(line: str):
 
 
 def read_pip_packages_from_requirements(requirements_file: str) -> List[str]:
-    """Read requiremnts.txt and parse it to list
-    """
+    """Read requiremnts.txt and parse it to list"""
 
     packages = []
     lines = []
@@ -174,7 +172,6 @@ def filter_nonexist_conda_packages_file(yaml_file: str, output_yaml_file: str):
 
 
 def filter_nonexist_pip_packages_file(requirements_file: str, output_file: str):
-
     packages, lines = read_pip_packages_from_requirements(requirements_file)
 
     exist_packages, nonexist_packages = filter_nonexist_pip_packages(packages)

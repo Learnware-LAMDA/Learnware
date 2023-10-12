@@ -19,7 +19,10 @@ curr_root = os.path.dirname(os.path.abspath(__file__))
 
 user_semantic = {
     "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {"Values": ["Classification"], "Type": "Class",},
+    "Task": {
+        "Values": ["Classification"],
+        "Type": "Class",
+    },
     "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Education"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},

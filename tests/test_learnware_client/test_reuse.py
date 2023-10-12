@@ -33,7 +33,6 @@ if __name__ == "__main__":
         learnware_list.append(learnware)
 
     with LearnwaresContainer(learnware_list, zip_paths) as env_container:
-
         learnware_list = env_container.get_learnware_list_with_container()
         reuser = AveragingReuser(learnware_list, mode="vote")
         input_array = np.random.randint(0, 3, size=(20, 9))
