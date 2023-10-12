@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import yaml
 import json
 import zipfile
@@ -7,13 +8,16 @@ import requests
 import tempfile
 from enum import Enum
 from tqdm import tqdm
+from typing import List
 
 from ..config import C
 from .. import learnware
 from . import package_utils
+from .container import LearnwaresContainer
 from ..market.easy import EasyMarket
 from ..logger import get_module_logger
 from ..specification import Specification
+from ..learnware import BaseReuser, Learnware
 
 CHUNK_SIZE = 1024 * 1024
 logger = get_module_logger(module_name="LearnwareClient")
@@ -419,6 +423,21 @@ class LearnwareClient:
 
         logger.info("test ok")
         pass
+
+    def reuse_learnware(
+        self,
+        input_array: np.ndarray,
+        learnware_list: List[Learnware],
+        learnware_zippaths: List[str],
+        reuser: BaseReuser,
+    ):
+        logger.info(f"reuse learnare list {learnware_list} with reuser {reuser}")
+        with LearnwaresContainer(learnware_list, learnware_zippaths) as env_container:
+            learnware_list = env_container.get_learnware_list_with_container()
+            reuser.reset(learnware_list=learnware_list)
+            result = reuser.predict(input_array)
+
+        return result
 
     def __del__(self):
         for tempdir in self.tempdir_list:

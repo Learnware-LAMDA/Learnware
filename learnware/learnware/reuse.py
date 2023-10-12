@@ -21,7 +21,7 @@ logger = get_module_logger("Reuser")
 class JobSelectorReuser(BaseReuser):
     """Baseline Multiple Learnware Reuser using Job Selector Method"""
 
-    def __init__(self, learnware_list: List[Learnware], herding_num: int = 1000, use_herding: bool = True):
+    def __init__(self, learnware_list: List[Learnware] = None, herding_num: int = 1000, use_herding: bool = True):
         """The initialization method for job selector reuser
 
         Parameters
@@ -265,7 +265,7 @@ class JobSelectorReuser(BaseReuser):
 class AveragingReuser(BaseReuser):
     """Baseline Multiple Learnware Reuser using Ensemble Method"""
 
-    def __init__(self, learnware_list: List[Learnware], mode: str):
+    def __init__(self, learnware_list: List[Learnware] = None, mode: str = "mean"):
         """The initialization method for averaging ensemble reuser
 
         Parameters
@@ -330,7 +330,7 @@ class EnsemblePruningReuser(BaseReuser):
     References: [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective Evolutionary Ensemble Pruning Guided by Margin Distribution. In: Proceedings of the 17th International Conference on Parallel Problem Solving from Nature (PPSN'22), Dortmund, Germany, 2022.
     """
 
-    def __init__(self, learnware_list: List[Learnware], mode: str):
+    def __init__(self, learnware_list: List[Learnware] = None, mode: str = "classification"):
         """The initialization method for ensemble pruning reuser
 
         Parameters
