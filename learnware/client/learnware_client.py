@@ -64,10 +64,9 @@ class LearnwareClient:
             self.host = C.backend_host
         else:
             self.host = host
-            pass
 
         self.chunk_size = 1024 * 1024
-        pass
+        self.tempdir_list = []
 
     def login(self, email, token):
         url = f"{self.host}/auth/login_by_token"
@@ -305,40 +304,36 @@ class LearnwareClient:
         return semantic_conf[key.value]["Values"]
 
     def load_learnware(self, learnware_file: str, load_model: bool = True):
-        with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-            with zipfile.ZipFile(learnware_file, "r") as z_file:
-                z_file.extractall(tempdir)
-                pass
+        self.tempdir_list.append(tempfile.TemporaryDirectory(prefix="learnware_"))
+        tempdir = self.tempdir_list[-1].name
+        
+        with zipfile.ZipFile(learnware_file, "r") as z_file:
+            z_file.extractall(tempdir)
 
-            yaml_file = C.learnware_folder_config["yaml_file"]
+        yaml_file = C.learnware_folder_config["yaml_file"]
 
-            with open(os.path.join(tempdir, yaml_file), "r") as fin:
-                learnware_info = yaml.safe_load(fin)
-                pass
+        with open(os.path.join(tempdir, yaml_file), "r") as fin:
+            learnware_info = yaml.safe_load(fin)
 
-            learnware_id = learnware_info.get("id")
-            if learnware_id is None:
-                learnware_id = "test_id"
-                pass
+        learnware_id = learnware_info.get("id")
+        if learnware_id is None:
+            learnware_id = "test_id"
 
-            semantic_specification = learnware_info.get("semantic_specification")
-            if semantic_specification is None:
-                semantic_specification = {}
-                pass
-            else:
-                semantic_file = semantic_specification.get("file_name")
+        semantic_specification = learnware_info.get("semantic_specification")
+        if semantic_specification is None:
+            semantic_specification = {}
+        else:
+            semantic_file = semantic_specification.get("file_name")
 
-                with open(os.path.join(tempdir, semantic_file), "r") as fin:
-                    semantic_specification = json.load(fin)
-                    pass
-                pass
+            with open(os.path.join(tempdir, semantic_file), "r") as fin:
+                semantic_specification = json.load(fin)
 
-            learnware_obj = learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
+        learnware_obj = learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
 
-            if load_model:
-                learnware_obj.instantiate_model()
+        if load_model:
+            learnware_obj.instantiate_model()
 
-            return learnware_obj
+        return learnware_obj
 
     def system(self, command):
         retcd = os.system(command)
@@ -424,3 +419,7 @@ class LearnwareClient:
 
         logger.info("test ok")
         pass
+    
+    def __del__(self):
+        for tempdir in self.tempdir_list:
+            tempdir.cleanup()
