@@ -306,7 +306,7 @@ class LearnwareClient:
     def load_learnware(self, learnware_file: str, load_model: bool = True):
         self.tempdir_list.append(tempfile.TemporaryDirectory(prefix="learnware_"))
         tempdir = self.tempdir_list[-1].name
-        
+
         with zipfile.ZipFile(learnware_file, "r") as z_file:
             z_file.extractall(tempdir)
 
@@ -419,7 +419,7 @@ class LearnwareClient:
 
         logger.info("test ok")
         pass
-    
+
     def __del__(self):
         for tempdir in self.tempdir_list:
             tempdir.cleanup()
