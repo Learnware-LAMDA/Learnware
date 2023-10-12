@@ -41,7 +41,7 @@ class ModelEnvContainer(BaseModel):
                     "--no-capture-output",
                     "python3",
                     f"{self.model_script}",
-                    f"--model-path",
+                    "--model-path",
                     f"{model_path}",
                     "--output-path",
                     f"{output_path}",
@@ -81,11 +81,11 @@ class ModelEnvContainer(BaseModel):
                     "--no-capture-output",
                     "python3",
                     f"{self.model_script}",
-                    f"--model-path",
+                    "--model-path",
                     f"{model_path}",
-                    f"--input-path",
+                    "--input-path",
                     f"{input_path}",
-                    f"--output-path",
+                    "--output-path",
                     f"{output_path}",
                 ]
             )
