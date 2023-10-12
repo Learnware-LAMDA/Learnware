@@ -10,10 +10,12 @@ logger = get_module_logger(module_name="client_utils")
 
 
 def system_execute(args, timeout=None):
+
+    com_process = subprocess.run(
+        args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=timeout
+    )
     try:
-        com_process = subprocess.run(
-            args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, check=True, timeout=timeout
-        )
+        com_process.check_returncode()
     except subprocess.CalledProcessError as err:
         print(com_process.stderr)
         raise err
