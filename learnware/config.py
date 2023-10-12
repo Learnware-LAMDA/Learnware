@@ -72,7 +72,10 @@ os.makedirs(DATABASE_PATH, exist_ok=True)
 os.makedirs(STDOUT_PATH, exist_ok=True)
 
 semantic_config = {
-    "Data": {"Values": ["Table", "Image", "Video", "Text", "Audio"], "Type": "Class",},  # Choose only one class
+    "Data": {
+        "Values": ["Table", "Image", "Video", "Text", "Audio"],
+        "Type": "Class",
+    },  # Choose only one class
     "Task": {
         "Values": [
             "Classification",
@@ -113,8 +116,14 @@ semantic_config = {
         ],
         "Type": "Tag",  # Choose one or more tags
     },
-    "Description": {"Values": None, "Type": "String",},
-    "Name": {"Values": None, "Type": "String",},
+    "Description": {
+        "Values": None,
+        "Type": "String",
+    },
+    "Name": {
+        "Values": None,
+        "Type": "String",
+    },
 }
 
 _DEFAULT_CONFIG = {
@@ -128,7 +137,10 @@ _DEFAULT_CONFIG = {
     "learnware_pool_path": LEARNWARE_POOL_PATH,
     "learnware_zip_pool_path": LEARNWARE_ZIP_POOL_PATH,
     "learnware_folder_pool_path": LEARNWARE_FOLDER_POOL_PATH,
-    "learnware_folder_config": {"yaml_file": "learnware.yaml", "module_file": "__init__.py",},
+    "learnware_folder_config": {
+        "yaml_file": "learnware.yaml",
+        "module_file": "__init__.py",
+    },
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
     "backend_host": "http://www.lamda.nju.edu.cn/learnware/api",

@@ -10,14 +10,11 @@ logger = get_module_logger(module_name="client_utils")
 
 
 def system_execute(args, timeout=None):
-
-    com_process = subprocess.run(
-        args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=timeout
-    )
+    com_process = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=timeout)
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
-        print(com_process.stderr)
+        print("System Execute Error:", str(com_process.stderr))
         raise err
 
 
@@ -27,14 +24,14 @@ def remove_enviroment(conda_env):
 
 def install_environment(zip_path, conda_env):
     """Install environment of a learnware
-    
+
     Parameters
     ----------
     zip_path : str
         Path of the learnware zip file
     conda_env : str
         a new conda environment will be created with the given name;
-        
+
     Raises
     ------
     Exception
@@ -59,7 +56,7 @@ def install_environment(zip_path, conda_env):
                 z_file.extract(member="requirements.txt", path=tempdir)
                 requirements_path: str = os.path.join(tempdir, "requirements.txt")
                 requirements_path_filter: str = os.path.join(tempdir, "requirements_filter.txt")
-                logger.info(f"checking the avaliabe pip packages for {yaml_path}")
+                logger.info(f"checking the avaliabe pip packages for {conda_env}")
                 filter_nonexist_pip_packages_file(
                     requirements_file=requirements_path, output_file=requirements_path_filter
                 )

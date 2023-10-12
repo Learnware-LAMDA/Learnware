@@ -18,7 +18,6 @@ logger = get_module_logger(module_name="client_container")
 
 class ModelEnvContainer(BaseModel):
     def __init__(self, model_config: dict, learnware_zippath: str):
-
         self.model_script = os.path.join(C.package_path, "client", "scripts", "run_model.py")
         self.model_config = model_config
         self.conda_env = f"learnware_{shortuuid.uuid()}"
