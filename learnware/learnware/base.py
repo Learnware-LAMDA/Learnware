@@ -91,7 +91,7 @@ class BaseReuser:
         for _k, _v in kwargs.items():
             if hasattr(_k):
                 setattr(_k, _v)
-        
+
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """Give the final prediction for user data with reused learnware
 

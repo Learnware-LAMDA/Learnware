@@ -432,11 +432,17 @@ class LearnwareClient:
         logger.info("test ok")
         pass
 
-    def reuse_learnware(self, input_array: np.ndarray, learnware_list: List[Learnware], learnware_zippaths: List[str], reuser: BaseReuser):
+    def reuse_learnware(
+        self,
+        input_array: np.ndarray,
+        learnware_list: List[Learnware],
+        learnware_zippaths: List[str],
+        reuser: BaseReuser,
+    ):
         logger.info(f"reuse learnare list {learnware_list} with reuser {reuser}")
         with LearnwaresContainer(learnware_list, learnware_zippaths) as env_container:
             learnware_list = env_container.get_learnware_list_with_container()
             reuser.reset(learnware_list=learnware_list)
             result = reuser.predict(input_array)
-            
+
         return result
