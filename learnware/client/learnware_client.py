@@ -337,11 +337,8 @@ class LearnwareClient:
 
             if load_model:
                 learnware_obj.instantiate_model()
-                pass
-
+            
             return learnware_obj
-            pass
-        pass
 
     def system(self, command):
         retcd = os.system(command)
