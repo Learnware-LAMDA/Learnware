@@ -127,11 +127,11 @@ class LearnwaresContainer:
             )
             for _learnware, _zippath in zip(learnware_list, learnware_zippaths)
         ]
-        
+
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
         with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._initialize_model_container, model_list)
-            
+
         atexit.register(self.cleanup)
 
     @staticmethod
@@ -144,7 +144,7 @@ class LearnwaresContainer:
 
     def get_learnware_list_with_container(self):
         return self.learnware_list
-    
+
     def cleanup(self):
         for _learnware in self.learnware_list:
             self._destroy_model_container(_learnware.get_model())

@@ -310,7 +310,12 @@ class LearnwareClient:
 
         return semantic_conf[key.value]["Values"]
 
-    def load_learnware(self, learnware_path: Union[str, List[str]] = None, learnware_id: Union[str, List[str]] = None, runnable_option: str = None):
+    def load_learnware(
+        self,
+        learnware_path: Union[str, List[str]] = None,
+        learnware_id: Union[str, List[str]] = None,
+        runnable_option: str = None,
+    ):
         """Load learnware by learnware zip file or learnware id (zip file has higher priority)
 
         Parameters
@@ -334,14 +339,14 @@ class LearnwareClient:
 
         if learnware_path is None and learnware_id is None:
             raise ValueError("Requires one of learnware_path or learnware_id")
-        
+
         def _get_learnware_by_id(_learnware_id):
             self.tempdir_list.append(tempfile.TemporaryDirectory(prefix="learnware_"))
             tempdir = self.tempdir_list[-1].name
             zip_path = os.path.join(tempdir, f"{str(uuid.uuid4())}.zip")
             self.download_learnware(_learnware_id, zip_path)
             return zip_path, _get_learnware_by_path(zip_path, tempdir=tempdir)
-        
+
         def _get_learnware_by_path(_learnware_zippath, tempdir=None):
             if tempdir is None:
                 self.tempdir_list.append(tempfile.TemporaryDirectory(prefix="learnware_"))
@@ -368,7 +373,7 @@ class LearnwareClient:
                     semantic_specification = json.load(fin)
 
             return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
-        
+
         learnware_list = []
         zip_paths = []
         if learnware_path is not None:
@@ -376,7 +381,7 @@ class LearnwareClient:
                 zip_paths = [learnware_path]
             elif isinstance(learnware_path, list):
                 zip_paths = learnware_path
-        
+
             for zip_path in zip_paths:
                 learnware_obj = _get_learnware_by_path(zip_path)
                 learnware_list.append(learnware_obj)
@@ -385,12 +390,12 @@ class LearnwareClient:
                 id_list = [learnware_id]
             elif isinstance(learnware_id, list):
                 id_list = learnware_id
-            
+
             for idx in id_list:
                 zip_path, learnware_obj = _get_learnware_by_id(idx)
                 zip_paths.append(zip_path)
                 learnware_list.append(learnware_obj)
-        
+
         if runnable_option is not None:
             if runnable_option == "normal":
                 for i in range(len(learnware_list)):
@@ -398,7 +403,7 @@ class LearnwareClient:
             elif runnable_option == "conda_env":
                 env_container = LearnwaresContainer(learnware_list, zip_paths)
                 learnware_list = env_container.get_learnware_list_with_container()
-        
+
         if len(learnware_list) == 1:
             return learnware_list[0]
         else:
