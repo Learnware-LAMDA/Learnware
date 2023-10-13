@@ -25,11 +25,11 @@ if __name__ == "__main__":
 
     learnware_list = [client.load_learnware(file, load_model=False) for file in zip_paths]
 
-    with LearnwaresContainer(learnware_list, zip_paths) as env_container:
-        learnware_list = env_container.get_learnware_list_with_container()
-        reuser = AveragingReuser(learnware_list, mode="vote_by_label")
-        input_array = np.random.random(size=(20, 13))
-        print(reuser.predict(input_array))
+    env_container = LearnwaresContainer(learnware_list, zip_paths)
+    learnware_list = env_container.get_learnware_list_with_container()
+    reuser = AveragingReuser(learnware_list, mode="vote_by_label")
+    input_array = np.random.random(size=(20, 13))
+    print(reuser.predict(input_array))
 
-        for learnware in learnware_list:
-            print(learnware.id, learnware.predict(input_array))
+    for learnware in learnware_list:
+        print(learnware.id, learnware.predict(input_array))

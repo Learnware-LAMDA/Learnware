@@ -2,6 +2,7 @@ import os
 import numpy as np
 import yaml
 import json
+import atexit
 import zipfile
 import hashlib
 import requests
@@ -71,6 +72,7 @@ class LearnwareClient:
 
         self.chunk_size = 1024 * 1024
         self.tempdir_list = []
+        atexit.register(self.cleanup)
 
     def login(self, email, token):
         url = f"{self.host}/auth/login_by_token"
@@ -439,6 +441,6 @@ class LearnwareClient:
 
         return result
 
-    def __del__(self):
+    def cleanup(self):
         for tempdir in self.tempdir_list:
             tempdir.cleanup()
