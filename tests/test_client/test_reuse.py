@@ -35,7 +35,7 @@ if __name__ == "__main__":
     with LearnwaresContainer(learnware_list, zip_paths) as env_container:
 
         learnware_list = env_container.get_learnware_list_with_container()
-        reuser = AveragingReuser(learnware_list, mode="vote")
+        reuser = AveragingReuser(learnware_list, mode="vote_by_label")
         input_array = np.random.randint(0, 3, size=(20, 9))
         print(reuser.predict(input_array).argmax(axis=1))
         for id, ind_learner in enumerate(learnware_list):

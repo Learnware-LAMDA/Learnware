@@ -1,14 +1,16 @@
 import os
-import numpy as np
+import uuid
 import yaml
 import json
+import atexit
 import zipfile
 import hashlib
 import requests
 import tempfile
+import numpy as np
 from enum import Enum
 from tqdm import tqdm
-from typing import List
+from typing import Union, List
 
 from ..config import C
 from .. import learnware
@@ -68,10 +70,10 @@ class LearnwareClient:
             self.host = C.backend_host
         else:
             self.host = host
-            pass
 
         self.chunk_size = 1024 * 1024
-        pass
+        self.tempdir_list = []
+        atexit.register(self.cleanup)
 
     def login(self, email, token):
         url = f"{self.host}/auth/login_by_token"
@@ -308,41 +310,104 @@ class LearnwareClient:
 
         return semantic_conf[key.value]["Values"]
 
-    def load_learnware(self, learnware_file: str, load_model: bool = True):
-        with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-            with zipfile.ZipFile(learnware_file, "r") as z_file:
+    def load_learnware(
+        self,
+        learnware_path: Union[str, List[str]] = None,
+        learnware_id: Union[str, List[str]] = None,
+        runnable_option: str = None,
+    ):
+        """Load learnware by learnware zip file or learnware id (zip file has higher priority)
+
+        Parameters
+        ----------
+        learnware_path : Union[str, List[str]]
+            learnware zip path or learnware zip path list
+        learnware_id : Union[str, List[str]]
+            learnware id or learnware id list
+        runnable_option : str
+            the option for instantiating learnwares
+            - "normal": instantiate learnware without installing environment
+            - "conda_env": instantiate learnware with installing conda virtual environment
+
+        Returns
+        -------
+        Learnware
+            The contructed learnware object or object list
+        """
+        if runnable_option is not None and runnable_option not in ["normal", "conda_env"]:
+            raise logger.warning(f"runnable_option must be one of ['normal', 'conda_env'], but got {runnable_option}")
+
+        if learnware_path is None and learnware_id is None:
+            raise ValueError("Requires one of learnware_path or learnware_id")
+
+        def _get_learnware_by_id(_learnware_id):
+            self.tempdir_list.append(tempfile.TemporaryDirectory(prefix="learnware_"))
+            tempdir = self.tempdir_list[-1].name
+            zip_path = os.path.join(tempdir, f"{str(uuid.uuid4())}.zip")
+            self.download_learnware(_learnware_id, zip_path)
+            return zip_path, _get_learnware_by_path(zip_path, tempdir=tempdir)
+
+        def _get_learnware_by_path(_learnware_zippath, tempdir=None):
+            if tempdir is None:
+                self.tempdir_list.append(tempfile.TemporaryDirectory(prefix="learnware_"))
+                tempdir = self.tempdir_list[-1].name
+
+            with zipfile.ZipFile(_learnware_zippath, "r") as z_file:
                 z_file.extractall(tempdir)
-                pass
 
             yaml_file = C.learnware_folder_config["yaml_file"]
-
             with open(os.path.join(tempdir, yaml_file), "r") as fin:
                 learnware_info = yaml.safe_load(fin)
-                pass
 
             learnware_id = learnware_info.get("id")
             if learnware_id is None:
                 learnware_id = "test_id"
-                pass
 
             semantic_specification = learnware_info.get("semantic_specification")
             if semantic_specification is None:
                 semantic_specification = {}
-                pass
             else:
                 semantic_file = semantic_specification.get("file_name")
 
                 with open(os.path.join(tempdir, semantic_file), "r") as fin:
                     semantic_specification = json.load(fin)
-                    pass
-                pass
 
-            learnware_obj = learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
+            return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
 
-            if load_model:
-                learnware_obj.instantiate_model()
+        learnware_list = []
+        zip_paths = []
+        if learnware_path is not None:
+            if isinstance(learnware_path, str):
+                zip_paths = [learnware_path]
+            elif isinstance(learnware_path, list):
+                zip_paths = learnware_path
 
-            return learnware_obj
+            for zip_path in zip_paths:
+                learnware_obj = _get_learnware_by_path(zip_path)
+                learnware_list.append(learnware_obj)
+        elif learnware_id is not None:
+            if isinstance(learnware_id, str):
+                id_list = [learnware_id]
+            elif isinstance(learnware_id, list):
+                id_list = learnware_id
+
+            for idx in id_list:
+                zip_path, learnware_obj = _get_learnware_by_id(idx)
+                zip_paths.append(zip_path)
+                learnware_list.append(learnware_obj)
+
+        if runnable_option is not None:
+            if runnable_option == "normal":
+                for i in range(len(learnware_list)):
+                    learnware_list[i].instantiate_model()
+            elif runnable_option == "conda_env":
+                env_container = LearnwaresContainer(learnware_list, zip_paths)
+                learnware_list = env_container.get_learnware_list_with_container()
+
+        if len(learnware_list) == 1:
+            return learnware_list[0]
+        else:
+            return learnware_list
 
     def system(self, command):
         retcd = os.system(command)
@@ -429,17 +494,6 @@ class LearnwareClient:
         logger.info("test ok")
         pass
 
-    def reuse_learnware(
-        self,
-        input_array: np.ndarray,
-        learnware_list: List[Learnware],
-        learnware_zippaths: List[str],
-        reuser: BaseReuser,
-    ):
-        logger.info(f"reuse learnare list {learnware_list} with reuser {reuser}")
-        with LearnwaresContainer(learnware_list, learnware_zippaths) as env_container:
-            learnware_list = env_container.get_learnware_list_with_container()
-            reuser.reset(learnware_list=learnware_list)
-            result = reuser.predict(input_array)
-
-        return result
+    def cleanup(self):
+        for tempdir in self.tempdir_list:
+            tempdir.cleanup()
