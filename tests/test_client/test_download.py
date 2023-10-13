@@ -9,6 +9,26 @@ from learnware.client.container import ModelEnvContainer, LearnwaresContainer
 from learnware.learnware.reuse import AveragingReuser
 
 
+def test_single_learnware(client, zip_paths):
+    learnware_list = [client.load_learnware(zippath, load_option="conda_env") for zippath in zip_paths]
+    reuser = AveragingReuser(learnware_list, mode="vote_by_label")
+    input_array = np.random.random(size=(20, 13))
+    print(reuser.predict(input_array))
+
+    for learnware in learnware_list:
+        print(learnware.id, learnware.predict(input_array))
+
+
+def test_multi_learnware(client, zip_paths):
+    learnware_list = client.load_learnware(zip_paths, load_option="conda_env")
+    reuser = AveragingReuser(learnware_list, mode="vote_by_label")
+    input_array = np.random.random(size=(20, 13))
+    print(reuser.predict(input_array))
+
+    for learnware in learnware_list:
+        print(learnware.id, learnware.predict(input_array))
+
+
 if __name__ == "__main__":
     email = "liujd@lamda.nju.edu.cn"
     token = "f7e647146a314c6e8b4e2e1079c4bca4"
@@ -23,13 +43,5 @@ if __name__ == "__main__":
         zip_paths[i] = os.path.join(root, zip_paths[i])
         client.download_learnware(learnware_ids[i], zip_paths[i])
 
-    learnware_list = [client.load_learnware(file, load_model=False) for file in zip_paths]
-
-    env_container = LearnwaresContainer(learnware_list, zip_paths)
-    learnware_list = env_container.get_learnware_list_with_container()
-    reuser = AveragingReuser(learnware_list, mode="vote_by_label")
-    input_array = np.random.random(size=(20, 13))
-    print(reuser.predict(input_array))
-
-    for learnware in learnware_list:
-        print(learnware.id, learnware.predict(input_array))
+    test_single_learnware(zip_paths)
+    test_multi_learnware(zip_paths)
