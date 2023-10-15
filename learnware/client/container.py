@@ -3,7 +3,7 @@ import pickle
 import atexit
 import tempfile
 import shortuuid
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 from typing import List, Union
 from .utils import system_execute, install_environment, remove_enviroment
@@ -25,10 +25,9 @@ class ModelContainer(BaseModel):
         self.build = build
         self.cleanup_flag = False
 
-    def reset(self, **kwargs):
-        for _k, _v in kwargs.items():
-            if hasattr(self, _k):
-                setattr(_k, _v)
+    def reset(self, input_shape, output_shape):
+        self.input_shape = input_shape
+        self.output_shape = output_shape
 
     def init_env_and_set_metadata(self):
         """We must set `input_shape` and `output_shape`"""
@@ -107,8 +106,10 @@ class ModelCondaContainer(ModelContainer):
 
         if output_results["status"] != "success":
             raise output_results["error_info"]
+
         input_shape = output_results["metadata"]["input_shape"]
         output_shape = output_results["metadata"]["output_shape"]
+        print("input_shape", input_shape, "output_shape", output_shape)
         self.reset(input_shape=input_shape, output_shape=output_shape)
 
     def _run_model_with_script(self, method, **kargs):
@@ -260,7 +261,7 @@ class LearnwaresContainer:
 
     def __enter__(self):
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
-        with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
+        with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             results = executor.map(self._initialize_model_container, model_list)
         self.results = list(results)
         print("234", self.results, sum(self.results), len(self.learnware_list))
@@ -275,7 +276,7 @@ class LearnwaresContainer:
             logger.warning(f"Notice, the learnware container env is not cleaned up!")
             return
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
-        with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
+        with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._destroy_model_container, model_list)
 
     @staticmethod

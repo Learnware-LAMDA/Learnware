@@ -20,4 +20,4 @@ if __name__ == "__main__":
 
         with LearnwaresContainer(learnware, zip_path) as env_container:
             learnware = env_container.get_learnwares_with_container()[0]
-            EasyMarket.check_learnware(learnware)
+            print(EasyMarket.check_learnware(learnware))
