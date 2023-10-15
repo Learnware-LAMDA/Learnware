@@ -61,12 +61,14 @@ def install_environment(zip_path, conda_env):
                     requirements_file=requirements_path, output_file=requirements_path_filter
                 )
                 logger.info(f"create empty conda env [{conda_env}]")
-                system_execute(args=["conda", "create", "--name", f"{conda_env}", "python=3.8"])
+                system_execute(args=["conda", "create", "-y", "--name", f"{conda_env}", "python=3.8"])
                 logger.info(f"install pip requirements for conda env [{conda_env}]")
                 system_execute(
                     args=[
                         "conda",
                         "run",
+                        "-n",
+                        f"{conda_env}",
                         "--no-capture-output",
                         "python3",
                         "-m",
@@ -80,4 +82,17 @@ def install_environment(zip_path, conda_env):
                 raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
 
     logger.info(f"install learnware package for conda env [{conda_env}]")
-    system_execute(args=["conda", "run", "--no-capture-output", "python3", "-m", "pip", "install", "learnware"])
+    system_execute(
+        args=[
+            "conda",
+            "run",
+            "-n",
+            f"{conda_env}",
+            "--no-capture-output",
+            "python3",
+            "-m",
+            "pip",
+            "install",
+            "learnware",
+        ]
+    )
