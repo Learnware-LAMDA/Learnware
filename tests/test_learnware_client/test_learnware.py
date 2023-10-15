@@ -1,6 +1,3 @@
-import os
-
-import learnware
 from learnware.client.learnware_client import LearnwareClient
 
 
