@@ -18,6 +18,6 @@ if __name__ == "__main__":
             id="test", semantic_spec=semantic_specification, learnware_dirpath=learnware_dirpath
         )
 
-    with LearnwaresContainer(learnware, zip_path) as env_container:
-        learnware = env_container.get_learnwares_with_container()[0]
-        EasyMarket.check_learnware(learnware)
+        with LearnwaresContainer(learnware, zip_path) as env_container:
+            learnware = env_container.get_learnwares_with_container()[0]
+            EasyMarket.check_learnware(learnware)

@@ -6,7 +6,7 @@ import numpy as np
 import learnware
 from learnware.learnware import get_learnware_from_dirpath
 from learnware.client import LearnwareClient
-from learnware.client.container import ModelEnvContainer, LearnwaresContainer
+from learnware.client.container import ModelCondaContainer, LearnwaresContainer
 from learnware.learnware.reuse import AveragingReuser
 
 
