@@ -1,6 +1,5 @@
 import os
 import pickle
-import atexit
 import tempfile
 import shortuuid
 from concurrent.futures import ProcessPoolExecutor
@@ -110,7 +109,7 @@ class ModelEnvContainer(BaseModel):
 
 
 class LearnwaresContainer:
-    def __init__(self, learnwares: Union[List[Learnware], Learnware], learnware_zippaths: Union[List[str], str]):
+    def __init__(self, learnwares: Union[List[Learnware], Learnware], learnware_zippaths: Union[List[str], str], cleanup=True):
         """The initializaiton method for base reuser
 
         Parameters
@@ -132,6 +131,7 @@ class LearnwaresContainer:
             )
             for _learnware, _zippath in zip(learnwares, learnware_zippaths)
         ]
+        self.cleanup = cleanup
 
     def __enter__(self):
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
@@ -139,6 +139,9 @@ class LearnwaresContainer:
             executor.map(self._initialize_model_container, model_list)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self.cleanup:
+            logger.warning(f"Notice, the learnware container env is not clean up!")
+            return
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
         with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._destroy_model_container, model_list)

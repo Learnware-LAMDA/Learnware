@@ -15,7 +15,6 @@ if __name__ == "__main__":
             z_file.extractall(learnware_dirpath)
         learnware = get_learnware_from_dirpath(id='test', semantic_spec=semantic_specification, learnware_dirpath=learnware_dirpath)
     
-    env_container = LearnwaresContainer(learnware, zip_path)
-    learnware = env_container.get_learnwares_with_container()[0]
-    
-    EasyMarket.check_learnware(learnware)
+    with LearnwaresContainer(learnware, zip_path) as env_container:
+        learnware = env_container.get_learnwares_with_container()[0]
+        EasyMarket.check_learnware(learnware)

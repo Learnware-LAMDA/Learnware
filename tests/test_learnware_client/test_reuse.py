@@ -25,10 +25,10 @@ if __name__ == "__main__":
         learnware = get_learnware_from_dirpath(f"test_id{id}", semantic_specification, dir_path)
         learnware_list.append(learnware)
 
-    env_container = LearnwaresContainer(learnware_list, zip_paths)
-    learnware_list = env_container.get_learnwares_with_container()
-    reuser = AveragingReuser(learnware_list, mode="vote")
-    input_array = np.random.randint(0, 3, size=(20, 9))
-    print(reuser.predict(input_array).argmax(axis=1))
-    for id, ind_learner in enumerate(learnware_list):
-        print(f"learner_{id}", reuser.predict(input_array).argmax(axis=1))
+    with LearnwaresContainer(learnware_list, zip_paths) as env_container:
+        learnware_list = env_container.get_learnwares_with_container()
+        reuser = AveragingReuser(learnware_list, mode="vote")
+        input_array = np.random.randint(0, 3, size=(20, 9))
+        print(reuser.predict(input_array).argmax(axis=1))
+        for id, ind_learner in enumerate(learnware_list):
+            print(f"learner_{id}", reuser.predict(input_array).argmax(axis=1))
