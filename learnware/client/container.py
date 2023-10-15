@@ -63,7 +63,7 @@ class ModelEnvContainer(BaseModel):
         if self.conda_env is not None:
             self.conda_env = None
             remove_enviroment(self.conda_env)
-        
+
     def run_model_with_script(self, method, **kargs):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             input_path = os.path.join(tempdir, "input.pkl")
@@ -113,7 +113,9 @@ class ModelEnvContainer(BaseModel):
 
 
 class LearnwaresContainer:
-    def __init__(self, learnwares: Union[List[Learnware], Learnware], learnware_zippaths: Union[List[str], str], cleanup=True):
+    def __init__(
+        self, learnwares: Union[List[Learnware], Learnware], learnware_zippaths: Union[List[str], str], cleanup=True
+    ):
         """The initializaiton method for base reuser
 
         Parameters
@@ -125,7 +127,7 @@ class LearnwaresContainer:
             learnwares = [learnwares]
         if isinstance(learnware_zippaths, str):
             learnware_zippaths = [learnware_zippaths]
-            
+
         assert all(
             [isinstance(_learnware.get_model(), dict) for _learnware in learnwares]
         ), "the learnwre model should not be instantiated for reuser with containter"

@@ -15,7 +15,7 @@ if __name__ == "__main__":
     dir_paths = [
         "/home/bixd/workspace/learnware/Learnware/tests/test_learnware_client/rf_tic",
         "/home/bixd/workspace/learnware/Learnware/tests/test_learnware_client/svc_tic",
-    ]   
+    ]
 
     learnware_list = []
     for id, (zip_path, dir_path) in enumerate(zip(zip_paths, dir_paths)):
