@@ -127,24 +127,38 @@ class LearnwaresContainer:
             )
             for _learnware, _zippath in zip(learnware_list, learnware_zippaths)
         ]
-
+        
+        # We should first register the destroy method
+        atexit.register(self.cleanup)
+        self.init_env()
+        
+    def init_env(self):
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
         with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._initialize_model_container, model_list)
 
-        atexit.register(self.cleanup)
-
-    @staticmethod
-    def _initialize_model_container(model: ModelEnvContainer):
-        model.init_env_and_metadata()
-
-    @staticmethod
-    def _destroy_model_container(model: ModelEnvContainer):
-        model.remove_env()
-
-    def get_learnware_list_with_container(self):
-        return self.learnware_list
+        
 
     def cleanup(self):
         for _learnware in self.learnware_list:
             self._destroy_model_container(_learnware.get_model())
+
+    @staticmethod
+    def _initialize_model_container(model: ModelEnvContainer):
+        try:
+            model.init_env_and_metadata()
+        except Exception as err:
+            logger.warning(f"build env {model.conda_env} failed due to {err}") 
+
+    @staticmethod
+    def _destroy_model_container(model: ModelEnvContainer):
+        try:
+            model.remove_env()
+        except Exception as err:
+            logger.warning(f"remove env {model.conda_env} failed due to {err}") 
+            
+
+    def get_learnware_list_with_container(self):
+        return self.learnware_list
+
+    

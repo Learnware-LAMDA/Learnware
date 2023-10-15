@@ -1,20 +1,14 @@
 import zipfile
 import numpy as np
 
-from learnware.learnware import get_learnware_from_dirpath, Learnware
-from learnware.market import EasyMarket
-from learnware.client.container import ModelEnvContainer, LearnwaresContainer
+from learnware.learnware import get_learnware_from_dirpath
+from learnware.client.container import LearnwaresContainer
 from learnware.learnware.reuse import AveragingReuser
+from learnware.test.module import get_semantic_specification
 
 if __name__ == "__main__":
-    semantic_specification = dict()
-    semantic_specification["Data"] = {"Type": "Class", "Values": ["Text"]}
-    semantic_specification["Task"] = {"Type": "Class", "Values": ["Ranking"]}
-    semantic_specification["Library"] = {"Type": "Class", "Values": ["Scikit-learn"]}
-    semantic_specification["Scenario"] = {"Type": "Tag", "Values": "Financial"}
-    semantic_specification["Name"] = {"Type": "String", "Values": "test"}
-    semantic_specification["Description"] = {"Type": "String", "Values": "test"}
 
+    semantic_specification = get_semantic_specification()
     zip_paths = [
         "/home/bixd/workspace/learnware/Learnware/tests/test_learnware_client/rf_tic.zip",
         "/home/bixd/workspace/learnware/Learnware/tests/test_learnware_client/svc_tic.zip",
