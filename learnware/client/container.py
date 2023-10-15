@@ -161,7 +161,12 @@ class ModelCondaContainer(ModelContainer):
 
 class ModelDockerContainer(ModelCondaContainer):
     def __init__(
-        self, model_config: dict, learnware_zippath: str, docker_img=None, conda_env: str = None, build: bool = True
+        self,
+        model_config: dict,
+        learnware_zippath: str,
+        docker_img: str = None,
+        conda_env: str = None,
+        build: bool = True,
     ):
         """_summary_
 
@@ -229,11 +234,11 @@ class LearnwaresContainer:
                 for _learnware, _zippath in zip(learnwares, learnware_zippaths)
             ]
         elif mode == "docker":
-            docker_img = self._generate_docker_img()
+            docker_img = f"docker_img_{shortuuid.uuid()}"
             self.learnware_list = [
                 Learnware(
                     _learnware.id,
-                    ModelDockerContainer(_learnware.get_model(), _zippath, docker_img),
+                    ModelDockerContainer(_learnware.get_model(), _zippath, docker_img, build=False),
                     _learnware.get_specification(),
                 )
                 for _learnware, _zippath in zip(learnwares, learnware_zippaths)
