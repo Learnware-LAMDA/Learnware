@@ -164,7 +164,7 @@ class ModelDockerContainer(ModelCondaContainer):
         self,
         model_config: dict,
         learnware_zippath: str,
-        docker_img: str = None,
+        docker_id: str = None,
         conda_env: str = None,
         build: bool = True,
     ):
@@ -175,30 +175,35 @@ class ModelDockerContainer(ModelCondaContainer):
         build : bool, optional
             Whether to build the docker env, by default True
         """
-        if docker_img is None:
-            self.docker_img = None  # create docker img
+        if docker_id is None:
+            self.docker_id = f"docker_img_{shortuuid.uuid()}"  # create the id of docker imf
         self.conda_env = f"learnware_{shortuuid.uuid()}" if conda_env is None else conda_env
         # call init method of parent of parent class
-        super(ModelCondaContainer, self).__init__(
-            model_config, learnware_zippath, True if docker_img is None else build
-        )
+        super(ModelCondaContainer, self).__init__(model_config, learnware_zippath, True if docker_id is None else build)
 
     def _set_metadata(self):
+        """set the input and output shape by communicating with docker"""
         raise NotImplementedError("_set_metadata method is not implemented!")
 
     def _init_env(self):
+        """create docker img according to the str self.docker_id, and creat the correponding conda python env"""
+
         raise NotImplementedError("_init_env method is not implemented!")
 
     def _remove_env(self):
+        """remove the docker img"""
         raise NotImplementedError("_remove_env method is not implemented!")
 
     def fit(self, X, y):
+        """fit model by the communicating with docker"""
         raise NotImplementedError("fit method is not implemented!")
 
     def predict(self, X):
+        """predict model by the communicating with docker"""
         raise NotImplementedError("predict method is not implemented!")
 
     def finetune(self, X, y) -> None:
+        """finetune model by the communicating with docker"""
         raise NotImplementedError("finetune method is not implemented!")
 
 
@@ -234,11 +239,11 @@ class LearnwaresContainer:
                 for _learnware, _zippath in zip(learnwares, learnware_zippaths)
             ]
         elif mode == "docker":
-            docker_img = f"docker_img_{shortuuid.uuid()}"
+            docker_id = f"docker_img_{shortuuid.uuid()}"
             self.learnware_list = [
                 Learnware(
                     _learnware.id,
-                    ModelDockerContainer(_learnware.get_model(), _zippath, docker_img, build=False),
+                    ModelDockerContainer(_learnware.get_model(), _zippath, docker_id, build=False),
                     _learnware.get_specification(),
                 )
                 for _learnware, _zippath in zip(learnwares, learnware_zippaths)
