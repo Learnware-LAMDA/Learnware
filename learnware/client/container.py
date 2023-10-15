@@ -1,5 +1,6 @@
 import os
 import pickle
+import atexit
 import tempfile
 import shortuuid
 from concurrent.futures import ProcessPoolExecutor
@@ -56,10 +57,13 @@ class ModelEnvContainer(BaseModel):
         input_shape = output_results["metadata"]["input_shape"]
         output_shape = output_results["metadata"]["output_shape"]
         super(ModelEnvContainer, self).__init__(input_shape, output_shape)
+        atexit.register(self.remove_env)
 
     def remove_env(self):
-        remove_enviroment(self.conda_env)
-
+        if self.conda_env is not None:
+            self.conda_env = None
+            remove_enviroment(self.conda_env)
+        
     def run_model_with_script(self, method, **kargs):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             input_path = os.path.join(tempdir, "input.pkl")
@@ -137,6 +141,7 @@ class LearnwaresContainer:
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
         with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._initialize_model_container, model_list)
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.cleanup:
