@@ -70,7 +70,7 @@ class TestAllWorkflow(unittest.TestCase):
 
             env_file = os.path.join(dir_path, "environment.yaml")
             copyfile(os.path.join(curr_root, "learnware_example/environment.yaml"), env_file)
-            
+
             zip_file = dir_path + ".zip"
             # zip -q -r -j zip_file dir_path
             with zipfile.ZipFile(zip_file, "w") as zip_obj:

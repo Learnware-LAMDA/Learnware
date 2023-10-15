@@ -7,7 +7,6 @@ from learnware.learnware.reuse import AveragingReuser
 from learnware.test.module import get_semantic_specification
 
 if __name__ == "__main__":
-
     semantic_specification = get_semantic_specification()
     zip_paths = [
         "/home/bixd/workspace/learnware/Learnware/tests/test_learnware_client/rf_tic.zip",

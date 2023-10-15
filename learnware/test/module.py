@@ -1,5 +1,3 @@
-
-
 def get_semantic_specification():
     semantic_specification = dict()
     semantic_specification["Data"] = {"Type": "Class", "Values": ["Text"]}
