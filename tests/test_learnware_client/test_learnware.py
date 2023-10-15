@@ -1,10 +1,21 @@
-from learnware.client.learnware_client import LearnwareClient
+import os
+import zipfile
+import tempfile
+from learnware.learnware import get_learnware_from_dirpath
 from learnware.test import get_semantic_specification
-
+from learnware.client.container import LearnwaresContainer
+from learnware.market import EasyMarket
 if __name__ == "__main__":
     semantic_specification = get_semantic_specification()
 
-    zip_path = "test.zip"
-    client = LearnwareClient()
-    client.install_environment(zip_path)
-    client.test_learnware(zip_path, semantic_specification)
+    zip_path = "rf_tic.zip"
+    with tempfile.TemporaryDirectory(suffix='learnware') as tempdir:
+        learnware_dirpath = os.path.join(tempdir, 'test')
+        with zipfile.ZipFile(zip_path, "r") as z_file:
+            z_file.extractall(learnware_dirpath)
+        learnware = get_learnware_from_dirpath(id='test', semantic_spec=semantic_specification, learnware_dirpath=learnware_dirpath)
+    
+    env_container = LearnwaresContainer(learnware, zip_path)
+    learnware = env_container.get_learnwares_with_container()[0]
+    
+    EasyMarket.check_learnware(learnware)

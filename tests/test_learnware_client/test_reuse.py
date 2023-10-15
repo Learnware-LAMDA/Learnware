@@ -15,7 +15,7 @@ if __name__ == "__main__":
     dir_paths = [
         "/home/bixd/workspace/learnware/Learnware/tests/test_learnware_client/rf_tic",
         "/home/bixd/workspace/learnware/Learnware/tests/test_learnware_client/svc_tic",
-    ]
+    ]   
 
     learnware_list = []
     for id, (zip_path, dir_path) in enumerate(zip(zip_paths, dir_paths)):
@@ -26,7 +26,7 @@ if __name__ == "__main__":
         learnware_list.append(learnware)
 
     env_container = LearnwaresContainer(learnware_list, zip_paths)
-    learnware_list = env_container.get_learnware_list_with_container()
+    learnware_list = env_container.get_learnwares_with_container()
     reuser = AveragingReuser(learnware_list, mode="vote")
     input_array = np.random.randint(0, 3, size=(20, 9))
     print(reuser.predict(input_array).argmax(axis=1))

@@ -5,7 +5,7 @@ import tempfile
 import shortuuid
 from concurrent.futures import ProcessPoolExecutor
 
-from typing import List
+from typing import List, Union
 from .utils import system_execute, install_environment, remove_enviroment
 from ..config import C
 from ..learnware import Learnware
@@ -110,7 +110,7 @@ class ModelEnvContainer(BaseModel):
 
 
 class LearnwaresContainer:
-    def __init__(self, learnware_list: List[Learnware], learnware_zippaths: List[str]):
+    def __init__(self, learnwares: Union[List[Learnware], Learnware], learnware_zippaths: Union[List[str], str]):
         """The initializaiton method for base reuser
 
         Parameters
@@ -118,42 +118,44 @@ class LearnwaresContainer:
         learnware_list : List[Learnware]
             The learnware list to reuse and make predictions
         """
+        if isinstance(learnwares, Learnware):
+            learnwares = [learnwares]
+        if isinstance(learnware_zippaths, str):
+            learnware_zippaths = [learnware_zippaths]
+            
         assert all(
-            [isinstance(_learnware.get_model(), dict) for _learnware in learnware_list]
+            [isinstance(_learnware.get_model(), dict) for _learnware in learnwares]
         ), "the learnwre model should not be instantiated for reuser with containter"
         self.learnware_list = [
             Learnware(
                 _learnware.id, ModelEnvContainer(_learnware.get_model(), _zippath), _learnware.get_specification()
             )
-            for _learnware, _zippath in zip(learnware_list, learnware_zippaths)
+            for _learnware, _zippath in zip(learnwares, learnware_zippaths)
         ]
 
-        # We should first register the destroy method
-        atexit.register(self.cleanup)
-        self.init_env()
-
-    def init_env(self):
+    def __enter__(self):
         model_list = [_learnware.get_model() for _learnware in self.learnware_list]
         with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._initialize_model_container, model_list)
 
-    def cleanup(self):
-        for _learnware in self.learnware_list:
-            self._destroy_model_container(_learnware.get_model())
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        model_list = [_learnware.get_model() for _learnware in self.learnware_list]
+        with ProcessPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
+            executor.map(self._destroy_model_container, model_list)
 
     @staticmethod
     def _initialize_model_container(model: ModelEnvContainer):
         try:
             model.init_env_and_metadata()
         except Exception as err:
-            logger.warning(f"build env {model.conda_env} failed due to {err}")
+            logger.error(f"build env {model.conda_env} failed due to {err}")
 
     @staticmethod
     def _destroy_model_container(model: ModelEnvContainer):
         try:
             model.remove_env()
         except Exception as err:
-            logger.warning(f"remove env {model.conda_env} failed due to {err}")
+            logger.error(f"remove env {model.conda_env} failed due to {err}")
 
-    def get_learnware_list_with_container(self):
+    def get_learnwares_with_container(self):
         return self.learnware_list

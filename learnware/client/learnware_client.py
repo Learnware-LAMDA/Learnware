@@ -402,7 +402,7 @@ class LearnwareClient:
                     learnware_list[i].instantiate_model()
             elif runnable_option == "conda_env":
                 env_container = LearnwaresContainer(learnware_list, zip_paths)
-                learnware_list = env_container.get_learnware_list_with_container()
+                learnware_list = env_container.get_learnwares_with_container()
 
         if len(learnware_list) == 1:
             return learnware_list[0]
