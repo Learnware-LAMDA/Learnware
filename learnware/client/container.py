@@ -61,8 +61,13 @@ class ModelEnvContainer(BaseModel):
 
     def remove_env(self):
         if self.conda_env is not None:
+            conda_env = self.conda_env
             self.conda_env = None
-            remove_enviroment(self.conda_env)
+            try:
+                remove_enviroment(self.conda_env)
+            except Exception as err:
+                self.conda_env = conda_env
+                raise err
 
     def run_model_with_script(self, method, **kargs):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
