@@ -1,4 +1,5 @@
 import os
+import docker
 import pickle
 import atexit
 import tempfile
@@ -181,13 +182,26 @@ class ModelDockerContainer(ModelContainer):
         # call init method of parent of parent class
         super(ModelDockerContainer, self).__init__(model_config, learnware_zippath, build)
 
+    @staticmethod
+    def _generate_docker_container():
+        client = docker.from_env()
+        image = client.images.pull('continuumio/miniconda3')
+        return client.containers.create(image)
+    
+    @staticmethod
+    def _destroy_docker_container():
+        # destroy
+        pass
+
     def _setup_env_and_metadata(self):
         """setup env and set the input and output shape by communicating with docker"""
         raise NotImplementedError("_setup_env_and_metadata method is not implemented!")
 
     def _init_env(self):
         """create docker img according to the str self.docker_img, and creat the correponding conda python env"""
-
+        client = docker.from_env()
+        client.containers.run
+        image, build_log = client.images.pull(path=image_path, tag=tag)
         raise NotImplementedError("_init_env method is not implemented!")
 
     def _remove_env(self):
@@ -238,12 +252,6 @@ class LearnwaresContainer:
         self.cleanup = cleanup
         print("234", self.learnware_list)
 
-    def _generate_docker_img():
-        return None
-
-    def _destroy_docker_img():
-        pass
-
     def __enter__(self):
         if self.mode == "conda":
             self.learnware_containers = [
@@ -253,7 +261,7 @@ class LearnwaresContainer:
                 for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
             ]
         else:
-            self.docker_img = self._generate_docker_img()
+            self.docker_img = ModelDockerContainer._generate_docker_container()
             self.learnware_containers = [
                 Learnware(
                     _learnware.id,
@@ -289,7 +297,7 @@ class LearnwaresContainer:
         self.results = None
 
         if self.mode == "docker":
-            self._destroy_docker_img()
+            ModelDockerContainer._destroy_docker_container()
 
     @staticmethod
     def _initialize_model_container(model: ModelCondaContainer):

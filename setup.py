@@ -68,6 +68,7 @@ REQUIRED = [
     "sqlalchemy>=2.0.21",
     "shortuuid>=1.0.11",
     "geatpy>=2.7.0",
+    "docker>=6.1.3",
 ]
 
 if get_platform() != MACOS:
