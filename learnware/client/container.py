@@ -29,16 +29,16 @@ class ModelContainer(BaseModel):
         self.input_shape = input_shape
         self.output_shape = output_shape
 
-    def init_env_and_set_metadata(self):
+    def init_and_setup_env(self):
         """We must set `input_shape` and `output_shape`"""
         if self.build:
             self.cleanup_flag = True
             self._init_env()
-            atexit.register(self.remove_env)
+            atexit.register(self.reset_and_remove_env)
 
-        self._set_metadata()
+        self._setup_env_and_metadata()
 
-    def remove_env(self):
+    def reset_and_remove_env(self):
         if self.cleanup_flag is True:
             self.cleanup_flag = False
             try:
@@ -47,8 +47,8 @@ class ModelContainer(BaseModel):
                 self.cleanup_flag = True
                 raise err
 
-    def _set_metadata(self):
-        raise NotImplementedError("_set_metadata method is not implemented!")
+    def _setup_env_and_metadata(self):
+        raise NotImplementedError("_setup_env_and_metadata method is not implemented!")
 
     def _init_env(self):
         raise NotImplementedError("_init_env method is not implemented!")
@@ -77,7 +77,7 @@ class ModelCondaContainer(ModelContainer):
     def _remove_env(self):
         remove_enviroment(self.conda_env)
 
-    def _set_metadata(self):
+    def _setup_env_and_metadata(self):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
@@ -160,13 +160,12 @@ class ModelCondaContainer(ModelContainer):
         self._run_model_with_script("finetune", X=X, y=y)
 
 
-class ModelDockerContainer(ModelCondaContainer):
+class ModelDockerContainer(ModelContainer):
     def __init__(
         self,
         model_config: dict,
         learnware_zippath: str,
-        docker_id: str = None,
-        conda_env: str = None,
+        docker_img: object = None,
         build: bool = True,
     ):
         """_summary_
@@ -176,18 +175,18 @@ class ModelDockerContainer(ModelCondaContainer):
         build : bool, optional
             Whether to build the docker env, by default True
         """
-        if docker_id is None:
-            self.docker_id = f"docker_img_{shortuuid.uuid()}"  # create the id of docker imf
-        self.conda_env = f"learnware_{shortuuid.uuid()}" if conda_env is None else conda_env
-        # call init method of parent of parent class
-        super(ModelCondaContainer, self).__init__(model_config, learnware_zippath, True if docker_id is None else build)
 
-    def _set_metadata(self):
-        """set the input and output shape by communicating with docker"""
-        raise NotImplementedError("_set_metadata method is not implemented!")
+        self.docker_img = f"docker_img_{shortuuid.uuid()}" if docker_img is None else docker_img
+        self.conda_env = f"learnware_{shortuuid.uuid()}"
+        # call init method of parent of parent class
+        super(ModelDockerContainer, self).__init__(model_config, learnware_zippath, build)
+
+    def _setup_env_and_metadata(self):
+        """setup env and set the input and output shape by communicating with docker"""
+        raise NotImplementedError("_setup_env_and_metadata method is not implemented!")
 
     def _init_env(self):
-        """create docker img according to the str self.docker_id, and creat the correponding conda python env"""
+        """create docker img according to the str self.docker_img, and creat the correponding conda python env"""
 
         raise NotImplementedError("_init_env method is not implemented!")
 
@@ -232,39 +231,43 @@ class LearnwaresContainer:
             [isinstance(_learnware.get_model(), dict) for _learnware in learnwares]
         ), "the learnwre model should not be instantiated for reuser with containter"
 
-        if mode == "conda":
-            self.learnware_list = [
-                Learnware(
-                    _learnware.id, ModelCondaContainer(_learnware.get_model(), _zippath), _learnware.get_specification()
-                )
-                for _learnware, _zippath in zip(learnwares, learnware_zippaths)
-            ]
-        elif mode == "docker":
-            docker_id = f"docker_img_{shortuuid.uuid()}"
-            self.learnware_list = [
-                Learnware(
-                    _learnware.id,
-                    ModelDockerContainer(_learnware.get_model(), _zippath, docker_id, build=False),
-                    _learnware.get_specification(),
-                )
-                for _learnware, _zippath in zip(learnwares, learnware_zippaths)
-            ]
-
-        else:
-            raise ValueError(f"mode must be in ['conda', 'docker'], should not be {mode}")
-        self.results = [True] * len(learnwares)
+        self.mode = mode
+        assert self.mode in {"conda", "docker"}, f"mode must be in ['conda', 'docker'], should not be {self.mode}"
+        self.learnware_list = learnwares
+        self.learnware_zippaths = learnware_zippaths
         self.cleanup = cleanup
         print("234", self.learnware_list)
 
     def _generate_docker_img():
         return None
 
+    def _destroy_docker_img():
+        pass
+
     def __enter__(self):
-        model_list = [_learnware.get_model() for _learnware in self.learnware_list]
+        if self.mode == "conda":
+            self.learnware_containers = [
+                Learnware(
+                    _learnware.id, ModelCondaContainer(_learnware.get_model(), _zippath), _learnware.get_specification()
+                )
+                for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
+            ]
+        else:
+            self.docker_img = self._generate_docker_img()
+            self.learnware_containers = [
+                Learnware(
+                    _learnware.id,
+                    ModelDockerContainer(_learnware.get_model(), _zippath, self.docker_img, build=False),
+                    _learnware.get_specification(),
+                )
+                for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
+            ]
+
+        model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
         with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             results = executor.map(self._initialize_model_container, model_list)
         self.results = list(results)
-        print("234", self.results, sum(self.results), len(self.learnware_list))
+
         if sum(self.results) < len(self.learnware_list):
             logger.warning(
                 f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnware will be ignored"
@@ -274,15 +277,24 @@ class LearnwaresContainer:
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.cleanup:
             logger.warning(f"Notice, the learnware container env is not cleaned up!")
+            self.learnware_containers = None
+            self.results = None
             return
-        model_list = [_learnware.get_model() for _learnware in self.learnware_list]
+
+        model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
         with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._destroy_model_container, model_list)
+
+        self.learnware_containers = None
+        self.results = None
+
+        if self.mode == "docker":
+            self._destroy_docker_img()
 
     @staticmethod
     def _initialize_model_container(model: ModelCondaContainer):
         try:
-            model.init_env_and_set_metadata()
+            model.init_and_setup_env()
         except Exception as err:
             logger.error(f"build env {model.conda_env} failed due to {err}")
             return False
@@ -291,13 +303,15 @@ class LearnwaresContainer:
     @staticmethod
     def _destroy_model_container(model: ModelCondaContainer):
         try:
-            model.remove_env()
+            model.reset_and_remove_env()
         except Exception as err:
             logger.error(f"remove env {model.conda_env} failed due to {err}")
             return False
         return True
 
     def get_learnwares_with_container(self):
-        learnwares = [_learnware for _learnware, _result in zip(self.learnware_list, self.results) if _result is True]
-        print("233", learnwares, list(self.results))
-        return learnwares
+        learnware_containers = [
+            _learnware for _learnware, _result in zip(self.learnware_containers, self.results) if _result is True
+        ]
+        print("233", learnware_containers, list(self.results))
+        return learnware_containers
