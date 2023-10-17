@@ -182,6 +182,8 @@ class ModelDockerContainer(ModelContainer):
 
         self.docker_container = f"docker_container_{shortuuid.uuid()}" if docker_container is None else docker_container
         self.conda_env = f"learnware_{shortuuid.uuid()}"
+        self.docker_model_config = None
+        self.docker_model_script_path = None
         # call init method of parent of parent class
         super(ModelDockerContainer, self).__init__(model_config, learnware_zippath, build)
 
@@ -352,7 +354,7 @@ class ModelDockerContainer(ModelContainer):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
-            model_script_path = os.path.join(tempdir, "run_model.py")
+            self.docker_model_script_path = os.path.join(tempdir, "run_model.py")
 
             docker_model_config = self.model_config.copy()
             with tempfile.TemporaryDirectory(prefix="learnware_model_config_") as config_tempdir:
@@ -362,12 +364,13 @@ class ModelDockerContainer(ModelContainer):
                     os.path.dirname(self.model_config["module_path"]),
                     os.path.dirname(docker_model_config["module_path"]),
                 )
-
+                
+            self.docker_model_config = docker_model_config
             with open(model_path, "wb") as model_fp:
-                pickle.dump(docker_model_config, model_fp)
+                pickle.dump(self.docker_model_config, model_fp)
 
             self._copy_file_to_container(model_path, model_path)
-            self._copy_file_to_container(self.model_script, model_script_path)
+            self._copy_file_to_container(self.model_script, self.docker_model_script_path)
             self.docker_container.exec_run(
                 " ".join(
                     [
@@ -377,7 +380,7 @@ class ModelDockerContainer(ModelContainer):
                         f"{self.conda_env}",
                         "--no-capture-output",
                         "python3",
-                        f"{model_script_path}",
+                        f"{self.docker_model_script_path}",
                         "--model-path",
                         f"{model_path}",
                         "--output-path",
@@ -398,25 +401,77 @@ class ModelDockerContainer(ModelContainer):
     def _init_env(self):
         """create docker container according to the str self.docker_container, and creat the correponding conda python env"""
         client = docker.from_env()
-        image, build_log = client.images.pull(path=image_path, tag=tag)
-        raise NotImplementedError("_init_env method is not implemented!")
+        http_proxy = os.environ.get("http_proxy")
+        https_proxy = os.environ.get("https_proxy")
+
+        container_config = {
+            "image": "continuumio/miniconda3",
+            "network_mode": "host",
+            "detach": True,
+            "tty": True,
+            "command": "bash",
+            "environment": {"http_proxy": http_proxy, "https_proxy": https_proxy},
+        }
+        self.docker_container = client.containers.run(**container_config)
 
     def _remove_env(self):
         """remove the docker container"""
         self.docker_container.stop()
         self.docker_container.remove()
 
+    def _run_model_with_script(self, method, **kargs):
+        with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
+            input_path = os.path.join(tempdir, "input.pkl")
+            output_path = os.path.join(tempdir, "output.pkl")
+            model_path = os.path.join(tempdir, "model.pkl")
+
+            with open(model_path, "wb") as model_fp:
+                pickle.dump(self.docker_model_config, model_fp)
+
+            with open(input_path, "wb") as input_fp:
+                pickle.dump({"method": method, "kargs": kargs}, input_fp)
+
+            self._copy_file_to_container(model_path, model_path)
+            self._copy_file_to_container(input_path, input_path)
+
+            self.docker_container.exec_run(
+                " ".join([
+                    "conda",
+                    "run",
+                    "-n",
+                    f"{self.conda_env}",
+                    "--no-capture-output",
+                    "python3",
+                    f"{self.docker_model_script_path}",
+                    "--model-path",
+                    f"{model_path}",
+                    "--input-path",
+                    f"{input_path}",
+                    "--output-path",
+                    f"{output_path}",
+                ])
+            )
+            self._copy_file_from_container(output_path, output_path)
+
+            with open(output_path, "rb") as output_fp:
+                output_results = pickle.load(output_fp)
+
+        if output_results["status"] != "success":
+            raise output_results["error_info"]
+
+        return output_results[method]
+
     def fit(self, X, y):
         """fit model by the communicating with docker"""
-        raise NotImplementedError("fit method is not implemented!")
+        self._run_model_with_script("fit", X=X, y=y)
 
     def predict(self, X):
         """predict model by the communicating with docker"""
-        raise NotImplementedError("predict method is not implemented!")
+        return self._run_model_with_script("predict", X=X)
 
     def finetune(self, X, y) -> None:
         """finetune model by the communicating with docker"""
-        raise NotImplementedError("finetune method is not implemented!")
+        self._run_model_with_script("finetune", X=X, y=y)
 
 
 class LearnwaresContainer:

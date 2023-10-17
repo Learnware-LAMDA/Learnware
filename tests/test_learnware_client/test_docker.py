@@ -16,11 +16,8 @@ if __name__ == "__main__":
     client.login(email, token)
 
     root = os.path.dirname(__file__)
-    # learnware_ids = ["00000084", "00000154", "00000155"]
-    # zip_paths = [os.path.join(root, x) for x in ["1.zip", "2.zip", "3.zip"]]
-
-    learnware_ids = ["00000084"]
-    zip_paths = [os.path.join(root, x) for x in ["1.zip"]]
+    learnware_ids = ["00000084", "00000154", "00000155"]
+    zip_paths = [os.path.join(root, x) for x in ["1.zip", "2.zip", "3.zip"]]
 
     for learnware_id, zip_path in zip(learnware_ids, zip_paths):
         client.download_learnware(learnware_id, zip_path)
