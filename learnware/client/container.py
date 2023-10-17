@@ -364,7 +364,7 @@ class ModelDockerContainer(ModelContainer):
                     os.path.dirname(self.model_config["module_path"]),
                     os.path.dirname(docker_model_config["module_path"]),
                 )
-                
+
             self.docker_model_config = docker_model_config
             with open(model_path, "wb") as model_fp:
                 pickle.dump(self.docker_model_config, model_fp)
@@ -435,21 +435,23 @@ class ModelDockerContainer(ModelContainer):
             self._copy_file_to_container(input_path, input_path)
 
             self.docker_container.exec_run(
-                " ".join([
-                    "conda",
-                    "run",
-                    "-n",
-                    f"{self.conda_env}",
-                    "--no-capture-output",
-                    "python3",
-                    f"{self.docker_model_script_path}",
-                    "--model-path",
-                    f"{model_path}",
-                    "--input-path",
-                    f"{input_path}",
-                    "--output-path",
-                    f"{output_path}",
-                ])
+                " ".join(
+                    [
+                        "conda",
+                        "run",
+                        "-n",
+                        f"{self.conda_env}",
+                        "--no-capture-output",
+                        "python3",
+                        f"{self.docker_model_script_path}",
+                        "--model-path",
+                        f"{model_path}",
+                        "--input-path",
+                        f"{input_path}",
+                        "--output-path",
+                        f"{output_path}",
+                    ]
+                )
             )
             self._copy_file_from_container(output_path, output_path)
 
