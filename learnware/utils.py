@@ -7,6 +7,7 @@ import importlib
 import importlib.util
 from typing import Union
 from types import ModuleType
+import zipfile
 from .logger import get_module_logger
 
 logger = get_module_logger("utils")
@@ -53,3 +54,20 @@ def read_yaml_to_dict(yaml_path: str):
     with open(yaml_path, "r") as file:
         dict_value = yaml.load(file.read(), Loader=yaml.FullLoader)
         return dict_value
+
+def zip_learnware_folder(path: str, output_name: str):
+    with zipfile.ZipFile(output_name, "w") as zip_ref:
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                full_path = os.path.join(root, file)
+                if file.endswith(".pyc") or os.path.islink(full_path):
+                    continue
+                zip_ref.write(
+                    full_path, 
+                    arcname=os.path.relpath(
+                        full_path, 
+                        path))
+                pass
+            pass
+        pass
+    pass
