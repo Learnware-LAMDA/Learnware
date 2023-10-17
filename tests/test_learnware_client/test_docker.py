@@ -18,17 +18,14 @@ if __name__ == "__main__":
     root = os.path.dirname(__file__)
     # learnware_ids = ["00000084", "00000154", "00000155"]
     # zip_paths = [os.path.join(root, x) for x in ["1.zip", "2.zip", "3.zip"]]
-    
+
     learnware_ids = ["00000084"]
     zip_paths = [os.path.join(root, x) for x in ["1.zip"]]
 
     for learnware_id, zip_path in zip(learnware_ids, zip_paths):
         client.download_learnware(learnware_id, zip_path)
 
-    learnware_list = [
-        client.load_learnware(learnware_path=zippath)
-        for zippath in zip_paths
-    ]
+    learnware_list = [client.load_learnware(learnware_path=zippath) for zippath in zip_paths]
     with LearnwaresContainer(learnware_list, zip_paths, mode="docker") as env_container:
         learnware_list = env_container.get_learnwares_with_container()
         reuser = AveragingReuser(learnware_list, mode="vote_by_label")

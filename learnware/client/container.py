@@ -188,9 +188,9 @@ class ModelDockerContainer(ModelContainer):
     @staticmethod
     def _generate_docker_container():
         client = docker.from_env()
-        http_proxy = os.environ.get('http_proxy')
-        https_proxy = os.environ.get('https_proxy')
-        
+        http_proxy = os.environ.get("http_proxy")
+        https_proxy = os.environ.get("https_proxy")
+
         container_config = {
             "image": "continuumio/miniconda3",
             "network_mode": "host",
@@ -201,18 +201,18 @@ class ModelDockerContainer(ModelContainer):
         }
         container = client.containers.run(**container_config)
         return container
-    
+
     @staticmethod
     def _destroy_docker_container(docker_container):
         # docker_container.stop()
         # docker_container.remove()
         pass
-    
+
     def _copy_file_to_container(self, local_path, container_path):
         directory_path = os.path.dirname(container_path)
         container_name = os.path.basename(container_path)
         self.docker_container.exec_run(f"mkdir -p {directory_path}")
-        
+
         with tempfile.TemporaryDirectory(prefix="learnware_tar_") as tempdir:
             # Create a temporary tar file
             tar_file_path = os.path.join(tempdir, container_name + ".tar")
@@ -235,7 +235,7 @@ class ModelDockerContainer(ModelContainer):
             os.remove(tar_local_file)
         except docker.errors.NotFound as err:
             logger.error(f"Copy file from container failed due to {err}")
-    
+
     def _install_environment(self, zip_path, conda_env):
         """Install environment of a learnware in docker container
 
@@ -264,7 +264,7 @@ class ModelDockerContainer(ModelContainer):
                 ]
                 for _cmd in environment_cmd:
                     self.docker_container.exec_run(_cmd)
-                
+
                 if "environment.yaml" in z_file.namelist():
                     z_file.extract(member="environment.yaml", path=tempdir)
                     yaml_path: str = os.path.join(tempdir, "environment.yaml")
@@ -272,12 +272,14 @@ class ModelDockerContainer(ModelContainer):
                     logger.info(f"checking the avaliabe conda packages for {conda_env}")
                     filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
                     self._copy_file_to_container(yaml_path_filter, yaml_path_filter)
-                    
+
                     # create environment
                     logger.info(f"create and update conda env [{conda_env}] according to .yaml file")
-                    for i in range(run_cmd_times):                    
+                    for i in range(run_cmd_times):
                         result = self.docker_container.exec_run(
-                            " ".join(["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"])
+                            " ".join(
+                                ["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"]
+                            )
                         )
                         if result.exit_code == 0:
                             break
@@ -291,30 +293,32 @@ class ModelDockerContainer(ModelContainer):
                         requirements_file=requirements_path, output_file=requirements_path_filter
                     )
                     logger.info(f"create empty conda env [{conda_env}]")
-                    for i in range(run_cmd_times):                    
+                    for i in range(run_cmd_times):
                         result = self.docker_container.exec_run(
                             " ".join(["conda", "create", "-y", "--name", f"{conda_env}", "python=3.8"])
                         )
                         if result.exit_code == 0:
                             break
                     logger.info(f"install pip requirements for conda env [{conda_env}]")
-                    
+
                     self._copy_file_to_container(requirements_path_filter, requirements_path_filter)
-                    for i in range(run_cmd_times):                    
+                    for i in range(run_cmd_times):
                         result = self.docker_container.exec_run(
-                            " ".join([
-                                "conda",
-                                "run",
-                                "-n",
-                                f"{conda_env}",
-                                "--no-capture-output",
-                                "python3",
-                                "-m",
-                                "pip",
-                                "install",
-                                "-r",
-                                f"{requirements_path_filter}",
-                            ])
+                            " ".join(
+                                [
+                                    "conda",
+                                    "run",
+                                    "-n",
+                                    f"{conda_env}",
+                                    "--no-capture-output",
+                                    "python3",
+                                    "-m",
+                                    "pip",
+                                    "install",
+                                    "-r",
+                                    f"{requirements_path_filter}",
+                                ]
+                            )
                         )
                         if result.exit_code == 0:
                             break
@@ -322,24 +326,26 @@ class ModelDockerContainer(ModelContainer):
                     raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
 
         logger.info(f"install learnware package for conda env [{conda_env}]")
-        for i in range(run_cmd_times):                    
+        for i in range(run_cmd_times):
             result = self.docker_container.exec_run(
-                " ".join([
-                    "conda",
-                    "run",
-                    "-n",
-                    f"{conda_env}",
-                    "--no-capture-output",
-                    "python3",
-                    "-m",
-                    "pip",
-                    "install",
-                    "learnware",
-                ])
+                " ".join(
+                    [
+                        "conda",
+                        "run",
+                        "-n",
+                        f"{conda_env}",
+                        "--no-capture-output",
+                        "python3",
+                        "-m",
+                        "pip",
+                        "install",
+                        "learnware",
+                    ]
+                )
             )
             if result.exit_code == 0:
                 break
-    
+
     def _setup_env_and_metadata(self):
         """setup env and set the input and output shape by communicating with docker"""
         self._install_environment(self.learnware_zippath, self.conda_env)
@@ -352,33 +358,38 @@ class ModelDockerContainer(ModelContainer):
             with tempfile.TemporaryDirectory(prefix="learnware_model_config_") as config_tempdir:
                 basename = os.path.basename(self.model_config["module_path"])
                 docker_model_config["module_path"] = os.path.join(config_tempdir, basename)
-                self._copy_file_to_container(os.path.dirname(self.model_config["module_path"]), os.path.dirname(docker_model_config["module_path"]))
-            
+                self._copy_file_to_container(
+                    os.path.dirname(self.model_config["module_path"]),
+                    os.path.dirname(docker_model_config["module_path"]),
+                )
+
             with open(model_path, "wb") as model_fp:
                 pickle.dump(docker_model_config, model_fp)
-            
+
             self._copy_file_to_container(model_path, model_path)
             self._copy_file_to_container(self.model_script, model_script_path)
             self.docker_container.exec_run(
-                " ".join([
-                    "conda",
-                    "run",
-                    "-n",
-                    f"{self.conda_env}",
-                    "--no-capture-output",
-                    "python3",
-                    f"{model_script_path}",
-                    "--model-path",
-                    f"{model_path}",
-                    "--output-path",
-                    f"{output_path}",
-                ])
+                " ".join(
+                    [
+                        "conda",
+                        "run",
+                        "-n",
+                        f"{self.conda_env}",
+                        "--no-capture-output",
+                        "python3",
+                        f"{model_script_path}",
+                        "--model-path",
+                        f"{model_path}",
+                        "--output-path",
+                        f"{output_path}",
+                    ]
+                )
             )
             self._copy_file_from_container(output_path, output_path)
 
             with open(output_path, "rb") as output_fp:
                 output_results = pickle.load(output_fp)
-                
+
         input_shape = output_results["metadata"]["input_shape"]
         output_shape = output_results["metadata"]["output_shape"]
         print("input_shape", input_shape, "output_shape", output_shape)
