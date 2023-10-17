@@ -113,7 +113,7 @@ class ModelCondaContainer(ModelContainer):
 
         input_shape = output_results["metadata"]["input_shape"]
         output_shape = output_results["metadata"]["output_shape"]
-        print("input_shape", input_shape, "output_shape", output_shape)
+        logger.info(f"input_shape: {input_shape}, output_shape: {output_shape}")
         self.reset(input_shape=input_shape, output_shape=output_shape)
 
     def _run_model_with_script(self, method, **kargs):
@@ -206,9 +206,8 @@ class ModelDockerContainer(ModelContainer):
 
     @staticmethod
     def _destroy_docker_container(docker_container):
-        # docker_container.stop()
-        # docker_container.remove()
-        pass
+        docker_container.stop()
+        docker_container.remove()
 
     def _copy_file_to_container(self, local_path, container_path):
         directory_path = os.path.dirname(container_path)
@@ -395,7 +394,7 @@ class ModelDockerContainer(ModelContainer):
 
         input_shape = output_results["metadata"]["input_shape"]
         output_shape = output_results["metadata"]["output_shape"]
-        print("input_shape", input_shape, "output_shape", output_shape)
+        logger.info(f"input_shape: {input_shape}, output_shape: {output_shape}")
         self.reset(input_shape=input_shape, output_shape=output_shape)
 
     def _init_env(self):
@@ -575,5 +574,4 @@ class LearnwaresContainer:
         learnware_containers = [
             _learnware for _learnware, _result in zip(self.learnware_containers, self.results) if _result is True
         ]
-        print("233", learnware_containers, list(self.results))
         return learnware_containers
