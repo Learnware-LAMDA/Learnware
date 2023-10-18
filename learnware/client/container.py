@@ -180,7 +180,7 @@ class ModelDockerContainer(ModelContainer):
             Whether to build the docker env, by default True
         """
 
-        self.docker_container = f"docker_container_{shortuuid.uuid()}" if docker_container is None else docker_container
+        self.docker_container = docker_container
         self.conda_env = f"learnware_{shortuuid.uuid()}"
         self.docker_model_config = None
         self.docker_model_script_path = None
@@ -514,11 +514,11 @@ class LearnwaresContainer:
                 for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
             ]
         else:
-            self.docker_container = ModelDockerContainer._generate_docker_container()
+            self._docker_container = ModelDockerContainer._generate_docker_container()
             self.learnware_containers = [
                 Learnware(
                     _learnware.id,
-                    ModelDockerContainer(_learnware.get_model(), _zippath, self.docker_container, build=False),
+                    ModelDockerContainer(_learnware.get_model(), _zippath, self._docker_container, build=False),
                     _learnware.get_specification(),
                 )
                 for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
@@ -550,7 +550,7 @@ class LearnwaresContainer:
         self.results = None
 
         if self.mode == "docker":
-            ModelDockerContainer._destroy_docker_container(self.docker_container)
+            ModelDockerContainer._destroy_docker_container(self._docker_container)
 
     @staticmethod
     def _initialize_model_container(model: ModelCondaContainer):
