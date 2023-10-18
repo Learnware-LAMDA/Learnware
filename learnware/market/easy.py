@@ -8,6 +8,7 @@ import pandas as pd
 from cvxopt import solvers, matrix
 from typing import Tuple, Any, List, Union, Dict
 import traceback
+import json
 
 from .base import BaseMarket, BaseUserInfo
 from .database_ops import DatabaseOperations
@@ -16,6 +17,8 @@ from ..learnware import Learnware, get_learnware_from_dirpath
 from ..specification import RKMEStatSpecification, Specification
 from ..logger import get_module_logger
 from ..config import C as conf
+from .. import utils
+
 
 logger = get_module_logger("market", "INFO")
 
@@ -833,6 +836,26 @@ class EasyMarket(BaseMarket):
             except:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
+
+    def update_learnware_semantic_spec(self, learnware_id: str, semantic_spec: dict) -> bool:
+        """Update Learnware semantic_spec
+        """
+
+        # update database
+        self.dbops.update_learnware_semantic_spec(learnware_id=learnware_id, semantic_spec=semantic_spec)
+        # update file
+        
+        folder_path = self.learnware_folder_list[learnware_id]
+        with open(os.path.join(folder_path, "semantic_specification.json"), "w") as f:
+            json.dump(semantic_spec, f)
+            pass
+        # update zip
+        zip_path = self.learnware_zip_list[learnware_id]
+        utils.zip_learnware_folder(folder_path, zip_path)
+
+        # update learnware
+        self.learnware_list[learnware_id].update_semantic_spec(semantic_spec)
+        pass
 
     def __len__(self):
         return len(self.learnware_list.keys())
