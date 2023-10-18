@@ -6,7 +6,7 @@ import numpy as np
 import learnware
 from learnware.learnware import get_learnware_from_dirpath
 from learnware.client import LearnwareClient
-from learnware.client.container import ModelEnvContainer, LearnwaresContainer
+from learnware.client.container import ModelCondaContainer, LearnwaresContainer
 from learnware.learnware.reuse import AveragingReuser
 
 
@@ -24,7 +24,7 @@ class TestLearnwareLoad(unittest.TestCase):
         self.zip_paths = [os.path.join(root, x) for x in ["1.zip", "2.zip", "3.zip"]]
 
     def test_load_single_learnware_by_zippath(self):
-        for (learnware_id, zip_path) in zip(self.learnware_ids, self.zip_paths):
+        for learnware_id, zip_path in zip(self.learnware_ids, self.zip_paths):
             self.client.download_learnware(learnware_id, zip_path)
 
         learnware_list = [
@@ -39,7 +39,7 @@ class TestLearnwareLoad(unittest.TestCase):
             print(learnware.id, learnware.predict(input_array))
 
     def test_load_multi_learnware_by_zippath(self):
-        for (learnware_id, zip_path) in zip(self.learnware_ids, self.zip_paths):
+        for learnware_id, zip_path in zip(self.learnware_ids, self.zip_paths):
             self.client.download_learnware(learnware_id, zip_path)
 
         learnware_list = self.client.load_learnware(learnware_path=self.zip_paths, runnable_option="conda_env")

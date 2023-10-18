@@ -14,7 +14,7 @@ def system_execute(args, timeout=None):
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
-        print("System Execute Error:", str(com_process.stderr))
+        print("System Execute Error:", com_process.stderr.decode())
         raise err
 
 
