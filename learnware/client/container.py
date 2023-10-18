@@ -202,6 +202,15 @@ class ModelDockerContainer(ModelContainer):
             "environment": {"http_proxy": http_proxy, "https_proxy": https_proxy},
         }
         container = client.containers.run(**container_config)
+        environment_cmd = [
+            "pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple",
+            "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/",
+            "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/",
+            "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/",
+            "conda config --set show_channel_urls yes",
+        ]
+        for _cmd in environment_cmd:
+            container.exec_run(_cmd)
         return container
 
     @staticmethod
@@ -256,15 +265,6 @@ class ModelDockerContainer(ModelContainer):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(file=zip_path, mode="r") as z_file:
                 logger.info(f"zip_file namelist: {z_file.namelist()}")
-                environment_cmd = [
-                    "pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple",
-                    "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/",
-                    "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/",
-                    "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/",
-                    "conda config --set show_channel_urls yes",
-                ]
-                for _cmd in environment_cmd:
-                    self.docker_container.exec_run(_cmd)
 
                 if "environment.yaml" in z_file.namelist():
                     z_file.extract(member="environment.yaml", path=tempdir)
@@ -398,25 +398,12 @@ class ModelDockerContainer(ModelContainer):
         self.reset(input_shape=input_shape, output_shape=output_shape)
 
     def _init_env(self):
-        """create docker container according to the str self.docker_container, and creat the correponding conda python env"""
-        client = docker.from_env()
-        http_proxy = os.environ.get("http_proxy")
-        https_proxy = os.environ.get("https_proxy")
-
-        container_config = {
-            "image": "continuumio/miniconda3",
-            "network_mode": "host",
-            "detach": True,
-            "tty": True,
-            "command": "bash",
-            "environment": {"http_proxy": http_proxy, "https_proxy": https_proxy},
-        }
-        self.docker_container = client.containers.run(**container_config)
+        """create docker container according to the str"""
+        self.docker_container = ModelDockerContainer._generate_docker_container()
 
     def _remove_env(self):
         """remove the docker container"""
-        self.docker_container.stop()
-        self.docker_container.remove()
+        ModelDockerContainer._destroy_docker_container(docker_container)
 
     def _run_model_with_script(self, method, **kargs):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
