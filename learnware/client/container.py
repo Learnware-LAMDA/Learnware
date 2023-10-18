@@ -29,6 +29,13 @@ class ModelContainer(BaseModel):
         self.build = build
         self.cleanup_flag = False
 
+    def __enter__(self):
+        self.init_and_setup_env()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.remove_env()
+
     def reset(self, input_shape, output_shape):
         self.input_shape = input_shape
         self.output_shape = output_shape
@@ -38,11 +45,11 @@ class ModelContainer(BaseModel):
         if self.build:
             self.cleanup_flag = True
             self._init_env()
-            atexit.register(self.reset_and_remove_env)
+            atexit.register(self.remove_env)
 
         self._setup_env_and_metadata()
 
-    def reset_and_remove_env(self):
+    def remove_env(self):
         if self.cleanup_flag is True:
             self.cleanup_flag = False
             try:
@@ -551,7 +558,7 @@ class LearnwaresContainer:
     @staticmethod
     def _destroy_model_container(model: ModelCondaContainer):
         try:
-            model.reset_and_remove_env()
+            model.remove_env()
         except Exception as err:
             logger.error(f"remove env {model.conda_env} failed due to {err}")
             return False
