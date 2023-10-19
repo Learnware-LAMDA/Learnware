@@ -1,23 +1,24 @@
 import os
+import json
 import copy
-from shutil import copyfile, rmtree
-import zipfile
 import torch
+import zipfile
+import traceback
 import numpy as np
 import pandas as pd
+from rapidfuzz import fuzz
 from cvxopt import solvers, matrix
+from shutil import copyfile, rmtree
 from typing import Tuple, Any, List, Union, Dict
-import traceback
-import json
 
 from .base import BaseMarket, BaseUserInfo
 from .database_ops import DatabaseOperations
 
+from .. import utils
+from ..config import C as conf
+from ..logger import get_module_logger
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..specification import RKMEStatSpecification, Specification
-from ..logger import get_module_logger
-from ..config import C as conf
-from .. import utils
 
 
 logger = get_module_logger("market", "INFO")
@@ -619,7 +620,7 @@ class EasyMarket(BaseMarket):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def _search_by_semantic_spec(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
+    def _search_by_semantic_spec_exact(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
         def match_semantic_spec(semantic_spec1, semantic_spec2):
             """
             semantic_spec1: semantic spec input by user
@@ -675,6 +676,94 @@ class EasyMarket(BaseMarket):
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
         return match_learnwares
 
+    def _search_by_semantic_spec_fuzz(self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_num: int = 50000, min_score: float = 30.0) -> List[Learnware]:
+        """Search learnware by fuzzy matching of semantic spec
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The list of learnwares
+        user_info : BaseUserInfo
+            user_info contains semantic_spec
+        max_num : int, optional
+            maximum number of learnwares returned, by default 50000
+        min_score : float, optional
+            Minimum fuzzy matching score of learnwares returned, by default 30.0
+
+        Returns
+        -------
+        List[Learnware]
+            The list of returned learnwares
+        """
+        def match_semantic_spec_fuzz(semantic_spec1, semantic_spec2) -> float:
+            """Calculate the fuzzy matching score of two semantic specs
+
+            Parameters
+            ----------
+            semantic_spec1 :
+                semantic spec input by user
+            semantic_spec2 : 
+                semantic spec in database
+
+            Returns
+            -------
+            float
+                matching score ranged from [0, 100]
+            """
+            for key in semantic_spec1.keys():
+                v1 = semantic_spec1[key]["Values"]
+                v2 = semantic_spec2[key]["Values"]
+
+                if len(v1) == 0:
+                    # user input is empty, no need to search
+                    continue
+                
+                if key not in "Name":
+                    if len(v2) == 0:
+                        # user input contains some key that is not in database
+                        return 0
+
+                    if semantic_spec1[key]["Type"] == "Class":
+                        if isinstance(v1, list):
+                            v1 = v1[0]
+                        if isinstance(v2, list):
+                            v2 = v2[0]
+                        if v1 != v2:
+                            return 0
+                    elif semantic_spec1[key]["Type"] == "Tag":
+                        if not (set(v1) & set(v2)):
+                            return 0
+                        pass
+                    pass
+                pass
+            
+            name2 = semantic_spec2["Name"]["Values"].lower()
+            description2 = semantic_spec2["Description"]["Values"].lower()
+            
+            if "Name" in semantic_spec1:
+                name1 = semantic_spec1["Name"]["Values"].lower()
+                if len(name1) > 0:
+                    score_name = fuzz.partial_ratio(name1, name2)
+                    score_des = fuzz.partial_ratio(name1, description2)
+                    return score_name * 0.7 + score_des * 0.3
+
+            return 100
+        
+        matched_learnwares, matched_scores = [], []
+        for learnware in learnware_list:
+            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
+            user_semantic_spec = user_info.get_semantic_spec()
+            match_score = match_semantic_spec(user_semantic_spec, learnware_semantic_spec)
+            if match_score >= min_score:
+                matched_learnwares.append(learnware)
+                matched_scores.append(match_score)
+        
+        sort_idx = sorted(list(range(len(matched_scores))), lambda k: matched_scores[k], reverse=True)[:max_num]
+        matched_learnwares = [matched_learnwares[idx] for idx in sort_idx]
+        
+        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(matched_learnwares), len(learnware_list)))
+        return matched_learnwares
+    
     def search_learnware(
         self, user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy"
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
@@ -696,7 +785,7 @@ class EasyMarket(BaseMarket):
             the fourth is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
-        learnware_list = self._search_by_semantic_spec(learnware_list, user_info)
+        learnware_list = self._search_by_semantic_spec_fuzz(learnware_list, user_info)
         # learnware_list = list(set(learnware_list_tags + learnware_list_description))
 
         if "RKMEStatSpecification" not in user_info.stat_info:
