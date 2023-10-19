@@ -96,12 +96,7 @@ class TestAllWorkflow(unittest.TestCase):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            semantic_spec["Output"] = {
-                "Dimension": 1,
-                "Description": {
-                    "0": "The label of the hand-written digit."
-                }
-            }
+            semantic_spec["Output"] = {"Dimension": 1, "Description": {"0": "The label of the hand-written digit."}}
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))

@@ -620,7 +620,9 @@ class EasyMarket(BaseMarket):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def _search_by_semantic_spec_exact(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
+    def _search_by_semantic_spec_exact(
+        self, learnware_list: List[Learnware], user_info: BaseUserInfo
+    ) -> List[Learnware]:
         def match_semantic_spec(semantic_spec1, semantic_spec2):
             """
             semantic_spec1: semantic spec input by user
@@ -676,7 +678,9 @@ class EasyMarket(BaseMarket):
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
         return match_learnwares
 
-    def _search_by_semantic_spec_fuzz(self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_num: int = 50000, min_score: float = 30.0) -> List[Learnware]:
+    def _search_by_semantic_spec_fuzz(
+        self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_num: int = 50000, min_score: float = 30.0
+    ) -> List[Learnware]:
         """Search learnware by fuzzy matching of semantic spec
 
         Parameters
@@ -695,6 +699,7 @@ class EasyMarket(BaseMarket):
         List[Learnware]
             The list of returned learnwares
         """
+
         def match_semantic_spec_fuzz(semantic_spec1, semantic_spec2) -> float:
             """Calculate the fuzzy matching score of two semantic specs
 
@@ -702,14 +707,14 @@ class EasyMarket(BaseMarket):
             ----------
             semantic_spec1 :
                 semantic spec input by user
-            semantic_spec2 : 
+            semantic_spec2 :
                 semantic spec in database
 
             Returns
             -------
             float
                 matching score ranged from [0, 100]
-            """            
+            """
             for key in semantic_spec1.keys():
                 v1 = semantic_spec1[key]["Values"]
                 v2 = semantic_spec2[key]["Values"]
@@ -717,7 +722,7 @@ class EasyMarket(BaseMarket):
                 if len(v1) == 0:
                     # user input is empty, no need to search
                     continue
-                
+
                 if key not in "Name":
                     if len(v2) == 0:
                         # user input contains some key that is not in database
@@ -736,10 +741,10 @@ class EasyMarket(BaseMarket):
                         pass
                     pass
                 pass
-            
+
             name2 = semantic_spec2["Name"]["Values"].lower()
             description2 = semantic_spec2["Description"]["Values"].lower()
-            
+
             if "Name" in semantic_spec1:
                 name1 = semantic_spec1["Name"]["Values"].lower()
                 if len(name1) > 0:
@@ -748,7 +753,7 @@ class EasyMarket(BaseMarket):
                     return score_name * 0.7 + score_des * 0.3
 
             return 100
-        
+
         matched_learnwares, matched_scores = [], []
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
@@ -757,13 +762,15 @@ class EasyMarket(BaseMarket):
             if match_score >= min_score:
                 matched_learnwares.append(learnware)
                 matched_scores.append(match_score)
-        
+
         sort_idx = sorted(list(range(len(matched_scores))), key=lambda k: matched_scores[k], reverse=True)[:max_num]
         matched_learnwares = [matched_learnwares[idx] for idx in sort_idx]
-        
-        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(matched_learnwares), len(learnware_list)))
+
+        logger.info(
+            "semantic_spec search: choose %d from %d learnwares" % (len(matched_learnwares), len(learnware_list))
+        )
         return matched_learnwares
-    
+
     def search_learnware(
         self, user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy"
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
@@ -927,13 +934,12 @@ class EasyMarket(BaseMarket):
                 return None
 
     def update_learnware_semantic_spec(self, learnware_id: str, semantic_spec: dict) -> bool:
-        """Update Learnware semantic_spec
-        """
+        """Update Learnware semantic_spec"""
 
         # update database
         self.dbops.update_learnware_semantic_spec(learnware_id=learnware_id, semantic_spec=semantic_spec)
         # update file
-        
+
         folder_path = self.learnware_folder_list[learnware_id]
         with open(os.path.join(folder_path, "semantic_specification.json"), "w") as f:
             json.dump(semantic_spec, f)
