@@ -69,6 +69,7 @@ REQUIRED = [
     "shortuuid>=1.0.11",
     "geatpy>=2.7.0",
     "docker>=6.1.3",
+    "rapidfuzz>=3.4.0",
 ]
 
 if get_platform() != MACOS:

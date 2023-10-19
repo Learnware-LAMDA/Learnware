@@ -55,6 +55,7 @@ def read_yaml_to_dict(yaml_path: str):
         dict_value = yaml.load(file.read(), Loader=yaml.FullLoader)
         return dict_value
 
+
 def zip_learnware_folder(path: str, output_name: str):
     with zipfile.ZipFile(output_name, "w") as zip_ref:
         for root, dirs, files in os.walk(path):
@@ -62,11 +63,7 @@ def zip_learnware_folder(path: str, output_name: str):
                 full_path = os.path.join(root, file)
                 if file.endswith(".pyc") or os.path.islink(full_path):
                     continue
-                zip_ref.write(
-                    full_path, 
-                    arcname=os.path.relpath(
-                        full_path, 
-                        path))
+                zip_ref.write(full_path, arcname=os.path.relpath(full_path, path))
                 pass
             pass
         pass
