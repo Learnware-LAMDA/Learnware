@@ -709,7 +709,7 @@ class EasyMarket(BaseMarket):
             -------
             float
                 matching score ranged from [0, 100]
-            """
+            """            
             for key in semantic_spec1.keys():
                 v1 = semantic_spec1[key]["Values"]
                 v2 = semantic_spec2[key]["Values"]
@@ -753,12 +753,12 @@ class EasyMarket(BaseMarket):
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
             user_semantic_spec = user_info.get_semantic_spec()
-            match_score = match_semantic_spec(user_semantic_spec, learnware_semantic_spec)
+            match_score = match_semantic_spec_fuzz(user_semantic_spec, learnware_semantic_spec)
             if match_score >= min_score:
                 matched_learnwares.append(learnware)
                 matched_scores.append(match_score)
         
-        sort_idx = sorted(list(range(len(matched_scores))), lambda k: matched_scores[k], reverse=True)[:max_num]
+        sort_idx = sorted(list(range(len(matched_scores))), key=lambda k: matched_scores[k], reverse=True)[:max_num]
         matched_learnwares = [matched_learnwares[idx] for idx in sort_idx]
         
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(matched_learnwares), len(learnware_list)))
