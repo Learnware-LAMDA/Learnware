@@ -18,7 +18,7 @@ import learnware.specification as specification
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
 user_semantic = {
-    "Data": {"Values": ["Tabular"], "Type": "Class"},
+    "Data": {"Values": ["Image"], "Type": "Class"},
     "Task": {
         "Values": ["Classification"],
         "Type": "Class",
@@ -27,6 +27,12 @@ user_semantic = {
     "Scenario": {"Values": ["Education"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "Output": {
+        "Dimension": 1,
+        "Description": {
+            "0": "The label of the hand-written digit."
+        }
+    },
 }
 
 
