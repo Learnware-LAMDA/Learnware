@@ -64,7 +64,8 @@ class BaseMarket:
 
         raise NotImplementedError("reload market is Not Implemented")
 
-    def check_learnware(self, learnware: Learnware) -> bool:
+    @classmethod
+    def check_learnware(cls, learnware: Learnware) -> bool:
         """Check the utility of a learnware
 
         Parameters
@@ -195,3 +196,91 @@ class BaseMarket:
 
         """
         raise NotImplementedError("get semantic spec list is not implemented")
+
+
+class LearnwareOrganizer:
+    def __init__(self, market_id):
+        self.market_id = market_id
+        
+    
+    def reload_market(self) -> bool:
+        """Reload the market when server restared.
+
+        Parameters
+        ----------
+        market_path : str
+            Directory for market data. '_IP_:_port_' for loading from database.
+        semantic_spec_list_path : str
+            Directory for available semantic_spec. Should be a json file.
+
+        Returns
+        -------
+        bool
+            A flag indicating whether the market is reload successfully.
+        """
+
+        raise NotImplementedError("reload market is Not Implemented")
+    
+    def add_learnware(
+        self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
+    ) -> Tuple[str, bool]:
+        """Add a learnware into the market.
+
+        .. note::
+
+            Given a prediction of a certain time, all signals before this time will be prepared well.
+
+
+        Parameters
+        ----------
+        learnware_name : str
+            Name of new learnware.
+        model_path : str
+            Filepath for learnware model, a zipped file.
+        stat_spec_path : str
+            Filepath for statistical specification, a '.npy' file.
+            How to pass parameters requires further discussion.
+        semantic_spec : dict
+            semantic_spec for new learnware, in dictionary format.
+        desc : str
+            Brief desciption for new learnware.
+
+        Returns
+        -------
+        Tuple[str, bool]
+            str indicating model_id, bool indicating whether the learnware is added successfully.
+
+        Raises
+        ------
+        FileNotFoundError
+            file for model or statistical specification not found
+
+        """
+        raise NotImplementedError("add learnware is Not Implemented")
+    
+    
+    def delete_learnware(self, id: str) -> bool:
+        """Delete a learnware from market
+
+        Parameters
+        ----------
+        id : str
+            id of learnware to be deleted
+
+        Returns
+        -------
+        bool
+            True if the target learnware is deleted successfully.
+
+        Raises
+        ------
+        Exception
+            Raise an excpetion when given id is NOT found in learnware list
+        """
+        raise NotImplementedError("delete learnware is Not Implemented")
+
+class LearnwareSearcher:
+    def __init__(self, learnware_organizor):
+        
+    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
+        pass
