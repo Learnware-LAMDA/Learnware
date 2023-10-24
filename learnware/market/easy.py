@@ -699,6 +699,7 @@ class EasyMarket(BaseMarket):
         List[Learnware]
             The list of returned learnwares
         """
+
         def _match_semantic_spec_tag(semantic_spec1, semantic_spec2) -> bool:
             """Judge if tags of two semantic specs are consistent
 
@@ -737,8 +738,8 @@ class EasyMarket(BaseMarket):
                     elif semantic_spec1[key]["Type"] == "Tag":
                         if not (set(v1) & set(v2)):
                             return False
-            return True    
-        
+            return True
+
         matched_learnware_tag = []
         final_result = []
         user_semantic_spec = user_info.get_semantic_spec()
@@ -747,15 +748,21 @@ class EasyMarket(BaseMarket):
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
             if _match_semantic_spec_tag(user_semantic_spec, learnware_semantic_spec):
                 matched_learnware_tag.append(learnware)
-        
+
         if len(matched_learnware_tag) > 0:
             if "Name" in user_semantic_spec:
                 name_user = user_semantic_spec["Name"]["Values"].lower()
                 if len(name_user) > 0:
                     # Exact search
-                    name_list = [learnware.get_specification().get_semantic_spec()["Name"]["Values"].lower() for learnware in matched_learnware_tag]
-                    des_list = [learnware.get_specification().get_semantic_spec()["Description"]["Values"].lower() for learnware in matched_learnware_tag]
-                    
+                    name_list = [
+                        learnware.get_specification().get_semantic_spec()["Name"]["Values"].lower()
+                        for learnware in matched_learnware_tag
+                    ]
+                    des_list = [
+                        learnware.get_specification().get_semantic_spec()["Description"]["Values"].lower()
+                        for learnware in matched_learnware_tag
+                    ]
+
                     matched_learnware_exact = []
                     for i in range(len(name_list)):
                         if name_user in name_list[i] or name_user in des_list[i]:
@@ -771,9 +778,11 @@ class EasyMarket(BaseMarket):
                             if final_score >= min_score:
                                 matched_learnware_fuzz.append(matched_learnware_tag[i])
                                 fuzz_scores.append(final_score)
-                        
+
                         # Sort by score
-                        sort_idx = sorted(list(range(len(fuzz_scores))), key=lambda k: fuzz_scores[k], reverse=True)[:max_num]
+                        sort_idx = sorted(list(range(len(fuzz_scores))), key=lambda k: fuzz_scores[k], reverse=True)[
+                            :max_num
+                        ]
                         final_result = [matched_learnware_fuzz[idx] for idx in sort_idx]
                     else:
                         final_result = matched_learnware_exact
@@ -782,9 +791,7 @@ class EasyMarket(BaseMarket):
             else:
                 final_result = matched_learnware_tag
 
-        logger.info(
-            "semantic_spec search: choose %d from %d learnwares" % (len(final_result), len(learnware_list))
-        )
+        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(final_result), len(learnware_list)))
         return final_result
 
     def search_learnware(
