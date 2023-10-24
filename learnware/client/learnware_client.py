@@ -19,7 +19,8 @@ from .container import LearnwaresContainer
 from ..market.easy import EasyMarket
 from ..logger import get_module_logger
 from ..specification import Specification
-from ..learnware import BaseReuser, Learnware
+from ..learnware import BaseReuser, Learnware, get_learnware_from_dirpath
+from ..test import get_semantic_specification
 
 CHUNK_SIZE = 1024 * 1024
 logger = get_module_logger(module_name="LearnwareClient")
@@ -264,29 +265,6 @@ class LearnwareClient:
             raise Exception("delete failed: " + json.dumps(result))
         pass
 
-    def check_learnware(self, path, semantic_specification):
-        if os.path.isfile(path):
-            with tempfile.TemporaryDirectory() as tempdir:
-                with zipfile.ZipFile(path, "r") as z_file:
-                    z_file.extractall(tempdir)
-                    pass
-                return self.check_learnware_folder(tempdir, semantic_specification)
-            pass
-        else:
-            return self.check_learnware_folder(path, semantic_specification)
-            pass
-        pass
-
-    def check_learnware_folder(self, folder, semantic_specification):
-        learnware_obj = learnware.get_learnware_from_dirpath("test_id", semantic_specification, folder)
-
-        check_result = EasyMarket.check_learnware(learnware_obj)
-        if check_result == EasyMarket.USABLE_LEARWARE:
-            return True
-        else:
-            return False
-        pass
-
     def create_semantic_specification(
         self, name, description, data_type, task_type, library_type, senarioes, input_description, output_description
     ):
@@ -408,91 +386,29 @@ class LearnwareClient:
             return learnware_list[0]
         else:
             return learnware_list
-
-    def system(self, command):
-        retcd = os.system(command)
-        if retcd != 0:
-            raise RuntimeError(f"Command {command} failed with return code {retcd}")
-        pass
-
-    def install_environment(self, zip_path, conda_env=None):
-        """Install environment of a learnware
-
-        Parameters
-        ----------
-        zip_path : str
-            Path of the learnware zip file
-        conda_env : optional
-            If it is not None, a new conda environment will be created with the given name;
-            If it is None, use current environment.
-
-        Raises
-        ------
-        Exception
-            Lack of the environment configuration file.
-        """
-        with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-            with zipfile.ZipFile(zip_path, "r") as z_file:
-                logger.info(f"zip_file namelist: {z_file.namelist}")
-                if "environment.yaml" in z_file.namelist():
-                    z_file.extract("environment.yaml", tempdir)
-                    yaml_path = os.path.join(tempdir, "environment.yaml")
-                    yaml_path_filter = os.path.join(tempdir, "environment_filter.yaml")
-                    package_utils.filter_nonexist_conda_packages_file(yaml_path, yaml_path_filter)
-                    # create environment
-                    if conda_env is not None:
-                        self.system(f"conda env update --name {conda_env} --file {yaml_path_filter}")
-                        pass
-                    else:
-                        self.system(f"conda env update --file {yaml_path_filter}")
-                        pass
-                    pass
-                elif "requirements.txt" in z_file.namelist():
-                    z_file.extract("requirements.txt", tempdir)
-                    requirements_path = os.path.join(tempdir, "requirements.txt")
-                    requirements_path_filter = os.path.join(tempdir, "requirements_filter.txt")
-                    package_utils.filter_nonexist_pip_packages_file(requirements_path, requirements_path_filter)
-
-                    if conda_env is not None:
-                        self.system(f"conda create -y --name {conda_env} python=3.8")
-                        self.system(
-                            f"conda run --name {conda_env} --no-capture-output python3 -m pip install -r {requirements_path_filter}"
-                        )
-                    else:
-                        self.system(f"python3 -m pip install -r {requirements_path_filter}")
-                        pass
-                    pass
-                else:
-                    raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
-                pass
-            pass
-        pass
-
-    def test_learnware(self, zip_path, semantic_specification=None):
+    
+    @staticmethod
+    def check_learnware(zip_path, semantic_specification=None):
         if semantic_specification is None:
-            semantic_specification = dict()
-            pass
-
+            semantic_specification = get_semantic_specification()
+        
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(zip_path, mode="r") as z_file:
                 z_file.extractall(tempdir)
-                pass
-
-            learnware_obj = learnware.get_learnware_from_dirpath("test_id", semantic_specification, tempdir)
-
-            if learnware_obj is None:
+            
+            learnware = get_learnware_from_dirpath(
+                id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir
+            )
+            
+            if learnware is None:
                 raise Exception("The learnware is not valid.")
-
-            learnware_obj.instantiate_model()
-
-            if len(semantic_specification) > 0:
-                if EasyMarket.check_learnware(learnware_obj) != EasyMarket.USABLE_LEARWARE:
+            
+            with LearnwaresContainer(learnware, zip_path) as env_container:
+                learnware = env_container.get_learnwares_with_container()[0]
+                if EasyMarket.check_learnware(learnware) == EasyMarket.USABLE_LEARWARE:
+                    logger.info("The learnware passed the local test.")
+                else:
                     raise Exception("The learnware is not usable.")
-                pass
-            pass
-
-        logger.info("test ok")
-        pass
 
     def cleanup(self):
         for tempdir in self.tempdir_list:
