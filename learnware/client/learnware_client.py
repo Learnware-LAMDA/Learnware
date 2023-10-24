@@ -386,23 +386,23 @@ class LearnwareClient:
             return learnware_list[0]
         else:
             return learnware_list
-    
+
     @staticmethod
     def check_learnware(zip_path, semantic_specification=None):
         if semantic_specification is None:
             semantic_specification = get_semantic_specification()
-        
+
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(zip_path, mode="r") as z_file:
                 z_file.extractall(tempdir)
-            
+
             learnware = get_learnware_from_dirpath(
                 id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir
             )
-            
+
             if learnware is None:
                 raise Exception("The learnware is not valid.")
-            
+
             with LearnwaresContainer(learnware, zip_path) as env_container:
                 learnware = env_container.get_learnwares_with_container()[0]
                 if EasyMarket.check_learnware(learnware) == EasyMarket.USABLE_LEARWARE:
