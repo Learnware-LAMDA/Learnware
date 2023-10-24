@@ -1,11 +1,14 @@
 import os
+import torch
+import traceback
 import numpy as np
-import pandas as pd
-from typing import Tuple, Any, List, Union, Dict
 
+
+from typing import Tuple, Any, List, Union
 from ..learnware import Learnware
-from ..specification import RKMEStatSpecification
+from ..logger import get_module_logger
 
+logger = get_module_logger("market_base", "INFO")
 
 class BaseUserInfo:
     """User Information for searching learnware"""
@@ -43,19 +46,13 @@ class BaseUserInfo:
 class BaseMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
 
-    def __init__(self, market_id: str = None):
+    def __init__(self, market_id: str = None, checker: 'LearnwareChecker' = None):
         self.market_id = market_id
+        
+        self.learnware_checker = LearnwareChecker() if checker is None else checker
 
-    def reload_market(self, market_path: str, semantic_spec_list_path: str) -> bool:
+    def reload_market(self, **kwargs) -> bool:
         """Reload the market when server restared.
-
-        Parameters
-        ----------
-        market_path : str
-            Directory for market data. '_IP_:_port_' for loading from database.
-        semantic_spec_list_path : str
-            Directory for available semantic_spec. Should be a json file.
-
         Returns
         -------
         bool
@@ -64,8 +61,7 @@ class BaseMarket:
 
         raise NotImplementedError("reload market is Not Implemented")
 
-    @classmethod
-    def check_learnware(cls, learnware: Learnware) -> bool:
+    def check_learnware(self, learnware: Learnware) -> bool:
         """Check the utility of a learnware
 
         Parameters
@@ -77,7 +73,7 @@ class BaseMarket:
         bool
             A flag indicating whether the learnware can be accepted.
         """
-        return True
+        return self.learnware_checker(learnware)
 
     def add_learnware(
         self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
@@ -221,9 +217,7 @@ class LearnwareOrganizer:
 
         raise NotImplementedError("reload market is Not Implemented")
     
-    def add_learnware(
-        self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
-    ) -> Tuple[str, bool]:
+    def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -233,22 +227,17 @@ class LearnwareOrganizer:
 
         Parameters
         ----------
-        learnware_name : str
-            Name of new learnware.
-        model_path : str
+        zip_path : str
             Filepath for learnware model, a zipped file.
-        stat_spec_path : str
-            Filepath for statistical specification, a '.npy' file.
-            How to pass parameters requires further discussion.
         semantic_spec : dict
             semantic_spec for new learnware, in dictionary format.
-        desc : str
-            Brief desciption for new learnware.
 
         Returns
         -------
-        Tuple[str, bool]
-            str indicating model_id, bool indicating whether the learnware is added successfully.
+        Tuple[str, int]
+            - str indicating model_id
+            - int indicating what the flag of learnware is added.
+
 
         Raises
         ------
@@ -280,7 +269,33 @@ class LearnwareOrganizer:
         raise NotImplementedError("delete learnware is Not Implemented")
 
 class LearnwareSearcher:
-    def __init__(self, learnware_organizor):
+    def __init__(self, organizer):
+        self.learnware_organizer = organizer
+    
+    def __call__(self, user_info: BaseUserInfo):
+        raise NotImplementedError("'__call__' method is not implemented in LearnwareSearcher")
         
-    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
-        pass
+
+class LearnwareChecker:
+    INVALID_LEARNWARE = -1
+    NONUSABLE_LEARNWARE = 0
+    USABLE_LEARWARE = 1
+    
+    @classmethod
+    def __call__(cls, learnware: Learnware) -> int:
+        """Check the utility of a learnware
+
+        Parameters
+        ----------
+        learnware : Learnware
+
+        Returns
+        -------
+        int
+            A flag indicating whether the learnware can be accepted.
+            - The INVALID_LEARNWARE denotes the learnware does not pass the check
+            - The NOPREDICTION_LEARNWARE denotes the learnware pass the check but cannot make prediction due to some env dependency
+            - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
+        """
+        
+        raise NotImplementedError("'__call__' method is not implemented in LearnwareChecker")
