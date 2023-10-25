@@ -21,23 +21,11 @@ def get_module_by_module_path(module_path: Union[str, ModuleType]):
         module = module_path
     else:
         if module_path.endswith(".py"):
-            module_parent_path = os.path.dirname(module_path)
-            delete_parent_path = False
-            if module_parent_path not in sys.path:
-                sys.path.append(module_parent_path)
-                delete_parent_path = True
-                pass
-
             module_name = re.sub("^[^a-zA-Z_]+", "", re.sub("[^0-9a-zA-Z_]", "", module_path[:-3].replace("/", "_")))
             module_spec = importlib.util.spec_from_file_location(module_name, module_path)
             module = importlib.util.module_from_spec(module_spec)
             sys.modules[module_name] = module
             module_spec.loader.exec_module(module)
-
-            if delete_parent_path:
-                sys.path.remove(module_parent_path)
-                pass
-            pass
         else:
             module = importlib.import_module(module_path)
     return module
