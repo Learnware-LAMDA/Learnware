@@ -12,7 +12,7 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
-from learnware.learnware import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
+from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
 import learnware.specification as specification
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
