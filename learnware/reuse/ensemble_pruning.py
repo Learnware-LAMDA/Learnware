@@ -1,5 +1,3 @@
-
-
 import torch
 import random
 import numpy as np
@@ -12,6 +10,7 @@ from .base import BaseReuser
 from ..logger import get_module_logger
 
 logger = get_module_logger("ensemble_pruning")
+
 
 class EnsemblePruningReuser(BaseReuser):
     """

@@ -6,6 +6,7 @@ from ..logger import get_module_logger
 
 logger = get_module_logger("reuser")
 
+
 class BaseReuser:
     """Providing the interfaces to reuse the learnwares which is searched by learnware"""
 
