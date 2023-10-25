@@ -3,7 +3,7 @@ import numpy as np
 
 from learnware.learnware import get_learnware_from_dirpath
 from learnware.client.container import LearnwaresContainer
-from learnware.learnware.reuse import AveragingReuser
+from learnware.reuse import AveragingReuser
 from learnware.test.module import get_semantic_specification
 
 if __name__ == "__main__":

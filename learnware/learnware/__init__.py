@@ -1,10 +1,9 @@
 import os
 import copy
 
-from .base import Learnware, BaseReuser
-from .reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
+from .base import Learnware
 
-from .utils import get_stat_spec_from_config, get_model_from_config
+from .utils import get_stat_spec_from_config
 from ..specification import Specification
 from ..utils import read_yaml_to_dict
 from ..logger import get_module_logger
@@ -73,7 +72,6 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
             learnware_spec.update_stat_spec(**{stat_spac_name: stat_spec_inst})
 
         learnware_spec.update_semantic_spec(copy.deepcopy(semantic_spec))
-        # learnware_model = get_model_from_config(learnware_config["model"])
 
     except Exception as e:
         logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")

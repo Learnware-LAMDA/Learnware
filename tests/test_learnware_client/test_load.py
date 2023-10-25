@@ -7,7 +7,7 @@ import learnware
 from learnware.learnware import get_learnware_from_dirpath
 from learnware.client import LearnwareClient
 from learnware.client.container import ModelCondaContainer, LearnwaresContainer
-from learnware.learnware.reuse import AveragingReuser
+from learnware.reuse import AveragingReuser
 
 
 class TestLearnwareLoad(unittest.TestCase):

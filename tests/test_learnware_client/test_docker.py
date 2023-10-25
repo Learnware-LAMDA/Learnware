@@ -5,7 +5,7 @@ import numpy as np
 import learnware
 from learnware.client import LearnwareClient
 from learnware.client.container import LearnwaresContainer
-from learnware.learnware.reuse import AveragingReuser
+from learnware.reuse import AveragingReuser
 
 
 if __name__ == "__main__":
