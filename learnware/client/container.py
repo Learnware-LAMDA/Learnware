@@ -222,8 +222,18 @@ class ModelDockerContainer(ModelContainer):
 
     @staticmethod
     def _destroy_docker_container(docker_container):
-        docker_container.stop()
-        docker_container.remove()
+        if isinstance(docker_container, docker.models.containers.Container):
+            client = docker.from_env()
+            container_ids = [container.id for container in client.containers.list()]
+            
+            if docker_container.id in container_ids:
+                docker_container.stop()
+                docker_container.remove()
+                logger.info("Docker container is stopped and removed.")
+            else:
+                logger.info("Docker container has already been removed.")
+        else:
+            logger.error("Type of docker_container is not docker.models.containers.Container.")
 
     def _copy_file_to_container(self, local_path, container_path):
         directory_path = os.path.dirname(container_path)
@@ -268,9 +278,10 @@ class ModelDockerContainer(ModelContainer):
         Exception
             Lack of the environment configuration file.
         """
-        run_cmd_times = 5
+        run_cmd_times = 10
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(file=zip_path, mode="r") as z_file:
+                success_flag = False
                 logger.info(f"zip_file namelist: {z_file.namelist()}")
 
                 if "environment.yaml" in z_file.namelist():
@@ -282,7 +293,7 @@ class ModelDockerContainer(ModelContainer):
                     self._copy_file_to_container(yaml_path_filter, yaml_path_filter)
 
                     # create environment
-                    logger.info(f"create and update conda env [{conda_env}] according to .yaml file")
+                    logger.info(f"Create and update conda env [{conda_env}] according to .yaml file")
                     for i in range(run_cmd_times):
                         result = self.docker_container.exec_run(
                             " ".join(
@@ -290,24 +301,25 @@ class ModelDockerContainer(ModelContainer):
                             )
                         )
                         if result.exit_code == 0:
+                            success_flag = True
                             break
 
                 elif "requirements.txt" in z_file.namelist():
                     z_file.extract(member="requirements.txt", path=tempdir)
                     requirements_path: str = os.path.join(tempdir, "requirements.txt")
                     requirements_path_filter: str = os.path.join(tempdir, "requirements_filter.txt")
-                    logger.info(f"checking the avaliabe pip packages for {conda_env}")
+                    logger.info(f"checking the avaliabe pip packages for {conda_env}.")
                     filter_nonexist_pip_packages_file(
                         requirements_file=requirements_path, output_file=requirements_path_filter
                     )
-                    logger.info(f"create empty conda env [{conda_env}]")
+                    logger.info(f"Create empty conda env [{conda_env}] in docker.")
                     for i in range(run_cmd_times):
                         result = self.docker_container.exec_run(
                             " ".join(["conda", "create", "-y", "--name", f"{conda_env}", "python=3.8"])
                         )
                         if result.exit_code == 0:
                             break
-                    logger.info(f"install pip requirements for conda env [{conda_env}]")
+                    logger.info(f"install pip requirements for conda env [{conda_env}] in docker.")
 
                     self._copy_file_to_container(requirements_path_filter, requirements_path_filter)
                     for i in range(run_cmd_times):
@@ -329,11 +341,16 @@ class ModelDockerContainer(ModelContainer):
                             )
                         )
                         if result.exit_code == 0:
+                            success_flag = True
                             break
                 else:
                     raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
+                
+                if not success_flag:
+                    logger.error(f"Install conda env [{conda_env}] in docker failed!")
 
-        logger.info(f"install learnware package for conda env [{conda_env}]")
+        success_flag = False
+        logger.info(f"Install learnware package for conda env [{conda_env}] in docker.")
         for i in range(run_cmd_times):
             result = self.docker_container.exec_run(
                 " ".join(
@@ -352,7 +369,11 @@ class ModelDockerContainer(ModelContainer):
                 )
             )
             if result.exit_code == 0:
+                success_flag = True
                 break
+            
+        if not success_flag:
+            logger.error(f"Install learnware package for conda env [{conda_env}] in docker failed!")
 
     def _setup_env_and_metadata(self):
         """setup env and set the input and output shape by communicating with docker"""
@@ -410,7 +431,7 @@ class ModelDockerContainer(ModelContainer):
 
     def _remove_env(self):
         """remove the docker container"""
-        ModelDockerContainer._destroy_docker_container(docker_container)
+        ModelDockerContainer._destroy_docker_container(self.docker_container)
 
     def _run_model_with_script(self, method, **kargs):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
@@ -517,6 +538,7 @@ class LearnwaresContainer:
                 )
                 for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
             ]
+            atexit.register(ModelDockerContainer._destroy_docker_container, self._docker_container)
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
         with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
@@ -527,6 +549,12 @@ class LearnwaresContainer:
             logger.warning(
                 f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnware will be ignored"
             )
+            
+        # if not self.cleanup and self.mode == "docker":
+        #     _model_docker_container = self.learnware_containers[0].get_model()
+        #     _model_docker_container.cleanup_flag = True
+        #     atexit.register(_model_docker_container.remove_env)
+            
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
