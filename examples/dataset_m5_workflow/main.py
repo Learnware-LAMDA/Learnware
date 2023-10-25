@@ -9,7 +9,8 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.market import database_ops
-from learnware.learnware import Learnware, JobSelectorReuser, AveragingReuser
+from learnware.learnware import Learnware
+from learnware.reuse import JobSelectorReuser, AveragingReuser
 import learnware.specification as specification
 from m5 import DataLoader
 from learnware.logger import get_module_logger
