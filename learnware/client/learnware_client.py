@@ -7,19 +7,17 @@ import zipfile
 import hashlib
 import requests
 import tempfile
-import numpy as np
 from enum import Enum
 from tqdm import tqdm
 from typing import Union, List
 
 from ..config import C
 from .. import learnware
-from . import package_utils
 from .container import LearnwaresContainer
 from ..market.easy import EasyMarket
 from ..logger import get_module_logger
 from ..specification import Specification
-from ..learnware import BaseReuser, Learnware, get_learnware_from_dirpath
+from ..learnware import get_learnware_from_dirpath
 from ..test import get_semantic_specification
 
 CHUNK_SIZE = 1024 * 1024

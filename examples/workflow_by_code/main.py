@@ -11,7 +11,7 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
-from learnware.learnware import JobSelectorReuser, AveragingReuser
+from learnware.reuse import JobSelectorReuser, AveragingReuser
 import learnware.specification as specification
 from learnware.utils import get_module_by_module_path
 

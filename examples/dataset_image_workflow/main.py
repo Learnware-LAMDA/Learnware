@@ -4,7 +4,8 @@ from get_data import *
 import os
 import random
 from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
-from learnware.learnware import Learnware, JobSelectorReuser, AveragingReuser
+from learnware.learnware import Learnware
+from learnware.reuse import JobSelectorReuser, AveragingReuser
 import time
 
 from learnware.market import EasyMarket, BaseUserInfo
