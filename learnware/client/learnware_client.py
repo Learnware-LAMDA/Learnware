@@ -314,7 +314,9 @@ class LearnwareClient:
             The contructed learnware object or object list
         """
         if runnable_option is not None and runnable_option not in ["normal", "conda_env", "docker"]:
-            raise logger.warning(f"runnable_option must be one of ['normal', 'conda_env', 'docker'], but got {runnable_option}")
+            raise logger.warning(
+                f"runnable_option must be one of ['normal', 'conda_env', 'docker'], but got {runnable_option}"
+            )
 
         if learnware_path is None and learnware_id is None:
             raise ValueError("Requires one of learnware_path or learnware_id")

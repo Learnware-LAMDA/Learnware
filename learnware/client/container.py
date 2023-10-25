@@ -225,7 +225,7 @@ class ModelDockerContainer(ModelContainer):
         if isinstance(docker_container, docker.models.containers.Container):
             client = docker.from_env()
             container_ids = [container.id for container in client.containers.list()]
-            
+
             if docker_container.id in container_ids:
                 docker_container.stop()
                 docker_container.remove()
@@ -345,7 +345,7 @@ class ModelDockerContainer(ModelContainer):
                             break
                 else:
                     raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
-                
+
                 if not success_flag:
                     logger.error(f"Install conda env [{conda_env}] in docker failed!")
 
@@ -371,7 +371,7 @@ class ModelDockerContainer(ModelContainer):
             if result.exit_code == 0:
                 success_flag = True
                 break
-            
+
         if not success_flag:
             logger.error(f"Install learnware package for conda env [{conda_env}] in docker failed!")
 
@@ -549,12 +549,12 @@ class LearnwaresContainer:
             logger.warning(
                 f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnware will be ignored"
             )
-            
+
         # if not self.cleanup and self.mode == "docker":
         #     _model_docker_container = self.learnware_containers[0].get_model()
         #     _model_docker_container.cleanup_flag = True
         #     atexit.register(_model_docker_container.remove_env)
-            
+
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
