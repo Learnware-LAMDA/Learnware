@@ -193,6 +193,11 @@ class BaseMarket:
         raise NotImplementedError("get semantic spec list is not implemented")
 
 
+    def get_learnware_ids(self) -> List[str]:
+        raise NotImplementedError("get_learnware_ids is not implemented")
+    
+    
+        
 class LearnwareOrganizer:
     def __init__(self, market_id):
         self.market_id = market_id
