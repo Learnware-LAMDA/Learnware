@@ -15,7 +15,6 @@ from torch import nn
 from torch.func import jacrev, functional_call
 from torch.utils.data import TensorDataset, DataLoader
 from torchvision.transforms import Resize
-from tqdm import tqdm
 
 from .base import BaseStatSpecification
 from .rkme import solve_qp, choose_device, setup_seed
@@ -146,7 +145,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         optimizer = torch_optimizer.AdaBelief([{"params": [self.z]}],
                                               lr=step_size, eps=1e-16)
 
-        for i in tqdm(range(steps), total=steps):
+        for i in range(steps):
             # Regenerate Random Models
             random_models = list(self._generate_models(n_models=self.n_models, channel=X.shape[1]))
 
@@ -209,27 +208,43 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             loss.backward()
             optimizer.step()
 
-    def _generate_random_feature(self, data_X, batch_size=4096, random_models=None) -> torch.Tensor:
-        X_features_list = []
-        if not torch.is_tensor(data_X):
-            data_X = torch.from_numpy(data_X)
-        data_X = data_X.to(self.device)
+    def _generate_random_feature(self, data_X, data_Y=None, batch_size=4096, random_models=None):
+        X_features_list, Y_features_list = [], []
 
-        dataset = TensorDataset(data_X)
-        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        dataset_X, dataset_Y = TensorDataset(data_X), None
+        dataloader_X, dataloader_Y = DataLoader(dataset_X, batch_size=batch_size, shuffle=True), None
+        if data_Y is not None:
+            dataset_Y = TensorDataset(data_Y)
+            dataloader_Y = DataLoader(dataset_Y, batch_size=batch_size, shuffle=True)
+            assert data_X.shape[1] == data_Y.shape[1]
+
         for m, model in enumerate(random_models if random_models else
                                   self._generate_models(n_models=self.n_models, channel=data_X.shape[1])):
             model.eval()
+
             curr_features_list = []
-            for i, (X,) in enumerate(dataloader):
+            for i, (X,) in enumerate(dataloader_X):
                 out = model(X)
                 curr_features_list.append(out)
             curr_features = torch.cat(curr_features_list, 0)
             X_features_list.append(curr_features)
+
+            if data_Y is not None:
+                curr_features_list = []
+                for i, (Y,) in enumerate(dataloader_Y):
+                    out = model(Y)
+                    curr_features_list.append(out)
+                curr_features = torch.cat(curr_features_list, 0)
+                Y_features_list.append(curr_features)
+
         X_features = torch.cat(X_features_list, 1)
         X_features = X_features / torch.sqrt(torch.asarray(X_features.shape[1], device=self.device))
-
-        return X_features
+        if data_Y is None:
+            return X_features
+        else:
+            Y_features = torch.cat(Y_features_list, 1)
+            Y_features = Y_features / torch.sqrt(torch.asarray(Y_features.shape[1], device=self.device))
+            return X_features, Y_features
 
     def inner_prod(self, Phi2: RKMEImageStatSpecification) -> float:
         """Compute the inner product between two RKME Image specifications
@@ -264,9 +279,8 @@ class RKMEImageStatSpecification(BaseStatSpecification):
 
         # Use the old way
         assert Z1.shape[1] == Z2.shape[1]
-        random_models = list(self._generate_models(n_models=self.n_models * 4, channel=Z1.shape[1]))
-        z1_features = self._generate_random_feature(Z1, random_models=random_models)
-        z2_features = self._generate_random_feature(Z2, random_models=random_models)
+        random_models = self._generate_models(n_models=self.n_models * 4, channel=Z1.shape[1])
+        z1_features, z2_features = self._generate_random_feature(data_X=Z1, data_Y=Z2, random_models=random_models)
         K_zz = self._calc_ntk_from_feature(z1_features, z2_features)
 
         v = torch.sum(K_zz * (beta_1.T @ beta_2)).item()
@@ -300,26 +314,26 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         K_12 = x1_feature @ x2_feature.T + 0.01
         return K_12
 
-    def _calc_ntk_empirical(self, x1: torch.Tensor, x2: torch.Tensor):
-        if x1.shape[1] != x2.shape[1]:
-            raise ValueError("The channel of two rkme image specification should be equal (e.g. 3 or 1).")
-
-        results = []
-        for m, model in enumerate(self._generate_models(n_models=self.n_models, channel=x1.shape[1])):
-            # Compute J(x1)
-            # jac1 = vamp(lambda x: jacrev(lambda p, i: functional_call(model, p, i), argnums=0)(dict(model.named_parameters()), x))(x1)
-            jac1 = jacrev(lambda p, i: functional_call(model, p, i), argnums=0)(dict(model.named_parameters()), x1)
-            jac1 = [j.flatten(2) for j in jac1]
-
-            # Compute J(x2)
-            jac2 = functional_call(model, model.parameters(), x2)
-            jac2 = [j.flatten(2) for j in jac2]
-
-            result = torch.stack([torch.einsum('Naf,Mbf->NMab', j1, j2) for j1, j2 in zip(jac1, jac2)])
-            results.append(result.sum(0))
-
-        results = torch.stack(results)
-        return results.mean(0)
+    # def _calc_ntk_empirical(self, x1: torch.Tensor, x2: torch.Tensor):
+    #     if x1.shape[1] != x2.shape[1]:
+    #         raise ValueError("The channel of two rkme image specification should be equal (e.g. 3 or 1).")
+    #
+    #     results = []
+    #     for m, model in enumerate(self._generate_models(n_models=self.n_models, channel=x1.shape[1])):
+    #         # Compute J(x1)
+    #         # jac1 = vamp(lambda x: jacrev(lambda p, i: functional_call(model, p, i), argnums=0)(dict(model.named_parameters()), x))(x1)
+    #         jac1 = jacrev(lambda p, i: functional_call(model, p, i), argnums=0)(dict(model.named_parameters()), x1)
+    #         jac1 = [j.flatten(2) for j in jac1]
+    #
+    #         # Compute J(x2)
+    #         jac2 = functional_call(model, model.parameters(), x2)
+    #         jac2 = [j.flatten(2) for j in jac2]
+    #
+    #         result = torch.stack([torch.einsum('Naf,Mbf->NMab', j1, j2) for j1, j2 in zip(jac1, jac2)])
+    #         results.append(result.sum(0))
+    #
+    #     results = torch.stack(results)
+    #     return results.mean(0)
 
     def herding(self, T: int) -> np.ndarray:
         raise NotImplementedError(
@@ -432,7 +446,7 @@ class _ConvNet_wide(nn.Module):
         in_channels = channel
         shape_feat = [in_channels, im_size[0], im_size[1]]
         for d in range(net_depth):
-            layers += [build_conv2d_gaussian(in_channels, int(k * net_width), 3,
+            layers += [_build_conv2d_gaussian(in_channels, int(k * net_width), 3,
                                              1, mean=mu, std=sigma)]
             shape_feat[0] = int(k * net_width)
 
@@ -445,7 +459,7 @@ class _ConvNet_wide(nn.Module):
 
         return nn.Sequential(*layers), shape_feat
 
-def build_conv2d_gaussian(in_channels, out_channels, kernel=3, padding=1, mean=None, std=None):
+def _build_conv2d_gaussian(in_channels, out_channels, kernel=3, padding=1, mean=None, std=None):
     layer = nn.Conv2d(in_channels, out_channels, kernel, padding=padding)
     if mean is None:
         mean = 0

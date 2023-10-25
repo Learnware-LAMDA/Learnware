@@ -1,5 +1,7 @@
 import numpy as np
 import torch
+from tqdm import tqdm
+
 from get_data import *
 import os
 import random
@@ -25,8 +27,8 @@ processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
 dataset = "cifar10"
-n_uploaders = 3
-n_users = 3
+n_uploaders = 30
+n_users = 20
 n_classes = 10
 data_root = os.path.join(origin_data_root, dataset)
 data_save_root = os.path.join(processed_data_root, dataset)
@@ -126,7 +128,7 @@ def prepare_market():
     except:
         pass
     os.makedirs(learnware_pool_dir, exist_ok=True)
-    for i in range(n_uploaders):
+    for i in tqdm(range(n_uploaders), total=n_uploaders, desc="Preparing..."):
         data_path = os.path.join(uploader_save_root, "uploader_%d_X.npy" % (i))
         model_path = os.path.join(model_save_root, "uploader_%d.pth" % (i))
         init_file_path = "./example_files/example_init.py"
@@ -157,15 +159,15 @@ def test_search(gamma=0.1, load_market=True):
     improve_list = []
     job_selector_score_list = []
     ensemble_score_list = []
-    for i in range(n_users):
+    for i in tqdm(range(n_users), total=n_users, desc="Searching..."):
         user_data_path = os.path.join(user_save_root, "user_%d_X.npy" % (i))
         user_label_path = os.path.join(user_save_root, "user_%d_y.npy" % (i))
         user_data = np.load(user_data_path)
         user_label = np.load(user_label_path)
         user_stat_spec = RKMEImageStatSpecification(cuda_idx=0)
-        user_stat_spec.generate_stat_spec_from_data(X=user_data, steps=5, resize=False)
+        user_stat_spec.generate_stat_spec_from_data(X=user_data, resize=False)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec})
-        logger.info("Searching Market for user: %d" % (i))
+        logger.info("Searching Market for user: %d" % i)
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
             user_info
         )
@@ -174,7 +176,7 @@ def test_search(gamma=0.1, load_market=True):
             pred_y = learnware.predict(user_data)
             acc = eval_prediction(pred_y, user_label)
             acc_list.append(acc)
-            logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
+            logger.info("Search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
 
         # test reuse (job selector)
         # reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
@@ -204,6 +206,11 @@ def test_search(gamma=0.1, load_market=True):
 
 
 if __name__ == "__main__":
-    # prepare_data()
-    # prepare_model()
+    logger.info("=" * 40)
+    logger.info(f"n_uploaders:\t{n_uploaders}")
+    logger.info(f"n_users:\t{n_users}")
+    logger.info("=" * 40)
+
+    prepare_data()
+    prepare_model()
     test_search(load_market=False)
