@@ -1,4 +1,7 @@
+import os
+import json
 import yaml
+import tempfile
 import subprocess
 from typing import List, Tuple
 
@@ -96,18 +99,35 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
         nonexist_packages: list of non-exist packages
     """
 
-    exist_packages = []
-    nonexist_packages = []
-    for package in packages:
-        try:
-            try_to_run(args=["conda", "search", package], timeout=5)
-            exist_packages.append(package)
-        except Exception as e:
-            nonexist_packages.append(package)
-            pass
-        pass
+    test_yaml = {
+        "channels": ["defaults"],
+        "dependencies": packages,
+    }
+    
+    with tempfile.TemporaryDirectory(prefix="conda_filter_") as tempdir:
+        test_yaml_file = os.path.join(tempdir, "environment.yaml")
+        with open(test_yaml_file, "w") as fout:
+            yaml.safe_dump(test_yaml, fout)
+        
+        command = f"conda env create --name env_test --file {test_yaml_file} --dry-run --json"
+        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        output = json.loads(result.stdout.strip()).get("bad_deps", [])
+        
+        if len(output) > 0:
+            exist_packages = []
+            nonexist_packages = []
+            error_packages = set([package.replace("=", "") for package in output])
+            
+            for package in packages:
+                if package.replace("=", "") in error_packages:
+                    nonexist_packages.append(package)
+                else:
+                    exist_packages.append(package)
+            logger.info(f"Filtered out {len(nonexist_packages)} non-exist conda dependencies.")
 
-    return exist_packages, nonexist_packages
+            return exist_packages, nonexist_packages
+        else:
+            return packages, []
 
 
 def read_conda_packages_from_dict(env_desc: dict) -> Tuple[List[str], List[str]]:
