@@ -1,9 +1,3 @@
-from ..base import LearnwareSearcher, LearnwareOrganizer
-
-
-class EasySearcher(LearnwareSearcher):
-    pass
-
-
-class EasyOrganizer(LearnwareOrganizer):
-    pass
+from .organizer import EasyOrganizer
+from .checker import EasyChecker
+from .searcher import EasySearcher
