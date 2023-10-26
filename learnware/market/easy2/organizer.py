@@ -30,23 +30,22 @@ logger = get_module_logger("easy_organizer")
 
 
 class EasyOrganizer(LearnwareOrganizer):
-    
-    def __init__(self, market_id, checker: 'EasyChecker' = None, rebuild: bool = False):
+    def __init__(self, market_id, checker: "EasyChecker" = None, rebuild: bool = False):
         self.reset(market_id=market_id, checker=checker, rebuild=rebuild)
 
     def reset(self, market_id, checker: EasyChecker = None, rebuild: bool = False):
         super(EasyOrganizer, self).reset(market_id=market_id, checker=checker)
         self.reload_market(rebuild=rebuild)
-    
+
     def reload_market(self, rebuild=False) -> bool:
         """Reload the learnware organizer when server restared.
-        
+
         Returns
         -------
         bool
             A flag indicating whether the market is reload successfully.
         """
- 
+
         self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
         self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
         self.learnware_zip_pool_path = os.path.join(self.learnware_pool_path, "zips")
@@ -58,7 +57,7 @@ class EasyOrganizer(LearnwareOrganizer):
         self.count = 0
         self.semantic_spec_list = conf.semantic_specs
         self.dbops = DatabaseOperations(conf.database_url, "market_" + self.market_id)
-        
+
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
             try:
@@ -70,10 +69,17 @@ class EasyOrganizer(LearnwareOrganizer):
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
         os.makedirs(self.learnware_folder_pool_path, exist_ok=True)
-        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.use_flags, self.count = self.dbops.load_market()
-    
-    
-    def add_learnware(self, zip_path: str, semantic_spec: dict, id: str = None, check_status: int = None) -> Tuple[str, bool]:
+        (
+            self.learnware_list,
+            self.learnware_zip_list,
+            self.learnware_folder_list,
+            self.use_flags,
+            self.count,
+        ) = self.dbops.load_market()
+
+    def add_learnware(
+        self, zip_path: str, semantic_spec: dict, id: str = None, check_status: int = None
+    ) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -133,7 +139,7 @@ class EasyOrganizer(LearnwareOrganizer):
             return None, EasyChecker.INVALID_LEARNWARE
 
         logger.info("Get new learnware from %s" % (zip_path))
-        
+
         id = id if id is not None else "%08d" % (self.count)
         target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (id))
         target_folder_dir = os.path.join(self.learnware_folder_pool_path, id)
@@ -159,7 +165,7 @@ class EasyOrganizer(LearnwareOrganizer):
             return None, EasyChecker.INVALID_LEARNWARE
 
         learnwere_status = check_status if check_status is not None else self.checker.check_learnware(new_learnware)
-        
+
         self.dbops.add_learnware(
             id=id,
             semantic_spec=semantic_spec,
@@ -205,9 +211,7 @@ class EasyOrganizer(LearnwareOrganizer):
 
         return True
 
-    def update_learnware(
-        self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None
-    ):
+    def update_learnware(self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None):
         """update learnware with zip_path and semantic_specification
         TODO: update should pass the semantic check too
 
@@ -227,17 +231,21 @@ class EasyOrganizer(LearnwareOrganizer):
         _type_
             _description_
         """
-        assert zip_path is None and semantic_spec is None, f"at least one of 'zip_path' and 'semantic_spec' should not be None when update learnware"
+        assert (
+            zip_path is None and semantic_spec is None
+        ), f"at least one of 'zip_path' and 'semantic_spec' should not be None when update learnware"
         assert check_status != EasyChecker.INVALID_LEARNWARE, f"'check_status' can not be INVALID_LEARNWARE"
 
         if zip_path is None and check_status is not None:
             logger.warning("check_status will be ignored when zip_path is None for learnware update")
-        
+
         learnware_zippath = self.learnware_zip_list[id] if zip_path is None else zip_path
-        semantic_spec = self.learnware_list[id].get_specification().get_semantic_spec() if semantic_spec is None else semantic_spec
-        
+        semantic_spec = (
+            self.learnware_list[id].get_specification().get_semantic_spec() if semantic_spec is None else semantic_spec
+        )
+
         self.dbops.update_learnware_semantic_specification(id, semantic_spec)
-        
+
         target_zip_dir = self.learnware_zip_list[id]
         target_folder_dir = self.learnware_folder_list[id]
 
@@ -245,25 +253,25 @@ class EasyOrganizer(LearnwareOrganizer):
             with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
                 with zipfile.ZipFile(zip_path, "r") as z_file:
                     z_file.extractall(tempdir)
-                
+
                 try:
                     new_learnware = get_learnware_from_dirpath(
                         id=id, semantic_spec=semantic_spec, learnware_dirpath=tempdir
                     )
                 except Exception:
                     return EasyChecker.INVALID_LEARNWARE
-                
+
                 if new_learnware is None:
                     return EasyChecker.INVALID_LEARNWARE
-                
+
                 learnwere_status = self.checker.check_learnware(new_learnware)
         else:
             learnwere_status = self.use_flags[id] if zip_path is None else check_status
-            
+
         copyfile(zip_path, target_zip_dir)
         with zipfile.ZipFile(target_zip_dir, "r") as z_file:
-            z_file.extractall(target_folder_dir)       
-                    
+            z_file.extractall(target_folder_dir)
+
         self.learnware_list[id] = get_learnware_from_dirpath(
             id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
         )
@@ -271,7 +279,6 @@ class EasyOrganizer(LearnwareOrganizer):
         self.dbops.update_learnware_use_flag(id, learnwere_status)
         return learnwere_status
 
-    
     def get_learnware_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Search learnware by id or list of ids.
 
@@ -335,17 +342,15 @@ class EasyOrganizer(LearnwareOrganizer):
             except:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
-            
-    def get_learnware_ids(self, top:int = None) -> List[str]:
+
+    def get_learnware_ids(self, top: int = None) -> List[str]:
         if top is None:
             return list(self.learnware_list.keys())
         else:
             return list(self.learnware_list.keys())[:top]
-        
-    
-    def get_learnwares(self, top:int = None) -> List[str]:
+
+    def get_learnwares(self, top: int = None) -> List[str]:
         if top is None:
             return list(self.learnware_list.values())
         else:
             return list(self.learnware_list.values())[:top]
-        

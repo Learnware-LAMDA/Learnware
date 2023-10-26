@@ -7,8 +7,8 @@ from ...logger import get_module_logger
 
 logger = get_module_logger("easy_checker", "INFO")
 
+
 class EasyChecker(LearnwareChecker):
-        
     def __call__(self, learnware):
         semantic_spec = learnware.get_specification().get_semantic_spec()
 

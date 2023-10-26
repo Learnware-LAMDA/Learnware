@@ -8,6 +8,7 @@ from ...specification import BaseStatSpecification
 
 logger = get_module_logger("evolve_organizer")
 
+
 class AnchoredUserInfo(BaseUserInfo):
     """
     User Information for searching learnware (add the anchor design)
@@ -34,9 +35,8 @@ class AnchoredUserInfo(BaseUserInfo):
 
 
 class AnchoredOrganizer(EasyOrganizer):
-    """Organize learnwares and enable them to continuously evolve
-    """
-    
+    """Organize learnwares and enable them to continuously evolve"""
+
     def __init__(self, *args, **kwargs):
         super(AnchoredOrganizer, self).__init__(*args, **kwargs)
         self.anchor_learnware_list = {}  # anchor_id: anchor learnware
@@ -86,7 +86,6 @@ class AnchoredOrganizer(EasyOrganizer):
             Learnwares for updating anchor_learnware_list
         """
         pass
-
 
     def search_learnware(self, user_info: AnchoredUserInfo, anchored: bool = False) -> Tuple[Any, List[Learnware]]:
         """Search learnwares with anchor marget

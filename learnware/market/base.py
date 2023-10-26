@@ -10,6 +10,7 @@ from ..logger import get_module_logger
 
 logger = get_module_logger("market_base", "INFO")
 
+
 class BaseUserInfo:
     """User Information for searching learnware"""
 
@@ -43,16 +44,15 @@ class BaseUserInfo:
         return self.stat_info.get(name, None)
 
 
-
 class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
 
     def __init__(
         self,
         market_id: str = None,
-        organizer: 'LearnwareOrganizer' = None,
-        checker: 'LearnwareChecker' = None,
-        searcher: 'LearnwareSearcher' = None,
+        organizer: "LearnwareOrganizer" = None,
+        checker: "LearnwareChecker" = None,
+        searcher: "LearnwareSearcher" = None,
     ):
         self.market_id = market_id
         self.learnware_organizer = LearnwareOrganizer() if organizer is None else organizer
@@ -64,7 +64,7 @@ class LearnwareMarket:
 
     def reload_market(self, **kwargs) -> bool:
         self.learnware_organizer.reload_market(**kwargs)
-        
+
     def check_learnware(self, learnware: Learnware, **kwargs) -> bool:
         return self.learnware_checker(learnware, **kwargs)
 
@@ -80,30 +80,30 @@ class LearnwareMarket:
     def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, **kwargs) -> bool:
         return self.learnware_organizer.update_learnware(id, zip_path=zip_path, semantic_spec=semantic_spec, **kwargs)
 
-    def get_learnware_ids(self, top:int = None, **kwargs):
+    def get_learnware_ids(self, top: int = None, **kwargs):
         return self.learnware_organizer.get_learnware_ids(top, **kwargs)
-        
-    
-    def get_learnwares(self, top:int = None, **kwargs):
+
+    def get_learnwares(self, top: int = None, **kwargs):
         return self.learnware_organizer.get_learnwares(top, **kwargs)
-    
+
     def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         raise self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
 
     def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
-        
+
+
 class LearnwareOrganizer:
-    def __init__(self, market_id, checker: 'LearnwareChecker' = None):
+    def __init__(self, market_id, checker: "LearnwareChecker" = None):
         self.reset(market_id=market_id, checker=checker)
-        
-    def reset(self, market_id, checker: 'LearnwareChecker', **kwargs):
+
+    def reset(self, market_id, checker: "LearnwareChecker", **kwargs):
         self.market_id = market_id
         self.organizer = checker
-    
+
     def reload_market(self) -> bool:
         """Reload the learnware organizer when server restared.
-        
+
         Returns
         -------
         bool
@@ -111,7 +111,7 @@ class LearnwareOrganizer:
         """
 
         raise NotImplementedError("reload market is Not Implemented")
-    
+
     def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
@@ -141,8 +141,7 @@ class LearnwareOrganizer:
 
         """
         raise NotImplementedError("add learnware is Not Implemented")
-    
-    
+
     def delete_learnware(self, id: str) -> bool:
         """Delete a learnware from market
 
@@ -173,7 +172,7 @@ class LearnwareOrganizer:
             id of target learnware.
         """
         raise NotImplementedError("update learnware is Not Implemented")
-    
+
     def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """
             Get Learnware from market by id
@@ -192,7 +191,7 @@ class LearnwareOrganizer:
             - 'None' indicating the target id not found.
         """
         raise NotImplementedError("get_learnware_by_ids is not implemented")
-    
+
     def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Get Zipped Learnware file by id
 
@@ -210,8 +209,8 @@ class LearnwareOrganizer:
             None for Learnware NOT Found.
         """
         raise NotImplementedError("get_learnware_path_by_ids is not implemented")
-    
-    def get_learnware_ids(self, top:int = None) -> List[str]:
+
+    def get_learnware_ids(self, top: int = None) -> List[str]:
         """get the list of learnware ids
 
         Parameters
@@ -225,9 +224,8 @@ class LearnwareOrganizer:
             the first top ids
         """
         raise NotImplementedError("get_learnware_ids is not implemented")
-        
-        
-    def get_learnwares(self, top:int = None) -> List[Learnware]:
+
+    def get_learnwares(self, top: int = None) -> List[Learnware]:
         """get the list of learnwares
 
         Parameters
@@ -242,13 +240,14 @@ class LearnwareOrganizer:
         """
         raise NotImplementedError("get_learnwares is not implemented")
 
+
 class LearnwareSearcher:
     def __init__(self, organizer: LearnwareOrganizer = None):
         self.learnware_oganizer = organizer
-    
+
     def reset(self, organizer):
         self.learnware_oganizer = organizer
-        
+
     def __call__(self, user_info: BaseUserInfo):
         """Search learnwares based on user_info
 
@@ -258,19 +257,19 @@ class LearnwareSearcher:
             user_info contains semantic_spec and stat_info
         """
         raise NotImplementedError("'__call__' method is not implemented in LearnwareSearcher")
-        
+
 
 class LearnwareChecker:
     INVALID_LEARNWARE = -1
     NONUSABLE_LEARNWARE = 0
     USABLE_LEARWARE = 1
-    
+
     def __init__(self, organizer: LearnwareOrganizer = None):
         self.learnware_oganizer = organizer
-    
+
     def reset(self, organizer):
         self.learnware_oganizer = organizer
-        
+
     def __call__(self, learnware: Learnware) -> int:
         """Check the utility of a learnware
 
@@ -286,5 +285,5 @@ class LearnwareChecker:
             - The NOPREDICTION_LEARNWARE denotes the learnware pass the check but cannot make prediction due to some env dependency
             - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
         """
-        
+
         raise NotImplementedError("'__call__' method is not implemented in LearnwareChecker")

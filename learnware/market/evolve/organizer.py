@@ -9,9 +9,8 @@ logger = get_module_logger("evolve_organizer")
 
 
 class EvolvedOrganizer(EasyOrganizer):
-    """Organize learnwares and enable them to continuously evolve
-    """
-    
+    """Organize learnwares and enable them to continuously evolve"""
+
     def __init__(self, *args, **kwargs):
         super(EvolvedOrganizer, self).__init__(*args, **kwargs)
 

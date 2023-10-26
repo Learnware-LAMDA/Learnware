@@ -1,5 +1,3 @@
-
-
 class AnchoredUserInfo(BaseUserInfo):
     """
     User Information for searching learnware (add the anchor design)

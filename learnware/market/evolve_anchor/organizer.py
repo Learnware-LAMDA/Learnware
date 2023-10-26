@@ -8,9 +8,8 @@ logger = get_module_logger("evolve_anchor_organizer")
 
 
 class EvolveAnchoredOrganizer(AnchoredOrganizer, EvolvedOrganizer):
-    """Organize learnwares and enable them to continuously evolve
-    """
-    
+    """Organize learnwares and enable them to continuously evolve"""
+
     def __init__(self, *args, **kwargs):
         AnchoredOrganizer.__init__(self, *args, **kwargs)
 

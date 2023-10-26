@@ -26,8 +26,7 @@ class MappingFunction:
 
 
 class HeterogeneousOrganizer(EvolvedOrganizer):
-    """Organize learnwares with heterogeneous feature spaces, organizer version with evolved learnwares
-    """
+    """Organize learnwares with heterogeneous feature spaces, organizer version with evolved learnwares"""
 
     def __init__(self, *args, **kwargs):
         super(HeterogeneousOrganizer, self).__init__(*args, **kwargs)
