@@ -1,9 +1,12 @@
-import os
-from typing import Tuple, Any, List, Union, Dict
+from typing import List, Dict, Tuple, Any
 
-from ..learnware import Learnware
-from .base import LearnwareMarket, BaseUserInfo
+from ..base import BaseUserInfo
+from ..easy2.organizer import EasyOrganizer
+from ...logger import get_module_logger
+from ...learnware import Learnware
+from ...specification import BaseStatSpecification
 
+logger = get_module_logger("evolve_organizer")
 
 class AnchoredUserInfo(BaseUserInfo):
     """
@@ -13,46 +16,29 @@ class AnchoredUserInfo(BaseUserInfo):
     - UserInfo can update stat_info based on anchors
     """
 
-    def __init__(self, id: str, semantic_spec: dict = dict(), stat_info: dict = dict()):
+    def __init__(self, id: str, semantic_spec: dict = None, stat_info: dict = None, anchor_scores: dict = None):
         super(AnchoredUserInfo, self).__init__(id, semantic_spec, stat_info)
-        self.anchor_learnware_list = {}  # id: Learnware
+        self.anchor_scores = {} if anchor_scores is None else anchor_scores
 
-    def add_anchor_learnware(self, learnware_id: str, learnware: Learnware):
-        """Add the anchor learnware acquired from the market
-
-        Parameters
-        ----------
-        learnware_id : str
-            Id of anchor learnware
-        learnware : Learnware
-            Anchor learnware for capturing user requirements
-        """
-        self.anchor_learnware_list[learnware_id] = learnware
-
-    def update_stat_info(self, name: str, item: Any):
-        """Update stat_info based on anchor learnwares
+    def update_anchor_score(self, id: str, score):
+        """Update score of anchor learnwares
 
         Parameters
         ----------
-        name : str
-            Name of stat_info
-        item : Any
-            Statistical information calculated on anchor learnwares
+        id : str
+            id of anchor learnwares
+        score : Any
+            score of anchor learnwares
         """
-        self.stat_info[name] = item
+        self.anchor_scores[id] = score
 
 
-class AnchoredMarket(LearnwareMarket):
-    """Add the anchor design to the LearnwareMarket
-
-    Parameters
-    ----------
-    LearnwareMarket : _type_
-        Basic market version
+class AnchoredOrganizer(EasyOrganizer):
+    """Organize learnwares and enable them to continuously evolve
     """
-
+    
     def __init__(self, *args, **kwargs):
-        super(AnchoredMarket, self).__init__(*args, **kwargs)
+        super(AnchoredOrganizer, self).__init__(*args, **kwargs)
         self.anchor_learnware_list = {}  # anchor_id: anchor learnware
 
     def _update_anchor_learnware(self, anchor_id: str, anchor_learnware: Learnware):
@@ -101,27 +87,11 @@ class AnchoredMarket(LearnwareMarket):
         """
         pass
 
-    def search_anchor_learnware(self, user_info: AnchoredUserInfo) -> Tuple[Any, List[Learnware]]:
-        """Search anchor Learnwares from anchor_learnware_list based on user_info
 
-        Parameters
-        ----------
-        user_info : AnchoredUserInfo
-            - user_info with semantic specifications and statistical information
-            - some statistical information calculated on previous anchor learnwares
-
-        Returns
-        -------
-        Tuple[Any, List[Learnware]]:
-            return two items:
-
-            - first is the usage of anchor learnwares, e.g., how to use anchors to calculate some statistical information
-            - second is a list of anchor learnwares
-        """
-        pass
-
-    def search_learnware(self, user_info: AnchoredUserInfo) -> Tuple[Any, List[Learnware]]:
-        """Find helpful learnwares from learnware_list based on user_info
+    def search_learnware(self, user_info: AnchoredUserInfo, anchored: bool = False) -> Tuple[Any, List[Learnware]]:
+        """Search learnwares with anchor marget
+        - if 'anchor' == True, search anchor Learnwares from anchor_learnware_list based on user_info
+        - if 'anchor' == False, find helpful learnwares from learnware_list based on user_info
 
         Parameters
         ----------

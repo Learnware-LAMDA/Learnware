@@ -1,21 +1,19 @@
-from typing import Tuple, Any, List, Union, Dict
+from typing import List
 
-from .base import LearnwareMarket
-from ..learnware import Learnware
-from ..specification import BaseStatSpecification
+from ..easy2.organizer import EasyOrganizer
+from ...learnware import Learnware
+from ...specification import BaseStatSpecification
+from ...logger import get_module_logger
+
+logger = get_module_logger("evolve_organizer")
 
 
-class EvolvedMarket(LearnwareMarket):
+class EvolvedOrganizer(EasyOrganizer):
     """Organize learnwares and enable them to continuously evolve
-
-    Parameters
-    ----------
-    LearnwareMarket : _type_
-        Basic market version
     """
-
+    
     def __init__(self, *args, **kwargs):
-        super(EvolvedMarket, self).__init__(*args, **kwargs)
+        super(EvolvedOrganizer, self).__init__(*args, **kwargs)
 
     def generate_new_stat_specification(self, learnware: Learnware) -> BaseStatSpecification:
         """Generate new statistical specification for learnwares

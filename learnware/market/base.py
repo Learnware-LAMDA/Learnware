@@ -43,9 +43,6 @@ class BaseUserInfo:
         return self.stat_info.get(name, None)
 
 
-class BaseSearchResult:
-    
-    pass
 
 class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
