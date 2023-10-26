@@ -17,21 +17,15 @@ class TestAllLearnware(unittest.TestCase):
     def test_upload(self):
         input_description = {
             "Dimension": 13,
-            "Description": {
-                "0": "age",
-                "1": "weight",
-                "2": "body length",
-                "3": "animal type",
-                "4": "claw length"
-            }
+            "Description": {"0": "age", "1": "weight", "2": "body length", "3": "animal type", "4": "claw length"},
         }
         output_description = {
             "Dimension": 3,
             "Description": {
                 "0": "the probability of being a cat",
                 "1": "the probability of being a dog",
-                "2": "the probability of being a bird"
-            }
+                "2": "the probability of being a bird",
+            },
         }
         semantic_spec = self.client.create_semantic_specification(
             name="learnware_example",
@@ -41,10 +35,10 @@ class TestAllLearnware(unittest.TestCase):
             library_type="Scikit-learn",
             senarioes=["Business", "Financial"],
             input_description=input_description,
-            output_description=output_description
+            output_description=output_description,
         )
         assert isinstance(semantic_spec, dict)
-        
+
         download_learnware_id = "00000084"
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             zip_path = os.path.join(tempdir, f"test.zip")
@@ -53,11 +47,11 @@ class TestAllLearnware(unittest.TestCase):
 
             uploaded_ids = [learnware["learnware_id"] for learnware in self.client.list_learnware()]
             assert learnware_id in uploaded_ids
-            
+
             self.client.delete_learnware(learnware_id)
             uploaded_ids = [learnware["learnware_id"] for learnware in self.client.list_learnware()]
             assert learnware_id not in uploaded_ids
-            
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -262,9 +262,17 @@ class LearnwareClient:
         if result["code"] != 0:
             raise Exception("delete failed: " + json.dumps(result))
         pass
-    
+
     def create_semantic_specification(
-        self, name, description, data_type, task_type, library_type, senarioes, input_description=None, output_description=None
+        self,
+        name,
+        description,
+        data_type,
+        task_type,
+        library_type,
+        senarioes,
+        input_description=None,
+        output_description=None,
     ):
         semantic_specification = dict()
         semantic_specification["Data"] = {"Type": "Class", "Values": [data_type]}
@@ -403,7 +411,7 @@ class LearnwareClient:
                 if len(value) != 1 and value[0] not in key_list:
                     logger.error(f"{key} must be in {key_list}!")
                     return False
-            
+
             scenarios = semantic_spec["Scenario"]["Values"]
             assert len(scenarios) > 0, "Scenarios are not empty"
             scenario_list = C["semantic_specs"]["Scenario"]["Values"]
@@ -411,27 +419,27 @@ class LearnwareClient:
                 if scenario not in scenario_list:
                     logger.error(f"Elements in scenario must be in {scenario_list}!")
                     return False
-            
+
             if semantic_spec["Data"]["Values"][0] == "Table":
                 assert semantic_spec["Input"] is not None, "Lack of input semantics"
                 dim = semantic_spec["Input"]["Dimension"]
                 for k, v in semantic_spec["Input"]["Description"].items():
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
-            
+
             if semantic_spec["Task"]["Values"][0] in ["Classification", "Regression", "Feature Extraction"]:
                 assert semantic_spec["Output"] is not None, "Lack of output semantics"
                 dim = semantic_spec["Output"]["Dimension"]
                 for k, v in semantic_spec["Output"]["Description"].items():
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
-            
+
             return True
 
         except Exception as err:
             logger.error(f"semantic_specification is not valid due to {err}!")
             return False
-        
+
     @staticmethod
     def check_learnware(zip_path, semantic_specification=None):
         if semantic_specification is None:
