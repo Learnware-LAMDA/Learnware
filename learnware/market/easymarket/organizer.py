@@ -229,46 +229,48 @@ class EasyOrganizer(LearnwareOrganizer):
         """
         assert zip_path is None and semantic_spec is None, f"at least one of 'zip_path' and 'semantic_spec' should not be None when update learnware"
         assert check_status != EasyChecker.INVALID_LEARNWARE, f"'check_status' can not be INVALID_LEARNWARE"
-        
-        if semantic_spec is not None:
-            self.dbops.update_learnware_semantic_specification(id, semantic_spec)
-        else:
-            semantic_spec = self.learnware_list[id]
-            
-        if zip_path is not None:
-            target_zip_dir = self.learnware_zip_list[id]
-            target_folder_dir = self.learnware_folder_list[id]
 
-            if check_status is None:
-                with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-                    with zipfile.ZipFile(zip_path, "r") as z_file:
-                        z_file.extractall(tempdir)
-                    
-                    try:
-                        new_learnware = get_learnware_from_dirpath(
-                            id=id, semantic_spec=semantic_spec, learnware_dirpath=tempdir
-                        )
-                    except Exception:
-                        return EasyChecker.INVALID_LEARNWARE
-                    
-                    if new_learnware is None:
-                        return EasyChecker.INVALID_LEARNWARE
-                    
-                    learnwere_status = self.checker.check_learnware(new_learnware)
-            else:
-                learnwere_status = check_status
+        if zip_path is None and check_status is not None:
+            logger.warning("check_status will be ignored when zip_path is None for learnware update")
+        
+        learnware_zippath = self.learnware_zip_list[id] if zip_path is None else zip_path
+        semantic_spec = self.learnware_list[id].get_specification().get_semantic_spec() if semantic_spec is None else semantic_spec
+        
+        self.dbops.update_learnware_semantic_specification(id, semantic_spec)
+        
+        target_zip_dir = self.learnware_zip_list[id]
+        target_folder_dir = self.learnware_folder_list[id]
+
+        if check_status is None and zip_path is not None:
+            with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
+                with zipfile.ZipFile(zip_path, "r") as z_file:
+                    z_file.extractall(tempdir)
                 
-            self.dbops.update_learnware_use_flag(id, learnwere_status)
-            copyfile(zip_path, target_zip_dir)
-            with zipfile.ZipFile(target_zip_dir, "r") as z_file:
-                z_file.extractall(target_folder_dir)            
-            self.learnware_list[id] = get_learnware_from_dirpath(
-                id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
-            )
-            return learnwere_status
+                try:
+                    new_learnware = get_learnware_from_dirpath(
+                        id=id, semantic_spec=semantic_spec, learnware_dirpath=tempdir
+                    )
+                except Exception:
+                    return EasyChecker.INVALID_LEARNWARE
+                
+                if new_learnware is None:
+                    return EasyChecker.INVALID_LEARNWARE
+                
+                learnwere_status = self.checker.check_learnware(new_learnware)
         else:
-            self.learnware_list[id].get_specification().update_semantic_spec(semantic_spec)
-            return self.use_flags[id]
+            learnwere_status = self.use_flags[id] if zip_path is None else check_status
+            
+        copyfile(zip_path, target_zip_dir)
+        with zipfile.ZipFile(target_zip_dir, "r") as z_file:
+            z_file.extractall(target_folder_dir)       
+                    
+        self.learnware_list[id] = get_learnware_from_dirpath(
+            id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
+        )
+        self.use_flags[id] = learnwere_status
+        self.dbops.update_learnware_use_flag(id, learnwere_status)
+        return learnwere_status
+
     
     def get_learnware_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Search learnware by id or list of ids.
