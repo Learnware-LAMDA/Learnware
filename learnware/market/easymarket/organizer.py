@@ -73,7 +73,7 @@ class EasyOrganizer(LearnwareOrganizer):
         self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.use_flags, self.count = self.dbops.load_market()
     
     
-    def add_learnware(self, zip_path: str, semantic_spec: dict, id: str = None, check: bool = True) -> Tuple[str, bool]:
+    def add_learnware(self, zip_path: str, semantic_spec: dict, id: str = None, check_status: int = None) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -158,7 +158,7 @@ class EasyOrganizer(LearnwareOrganizer):
         if new_learnware is None:
             return None, EasyChecker.INVALID_LEARNWARE
 
-        learnwere_status = EasyChecker.USABLE_LEARWARE if check is False else self.checker.check_learnware(new_learnware)
+        learnwere_status = check_status if check_status is not None else self.checker.check_learnware(new_learnware)
         
         self.dbops.add_learnware(
             id=id,
@@ -206,11 +206,29 @@ class EasyOrganizer(LearnwareOrganizer):
         return True
 
     def update_learnware(
-        self, id: str, zip_path: str = None, semantic_spec: dict = None, check: bool = True
+        self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None
     ):
-        """TODO: update should pass the semantic check too
+        """update learnware with zip_path and semantic_specification
+        TODO: update should pass the semantic check too
+
+        Parameters
+        ----------
+        id : str
+            _description_
+        zip_path : str, optional
+            _description_, by default None
+        semantic_spec : dict, optional
+            _description_, by default None
+        check_status : int, optional
+            _description_, by default None
+
+        Returns
+        -------
+        _type_
+            _description_
         """
         assert zip_path is None and semantic_spec is None, f"at least one of 'zip_path' and 'semantic_spec' should not be None when update learnware"
+        assert check_status != EasyChecker.INVALID_LEARNWARE, f"'check_status' can not be INVALID_LEARNWARE"
         
         if semantic_spec is not None:
             self.dbops.update_learnware_semantic_specification(id, semantic_spec)
@@ -221,7 +239,7 @@ class EasyOrganizer(LearnwareOrganizer):
             target_zip_dir = self.learnware_zip_list[id]
             target_folder_dir = self.learnware_folder_list[id]
 
-            if check:
+            if check_status is None:
                 with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
                     with zipfile.ZipFile(zip_path, "r") as z_file:
                         z_file.extractall(tempdir)
@@ -231,14 +249,14 @@ class EasyOrganizer(LearnwareOrganizer):
                             id=id, semantic_spec=semantic_spec, learnware_dirpath=tempdir
                         )
                     except Exception:
-                        return False, EasyChecker.INVALID_LEARNWARE
+                        return EasyChecker.INVALID_LEARNWARE
                     
                     if new_learnware is None:
-                        return False, EasyChecker.INVALID_LEARNWARE
+                        return EasyChecker.INVALID_LEARNWARE
                     
                     learnwere_status = self.checker.check_learnware(new_learnware)
             else:
-                learnwere_status = EasyChecker.USABLE_LEARWARE
+                learnwere_status = check_status
                 
             self.dbops.update_learnware_use_flag(id, learnwere_status)
             copyfile(zip_path, target_zip_dir)
@@ -247,9 +265,7 @@ class EasyOrganizer(LearnwareOrganizer):
             self.learnware_list[id] = get_learnware_from_dirpath(
                 id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
-            
-            return True, learnwere_status
-                    
+            return learnwere_status
         else:
             self.learnware_list[id].get_specification().update_semantic_spec(semantic_spec)
             return self.use_flags[id]
@@ -317,3 +333,17 @@ class EasyOrganizer(LearnwareOrganizer):
             except:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
+            
+    def get_learnware_ids(self, top:int = None) -> List[str]:
+        if top is None:
+            return list(self.learnware_list.keys())
+        else:
+            return list(self.learnware_list.keys())[:top]
+        
+    
+    def get_learnwares(self, top:int = None) -> List[str]:
+        if top is None:
+            return list(self.learnware_list.values())
+        else:
+            return list(self.learnware_list.values())[:top]
+        
