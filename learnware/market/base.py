@@ -43,7 +43,7 @@ class BaseUserInfo:
         return self.stat_info.get(name, None)
 
 
-class BaseMarket:
+class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
 
     def __init__(
@@ -55,9 +55,9 @@ class BaseMarket:
     ):
         self.market_id = market_id
         self.learnware_organizer = LearnwareOrganizer() if organizer is None else organizer
-        self.learnware_organizer.reset(market_id=market_id)
         self.learnware_checker = LearnwareChecker() if checker is None else checker
         self.learnware_checker.reset(organizer=self.learnware_organizer)
+        self.learnware_organizer.reset(market_id=market_id, checker=self.learnware_checker)
         self.learnware_searcher = LearnwareSearcher() if searcher is None else searcher
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
 
@@ -128,26 +128,7 @@ class BaseMarket:
             - second is a list of matched learnwares
         """
 
-        return self.learnware_searcher(user_info, *args, **kwargs)
-
-    def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
-        """
-            Get Learnware from market by id
-
-        Parameters
-        ----------
-        id : Union[str, List[str]]
-            Given one id or a list of ids as target.
-
-        Returns
-        -------
-        Union[Learnware, List[Learnware]]
-            Return a Learnware object or a list of Learnware objects based on the type of input param.
-
-            - The returned items are search results.
-            - 'None' indicating the target id not found.
-        """
-        return self.learnware_organizer.get_learnware_by_ids(id)
+        return self.learnware_searcher(user_info, **kwargs)
 
     def delete_learnware(self, id: str, *args, **kwargs) -> bool:
         """Delete a learnware from market
@@ -191,19 +172,35 @@ class BaseMarket:
 
         """
         raise NotImplementedError("get semantic spec list is not implemented")
-
-
-    def get_learnware_ids(self) -> List[str]:
-        raise NotImplementedError("get_learnware_ids is not implemented")
     
-    
+    def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """
+            Get Learnware from market by id
+
+        Parameters
+        ----------
+        id : Union[str, List[str]]
+            Given one id or a list of ids as target.
+
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return a Learnware object or a list of Learnware objects based on the type of input param.
+
+            - The returned items are search results.
+            - 'None' indicating the target id not found.
+        """
+        return self.learnware_organizer.get_learnware_by_ids(id)
+
+    def 
         
 class LearnwareOrganizer:
-    def __init__(self, market_id):
-        self.market_id = market_id
+    def __init__(self, market_id, organizer: 'LearnwareOrganizer' = None):
+        self.reset(market_id=market_id, organizer=organizer)
         
-    def reset(self, market_id):
+    def reset(self, market_id, organizer: 'LearnwareOrganizer' ):
         self.market_id = market_id
+        self.organizer = organizer
     
     def reload_market(self) -> bool:
         """Reload the learnware organizer when server restared.
@@ -327,6 +324,12 @@ class LearnwareOrganizer:
         """
         raise NotImplementedError("get_learnware_path_by_ids is not implemented")
     
+    def get_learnware_ids(self, top:int = None):
+        if top is None:
+            return list(self.learnware_list.keys())
+        else:
+            return list(self.learnware_list.keys())[:top]
+
 class LearnwareSearcher:
     def __init__(self, organizer: LearnwareOrganizer = None):
         self.learnware_oganizer = organizer

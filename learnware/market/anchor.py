@@ -2,7 +2,7 @@ import os
 from typing import Tuple, Any, List, Union, Dict
 
 from ..learnware import Learnware
-from .base import BaseMarket, BaseUserInfo
+from .base import LearnwareMarket, BaseUserInfo
 
 
 class AnchoredUserInfo(BaseUserInfo):
@@ -42,12 +42,12 @@ class AnchoredUserInfo(BaseUserInfo):
         self.stat_info[name] = item
 
 
-class AnchoredMarket(BaseMarket):
-    """Add the anchor design to the BaseMarket
+class AnchoredMarket(LearnwareMarket):
+    """Add the anchor design to the LearnwareMarket
 
     Parameters
     ----------
-    BaseMarket : _type_
+    LearnwareMarket : _type_
         Basic market version
     """
 

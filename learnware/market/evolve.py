@@ -1,16 +1,16 @@
 from typing import Tuple, Any, List, Union, Dict
 
-from .base import BaseMarket
+from .base import LearnwareMarket
 from ..learnware import Learnware
 from ..specification import BaseStatSpecification
 
 
-class EvolvedMarket(BaseMarket):
+class EvolvedMarket(LearnwareMarket):
     """Organize learnwares and enable them to continuously evolve
 
     Parameters
     ----------
-    BaseMarket : _type_
+    LearnwareMarket : _type_
         Basic market version
     """
 
