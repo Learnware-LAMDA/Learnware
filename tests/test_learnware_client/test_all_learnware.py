@@ -14,7 +14,7 @@ class TestAllLearnware(unittest.TestCase):
 
         self.client = LearnwareClient()
         self.client.login(email, token)
-    
+
     def test_all_learnware(self):
         max_learnware_num = 1000
         semantic_spec = dict()
@@ -24,12 +24,12 @@ class TestAllLearnware(unittest.TestCase):
         semantic_spec["Scenario"] = {"Type": "Tag", "Values": []}
         semantic_spec["Name"] = {"Type": "String", "Values": ""}
         semantic_spec["Description"] = {"Type": "String", "Values": ""}
-        
+
         specification = Specification(semantic_spec=semantic_spec)
         result = self.client.search_learnware(specification, page_size=max_learnware_num)
         print(f"result size: {len(result)}")
         print(f"key in result: {[key for key in result[0]]}")
-        
+
         failed_ids = []
         learnware_ids = [res["learnware_id"] for res in result]
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
@@ -42,7 +42,7 @@ class TestAllLearnware(unittest.TestCase):
                 except:
                     failed_ids.append(idx)
                     print(f"check learnware {idx} failed!!!")
-        
+
         print(f"failed learnware ids: {failed_ids}")
 
 
