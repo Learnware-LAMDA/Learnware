@@ -252,7 +252,7 @@ class LearnwareSearcher:
     def reset(self, organizer):
         self.learnware_oganizer = organizer
         
-    def __call__(self, user_info: BaseUserInfo)
+    def __call__(self, user_info: BaseUserInfo):
         """Search learnwares based on user_info
 
         Parameters
