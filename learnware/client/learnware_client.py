@@ -99,8 +99,8 @@ class LearnwareClient:
 
     @require_login
     def upload_learnware(self, semantic_specification, learnware_file):
+        assert self._check_semantic_specification(semantic_specification)
         file_hash = compute_file_hash(learnware_file)
-
         url_upload = f"{self.host}/user/chunked_upload"
 
         num_chunks = os.path.getsize(learnware_file) // CHUNK_SIZE + 1
@@ -262,21 +262,25 @@ class LearnwareClient:
         if result["code"] != 0:
             raise Exception("delete failed: " + json.dumps(result))
         pass
-
+    
     def create_semantic_specification(
-        self, name, description, data_type, task_type, library_type, senarioes, input_description, output_description
+        self, name, description, data_type, task_type, library_type, senarioes, input_description=None, output_description=None
     ):
         semantic_specification = dict()
-        semantic_specification["Input"] = input_description
-        semantic_specification["Output"] = output_description
         semantic_specification["Data"] = {"Type": "Class", "Values": [data_type]}
         semantic_specification["Task"] = {"Type": "Class", "Values": [task_type]}
         semantic_specification["Library"] = {"Type": "Class", "Values": [library_type]}
         semantic_specification["Scenario"] = {"Type": "Tag", "Values": senarioes}
         semantic_specification["Name"] = {"Type": "String", "Values": name}
         semantic_specification["Description"] = {"Type": "String", "Values": description}
+        semantic_specification["Input"] = input_description
+        semantic_specification["Output"] = output_description
 
-        return semantic_specification
+        if self._check_semantic_specification(semantic_specification):
+            return semantic_specification
+        else:
+            logger.error("The parameters passed in create_semantic_specification() are illegal!")
+            return None
 
     def list_semantic_specification_values(self, key: SemanticSpecificationKey):
         url = f"{self.host}/engine/semantic_specification"
@@ -392,9 +396,48 @@ class LearnwareClient:
             return learnware_list
 
     @staticmethod
+    def _check_semantic_specification(semantic_spec):
+        try:
+            for key in ["Data", "Task", "Library"]:
+                value = semantic_spec[key]["Values"]
+                if len(value) != 1 and value[0] not in key_list:
+                    logger.error(f"{key} must be in {key_list}!")
+                    return False
+            
+            scenarios = semantic_spec["Scenario"]["Values"]
+            assert len(scenarios) > 0, "Scenarios are not empty"
+            scenario_list = C["semantic_specs"]["Scenario"]["Values"]
+            for scenario in scenarios:
+                if scenario not in scenario_list:
+                    logger.error(f"Elements in scenario must be in {scenario_list}!")
+                    return False
+            
+            if semantic_spec["Data"]["Values"][0] == "Table":
+                assert semantic_spec["Input"] is not None, "Lack of input semantics"
+                dim = semantic_spec["Input"]["Dimension"]
+                for k, v in semantic_spec["Input"]["Description"].items():
+                    assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
+                    assert isinstance(v, str), "Description must be string"
+            
+            if semantic_spec["Task"]["Values"][0] in ["Classification", "Regression", "Feature Extraction"]:
+                assert semantic_spec["Output"] is not None, "Lack of output semantics"
+                dim = semantic_spec["Output"]["Dimension"]
+                for k, v in semantic_spec["Output"]["Description"].items():
+                    assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
+                    assert isinstance(v, str), "Description must be string"
+            
+            return True
+
+        except Exception as err:
+            logger.error(f"semantic_specification is not valid due to {err}!")
+            return False
+        
+    @staticmethod
     def check_learnware(zip_path, semantic_specification=None):
         if semantic_specification is None:
             semantic_specification = get_semantic_specification()
+        else:
+            self._check_semantic_specification(semantic_specification)
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(zip_path, mode="r") as z_file:
