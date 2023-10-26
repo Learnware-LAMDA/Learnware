@@ -61,16 +61,16 @@ class BaseMarket:
         self.learnware_searcher = LearnwareSearcher() if searcher is None else searcher
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
 
-    def reload_market(self, *args, **kwargs) -> bool:
+    def reload_market(self, **kwargs) -> bool:
         """Reload the market when server restared.
         Returns
         -------
         bool
             A flag indicating whether the market is reload successfully.
         """
-        self.learnware_organizer.reload_market(*args, **kwargs)
+        self.learnware_organizer.reload_market(**kwargs)
         
-    def check_learnware(self, learnware: Learnware) -> bool:
+    def check_learnware(self, learnware: Learnware, **kwargs) -> bool:
         """Check the utility of a learnware
 
         Parameters
@@ -82,7 +82,7 @@ class BaseMarket:
         bool
             A flag indicating whether the learnware can be accepted.
         """
-        return self.learnware_checker(learnware)
+        return self.learnware_checker(learnware, **kwargs)
 
     def add_learnware(self, zip_path: str, semantic_spec: dict, **kwargs) -> Tuple[str, bool]:
         """Add a learnware into the market.
@@ -111,7 +111,7 @@ class BaseMarket:
         """
         return self.learnware_organizer.add_learnware(zip_path, semantic_spec, **kwargs)
 
-    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
+    def search_learnware(self, user_info: BaseUserInfo, **kwargs) -> Tuple[Any, List[Learnware]]:
         """Search Learnware based on user_info
 
         Parameters
@@ -128,7 +128,7 @@ class BaseMarket:
             - second is a list of matched learnwares
         """
 
-        return self.learnware_searcher(user_info=user_info)
+        return self.learnware_searcher(user_info, *args, **kwargs)
 
     def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """
@@ -149,7 +149,7 @@ class BaseMarket:
         """
         return self.learnware_organizer.get_learnware_by_ids(id)
 
-    def delete_learnware(self, id: str) -> bool:
+    def delete_learnware(self, id: str, *args, **kwargs) -> bool:
         """Delete a learnware from market
 
         Parameters
@@ -167,7 +167,7 @@ class BaseMarket:
         Exception
             Raise an excpetion when given id is NOT found in learnware list
         """
-        return self.learnware_organizer.delete_learnware(id)
+        return self.learnware_organizer.delete_learnware(id, **kwargs)
 
     def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, **kwargs) -> bool:
         """
