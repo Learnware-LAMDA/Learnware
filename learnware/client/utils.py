@@ -14,7 +14,7 @@ def system_execute(args, timeout=None):
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
-        print("System Execute Error:", com_process.stderr.decode())
+        logger.error(f"System Execute Error: {com_process.stderr.decode()}")
         raise err
 
 
@@ -47,9 +47,9 @@ def install_environment(zip_path, conda_env):
                 logger.info(f"checking the avaliabe conda packages for {conda_env}")
                 filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
                 # create environment
-                logger.info(f"create and update conda env [{conda_env}] according to .yaml file")
+                logger.info(f"create conda env [{conda_env}] according to .yaml file")
                 system_execute(
-                    args=["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"]
+                    args=["conda", "env", "create", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"]
                 )
 
             elif "requirements.txt" in z_file.namelist():
