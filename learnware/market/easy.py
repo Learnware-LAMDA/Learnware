@@ -949,11 +949,11 @@ class EasyMarket(LearnwareMarket):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
-    def update_learnware_semantic_spec(self, learnware_id: str, semantic_spec: dict) -> bool:
+    def update_learnware_semantic_specification(self, learnware_id: str, semantic_spec: dict) -> bool:
         """Update Learnware semantic_spec"""
 
         # update database
-        self.dbops.update_learnware_semantic_spec(learnware_id=learnware_id, semantic_spec=semantic_spec)
+        self.dbops.update_learnware_semantic_specification(learnware_id=learnware_id, semantic_spec=semantic_spec)
         # update file
 
         folder_path = self.learnware_folder_list[learnware_id]

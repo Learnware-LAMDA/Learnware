@@ -43,6 +43,10 @@ class BaseUserInfo:
         return self.stat_info.get(name, None)
 
 
+class BaseSearchResult:
+    
+    pass
+
 class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
 
@@ -62,145 +66,43 @@ class LearnwareMarket:
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
 
     def reload_market(self, **kwargs) -> bool:
-        """Reload the market when server restared.
-        Returns
-        -------
-        bool
-            A flag indicating whether the market is reload successfully.
-        """
         self.learnware_organizer.reload_market(**kwargs)
         
     def check_learnware(self, learnware: Learnware, **kwargs) -> bool:
-        """Check the utility of a learnware
-
-        Parameters
-        ----------
-        learnware : Learnware
-
-        Returns
-        -------
-        bool
-            A flag indicating whether the learnware can be accepted.
-        """
         return self.learnware_checker(learnware, **kwargs)
 
     def add_learnware(self, zip_path: str, semantic_spec: dict, **kwargs) -> Tuple[str, bool]:
-        """Add a learnware into the market.
-
-        .. note::
-
-            Given a prediction of a certain time, all signals before this time will be prepared well.
-
-        Parameters
-        ----------
-        zip_path : str
-            Filepath for learnware model, a zipped file.
-        semantic_spec : dict
-            semantic_spec for new learnware, in dictionary format.
-        
-        Returns
-        -------
-        Tuple[str, bool]
-            str indicating model_id, bool indicating whether the learnware is added successfully.
-
-        Raises
-        ------
-        FileNotFoundError
-            file for model or statistical specification not found
-
-        """
         return self.learnware_organizer.add_learnware(zip_path, semantic_spec, **kwargs)
 
     def search_learnware(self, user_info: BaseUserInfo, **kwargs) -> Tuple[Any, List[Learnware]]:
-        """Search Learnware based on user_info
-
-        Parameters
-        ----------
-        user_info : BaseUserInfo
-            user_info with emantic specifications and statistical information
-
-        Returns
-        -------
-        Tuple[Any, List[Any]]
-            return two items:
-
-            - first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.
-            - second is a list of matched learnwares
-        """
-
         return self.learnware_searcher(user_info, **kwargs)
 
-    def delete_learnware(self, id: str, *args, **kwargs) -> bool:
-        """Delete a learnware from market
-
-        Parameters
-        ----------
-        id : str
-            id of learnware to be deleted
-
-        Returns
-        -------
-        bool
-            True if the target learnware is deleted successfully.
-
-        Raises
-        ------
-        Exception
-            Raise an excpetion when given id is NOT found in learnware list
-        """
+    def delete_learnware(self, id: str, **kwargs) -> bool:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
 
     def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, **kwargs) -> bool:
-        """
-            Update Learnware with id and content to be updated.
-            Empty interface. TODO
-
-        Parameters
-        ----------
-        id : str
-            id of target learnware.
-        """
         return self.learnware_organizer.update_learnware(id, zip_path=zip_path, semantic_spec=semantic_spec, **kwargs)
 
-    def get_semantic_spec_list(self) -> dict:
-        """Return all semantic specifications available
-
-        Returns
-        -------
-        dict
-            All emantic specifications in dictionary format
-
-        """
-        raise NotImplementedError("get semantic spec list is not implemented")
+    def get_learnware_ids(self, top:int = None, **kwargs):
+        return self.learnware_organizer.get_learnware_ids(top, **kwargs)
+        
     
-    def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
-        """
-            Get Learnware from market by id
+    def get_learnwares(self, top:int = None, **kwargs):
+        return self.learnware_organizer.get_learnwares(top, **kwargs)
+    
+    def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        raise self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
 
-        Parameters
-        ----------
-        id : Union[str, List[str]]
-            Given one id or a list of ids as target.
-
-        Returns
-        -------
-        Union[Learnware, List[Learnware]]
-            Return a Learnware object or a list of Learnware objects based on the type of input param.
-
-            - The returned items are search results.
-            - 'None' indicating the target id not found.
-        """
-        return self.learnware_organizer.get_learnware_by_ids(id)
-
-    def 
+    def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
         
 class LearnwareOrganizer:
-    def __init__(self, market_id, organizer: 'LearnwareOrganizer' = None):
-        self.reset(market_id=market_id, organizer=organizer)
+    def __init__(self, market_id, checker: 'LearnwareChecker' = None):
+        self.reset(market_id=market_id, checker=checker)
         
-    def reset(self, market_id, organizer: 'LearnwareOrganizer' ):
+    def reset(self, market_id, checker: 'LearnwareChecker', **kwargs):
         self.market_id = market_id
-        self.organizer = organizer
+        self.organizer = checker
     
     def reload_market(self) -> bool:
         """Reload the learnware organizer when server restared.
@@ -267,7 +169,6 @@ class LearnwareOrganizer:
     def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, **kwargs) -> bool:
         """
             Update Learnware with id and content to be updated.
-            Empty interface. TODO
 
         Parameters
         ----------
@@ -275,17 +176,6 @@ class LearnwareOrganizer:
             id of target learnware.
         """
         raise NotImplementedError("update learnware is Not Implemented")
-    
-    def get_semantic_spec_list(self) -> dict:
-        """Return all semantic specifications available
-
-        Returns
-        -------
-        dict
-            All emantic specifications in dictionary format
-
-        """
-        raise NotImplementedError("get semantic spec list is not implemented")
     
     def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """
@@ -324,11 +214,36 @@ class LearnwareOrganizer:
         """
         raise NotImplementedError("get_learnware_path_by_ids is not implemented")
     
-    def get_learnware_ids(self, top:int = None):
-        if top is None:
-            return list(self.learnware_list.keys())
-        else:
-            return list(self.learnware_list.keys())[:top]
+    def get_learnware_ids(self, top:int = None) -> List[str]:
+        """get the list of learnware ids
+
+        Parameters
+        ----------
+        top : int, optional
+            the first top element to return, by default None
+
+        Raises
+        ------
+        List[str]
+            the first top ids
+        """
+        raise NotImplementedError("get_learnware_ids is not implemented")
+        
+        
+    def get_learnwares(self, top:int = None) -> List[Learnware]:
+        """get the list of learnwares
+
+        Parameters
+        ----------
+        top : int, optional
+            the first top element to return, by default None
+
+        Raises
+        ------
+        List[Learnware]
+            the first top learnwares
+        """
+        raise NotImplementedError("get_learnwares is not implemented")
 
 class LearnwareSearcher:
     def __init__(self, organizer: LearnwareOrganizer = None):
@@ -337,7 +252,14 @@ class LearnwareSearcher:
     def reset(self, organizer):
         self.learnware_oganizer = organizer
         
-    def __call__(self, user_info: BaseUserInfo):
+    def __call__(self, user_info: BaseUserInfo)
+        """Search learnwares based on user_info
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            user_info contains semantic_spec and stat_info
+        """
         raise NotImplementedError("'__call__' method is not implemented in LearnwareSearcher")
         
 

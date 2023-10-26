@@ -4,6 +4,7 @@ import copy
 import torch
 import zipfile
 import traceback
+import tempfile
 import numpy as np
 import pandas as pd
 from rapidfuzz import fuzz
@@ -11,8 +12,10 @@ from cvxopt import solvers, matrix
 from shutil import copyfile, rmtree
 from typing import Tuple, Any, List, Union, Dict
 
+from .database_ops import DatabaseOperations
+from .checker import EasyChecker
 from ..base import LearnwareMarket, BaseUserInfo
-from ..database_ops import DatabaseOperations
+
 
 from ... import utils
 from ...config import C as conf
@@ -28,8 +31,11 @@ logger = get_module_logger("easy_organizer")
 
 class EasyOrganizer(LearnwareOrganizer):
     
-    def reset(self, market_id, rebuild=False):
-        self.market_id = market_id
+    def __init__(self, market_id, checker: 'EasyChecker' = None, rebuild: bool = False):
+        self.reset(market_id=market_id, checker=checker, rebuild=rebuild)
+
+    def reset(self, market_id, checker: EasyChecker = None, rebuild: bool = False):
+        super(EasyOrganizer, self).reset(market_id=market_id, checker=checker)
         self.reload_market(rebuild=rebuild)
     
     def reload_market(self, rebuild=False) -> bool:
@@ -48,6 +54,7 @@ class EasyOrganizer(LearnwareOrganizer):
         self.learnware_list = {}  # id: Learnware
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
+        self.use_flags = {}
         self.count = 0
         self.semantic_spec_list = conf.semantic_specs
         self.dbops = DatabaseOperations(conf.database_url, "market_" + self.market_id)
@@ -63,10 +70,10 @@ class EasyOrganizer(LearnwareOrganizer):
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
         os.makedirs(self.learnware_folder_pool_path, exist_ok=True)
-        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.count = self.dbops.load_market()
+        self.learnware_list, self.learnware_zip_list, self.learnware_folder_list, self.use_flags, self.count = self.dbops.load_market()
     
     
-    def add_learnware(self, zip_path: str, semantic_spec: dict, learnware_id: str = None, check: bool = False) -> Tuple[str, bool]:
+    def add_learnware(self, zip_path: str, semantic_spec: dict, id: str = None, check: bool = True) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -92,24 +99,24 @@ class EasyOrganizer(LearnwareOrganizer):
 
         if not os.path.exists(zip_path):
             logger.warning("Zip Path NOT Found! Fail to add learnware.")
-            return None, self.INVALID_LEARNWARE
+            return None, EasyChecker.INVALID_LEARNWARE
 
         try:
             if len(semantic_spec["Data"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Data.")
-                return None, self.INVALID_LEARNWARE
+                return None, EasyChecker.INVALID_LEARNWARE
             if len(semantic_spec["Task"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Task.")
-                return None, self.INVALID_LEARNWARE
+                return None, EasyChecker.INVALID_LEARNWARE
             if len(semantic_spec["Library"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please choose Device.")
-                return None, self.INVALID_LEARNWARE
+                return None, EasyChecker.INVALID_LEARNWARE
             if len(semantic_spec["Name"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Name.")
-                return None, self.INVALID_LEARNWARE
+                return None, EasyChecker.INVALID_LEARNWARE
             if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
                 logger.warning("Illegal semantic specification, please provide Scenario or Description.")
-                return None, self.INVALID_LEARNWARE
+                return None, EasyChecker.INVALID_LEARNWARE
             if (
                 semantic_spec["Data"]["Type"] != "Class"
                 or semantic_spec["Task"]["Type"] != "Class"
@@ -119,17 +126,15 @@ class EasyOrganizer(LearnwareOrganizer):
                 or semantic_spec["Description"]["Type"] != "String"
             ):
                 logger.warning("Illegal semantic specification, please provide the right type.")
-                return None, self.INVALID_LEARNWARE
+                return None, EasyChecker.INVALID_LEARNWARE
         except:
             print(semantic_spec)
             logger.warning("Illegal semantic specification, some keys are missing.")
-            return None, self.INVALID_LEARNWARE
+            return None, EasyChecker.INVALID_LEARNWARE
 
         logger.info("Get new learnware from %s" % (zip_path))
-        if learnware_id is not None:
-            id = learnware_id
-        else:
-            id = "%08d" % (self.count)
+        
+        id = id if id is not None else "%08d" % (self.count)
         target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (id))
         target_folder_dir = os.path.join(self.learnware_folder_pool_path, id)
         copyfile(zip_path, target_zip_dir)
@@ -148,137 +153,167 @@ class EasyOrganizer(LearnwareOrganizer):
                 rmtree(target_folder_dir)
             except:
                 pass
-            return None, self.INVALID_LEARNWARE
+            return None, EasyChecker.INVALID_LEARNWARE
 
         if new_learnware is None:
-            return None, self.INVALID_LEARNWARE
+            return None, EasyChecker.INVALID_LEARNWARE
 
-        if check and self.checker
+        learnwere_status = EasyChecker.USABLE_LEARWARE if check is False else self.checker.check_learnware(new_learnware)
         
         self.dbops.add_learnware(
             id=id,
             semantic_spec=semantic_spec,
             zip_path=target_zip_dir,
             folder_path=target_folder_dir,
-            use_flag=LearnwareChecker.USABLE_LEARWARE,
+            use_flag=learnwere_status,
         )
 
         self.learnware_list[id] = new_learnware
         self.learnware_zip_list[id] = target_zip_dir
         self.learnware_folder_list[id] = target_folder_dir
+        self.use_flags[id] = learnwere_status
         self.count += 1
-        return id, LearnwareChecker.USABLE_LEARWARE
-    
-    def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
-        """Add a learnware into the market.
+        return id, learnwere_status
 
-        .. note::
-
-            Given a prediction of a certain time, all signals before this time will be prepared well.
-
+    def delete_learnware(self, id: str) -> bool:
+        """Delete Learnware from market
 
         Parameters
         ----------
-        zip_path : str
-            Filepath for learnware model, a zipped file.
-        semantic_spec : dict
-            semantic_spec for new learnware, in dictionary format.
+        id : str
+            Learnware to be deleted
 
         Returns
         -------
-        Tuple[str, int]
-            - str indicating model_id
-            - int indicating what the flag of learnware is added.
-
+        bool
+            True for successful operation.
+            False for id not found.
         """
-        semantic_spec = copy.deepcopy(semantic_spec)
+        if not id in self.learnware_list:
+            logger.warning("Learnware id:'{}' NOT Found!".format(id))
+            return False
 
-        if not os.path.exists(zip_path):
-            logger.warning("Zip Path NOT Found! Fail to add learnware.")
-            return None, self.INVALID_LEARNWARE
+        zip_dir = self.learnware_zip_list[id]
+        os.remove(zip_dir)
+        folder_dir = self.learnware_folder_list[id]
+        rmtree(folder_dir)
+        self.learnware_list.pop(id)
+        self.learnware_zip_list.pop(id)
+        self.learnware_folder_list.pop(id)
+        self.use_flags.pop(id)
+        self.dbops.delete_learnware(id=id)
 
-        try:
-            if len(semantic_spec["Data"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please choose Data.")
-                return None, self.INVALID_LEARNWARE
-            if len(semantic_spec["Task"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please choose Task.")
-                return None, self.INVALID_LEARNWARE
-            if len(semantic_spec["Library"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please choose Device.")
-                return None, self.INVALID_LEARNWARE
-            if len(semantic_spec["Name"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please provide Name.")
-                return None, self.INVALID_LEARNWARE
-            if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please provide Scenario or Description.")
-                return None, self.INVALID_LEARNWARE
-            if (
-                semantic_spec["Data"]["Type"] != "Class"
-                or semantic_spec["Task"]["Type"] != "Class"
-                or semantic_spec["Library"]["Type"] != "Class"
-                or semantic_spec["Scenario"]["Type"] != "Tag"
-                or semantic_spec["Name"]["Type"] != "String"
-                or semantic_spec["Description"]["Type"] != "String"
-            ):
-                logger.warning("Illegal semantic specification, please provide the right type.")
-                return None, self.INVALID_LEARNWARE
-        except:
-            logger.info(f"Semantic specification: {semantic_spec}")
-            logger.warning("Illegal semantic specification, some keys are missing.")
-            return None, self.INVALID_LEARNWARE
+        return True
 
-        logger.info("Get new learnware from %s" % (zip_path))
-        id = "%08d" % (self.count)
-        target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (id))
-        target_folder_dir = os.path.join(self.learnware_folder_pool_path, id)
-        copyfile(zip_path, target_zip_dir)
+    def update_learnware(
+        self, id: str, zip_path: str = None, semantic_spec: dict = None, check: bool = True
+    ):
+        """TODO: update should pass the semantic check too
+        """
+        assert zip_path is None and semantic_spec is None, f"at least one of 'zip_path' and 'semantic_spec' should not be None when update learnware"
+        
+        if semantic_spec is not None:
+            self.dbops.update_learnware_semantic_specification(id, semantic_spec)
+        else:
+            semantic_spec = self.learnware_list[id]
+            
+        if zip_path is not None:
+            target_zip_dir = self.learnware_zip_list[id]
+            target_folder_dir = self.learnware_folder_list[id]
 
-        with zipfile.ZipFile(target_zip_dir, "r") as z_file:
-            z_file.extractall(target_folder_dir)
-        logger.info("Learnware move to %s, and unzip to %s" % (target_zip_dir, target_folder_dir))
-
-        try:
-            new_learnware = get_learnware_from_dirpath(
+            if check:
+                with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
+                    with zipfile.ZipFile(zip_path, "r") as z_file:
+                        z_file.extractall(tempdir)
+                    
+                    try:
+                        new_learnware = get_learnware_from_dirpath(
+                            id=id, semantic_spec=semantic_spec, learnware_dirpath=tempdir
+                        )
+                    except Exception:
+                        return False, EasyChecker.INVALID_LEARNWARE
+                    
+                    if new_learnware is None:
+                        return False, EasyChecker.INVALID_LEARNWARE
+                    
+                    learnwere_status = self.checker.check_learnware(new_learnware)
+            else:
+                learnwere_status = EasyChecker.USABLE_LEARWARE
+                
+            self.dbops.update_learnware_use_flag(id, learnwere_status)
+            copyfile(zip_path, target_zip_dir)
+            with zipfile.ZipFile(target_zip_dir, "r") as z_file:
+                z_file.extractall(target_folder_dir)            
+            self.learnware_list[id] = get_learnware_from_dirpath(
                 id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
-        except:
+            
+            return True, learnwere_status
+                    
+        else:
+            self.learnware_list[id].get_specification().update_semantic_spec(semantic_spec)
+            return self.use_flags[id]
+    
+    def get_learnware_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """Search learnware by id or list of ids.
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of targer learware
+            List[str]: A list of ids of target learnwares
+
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return target learnware or list of target learnwares.
+            None for Learnware NOT Found.
+        """
+        if isinstance(ids, list):
+            ret = []
+            for id in ids:
+                if id in self.learnware_list:
+                    ret.append(self.learnware_list[id])
+                else:
+                    logger.warning("Learnware ID '%s' NOT Found!" % (id))
+                    ret.append(None)
+            return ret
+        else:
             try:
-                os.remove(target_zip_dir)
-                rmtree(target_folder_dir)
+                return self.learnware_list[ids]
             except:
-                pass
-            return None, self.INVALID_LEARNWARE
+                logger.warning("Learnware ID '%s' NOT Found!" % (ids))
+                return None
 
-        if new_learnware is None:
-            return None, self.INVALID_LEARNWARE
+    def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """Get Zipped Learnware file by id
 
-        check_flag = self.check_learnware(new_learnware)
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of targer learware
+            List[str]: A list of ids of target learnwares
 
-        self.dbops.add_learnware(
-            id=id,
-            semantic_spec=semantic_spec,
-            zip_path=target_zip_dir,
-            folder_path=target_folder_dir,
-            use_flag=check_flag,
-        )
-
-        self.learnware_list[id] = new_learnware
-        self.learnware_zip_list[id] = target_zip_dir
-        self.learnware_folder_list[id] = target_folder_dir
-        self.count += 1
-        return id, check_flag
-    
-
-    def get_learnware_ids(self, top:int = None):
-        if top is None:
-            return list(self.learnware_list.keys())
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return the path for target learnware or list of path.
+            None for Learnware NOT Found.
+        """
+        if isinstance(ids, list):
+            ret = []
+            for id in ids:
+                if id in self.learnware_zip_list:
+                    ret.append(self.learnware_zip_list[id])
+                else:
+                    logger.warning("Learnware ID '%s' NOT Found!" % (id))
+                    ret.append(None)
+            return ret
         else:
-            return list(self.learnware_list.keys())[:top]
-        
-    
-    def get_learnwares(self, top:int = None):
-        if top is None:
-            return list(self.learnware_list.values())
-        else:
-            return list(self.learnware_list.values())[:top]
+            try:
+                return self.learnware_zip_list[ids]
+            except:
+                logger.warning("Learnware ID '%s' NOT Found!" % (ids))
+                return None

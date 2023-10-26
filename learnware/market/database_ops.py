@@ -117,17 +117,6 @@ class DatabaseOperations(object):
             pass
         pass
 
-    def update_learnware_semantic_spec(self, learnware_id: str, semantic_spec: dict):
-        with self.engine.connect() as conn:
-            semantic_spec_str = json.dumps(semantic_spec)
-            conn.execute(
-                text("UPDATE tb_learnware SET semantic_spec=:semantic_spec WHERE id=:id;"),
-                dict(id=learnware_id, semantic_spec=semantic_spec_str),
-            )
-            conn.commit()
-            pass
-        pass
-
     def delete_learnware(self, id: str):
         with self.engine.connect() as conn:
             conn.execute(text("DELETE FROM tb_learnware WHERE id=:id;"), dict(id=id))
@@ -136,6 +125,17 @@ class DatabaseOperations(object):
         pass
 
     def update_learnware_semantic_specification(self, id: str, semantic_spec: dict):
+        with self.engine.connect() as conn:
+            semantic_spec_str = json.dumps(semantic_spec)
+            r = conn.execute(
+                text("UPDATE tb_learnware SET semantic_spec=:semantic_spec WHERE id=:id;"),
+                dict(id=id, semantic_spec=semantic_spec_str),
+            )
+            conn.commit()
+            pass
+        pass
+
+    def update_learnware_use_flag(self, id: str, semantic_spec: dict):
         with self.engine.connect() as conn:
             semantic_spec_str = json.dumps(semantic_spec)
             r = conn.execute(

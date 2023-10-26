@@ -1,4 +1,6 @@
 import traceback
+import numpy as np
+import torch
 
 from ..base import LearnwareChecker
 from ...logger import get_module_logger
