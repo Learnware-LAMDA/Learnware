@@ -41,7 +41,9 @@ class TestAllLearnware(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             zip_path = os.path.join(tempdir, f"test.zip")
             self.client.download_learnware(download_learnware_id, zip_path)
-            learnware_id = self.client.upload_learnware(learnware_zip_path=zip_path, semantic_specification=semantic_spec)
+            learnware_id = self.client.upload_learnware(
+                learnware_zip_path=zip_path, semantic_specification=semantic_spec
+            )
 
             uploaded_ids = [learnware["learnware_id"] for learnware in self.client.list_learnware()]
             assert learnware_id in uploaded_ids
