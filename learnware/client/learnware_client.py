@@ -98,15 +98,15 @@ class LearnwareClient:
         pass
 
     @require_login
-    def upload_learnware(self, semantic_specification, learnware_file):
+    def upload_learnware(self, learnware_zip_path, semantic_specification):
         assert self._check_semantic_specification(semantic_specification)
-        file_hash = compute_file_hash(learnware_file)
+        file_hash = compute_file_hash(learnware_zip_path)
         url_upload = f"{self.host}/user/chunked_upload"
 
-        num_chunks = os.path.getsize(learnware_file) // CHUNK_SIZE + 1
+        num_chunks = os.path.getsize(learnware_zip_path) // CHUNK_SIZE + 1
         bar = tqdm(total=num_chunks, desc="Uploading", unit="MB")
         begin = 0
-        for chunk in file_chunks(learnware_file):
+        for chunk in file_chunks(learnware_zip_path):
             response = requests.post(
                 url_upload,
                 files={
@@ -270,7 +270,7 @@ class LearnwareClient:
         data_type,
         task_type,
         library_type,
-        senarioes,
+        scenarios,
         input_description=None,
         output_description=None,
     ):
@@ -278,7 +278,7 @@ class LearnwareClient:
         semantic_specification["Data"] = {"Type": "Class", "Values": [data_type]}
         semantic_specification["Task"] = {"Type": "Class", "Values": [task_type]}
         semantic_specification["Library"] = {"Type": "Class", "Values": [library_type]}
-        semantic_specification["Scenario"] = {"Type": "Tag", "Values": senarioes}
+        semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios}
         semantic_specification["Name"] = {"Type": "String", "Values": name}
         semantic_specification["Description"] = {"Type": "String", "Values": description}
         semantic_specification["Input"] = input_description
@@ -441,14 +441,14 @@ class LearnwareClient:
             return False
 
     @staticmethod
-    def check_learnware(zip_path, semantic_specification=None):
+    def check_learnware(learnware_zip_path, semantic_specification=None):
         if semantic_specification is None:
             semantic_specification = get_semantic_specification()
         else:
-            self._check_semantic_specification(semantic_specification)
+            LearnwareClient._check_semantic_specification(semantic_specification)
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-            with zipfile.ZipFile(zip_path, mode="r") as z_file:
+            with zipfile.ZipFile(learnware_zip_path, mode="r") as z_file:
                 z_file.extractall(tempdir)
 
             learnware = get_learnware_from_dirpath(
@@ -458,7 +458,7 @@ class LearnwareClient:
             if learnware is None:
                 raise Exception("The learnware is not valid.")
 
-            with LearnwaresContainer(learnware, zip_path) as env_container:
+            with LearnwaresContainer(learnware, learnware_zip_path) as env_container:
                 learnware = env_container.get_learnwares_with_container()[0]
                 if EasyMarket.check_learnware(learnware) == EasyMarket.USABLE_LEARWARE:
                     logger.info("The learnware passed the local test.")
