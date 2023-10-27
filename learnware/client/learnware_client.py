@@ -296,7 +296,7 @@ class LearnwareClient:
         result = response.json()
         semantic_conf = result["data"]["semantic_specification"]
 
-        return semantic_conf[key.value]["Values"]
+        return semantic_conf[key]["Values"]
 
     def load_learnware(
         self,
