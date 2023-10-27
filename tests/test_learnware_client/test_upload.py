@@ -20,11 +20,9 @@ class TestAllLearnware(unittest.TestCase):
             "Description": {"0": "age", "1": "weight", "2": "body length", "3": "animal type", "4": "claw length"},
         }
         output_description = {
-            "Dimension": 3,
+            "Dimension": 1,
             "Description": {
                 "0": "the probability of being a cat",
-                "1": "the probability of being a dog",
-                "2": "the probability of being a bird",
             },
         }
         semantic_spec = self.client.create_semantic_specification(
@@ -33,7 +31,7 @@ class TestAllLearnware(unittest.TestCase):
             data_type="Table",
             task_type="Classification",
             library_type="Scikit-learn",
-            senarioes=["Business", "Financial"],
+            scenarios=["Business", "Financial"],
             input_description=input_description,
             output_description=output_description,
         )
@@ -43,7 +41,9 @@ class TestAllLearnware(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             zip_path = os.path.join(tempdir, f"test.zip")
             self.client.download_learnware(download_learnware_id, zip_path)
-            learnware_id = self.client.upload_learnware(semantic_specification=semantic_spec, learnware_file=zip_path)
+            learnware_id = self.client.upload_learnware(
+                learnware_zip_path=zip_path, semantic_specification=semantic_spec
+            )
 
             uploaded_ids = [learnware["learnware_id"] for learnware in self.client.list_learnware()]
             assert learnware_id in uploaded_ids
