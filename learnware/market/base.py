@@ -1,11 +1,12 @@
 import os
 import torch
+import tempfile
 import traceback
 import numpy as np
 
 
 from typing import Tuple, Any, List, Union
-from ..learnware import Learnware
+from ..learnware import Learnware, get_learnware_from_dirpath
 from ..logger import get_module_logger
 
 logger = get_module_logger("market_base", "INFO")
@@ -51,27 +52,57 @@ class LearnwareMarket:
         self,
         market_id: str = None,
         organizer: "BaseOrganizer" = None,
-        checker: "BaseChecker" = None,
         searcher: "BaseSearcher" = None,
+        checker_list: List["BaseChecker"] = None,
         rebuild=False,
     ):
         self.market_id = market_id
         self.learnware_organizer = BaseOrganizer() if organizer is None else organizer
-        self.learnware_checker = BaseChecker() if checker is None else checker
-        self.learnware_checker.reset(organizer=self.learnware_organizer)
-        self.learnware_organizer.reset(market_id=market_id, checker=self.learnware_checker)
+        self.learnware_organizer.reset(market_id=market_id)
         self.learnware_organizer.reload_market(rebuild=rebuild)
         self.learnware_searcher = BaseSearcher() if searcher is None else searcher
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
+        
+        if checker_list is None:
+            self.learnware_checker = {"BaseChecker": BaseChecker()}
+        else:
+            self.learnware_checker = {checker.__class__.__name__: checker for checker in checker_list}
+        for name, checker in self.learnware_checker.items():
+            checker.reset(organizer=self.learnware_organizer)
 
     def reload_market(self, **kwargs) -> bool:
         self.learnware_organizer.reload_market(**kwargs)
 
-    def check_learnware(self, learnware: Learnware, **kwargs) -> bool:
-        return self.learnware_checker(learnware, **kwargs)
+    def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
+        try:
+            with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
+                with zipfile.ZipFile(zip_path, mode="r") as z_file:
+                    z_file.extractall(tempdir)
+                    
+                pending_learnware = get_learnware_from_dirpath(
+                    id="pending", semantic_spec=semantic_specification, learnware_dirpath=tempdir
+                )
+                
+                final_status = BaseChecker.INVALID_LEARNWARE
+                checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
 
-    def add_learnware(self, zip_path: str, semantic_spec: dict, **kwargs) -> Tuple[str, bool]:
-        return self.learnware_organizer.add_learnware(zip_path, semantic_spec, **kwargs)
+                for name in checker_names:
+                    checker = self.learnware_checker[name]
+                    check_status = checker(pending_learnware)
+                    final_status = max(final_status, check_status)
+
+                    if check_status == BaseChecker.INVALID_LEARNWARE:
+                        return BaseChecker.INVALID_LEARNWARE
+                
+                return final_status
+            
+        except Exception as err:
+            logger.warning(f"Check learnware failed! Due to {err}.")
+            return BaseChecker.INVALID_LEARNWARE
+
+    def add_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> Tuple[str, bool]:
+        check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
+        return self.learnware_organizer.add_learnware(zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs)
 
     def search_learnware(self, user_info: BaseUserInfo, **kwargs) -> Tuple[Any, List[Learnware]]:
         return self.learnware_searcher(user_info, **kwargs)
@@ -79,8 +110,9 @@ class LearnwareMarket:
     def delete_learnware(self, id: str, **kwargs) -> bool:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
 
-    def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, **kwargs) -> bool:
-        return self.learnware_organizer.update_learnware(id, zip_path=zip_path, semantic_spec=semantic_spec, **kwargs)
+    def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
+        check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
+        return self.learnware_organizer.update_learnware(id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs)
 
     def get_learnware_ids(self, top: int = None, **kwargs):
         return self.learnware_organizer.get_learnware_ids(top, **kwargs)
@@ -99,12 +131,11 @@ class LearnwareMarket:
 
 
 class BaseOrganizer:
-    def __init__(self, market_id=None, checker: BaseChecker = None):
-        self.reset(market_id=market_id, checker=checker)
+    def __init__(self, market_id=None):
+        self.reset(market_id=market_id)
 
-    def reset(self, market_id=None, checker: BaseChecker = None, **kwargs):
+    def reset(self, market_id=None, **kwargs):
         self.market_id = market_id
-        self.checker = checker
 
     def reload_market(self, rebuild=False, **kwargs) -> bool:
         """Reload the learnware organizer when server restared.
@@ -117,7 +148,7 @@ class BaseOrganizer:
 
         raise NotImplementedError("reload market is Not Implemented in BaseOrganizer")
 
-    def add_learnware(self, zip_path: str, semantic_spec: dict) -> Tuple[str, bool]:
+    def add_learnware(self, zip_path: str, semantic_spec: dict, check_status: int) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -167,7 +198,7 @@ class BaseOrganizer:
         """
         raise NotImplementedError("delete learnware is Not Implemented in BaseOrganizer")
 
-    def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, **kwargs) -> bool:
+    def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, check_status: int) -> bool:
         """
             Update Learnware with id and content to be updated.
 

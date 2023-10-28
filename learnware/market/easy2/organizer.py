@@ -13,7 +13,6 @@ from shutil import copyfile, rmtree
 from typing import Tuple, Any, List, Union, Dict
 
 from .database_ops import DatabaseOperations
-from .checker import EasyChecker
 from ..base import LearnwareMarket, BaseUserInfo
 
 
@@ -95,42 +94,6 @@ class EasyOrganizer(BaseOrganizer):
 
         """
         semantic_spec = copy.deepcopy(semantic_spec)
-
-        if not os.path.exists(zip_path):
-            logger.warning("Zip Path NOT Found! Fail to add learnware.")
-            return None, EasyChecker.INVALID_LEARNWARE
-
-        try:
-            if len(semantic_spec["Data"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please choose Data.")
-                return None, EasyChecker.INVALID_LEARNWARE
-            if len(semantic_spec["Task"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please choose Task.")
-                return None, EasyChecker.INVALID_LEARNWARE
-            if len(semantic_spec["Library"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please choose Device.")
-                return None, EasyChecker.INVALID_LEARNWARE
-            if len(semantic_spec["Name"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please provide Name.")
-                return None, EasyChecker.INVALID_LEARNWARE
-            if len(semantic_spec["Description"]["Values"]) == 0 and len(semantic_spec["Scenario"]["Values"]) == 0:
-                logger.warning("Illegal semantic specification, please provide Scenario or Description.")
-                return None, EasyChecker.INVALID_LEARNWARE
-            if (
-                semantic_spec["Data"]["Type"] != "Class"
-                or semantic_spec["Task"]["Type"] != "Class"
-                or semantic_spec["Library"]["Type"] != "Class"
-                or semantic_spec["Scenario"]["Type"] != "Tag"
-                or semantic_spec["Name"]["Type"] != "String"
-                or semantic_spec["Description"]["Type"] != "String"
-            ):
-                logger.warning("Illegal semantic specification, please provide the right type.")
-                return None, EasyChecker.INVALID_LEARNWARE
-        except:
-            print(semantic_spec)
-            logger.warning("Illegal semantic specification, some keys are missing.")
-            return None, EasyChecker.INVALID_LEARNWARE
-
         logger.info("Get new learnware from %s" % (zip_path))
 
         id = id if id is not None else "%08d" % (self.count)
@@ -152,12 +115,12 @@ class EasyOrganizer(BaseOrganizer):
                 rmtree(target_folder_dir)
             except:
                 pass
-            return None, EasyChecker.INVALID_LEARNWARE
+            return None, BaseChecker.INVALID_LEARNWARE
 
         if new_learnware is None:
-            return None, EasyChecker.INVALID_LEARNWARE
+            return None, BaseChecker.INVALID_LEARNWARE
 
-        learnwere_status = check_status if check_status is not None else self.checker(new_learnware)
+        learnwere_status = check_status if check_status is not None else BaseChecker.NONUSABLE_LEARNWARE
 
         self.dbops.add_learnware(
             id=id,
@@ -227,7 +190,7 @@ class EasyOrganizer(BaseOrganizer):
         assert (
             zip_path is None and semantic_spec is None
         ), f"at least one of 'zip_path' and 'semantic_spec' should not be None when update learnware"
-        assert check_status != EasyChecker.INVALID_LEARNWARE, f"'check_status' can not be INVALID_LEARNWARE"
+        assert check_status != BaseChecker.INVALID_LEARNWARE, f"'check_status' can not be INVALID_LEARNWARE"
 
         if zip_path is None and check_status is not None:
             logger.warning("check_status will be ignored when zip_path is None for learnware update")
@@ -252,12 +215,12 @@ class EasyOrganizer(BaseOrganizer):
                         id=id, semantic_spec=semantic_spec, learnware_dirpath=tempdir
                     )
                 except Exception:
-                    return EasyChecker.INVALID_LEARNWARE
+                    return BaseChecker.INVALID_LEARNWARE
 
                 if new_learnware is None:
-                    return EasyChecker.INVALID_LEARNWARE
+                    return BaseChecker.INVALID_LEARNWARE
 
-                learnwere_status = self.checker.check_learnware(new_learnware)
+                learnwere_status = BaseChecker.NONUSABLE_LEARNWARE
         else:
             learnwere_status = self.use_flags[id] if zip_path is None else check_status
 
