@@ -17,18 +17,18 @@ class EasySemanticChecker(BaseChecker):
                 value = semantic_spec[key]["Values"]
                 valid_type = C["semantic_specs"][key]["Type"]
                 assert semantic_spec[key]["Type"] == valid_type, f"{key} type mismatch"
-                
+
                 if valid_type == "Class":
                     valid_list = C["semantic_specs"][key]["Values"]
                     assert len(value) == 1, f"{key} must be unique"
                     assert value[0] in valid_list, f"{key} must be in {valid_list}"
-                
+
                 elif valid_type == "Tag":
                     valid_list = C["semantic_specs"][key]["Values"]
                     assert len(value) >= 1, f"{key} cannot be empty"
                     for v in value:
                         assert v in valid_list, f"{key} must be in {valid_list}"
-                
+
                 elif valid_type == "String":
                     assert isinstance(value, str), f"{key} must be string"
                     assert len(value) >= 1, f"{key} cannot be empty"
@@ -89,7 +89,7 @@ class EasyStatisticalChecker(BaseChecker):
             # Check output
             if outputs.ndim == 1:
                 outputs = outputs.reshape(-1, 1)
-                
+
             if outputs.shape[1:] != learnware_model.output_shape:
                 logger.warning(f"The learnware [{learnware.id}] output dimention mismatch!")
                 return self.INVALID_LEARNWARE

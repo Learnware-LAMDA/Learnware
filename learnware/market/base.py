@@ -62,7 +62,7 @@ class LearnwareMarket:
         self.learnware_organizer.reload_market(rebuild=rebuild)
         self.learnware_searcher = BaseSearcher() if searcher is None else searcher
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
-        
+
         if checker_list is None:
             self.learnware_checker = {"BaseChecker": BaseChecker()}
         else:
@@ -78,11 +78,11 @@ class LearnwareMarket:
             with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
                 with zipfile.ZipFile(zip_path, mode="r") as z_file:
                     z_file.extractall(tempdir)
-                    
+
                 pending_learnware = get_learnware_from_dirpath(
                     id="pending", semantic_spec=semantic_specification, learnware_dirpath=tempdir
                 )
-                
+
                 final_status = BaseChecker.INVALID_LEARNWARE
                 checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
 
@@ -93,16 +93,20 @@ class LearnwareMarket:
 
                     if check_status == BaseChecker.INVALID_LEARNWARE:
                         return BaseChecker.INVALID_LEARNWARE
-                
+
                 return final_status
-            
+
         except Exception as err:
             logger.warning(f"Check learnware failed! Due to {err}.")
             return BaseChecker.INVALID_LEARNWARE
 
-    def add_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> Tuple[str, bool]:
+    def add_learnware(
+        self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
+    ) -> Tuple[str, bool]:
         check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
-        return self.learnware_organizer.add_learnware(zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs)
+        return self.learnware_organizer.add_learnware(
+            zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
+        )
 
     def search_learnware(self, user_info: BaseUserInfo, **kwargs) -> Tuple[Any, List[Learnware]]:
         return self.learnware_searcher(user_info, **kwargs)
@@ -110,9 +114,13 @@ class LearnwareMarket:
     def delete_learnware(self, id: str, **kwargs) -> bool:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
 
-    def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
+    def update_learnware(
+        self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
+    ) -> bool:
         check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
-        return self.learnware_organizer.update_learnware(id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs)
+        return self.learnware_organizer.update_learnware(
+            id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
+        )
 
     def get_learnware_ids(self, top: int = None, **kwargs):
         return self.learnware_organizer.get_learnware_ids(top, **kwargs)
