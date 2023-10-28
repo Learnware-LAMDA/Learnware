@@ -6,19 +6,18 @@ import functools
 import json
 import os
 
-from typing import Any, Union
+from typing import Any
 
 import numpy as np
 import torch
 import torch_optimizer
 from torch import nn
-from torch.func import jacrev, functional_call
 from torch.utils.data import TensorDataset, DataLoader
 from torchvision.transforms import Resize
 
 from . import cnn_gp
-from .base import BaseStatSpecification
-from .rkme import solve_qp, choose_device, setup_seed
+from ..base import BaseStatSpecification
+from ..rkme import solve_qp, choose_device, setup_seed
 
 
 class RKMEImageStatSpecification(BaseStatSpecification):
