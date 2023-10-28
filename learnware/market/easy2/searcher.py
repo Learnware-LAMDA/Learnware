@@ -4,7 +4,7 @@ from rapidfuzz import fuzz
 from cvxopt import solvers, matrix
 from typing import Tuple, List
 
-from ..base import BaseUserInfo, LearnwareSearcher
+from ..base import BaseUserInfo, BaseSearcher
 from ...learnware import Learnware
 from ...specification import RKMEStatSpecification
 from ...logger import get_module_logger
@@ -12,7 +12,7 @@ from ...logger import get_module_logger
 logger = get_module_logger("easy_seacher")
 
 
-class EasySearcher(LearnwareSearcher):
+class EasySearcher(BaseSearcher):
     def _convert_dist_to_score(
         self, dist_list: List[float], dist_epsilon: float = 0.01, min_score: float = 0.92
     ) -> List[float]:

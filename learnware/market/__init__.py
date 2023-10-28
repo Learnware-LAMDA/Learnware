@@ -1,5 +1,5 @@
 from .anchor import AnchoredUserInfo, AnchoredOrganizer
-from .base import BaseUserInfo, LearnwareMarket, LearnwareChecker, LearnwareOrganizer
+from .base import BaseUserInfo, LearnwareMarket, BaseChecker, BaseOrganizer, BaseSearcher
 from .evolve_anchor import EvolveAnchoredOrganizer
 from .evolve import EvolvedOrganizer
 from .easy2 import EasyChecker, EasyOrganizer, EasySearcher

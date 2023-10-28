@@ -2,13 +2,13 @@ import traceback
 import numpy as np
 import torch
 
-from ..base import LearnwareChecker
+from ..base import BaseChecker
 from ...logger import get_module_logger
 
 logger = get_module_logger("easy_checker", "INFO")
 
 
-class EasyChecker(LearnwareChecker):
+class EasyChecker(BaseChecker):
     def __call__(self, learnware):
         semantic_spec = learnware.get_specification().get_semantic_spec()
 

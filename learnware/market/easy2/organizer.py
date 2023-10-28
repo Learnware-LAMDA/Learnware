@@ -23,13 +23,13 @@ from ...logger import get_module_logger
 from ...learnware import Learnware, get_learnware_from_dirpath
 from ...specification import RKMEStatSpecification, Specification
 
-from ..base import LearnwareOrganizer, LearnwareChecker
+from ..base import BaseOrganizer, BaseChecker
 from ...logger import get_module_logger
 
 logger = get_module_logger("easy_organizer")
 
 
-class EasyOrganizer(LearnwareOrganizer):
+class EasyOrganizer(BaseOrganizer):
     def reload_market(self, rebuild=False) -> bool:
         """Reload the learnware organizer when server restared.
 
