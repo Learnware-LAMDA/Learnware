@@ -82,7 +82,7 @@ class AnchoredSearcher(EasySearcher):
             - second is a list of matched learnwares
         """
         pass
-    
+
     def __call__(self, user_info: AnchoredUserInfo, anchor_flag: bool = False) -> Tuple[Any, List[Learnware]]:
         """Search learnwares with anchor marget
         - if 'anchor_flag' == True, search anchor Learnwares from anchor_learnware_list based on user_info
