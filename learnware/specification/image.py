@@ -16,24 +16,22 @@ from torch.func import jacrev, functional_call
 from torch.utils.data import TensorDataset, DataLoader
 from torchvision.transforms import Resize
 
+from . import cnn_gp
 from .base import BaseStatSpecification
 from .rkme import solve_qp, choose_device, setup_seed
 
 
 class RKMEImageStatSpecification(BaseStatSpecification):
-    inner_prod_buffer = dict()
     INNER_PRODUCT_COUNT = 0
     IMAGE_WIDTH = 32
 
-    def __init__(self, cuda_idx: int = -1, buffering: bool=True, **kwargs):
+    def __init__(self, cuda_idx: int = -1, **kwargs):
         """Initializing RKME Image specification's parameters.
 
         Parameters
         ----------
         cuda_idx : int
             A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
-        buffering: bool
-            When buffering is True, the result of inner_prod will be buffered according to id(object), avoiding duplicate kernel function calculations, by default True.
         """
         self.RKME_IMAGE_VERSION = 1 # Please maintain backward compatibility.
         # torch.cuda.empty_cache()
@@ -42,12 +40,11 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         self.beta = None
         self.cuda_idx = cuda_idx
         self.device = choose_device(cuda_idx=cuda_idx)
-        self.buffering = buffering
+        self.cache = False
 
         self.n_models = kwargs["n_models"] if "n_models" in kwargs else 16
         self.model_config = {
-            "k": 2, "mu": 0, "sigma": None, 'chopped_head': True,
-            "net_width": 128, "net_depth": 3, "net_act": "relu"
+            "k": 2, "mu": 0, "sigma": None, "net_width": 128, "net_depth": 3
         } if "model_config" not in kwargs else kwargs["model_config"]
 
         setup_seed(0)
@@ -70,7 +67,8 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         steps: int=100,
         resize: bool = False,
         nonnegative_beta: bool = True,
-        reduce: bool = True
+        reduce: bool = True,
+        **kwargs
     ):
         """Construct reduced set from raw dataset using iterative optimization.
 
@@ -125,7 +123,8 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         Z_shape = tuple([K] + list(X_shape)[1:])
 
         X_train = (X - torch.mean(X, [0, 2, 3], keepdim=True)) / (torch.std(X, [0, 2, 3], keepdim=True))
-        if X_train.shape[1] > 1:
+
+        if X_train.shape[1] > 1 and ("whitening" not in kwargs or kwargs["whitening"]):
             whitening = _get_zca_matrix(X_train)
             X_train = X_train.reshape(num_points, -1) @ whitening
             X_train = X_train.view(*X_shape)
@@ -259,30 +258,21 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         float
             The inner product between two RKME Image specifications.
         """
-
-        if self.buffering and Phi2.buffering:
-            if (id(self), id(Phi2)) in RKMEImageStatSpecification.inner_prod_buffer:
-                return RKMEImageStatSpecification.inner_prod_buffer[(id(self), id(Phi2))]
-
         v = self._inner_prod_ntk(Phi2)
-        if self.buffering and Phi2.buffering:
-            RKMEImageStatSpecification.inner_prod_buffer[(id(self), id(Phi2))] = v
-            RKMEImageStatSpecification.inner_prod_buffer[(id(Phi2), id(self))] = v
         return v
 
     def _inner_prod_ntk(self, Phi2: RKMEImageStatSpecification) -> float:
-        beta_1 = self.beta.reshape(1, -1).detach()
-        beta_2 = Phi2.beta.reshape(1, -1).detach()
+        beta_1 = self.beta.reshape(1, -1).detach().to(self.device)
+        beta_2 = Phi2.beta.reshape(1, -1).detach().to(self.device)
 
         Z1 = self.z.to(self.device)
         Z2 = Phi2.z.to(self.device)
 
-        # Use the old way
-        assert Z1.shape[1] == Z2.shape[1]
-        random_models = self._generate_models(n_models=self.n_models * 4, channel=Z1.shape[1])
-        z1_features, z2_features = self._generate_random_feature(data_X=Z1, data_Y=Z2, random_models=random_models)
-        K_zz = self._calc_ntk_from_feature(z1_features, z2_features)
-
+        kernel_fn = _build_ConvNet_NNGP(channel=Z1.shape[1], **self.model_config).to(self.device)
+        if id(self) == id(Phi2):
+            K_zz = kernel_fn(Z1)
+        else:
+            K_zz = kernel_fn(Z1, Z2)
         v = torch.sum(K_zz * (beta_1.T @ beta_2)).item()
 
         RKMEImageStatSpecification.INNER_PRODUCT_COUNT += 1
@@ -299,41 +289,21 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             True if the inner product of self with itself can be omitted, by default False.
         """
 
-        with torch.no_grad():
-            if omit_term1:
-                term1 = 0
-            else:
-                term1 = self.inner_prod(self)
-            term2 = self.inner_prod(Phi2)
-            term3 = Phi2.inner_prod(Phi2)
+        if omit_term1:
+            term1 = 0
+        else:
+            term1 = self.inner_prod(self)
+        term2 = self.inner_prod(Phi2)
+        term3 = Phi2.inner_prod(Phi2)
 
-        return float(term1 - 2 * term2 + term3)
+        v = float(term1 - 2 * term2 + term3)
+
+        return v
 
     @staticmethod
     def _calc_ntk_from_feature(x1_feature: torch.Tensor, x2_feature: torch.Tensor):
         K_12 = x1_feature @ x2_feature.T + 0.01
         return K_12
-
-    # def _calc_ntk_empirical(self, x1: torch.Tensor, x2: torch.Tensor):
-    #     if x1.shape[1] != x2.shape[1]:
-    #         raise ValueError("The channel of two rkme image specification should be equal (e.g. 3 or 1).")
-    #
-    #     results = []
-    #     for m, model in enumerate(self._generate_models(n_models=self.n_models, channel=x1.shape[1])):
-    #         # Compute J(x1)
-    #         # jac1 = vamp(lambda x: jacrev(lambda p, i: functional_call(model, p, i), argnums=0)(dict(model.named_parameters()), x))(x1)
-    #         jac1 = jacrev(lambda p, i: functional_call(model, p, i), argnums=0)(dict(model.named_parameters()), x1)
-    #         jac1 = [j.flatten(2) for j in jac1]
-    #
-    #         # Compute J(x2)
-    #         jac2 = functional_call(model, model.parameters(), x2)
-    #         jac2 = [j.flatten(2) for j in jac2]
-    #
-    #         result = torch.stack([torch.einsum('Naf,Mbf->NMab', j1, j2) for j1, j2 in zip(jac1, jac2)])
-    #         results.append(result.sum(0))
-    #
-    #     results = torch.stack(results)
-    #     return results.mean(0)
 
     def herding(self, T: int) -> np.ndarray:
         raise NotImplementedError(
@@ -392,8 +362,8 @@ class RKMEImageStatSpecification(BaseStatSpecification):
                 obj_text = fin.read()
             rkme_load = json.loads(obj_text)
             rkme_load["device"] = choose_device(rkme_load["cuda_idx"])
-            rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"])).float()
-            rkme_load["beta"] = torch.from_numpy(np.array(rkme_load["beta"]))
+            rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"], dtype="float32"))
+            rkme_load["beta"] = torch.from_numpy(np.array(rkme_load["beta"], dtype="float64"))
 
             for d in self.__dir__():
                 if d in rkme_load.keys():
@@ -420,26 +390,21 @@ def _get_zca_matrix(X, reg_coef=0.1):
 
 
 class _ConvNet_wide(nn.Module):
-    def __init__(self, channel, mu=None, sigma=None, k=4, net_width=128, net_depth=3,
-                 net_act='relu', net_norm='none', net_pooling='avgpooling', im_size=(32, 32), chopped_head=False):
+    def __init__(self, channel, mu=None, sigma=None, k=2, net_width=128,
+                 net_depth=3, im_size=(32, 32)):
         self.k = k
-        # print('Building Conv Model')
         super().__init__()
-
-        # net_depth = 1
-        self.features, shape_feat = self._make_layers(channel, net_width, net_depth, net_norm,
-                                                      net_act, net_pooling, im_size, mu, sigma)
-        # print(shape_feat)
-        self.chopped_head = chopped_head
+        self.features, shape_feat = self._make_layers(channel, net_width, net_depth,
+                                                      im_size, mu, sigma)
+        # self.aggregation = nn.AvgPool2d(kernel_size=shape_feat[1])
 
     def forward(self, x):
         out = self.features(x)
-        # print(out.size())
         out = out.reshape(out.size(0), -1)
-        # print(out.size())
+        # out = self.aggregation(out).reshape(out.size(0), -1)
         return out
 
-    def _make_layers(self, channel, net_width, net_depth, net_norm, net_act, net_pooling, im_size, mu, sigma):
+    def _make_layers(self, channel, net_width, net_depth, im_size, mu, sigma):
         k = self.k
 
         layers = []
@@ -469,3 +434,19 @@ def _build_conv2d_gaussian(in_channels, out_channels, kernel=3, padding=1, mean=
     torch.nn.init.normal_(layer.weight, mean, std)
     torch.nn.init.normal_(layer.bias, 0, .1)
     return layer
+
+def _build_ConvNet_NNGP(channel, k=2, net_width=128,
+                 net_depth=3, kernel_size=3, im_size=(32, 32), **kwargs):
+    layers = []
+    for d in range(net_depth):
+        layers += [cnn_gp.Conv2d(kernel_size=kernel_size, padding="same", var_bias=0.1,
+                                 var_weight=np.sqrt(2))]
+        # /np.sqrt(kernel_size * kernel_size * channel)
+        layers += [cnn_gp.ReLU()]
+        # AvgPooling
+        layers += [cnn_gp.Conv2d(kernel_size=2, padding=0, stride=2)]
+
+    assert im_size[0] % (2 ** net_depth) == 0
+    layers.append(cnn_gp.Conv2d(kernel_size=im_size[0] // (2 ** net_depth), padding=0))
+
+    return cnn_gp.Sequential(*layers)
