@@ -94,12 +94,15 @@ class LearnwareMarket:
     def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
 
+    def __len__(self):
+        return len(self.learnware_organizer)
+
 
 class LearnwareOrganizer:
-    def __init__(self, market_id=None, checker: 'LearnwareChecker' = None):
+    def __init__(self, market_id=None, checker: "LearnwareChecker" = None):
         self.reset(market_id=market_id, checker=checker)
-        
-    def reset(self, market_id=None, checker: 'LearnwareChecker'=None, **kwargs):
+
+    def reset(self, market_id=None, checker: "LearnwareChecker" = None, **kwargs):
         self.market_id = market_id
         self.checker = checker
 
@@ -241,6 +244,9 @@ class LearnwareOrganizer:
             the first top learnwares
         """
         raise NotImplementedError("get_learnwares is not implemented")
+
+    def __len__(self):
+        raise NotImplementedError("__len__ is not implemented")
 
 
 class LearnwareSearcher:

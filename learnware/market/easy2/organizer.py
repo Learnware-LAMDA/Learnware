@@ -30,7 +30,6 @@ logger = get_module_logger("easy_organizer")
 
 
 class EasyOrganizer(LearnwareOrganizer):
-        
     def reload_market(self, rebuild=False) -> bool:
         """Reload the learnware organizer when server restared.
 
@@ -158,7 +157,7 @@ class EasyOrganizer(LearnwareOrganizer):
         if new_learnware is None:
             return None, EasyChecker.INVALID_LEARNWARE
 
-        learnwere_status = check_status if check_status is not None else self.checker.check_learnware(new_learnware)
+        learnwere_status = check_status if check_status is not None else self.checker(new_learnware)
 
         self.dbops.add_learnware(
             id=id,
@@ -348,3 +347,6 @@ class EasyOrganizer(LearnwareOrganizer):
             return list(self.learnware_list.values())
         else:
             return list(self.learnware_list.values())[:top]
+
+    def __len__(self):
+        return len(self.learnware_list)

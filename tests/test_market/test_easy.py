@@ -12,7 +12,6 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import instatiate_learnware_market, BaseUserInfo
-from learnware.learnware import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
 import learnware.specification as specification
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
@@ -30,7 +29,7 @@ user_semantic = {
 }
 
 
-class TestAllWorkflow(unittest.TestCase):
+class TestMarket(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         np.random.seed(2023)
@@ -38,7 +37,7 @@ class TestAllWorkflow(unittest.TestCase):
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        easy_market = instatiate_learnware_market(market_id="sklearn_digits", name='easy', rebuild=True)
+        easy_market = instatiate_learnware_market(market_id="sklearn_digits", name="easy", rebuild=True)
         return easy_market
 
     def test_prepare_learnware_randomly(self, learnware_num=5):
@@ -100,13 +99,13 @@ class TestAllWorkflow(unittest.TestCase):
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        curr_inds = easy_market._get_ids()
+        curr_inds = easy_market.get_learnware_ids()
         print("Available ids After Uploading Learnwares:", curr_inds)
 
         if delete:
             for learnware_id in curr_inds:
                 easy_market.delete_learnware(learnware_id)
-            curr_inds = easy_market._get_ids()
+            curr_inds = easy_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
 
         return easy_market
@@ -174,44 +173,13 @@ class TestAllWorkflow(unittest.TestCase):
 
         rmtree(test_folder)  # rm -r test_folder
 
-    def test_learnware_reuse(self, learnware_num=5):
-        easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
-        print("Total Item:", len(easy_market))
-
-        X, y = load_digits(return_X_y=True)
-        train_X, data_X, train_y, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
-
-        stat_spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
-        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": stat_spec})
-
-        _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)
-
-        # Based on user information, the learnware market returns a list of learnwares (learnware_list)
-        # Use jobselector reuser to reuse the searched learnwares to make prediction
-        reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
-        job_selector_predict_y = reuse_job_selector.predict(user_data=data_X)
-
-        # Use averaging ensemble reuser to reuse the searched learnwares to make prediction
-        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_prob")
-        ensemble_predict_y = reuse_ensemble.predict(user_data=data_X)
-
-        # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
-        reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_learnware_list, mode="classification")
-        reuse_ensemble.fit(train_X[-200:], train_y[-200:])
-        ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
-
-        print("Job Selector Acc:", np.sum(np.argmax(job_selector_predict_y, axis=1) == data_y) / len(data_y))
-        print("Averaging Reuser Acc:", np.sum(np.argmax(ensemble_predict_y, axis=1) == data_y) / len(data_y))
-        print("Ensemble Pruning Reuser Acc:", np.sum(ensemble_pruning_predict_y == data_y) / len(data_y))
-
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestAllWorkflow("test_prepare_learnware_randomly"))
-    _suite.addTest(TestAllWorkflow("test_upload_delete_learnware"))
-    _suite.addTest(TestAllWorkflow("test_search_semantics"))
-    _suite.addTest(TestAllWorkflow("test_stat_search"))
-    _suite.addTest(TestAllWorkflow("test_learnware_reuse"))
+    _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
+    _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    _suite.addTest(TestMarket("test_search_semantics"))
+    _suite.addTest(TestMarket("test_stat_search"))
     return _suite
 
 

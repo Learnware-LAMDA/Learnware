@@ -569,7 +569,7 @@ class EasySearcher(LearnwareSearcher):
             the third is the score of Learnware (mixture)
             the fourth is the list of Learnware (mixture), the size is search_num
         """
-        learnware_list = [self.learnware_list[key] for key in self.learnware_list]
+        learnware_list = self.learnware_oganizer.get_learnwares()
         # learnware_list = self._search_by_semantic_spec_exact(learnware_list, user_info)
         # if len(learnware_list) == 0:
         learnware_list = self._search_by_semantic_spec_fuzz(learnware_list, user_info)
