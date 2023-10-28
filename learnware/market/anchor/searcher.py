@@ -2,7 +2,10 @@ from typing import List, Dict, Tuple, Any, Union
 
 from ..base import BaseUserInfo
 from ..easy2.searcher import EasySearcher
+from ...logger import get_module_logger
 from ...learnware import Learnware
+
+logger = get_module_logger("anchor_searcher")
 
 
 class AnchoredUserInfo(BaseUserInfo):
