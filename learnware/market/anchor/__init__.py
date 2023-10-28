@@ -1,1 +1,2 @@
-from .organizer import AnchoredOrganizer, AnchoredUserInfo
+from .organizer import AnchoredOrganizer
+from .searcher import AnchoredUserInfo
