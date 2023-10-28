@@ -30,13 +30,7 @@ logger = get_module_logger("easy_organizer")
 
 
 class EasyOrganizer(LearnwareOrganizer):
-    def __init__(self, market_id, checker: "EasyChecker" = None, rebuild: bool = False):
-        self.reset(market_id=market_id, checker=checker, rebuild=rebuild)
-
-    def reset(self, market_id, checker: EasyChecker = None, rebuild: bool = False):
-        super(EasyOrganizer, self).reset(market_id=market_id, checker=checker)
-        self.reload_market(rebuild=rebuild)
-
+        
     def reload_market(self, rebuild=False) -> bool:
         """Reload the learnware organizer when server restared.
 

@@ -3,8 +3,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy import Column, Integer, Text, DateTime, String
 import os
 import json
-from ..learnware import get_learnware_from_dirpath
-from ..logger import get_module_logger
+from ...learnware import get_learnware_from_dirpath
+from ...logger import get_module_logger
 
 logger = get_module_logger("database")
 DeclarativeBase = declarative_base()

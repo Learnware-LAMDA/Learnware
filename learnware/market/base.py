@@ -53,12 +53,14 @@ class LearnwareMarket:
         organizer: "LearnwareOrganizer" = None,
         checker: "LearnwareChecker" = None,
         searcher: "LearnwareSearcher" = None,
+        rebuild=False,
     ):
         self.market_id = market_id
         self.learnware_organizer = LearnwareOrganizer() if organizer is None else organizer
         self.learnware_checker = LearnwareChecker() if checker is None else checker
         self.learnware_checker.reset(organizer=self.learnware_organizer)
         self.learnware_organizer.reset(market_id=market_id, checker=self.learnware_checker)
+        self.learnware_organizer.reload_market(rebuild=rebuild)
         self.learnware_searcher = LearnwareSearcher() if searcher is None else searcher
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
 
@@ -94,14 +96,14 @@ class LearnwareMarket:
 
 
 class LearnwareOrganizer:
-    def __init__(self, market_id, checker: "LearnwareChecker" = None):
+    def __init__(self, market_id=None, checker: 'LearnwareChecker' = None):
         self.reset(market_id=market_id, checker=checker)
-
-    def reset(self, market_id, checker: "LearnwareChecker", **kwargs):
+        
+    def reset(self, market_id=None, checker: 'LearnwareChecker'=None, **kwargs):
         self.market_id = market_id
-        self.organizer = checker
+        self.checker = checker
 
-    def reload_market(self) -> bool:
+    def reload_market(self, rebuild=False, **kwargs) -> bool:
         """Reload the learnware organizer when server restared.
 
         Returns
