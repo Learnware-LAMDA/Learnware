@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from shutil import copyfile, rmtree
 
 import learnware
-from learnware.market import EasyMarket, BaseUserInfo
+from learnware.market import instatiate_learnware_market, BaseUserInfo
 from learnware.learnware import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
 import learnware.specification as specification
 
@@ -38,7 +38,7 @@ class TestAllWorkflow(unittest.TestCase):
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        easy_market = EasyMarket(market_id="sklearn_digits", rebuild=True)
+        easy_market = instatiate_learnware_market(market_id="sklearn_digits", name='easy', rebuild=True)
         return easy_market
 
     def test_prepare_learnware_randomly(self, learnware_num=5):
