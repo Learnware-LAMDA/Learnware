@@ -7,7 +7,7 @@ from ...logger import get_module_logger
 logger = get_module_logger("evolve_anchor_organizer")
 
 
-class EvolveAnchoredOrganizer(AnchoredOrganizer, EvolvedOrganizer):
+class EvolvedAnchoredOrganizer(AnchoredOrganizer, EvolvedOrganizer):
     """Organize learnwares and enable them to continuously evolve"""
 
     def __init__(self, *args, **kwargs):
