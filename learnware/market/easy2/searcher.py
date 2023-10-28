@@ -4,6 +4,7 @@ from rapidfuzz import fuzz
 from cvxopt import solvers, matrix
 from typing import Tuple, List
 
+from .organizer import EasyOrganizer
 from ..base import BaseUserInfo, BaseSearcher
 from ...learnware import Learnware
 from ...specification import RKMEStatSpecification
@@ -12,7 +13,182 @@ from ...logger import get_module_logger
 logger = get_module_logger("easy_seacher")
 
 
-class EasySearcher(BaseSearcher):
+class EasyExactSemanticSearcher(BaseSearcher):
+    def _match_semantic_spec(self, semantic_spec1, semantic_spec2):
+        """
+        semantic_spec1: semantic spec input by user
+        semantic_spec2: semantic spec in database
+        """
+        if semantic_spec1.keys() != semantic_spec2.keys():
+            # sematic spec in database may contain more keys than user input
+            pass
+
+        name2 = semantic_spec2["Name"]["Values"].lower()
+        description2 = semantic_spec2["Description"]["Values"].lower()
+
+        for key in semantic_spec1.keys():
+            v1 = semantic_spec1[key]["Values"]
+            v2 = semantic_spec2[key]["Values"]
+
+            if len(v1) == 0:
+                # user input is empty, no need to search
+                continue
+
+            if key in ("Name", "Description"):
+                v1 = v1.lower()
+                if v1 not in name2 and v1 not in description2:
+                    return False
+                pass
+            else:
+                if len(v2) == 0:
+                    # user input contains some key that is not in database
+                    return False
+
+                if semantic_spec1[key]["Type"] == "Class":
+                    if isinstance(v1, list):
+                        v1 = v1[0]
+                    if isinstance(v2, list):
+                        v2 = v2[0]
+                    if v1 != v2:
+                        return False
+                elif semantic_spec1[key]["Type"] == "Tag":
+                    if not (set(v1) & set(v2)):
+                        return False
+                    pass
+                pass
+            pass
+
+        return True
+
+    def __call__(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
+        match_learnwares = []
+        for learnware in learnware_list:
+            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
+            user_semantic_spec = user_info.get_semantic_spec()
+            if self._match_semantic_spec(user_semantic_spec, learnware_semantic_spec):
+                match_learnwares.append(learnware)
+        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
+        return match_learnwares
+
+
+class EasyFuzzSemanticSearcher(BaseSearcher):
+    def _match_semantic_spec_tag(self, semantic_spec1, semantic_spec2) -> bool:
+        """Judge if tags of two semantic specs are consistent
+
+        Parameters
+        ----------
+        semantic_spec1 :
+            semantic spec input by user
+        semantic_spec2 :
+            semantic spec in database
+
+        Returns
+        -------
+        bool
+            consistent (True) or not consistent (False)
+        """
+        for key in semantic_spec1.keys():
+            v1 = semantic_spec1[key]["Values"]
+            v2 = semantic_spec2[key]["Values"]
+
+            if len(v1) == 0:
+                # user input is empty, no need to search
+                continue
+
+            if key not in "Name":
+                if len(v2) == 0:
+                    # user input contains some key that is not in database
+                    return False
+
+                if semantic_spec1[key]["Type"] == "Class":
+                    if isinstance(v1, list):
+                        v1 = v1[0]
+                    if isinstance(v2, list):
+                        v2 = v2[0]
+                    if v1 != v2:
+                        return False
+                elif semantic_spec1[key]["Type"] == "Tag":
+                    if not (set(v1) & set(v2)):
+                        return False
+        return True
+
+    def __call__(
+        self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_num: int = 50000, min_score: float = 75.0
+    ) -> List[Learnware]:
+        """Search learnware by fuzzy matching of semantic spec
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The list of learnwares
+        user_info : BaseUserInfo
+            user_info contains semantic_spec
+        max_num : int, optional
+            maximum number of learnwares returned, by default 50000
+        min_score : float, optional
+            Minimum fuzzy matching score of learnwares returned, by default 30.0
+
+        Returns
+        -------
+        List[Learnware]
+            The list of returned learnwares
+        """
+        matched_learnware_tag = []
+        final_result = []
+        user_semantic_spec = user_info.get_semantic_spec()
+
+        for learnware in learnware_list:
+            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
+            if self._match_semantic_spec_tag(user_semantic_spec, learnware_semantic_spec):
+                matched_learnware_tag.append(learnware)
+
+        if len(matched_learnware_tag) > 0:
+            if "Name" in user_semantic_spec:
+                name_user = user_semantic_spec["Name"]["Values"].lower()
+                if len(name_user) > 0:
+                    # Exact search
+                    name_list = [
+                        learnware.get_specification().get_semantic_spec()["Name"]["Values"].lower()
+                        for learnware in matched_learnware_tag
+                    ]
+                    des_list = [
+                        learnware.get_specification().get_semantic_spec()["Description"]["Values"].lower()
+                        for learnware in matched_learnware_tag
+                    ]
+
+                    matched_learnware_exact = []
+                    for i in range(len(name_list)):
+                        if name_user in name_list[i] or name_user in des_list[i]:
+                            matched_learnware_exact.append(matched_learnware_tag[i])
+
+                    if len(matched_learnware_exact) == 0:
+                        # Fuzzy search
+                        matched_learnware_fuzz, fuzz_scores = [], []
+                        for i in range(len(name_list)):
+                            score_name = fuzz.partial_ratio(name_user, name_list[i])
+                            score_des = fuzz.partial_ratio(name_user, des_list[i])
+                            final_score = max(score_name, score_des)
+                            if final_score >= min_score:
+                                matched_learnware_fuzz.append(matched_learnware_tag[i])
+                                fuzz_scores.append(final_score)
+
+                        # Sort by score
+                        sort_idx = sorted(list(range(len(fuzz_scores))), key=lambda k: fuzz_scores[k], reverse=True)[
+                            :max_num
+                        ]
+                        final_result = [matched_learnware_fuzz[idx] for idx in sort_idx]
+                    else:
+                        final_result = matched_learnware_exact
+                else:
+                    final_result = matched_learnware_tag
+            else:
+                final_result = matched_learnware_tag
+
+        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(final_result), len(learnware_list)))
+        return final_result
+
+
+class EasyTableSearcher(BaseSearcher):
     def _convert_dist_to_score(
         self, dist_list: List[float], dist_epsilon: float = 0.01, min_score: float = 0.92
     ) -> List[float]:
@@ -375,179 +551,60 @@ class EasySearcher(BaseSearcher):
 
         return sorted_dist_list, sorted_learnware_list
 
-    def _search_by_semantic_spec_exact(
-        self, learnware_list: List[Learnware], user_info: BaseUserInfo
-    ) -> List[Learnware]:
-        def match_semantic_spec(semantic_spec1, semantic_spec2):
-            """
-            semantic_spec1: semantic spec input by user
-            semantic_spec2: semantic spec in database
-            """
-            if semantic_spec1.keys() != semantic_spec2.keys():
-                # sematic spec in database may contain more keys than user input
-                pass
+    def __call__(
+        self,
+        learnware_list: List[Learnware],
+        user_info: BaseUserInfo,
+        max_search_num: int = 5,
+        search_method: str = "greedy",
+    ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
+        user_rkme = user_info.stat_info["RKMEStatSpecification"]
+        learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
+        logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
-            name2 = semantic_spec2["Name"]["Values"].lower()
-            description2 = semantic_spec2["Description"]["Values"].lower()
+        sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
+        if search_method == "auto":
+            mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
+                learnware_list, user_rkme, max_search_num
+            )
+        elif search_method == "greedy":
+            mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
+                learnware_list, user_rkme, max_search_num
+            )
+        else:
+            logger.warning("f{search_method} not supported!")
+            mixture_dist = None
+            weight_list = []
+            mixture_learnware_list = []
 
-            for key in semantic_spec1.keys():
-                v1 = semantic_spec1[key]["Values"]
-                v2 = semantic_spec2[key]["Values"]
+        if mixture_dist is None:
+            sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
+            mixture_score = None
+        else:
+            merge_score_list = self._convert_dist_to_score(sorted_dist_list + [mixture_dist])
+            sorted_score_list = merge_score_list[:-1]
+            mixture_score = merge_score_list[-1]
 
-                if len(v1) == 0:
-                    # user input is empty, no need to search
-                    continue
+        logger.info(f"After search by rkme spec, learnware_list length is {len(learnware_list)}")
+        # filter learnware with low score
+        sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
+            sorted_score_list, single_learnware_list
+        )
 
-                if key in ("Name", "Description"):
-                    v1 = v1.lower()
-                    if v1 not in name2 and v1 not in description2:
-                        return False
-                    pass
-                else:
-                    if len(v2) == 0:
-                        # user input contains some key that is not in database
-                        return False
+        logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
+        return sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list
 
-                    if semantic_spec1[key]["Type"] == "Class":
-                        if isinstance(v1, list):
-                            v1 = v1[0]
-                        if isinstance(v2, list):
-                            v2 = v2[0]
-                        if v1 != v2:
-                            return False
-                    elif semantic_spec1[key]["Type"] == "Tag":
-                        if not (set(v1) & set(v2)):
-                            return False
-                        pass
-                    pass
-                pass
 
-            return True
+class EasySearcher(BaseSearcher):
+    def __init__(self, organizer: EasyOrganizer = None):
+        super(EasySearcher, self).__init__(organizer)
+        self.semantic_searcher = EasyFuzzSemanticSearcher(organizer)
+        self.table_searcher = EasyTableSearcher(organizer)
 
-        match_learnwares = []
-        for learnware in learnware_list:
-            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
-            user_semantic_spec = user_info.get_semantic_spec()
-            if match_semantic_spec(user_semantic_spec, learnware_semantic_spec):
-                match_learnwares.append(learnware)
-        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
-        return match_learnwares
-
-    def _search_by_semantic_spec_fuzz(
-        self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_num: int = 50000, min_score: float = 75.0
-    ) -> List[Learnware]:
-        """Search learnware by fuzzy matching of semantic spec
-
-        Parameters
-        ----------
-        learnware_list : List[Learnware]
-            The list of learnwares
-        user_info : BaseUserInfo
-            user_info contains semantic_spec
-        max_num : int, optional
-            maximum number of learnwares returned, by default 50000
-        min_score : float, optional
-            Minimum fuzzy matching score of learnwares returned, by default 30.0
-
-        Returns
-        -------
-        List[Learnware]
-            The list of returned learnwares
-        """
-
-        def _match_semantic_spec_tag(semantic_spec1, semantic_spec2) -> bool:
-            """Judge if tags of two semantic specs are consistent
-
-            Parameters
-            ----------
-            semantic_spec1 :
-                semantic spec input by user
-            semantic_spec2 :
-                semantic spec in database
-
-            Returns
-            -------
-            bool
-                consistent (True) or not consistent (False)
-            """
-            for key in semantic_spec1.keys():
-                v1 = semantic_spec1[key]["Values"]
-                v2 = semantic_spec2[key]["Values"]
-
-                if len(v1) == 0:
-                    # user input is empty, no need to search
-                    continue
-
-                if key not in "Name":
-                    if len(v2) == 0:
-                        # user input contains some key that is not in database
-                        return False
-
-                    if semantic_spec1[key]["Type"] == "Class":
-                        if isinstance(v1, list):
-                            v1 = v1[0]
-                        if isinstance(v2, list):
-                            v2 = v2[0]
-                        if v1 != v2:
-                            return False
-                    elif semantic_spec1[key]["Type"] == "Tag":
-                        if not (set(v1) & set(v2)):
-                            return False
-            return True
-
-        matched_learnware_tag = []
-        final_result = []
-        user_semantic_spec = user_info.get_semantic_spec()
-
-        for learnware in learnware_list:
-            learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
-            if _match_semantic_spec_tag(user_semantic_spec, learnware_semantic_spec):
-                matched_learnware_tag.append(learnware)
-
-        if len(matched_learnware_tag) > 0:
-            if "Name" in user_semantic_spec:
-                name_user = user_semantic_spec["Name"]["Values"].lower()
-                if len(name_user) > 0:
-                    # Exact search
-                    name_list = [
-                        learnware.get_specification().get_semantic_spec()["Name"]["Values"].lower()
-                        for learnware in matched_learnware_tag
-                    ]
-                    des_list = [
-                        learnware.get_specification().get_semantic_spec()["Description"]["Values"].lower()
-                        for learnware in matched_learnware_tag
-                    ]
-
-                    matched_learnware_exact = []
-                    for i in range(len(name_list)):
-                        if name_user in name_list[i] or name_user in des_list[i]:
-                            matched_learnware_exact.append(matched_learnware_tag[i])
-
-                    if len(matched_learnware_exact) == 0:
-                        # Fuzzy search
-                        matched_learnware_fuzz, fuzz_scores = [], []
-                        for i in range(len(name_list)):
-                            score_name = fuzz.partial_ratio(name_user, name_list[i])
-                            score_des = fuzz.partial_ratio(name_user, des_list[i])
-                            final_score = max(score_name, score_des)
-                            if final_score >= min_score:
-                                matched_learnware_fuzz.append(matched_learnware_tag[i])
-                                fuzz_scores.append(final_score)
-
-                        # Sort by score
-                        sort_idx = sorted(list(range(len(fuzz_scores))), key=lambda k: fuzz_scores[k], reverse=True)[
-                            :max_num
-                        ]
-                        final_result = [matched_learnware_fuzz[idx] for idx in sort_idx]
-                    else:
-                        final_result = matched_learnware_exact
-                else:
-                    final_result = matched_learnware_tag
-            else:
-                final_result = matched_learnware_tag
-
-        logger.info("semantic_spec search: choose %d from %d learnwares" % (len(final_result), len(learnware_list)))
-        return final_result
+    def reset(self, organizer):
+        self.learnware_oganizer = organizer
+        self.semantic_searcher.reset(organizer)
+        self.table_searcher.reset(organizer)
 
     def __call__(
         self, user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy"
@@ -570,47 +627,11 @@ class EasySearcher(BaseSearcher):
             the fourth is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = self.learnware_oganizer.get_learnwares()
-        # learnware_list = self._search_by_semantic_spec_exact(learnware_list, user_info)
-        # if len(learnware_list) == 0:
-        learnware_list = self._search_by_semantic_spec_fuzz(learnware_list, user_info)
+        learnware_list = self.semantic_searcher(learnware_list, user_info)
 
-        if "RKMEStatSpecification" not in user_info.stat_info:
-            return None, learnware_list, 0.0, None
-        elif len(learnware_list) == 0:
+        if len(learnware_list) == 0:
             return [], [], 0.0, []
+        elif "RKMEStatSpecification" in user_info.stat_info:
+            return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
-            user_rkme = user_info.stat_info["RKMEStatSpecification"]
-            learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
-            logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
-
-            sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
-            if search_method == "auto":
-                mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
-                    learnware_list, user_rkme, max_search_num
-                )
-            elif search_method == "greedy":
-                mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
-                    learnware_list, user_rkme, max_search_num
-                )
-            else:
-                logger.warning("f{search_method} not supported!")
-                mixture_dist = None
-                weight_list = []
-                mixture_learnware_list = []
-
-            if mixture_dist is None:
-                sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
-                mixture_score = None
-            else:
-                merge_score_list = self._convert_dist_to_score(sorted_dist_list + [mixture_dist])
-                sorted_score_list = merge_score_list[:-1]
-                mixture_score = merge_score_list[-1]
-
-            logger.info(f"After search by rkme spec, learnware_list length is {len(learnware_list)}")
-            # filter learnware with low score
-            sorted_score_list, single_learnware_list = self._filter_by_rkme_spec_single(
-                sorted_score_list, single_learnware_list
-            )
-
-            logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
-            return sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list
+            return None, learnware_list, 0.0, None
