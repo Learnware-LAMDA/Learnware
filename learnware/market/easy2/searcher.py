@@ -27,8 +27,8 @@ class EasyExactSemanticSearcher(BaseSearcher):
         description2 = semantic_spec2["Description"]["Values"].lower()
 
         for key in semantic_spec1.keys():
-            v1 = semantic_spec1[key]["Values"]
-            v2 = semantic_spec2[key]["Values"]
+            v1 = semantic_spec1[key].get("Values", "")
+            v2 = semantic_spec2[key].get("Values", "")
 
             if len(v1) == 0:
                 # user input is empty, no need to search
@@ -88,8 +88,8 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
             consistent (True) or not consistent (False)
         """
         for key in semantic_spec1.keys():
-            v1 = semantic_spec1[key]["Values"]
-            v2 = semantic_spec2[key]["Values"]
+            v1 = semantic_spec1[key].get("Values", "")
+            v2 = semantic_spec2[key].get("Values", "")
 
             if len(v1) == 0:
                 # user input is empty, no need to search
