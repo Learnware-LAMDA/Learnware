@@ -21,7 +21,7 @@ from ..rkme import solve_qp, choose_device, setup_seed
 
 
 class RKMEImageStatSpecification(BaseStatSpecification):
-    INNER_PRODUCT_COUNT = 0
+    # INNER_PRODUCT_COUNT = 0
     IMAGE_WIDTH = 32
 
     def __init__(self, cuda_idx: int = -1, **kwargs):
@@ -164,8 +164,8 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         x_features = x_features.to(self.device)
 
         z_features = self._generate_random_feature(Z, random_models=random_models)
-        K = self._calc_ntk_from_feature(z_features, z_features).to(self.device)
-        C = self._calc_ntk_from_feature(z_features, x_features).to(self.device)
+        K = self._calc_nngp_from_feature(z_features, z_features).to(self.device)
+        C = self._calc_nngp_from_feature(z_features, x_features).to(self.device)
         C = torch.sum(C, dim=1) / x_features.shape[0]
 
         if nonnegative_beta:
@@ -196,8 +196,8 @@ class RKMEImageStatSpecification(BaseStatSpecification):
 
         for i in range(3):
             z_features = self._generate_random_feature(Z, random_models=random_models)
-            K_z = self._calc_ntk_from_feature(z_features, z_features)
-            K_zx = self._calc_ntk_from_feature(x_features, z_features)
+            K_z = self._calc_nngp_from_feature(z_features, z_features)
+            K_zx = self._calc_nngp_from_feature(x_features, z_features)
             term_1 = torch.sum(K_z * (beta.T @ beta))
             term_2 = torch.sum(K_zx * beta / x_features.shape[0])
             loss = term_1 - 2 * term_2
@@ -257,10 +257,10 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         float
             The inner product between two RKME Image specifications.
         """
-        v = self._inner_prod_ntk(Phi2)
+        v = self._inner_prod_nngp(Phi2)
         return v
 
-    def _inner_prod_ntk(self, Phi2: RKMEImageStatSpecification) -> float:
+    def _inner_prod_nngp(self, Phi2: RKMEImageStatSpecification) -> float:
         beta_1 = self.beta.reshape(1, -1).detach().to(self.device)
         beta_2 = Phi2.beta.reshape(1, -1).detach().to(self.device)
 
@@ -274,7 +274,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             K_zz = kernel_fn(Z1, Z2)
         v = torch.sum(K_zz * (beta_1.T @ beta_2)).item()
 
-        RKMEImageStatSpecification.INNER_PRODUCT_COUNT += 1
+        # RKMEImageStatSpecification.INNER_PRODUCT_COUNT += 1
         return v
 
     def dist(self, Phi2: RKMEImageStatSpecification, omit_term1: bool = False) -> float:
@@ -300,7 +300,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         return v
 
     @staticmethod
-    def _calc_ntk_from_feature(x1_feature: torch.Tensor, x2_feature: torch.Tensor):
+    def _calc_nngp_from_feature(x1_feature: torch.Tensor, x2_feature: torch.Tensor):
         K_12 = x1_feature @ x2_feature.T + 0.01
         return K_12
 
