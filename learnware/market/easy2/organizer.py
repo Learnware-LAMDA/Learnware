@@ -68,9 +68,7 @@ class EasyOrganizer(BaseOrganizer):
             self.count,
         ) = self.dbops.load_market()
 
-    def add_learnware(
-        self, zip_path: str, semantic_spec: dict, check_status: int
-    ) -> Tuple[str, int]:
+    def add_learnware(self, zip_path: str, semantic_spec: dict, check_status: int) -> Tuple[str, int]:
         """Add a learnware into the market.
 
         Parameters
@@ -91,7 +89,7 @@ class EasyOrganizer(BaseOrganizer):
         if check_status == BaseChecker.INVALID_LEARNWARE:
             logger.warning("Learnware is invalid!")
             return None, BaseChecker.INVALID_LEARNWARE
-        
+
         semantic_spec = copy.deepcopy(semantic_spec)
         logger.info("Get new learnware from %s" % (zip_path))
 
@@ -188,9 +186,11 @@ class EasyOrganizer(BaseOrganizer):
         if check_status == BaseChecker.INVALID_LEARNWARE:
             logger.warning("Learnware is invalid!")
             return BaseChecker.INVALID_LEARNWARE
-        
+
         if zip_path is None and semantic_spec is None and check_status is None:
-            logger.warning("At least one of 'zip_path', 'semantic_spec' and 'check_status' should not be None when update learnware")
+            logger.warning(
+                "At least one of 'zip_path', 'semantic_spec' and 'check_status' should not be None when update learnware"
+            )
             return BaseChecker.INVALID_LEARNWARE
 
         # Update semantic_specification
@@ -199,7 +199,7 @@ class EasyOrganizer(BaseOrganizer):
             self.learnware_list[id].get_specification().get_semantic_spec() if semantic_spec is None else semantic_spec
         )
         self.dbops.update_learnware_semantic_specification(id, semantic_spec)
-        
+
         # Update zip path
         target_zip_dir = self.learnware_zip_list[id]
         target_folder_dir = self.learnware_folder_list[id]
@@ -217,15 +217,15 @@ class EasyOrganizer(BaseOrganizer):
 
                 if new_learnware is None:
                     return BaseChecker.INVALID_LEARNWARE
-            
+
             copyfile(zip_path, target_zip_dir)
             with zipfile.ZipFile(target_zip_dir, "r") as z_file:
                 z_file.extractall(target_folder_dir)
-        
+
         # Update check_status
         self.use_flags[id] = self.use_flags[id] if check_status is None else check_status
         self.dbops.update_learnware_use_flag(id, self.use_flags[id])
-        
+
         # Update learnware list
         self.learnware_list[id] = get_learnware_from_dirpath(
             id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir

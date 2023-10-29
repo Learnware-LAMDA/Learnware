@@ -129,7 +129,13 @@ class LearnwareMarket:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
 
     def update_learnware(
-        self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, check_status: int = None, **kwargs
+        self,
+        id: str,
+        zip_path: str,
+        semantic_spec: dict,
+        checker_names: List[str] = None,
+        check_status: int = None,
+        **kwargs,
     ) -> int:
         """Update learnware with zip_path and semantic_specification
 
@@ -152,7 +158,9 @@ class LearnwareMarket:
             The final learnware check_status.
         """
         update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
-        check_status = update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
+        check_status = (
+            update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
+        )
 
         return self.learnware_organizer.update_learnware(
             id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs

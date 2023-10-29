@@ -31,7 +31,7 @@ user_semantic = {
         "Description": {
             "0": "the probability of the label is zero",
         },
-    }
+    },
 }
 
 
@@ -117,7 +117,7 @@ class TestMarket(unittest.TestCase):
                 easy_market.delete_learnware(learnware_id)
                 self.learnware_num -= 1
                 assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
-                
+
             curr_inds = easy_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
             assert len(curr_inds) == 0, f"The market should be empty!"
@@ -140,9 +140,9 @@ class TestMarket(unittest.TestCase):
         assert len(single_learnware_list) == 1, f"Exact semantic search failed!"
         for learnware in single_learnware_list:
             semantic_spec1 = learnware.get_specification().get_semantic_spec()
-            print("Choose learnware:", learnware.id, semantic_spec1) 
+            print("Choose learnware:", learnware.id, semantic_spec1)
             assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
-        
+
         semantic_spec["Name"]["Values"] = "laernwaer"
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
         _, single_learnware_list, _, _ = easy_market.search_learnware(user_info)
