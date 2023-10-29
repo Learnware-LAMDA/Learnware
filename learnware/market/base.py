@@ -1,8 +1,5 @@
-import os
-import torch
+import zipfile
 import tempfile
-import traceback
-import numpy as np
 
 
 from typing import Tuple, Any, List, Union
@@ -80,7 +77,7 @@ class LearnwareMarket:
                     z_file.extractall(tempdir)
 
                 pending_learnware = get_learnware_from_dirpath(
-                    id="pending", semantic_spec=semantic_specification, learnware_dirpath=tempdir
+                    id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
                 )
 
                 final_status = BaseChecker.INVALID_LEARNWARE
