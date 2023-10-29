@@ -99,7 +99,24 @@ class LearnwareMarket:
 
     def add_learnware(
         self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
-    ) -> Tuple[str, bool]:
+    ) -> Tuple[str, int]:
+        """Add a learnware into the market.
+
+        Parameters
+        ----------
+        zip_path : str
+            Filepath for learnware model, a zipped file.
+        semantic_spec : dict
+            semantic_spec for new learnware, in dictionary format.
+        checker_names : List[str], optional
+            List contains checker names, by default None
+
+        Returns
+        -------
+        Tuple[str, int]
+            - str indicating model_id
+            - int indicating the final learnware check_status
+        """
         check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         return self.learnware_organizer.add_learnware(
             zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
@@ -112,9 +129,31 @@ class LearnwareMarket:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
 
     def update_learnware(
-        self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
-    ) -> bool:
-        check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
+        self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, check_status: int = None, **kwargs
+    ) -> int:
+        """Update learnware with zip_path and semantic_specification
+
+        Parameters
+        ----------
+        id : str
+            Learnware id
+        zip_path : str
+            Filepath for learnware model, a zipped file.
+        semantic_spec : dict
+            semantic_spec for new learnware, in dictionary format.
+        checker_names : List[str], optional
+            List contains checker names, by default None.
+        check_status : int, optional
+            A flag indicating whether the learnware is usable, by default None.
+
+        Returns
+        -------
+        int
+            The final learnware check_status.
+        """
+        update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
+        check_status = update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
+
         return self.learnware_organizer.update_learnware(
             id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
