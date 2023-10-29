@@ -82,7 +82,8 @@ class JobSelectorReuser(BaseReuser):
             User's labeled raw data.
         """
         if len(self.learnware_list) == 1:
-            user_data_num = user_data.shape[0]
+            # user_data_num = user_data.shape[0]
+            user_data_num = len(user_data)
             return np.array([0] * user_data_num)
         else:
             learnware_rkme_spec_list = [
