@@ -127,30 +127,32 @@ class TestMarket(unittest.TestCase):
     def test_search_semantics(self, learnware_num=5):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))
-
-        test_folder = os.path.join(curr_root, "test_semantics")
-
-        # unzip -o -q zip_path -d unzip_dir
-        if os.path.exists(test_folder):
-            rmtree(test_folder)
-        os.makedirs(test_folder, exist_ok=True)
-
-        with zipfile.ZipFile(self.zip_path_list[0], "r") as zip_obj:
-            zip_obj.extractall(path=test_folder)
+        assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
         semantic_spec = copy.deepcopy(user_semantic)
         semantic_spec["Name"]["Values"] = f"learnware_{learnware_num - 1}"
-        semantic_spec["Description"]["Values"] = f"test_learnware_number_{learnware_num - 1}"
 
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
         _, single_learnware_list, _, _ = easy_market.search_learnware(user_info)
 
         print("User info:", user_info.get_semantic_spec())
         print(f"Search result:")
+        assert len(single_learnware_list) == 1, f"Exact semantic search failed!"
         for learnware in single_learnware_list:
-            print("Choose learnware:", learnware.id, learnware.get_specification().get_semantic_spec())
+            semantic_spec1 = learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", learnware.id, semantic_spec1) 
+            assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
+        
+        semantic_spec["Name"]["Values"] = "laernwaer"
+        user_info = BaseUserInfo(semantic_spec=semantic_spec)
+        _, single_learnware_list, _, _ = easy_market.search_learnware(user_info)
 
-        rmtree(test_folder)  # rm -r test_folder
+        print("User info:", user_info.get_semantic_spec())
+        print(f"Search result:")
+        assert len(single_learnware_list) == self.learnware_num, f"Fuzzy semantic search failed!"
+        for learnware in single_learnware_list:
+            semantic_spec1 = learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", learnware.id, semantic_spec1)
 
     def test_stat_search(self, learnware_num=5):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
@@ -178,6 +180,7 @@ class TestMarket(unittest.TestCase):
                 mixture_learnware_list,
             ) = easy_market.search_learnware(user_info)
 
+            assert len(single_learnware_list) == self.learnware_num, f"Statistical search failed!"
             print(f"search result of user{idx}:")
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 print(f"score: {score}, learnware_id: {learnware.id}")
