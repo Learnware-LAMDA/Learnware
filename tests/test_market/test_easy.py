@@ -26,6 +26,12 @@ user_semantic = {
     "Scenario": {"Values": ["Education"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "Output": {
+        "Dimension": 10,
+        "Description": {
+            "0": "the probability of the label is zero",
+        },
+    }
 }
 
 
@@ -85,28 +91,36 @@ class TestMarket(unittest.TestCase):
 
             self.zip_path_list.append(zip_file)
 
-    def test_upload_delete_learnware(self, learnware_num=5, delete=False):
+    def test_upload_delete_learnware(self, learnware_num=5, delete=True):
         easy_market = self._init_learnware_market()
         self.test_prepare_learnware_randomly(learnware_num)
+        self.learnware_num = learnware_num
 
         print("Total Item:", len(easy_market))
+        assert len(easy_market) == 0, f"The market should be empty!"
 
         for idx, zip_path in enumerate(self.zip_path_list):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            semantic_spec["Output"] = {"Dimension": 1, "Description": {"0": "The label of the hand-written digit."}}
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
+        assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+
         curr_inds = easy_market.get_learnware_ids()
         print("Available ids After Uploading Learnwares:", curr_inds)
+        assert len(curr_inds) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
         if delete:
             for learnware_id in curr_inds:
                 easy_market.delete_learnware(learnware_id)
+                self.learnware_num -= 1
+                assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+                
             curr_inds = easy_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
+            assert len(curr_inds) == 0, f"The market should be empty!"
 
         return easy_market
 
