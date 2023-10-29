@@ -1,8 +1,8 @@
 import numpy as np
-from typing import Tuple, Any, List, Union, Dict
+from typing import List
 
-from .evolve import EvolvedMarket
-from ..learnware import Learnware
+from ..evolve.organizer import EvolvedOrganizer
+from ...learnware import Learnware
 
 
 class MappingFunction:
@@ -25,17 +25,11 @@ class MappingFunction:
         pass
 
 
-class HeterogeneousFeatureMarket(EvolvedMarket):
-    """Organize learnwares with heterogeneous feature spaces
-
-    Parameters
-    ----------
-    EvolvedMarket : _type_
-        Market version with evolved learnwares
-    """
+class HeterogeneousOrganizer(EvolvedOrganizer):
+    """Organize learnwares with heterogeneous feature spaces, organizer version with evolved learnwares"""
 
     def __init__(self, *args, **kwargs):
-        super(HeterogeneousFeatureMarket, self).__init__(*args, **kwargs)
+        super(HeterogeneousOrganizer, self).__init__(*args, **kwargs)
         self.mapping_function_list = {}
 
     def _mapping_function_list_initialization(self, learnware_list: List[Learnware]):

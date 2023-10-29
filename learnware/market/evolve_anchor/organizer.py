@@ -1,22 +1,17 @@
-from typing import Tuple, Any, List, Union, Dict
+from typing import List
 
-from .anchor import AnchoredUserInfo, AnchoredMarket
-from .evolve import EvolvedMarket
+from ..evolve import EvolvedOrganizer
+from ..anchor import AnchoredOrganizer, AnchoredUserInfo
+from ...logger import get_module_logger
+
+logger = get_module_logger("evolve_anchor_organizer")
 
 
-class EvolvedAnchoredMarket(AnchoredMarket, EvolvedMarket):
-    """Organize learnwares with anchors and enable them to continuously evolve
-
-    Parameters
-    ----------
-    AnchoredMarket : _type_
-        Market version with anchors
-    EvolvedMarket : _type_
-        Market version with evolved learnwares
-    """
+class EvolvedAnchoredOrganizer(AnchoredOrganizer, EvolvedOrganizer):
+    """Organize learnwares and enable them to continuously evolve"""
 
     def __init__(self, *args, **kwargs):
-        super(EvolvedAnchoredMarket, self).__init__(*args, **kwargs)
+        AnchoredOrganizer.__init__(self, *args, **kwargs)
 
     def evolve_anchor_learnware_list(self, anchor_id_list: List[str]):
         """Enable anchor learnwares to evolve, e.g., new stat_spec

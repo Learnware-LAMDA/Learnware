@@ -11,7 +11,7 @@ from cvxopt import solvers, matrix
 from shutil import copyfile, rmtree
 from typing import Tuple, Any, List, Union, Dict
 
-from .base import BaseMarket, BaseUserInfo
+from .base import LearnwareMarket, BaseUserInfo
 from .database_ops import DatabaseOperations
 
 from .. import utils
@@ -24,8 +24,8 @@ from ..specification import RKMEStatSpecification, Specification
 logger = get_module_logger("market", "INFO")
 
 
-class EasyMarket(BaseMarket):
-    """EasyMarket provide an easy and simple implementation for BaseMarket
+class EasyMarket(LearnwareMarket):
+    """EasyMarket provide an easy and simple implementation for LearnwareMarket
     - EasyMarket stores learnwares with file system and database
     - EasyMarket search the learnwares with the match of semantical tag and the statistical RKME
     - EasyMarket does not support the search between heterogeneous features learnwars
@@ -956,11 +956,11 @@ class EasyMarket(BaseMarket):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
-    def update_learnware_semantic_spec(self, learnware_id: str, semantic_spec: dict) -> bool:
+    def update_learnware_semantic_specification(self, learnware_id: str, semantic_spec: dict) -> bool:
         """Update Learnware semantic_spec"""
 
         # update database
-        self.dbops.update_learnware_semantic_spec(learnware_id=learnware_id, semantic_spec=semantic_spec)
+        self.dbops.update_learnware_semantic_specification(learnware_id=learnware_id, semantic_spec=semantic_spec)
         # update file
 
         folder_path = self.learnware_folder_list[learnware_id]
