@@ -98,9 +98,9 @@ class LearnwareMarket:
             return BaseChecker.INVALID_LEARNWARE
 
     def add_learnware(
-        self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, check_status: bool = None, **kwargs
+        self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
     ) -> Tuple[str, bool]:
-        check_status = self.check_learnware(zip_path, semantic_spec, checker_names) if check_status is None else check_status
+        check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         return self.learnware_organizer.add_learnware(
             zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
@@ -112,9 +112,9 @@ class LearnwareMarket:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
 
     def update_learnware(
-        self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, check_status: bool = None, **kwargs
+        self, id: str, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
     ) -> bool:
-        check_status = self.check_learnware(zip_path, semantic_spec, checker_names) if check_status is None else check_status
+        check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         return self.learnware_organizer.update_learnware(
             id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
