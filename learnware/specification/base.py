@@ -6,7 +6,15 @@ from typing import Dict
 class BaseStatSpecification:
     """The Statistical Specification Interface, which provide save and load method"""
 
-    def __init__(self, type):
+    def __init__(self, type: str):
+        """initilize the type of stats specification, current the type only supports the following values:
+            - 'table_rkme': the RKME specification for table dataset
+
+        Parameters
+        ----------
+        type : str
+            the type of the stats specification
+        """
         self.type = type
 
     def generate_stat_spec_from_data(self, **kwargs):
