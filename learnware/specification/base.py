@@ -7,9 +7,7 @@ class BaseStatSpecification:
     """The Statistical Specification Interface, which provide save and load method"""
 
     def __init__(self, type: str):
-        """initilize the type of stats specification, current the type only supports the following values:
-            - 'table_rkme': the RKME specification for table dataset
-
+        """initilize the type of stats specification
         Parameters
         ----------
         type : str

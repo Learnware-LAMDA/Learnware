@@ -51,7 +51,7 @@ class RKMEStatSpecification(BaseStatSpecification):
         torch.cuda.empty_cache()
         self.device = choose_device(cuda_idx=cuda_idx)
         setup_seed(0)
-        super(RKMEStatSpecification, self).__init__(type="table_rkme")
+        super(RKMEStatSpecification, self).__init__(type=self.__class__.__name__)
 
     def get_beta(self) -> np.ndarray:
         """Move beta(RKME weights) back to memory accessible to the CPU.
