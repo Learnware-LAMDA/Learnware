@@ -408,7 +408,8 @@ class LearnwareClient:
         try:
             for key in ["Data", "Task", "Library"]:
                 value = semantic_spec[key]["Values"]
-                if len(value) != 1 and value[0] not in key_list:
+                key_list = C["semantic_specs"][key]["Values"]
+                if len(value) != 1 or value[0] not in key_list:
                     logger.error(f"{key} must be in {key_list}!")
                     return False
 
