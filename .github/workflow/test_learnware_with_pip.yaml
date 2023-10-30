@@ -20,10 +20,6 @@ jobs:
     - name: Test learnware from pip
       uses: actions/checkout@v3
 
-    # Since version 3.7 of python for MacOS is installed in CI, version 3.7.17, this version causes "_bz not found error".
-    # So we make the version number of python 3.7 for MacOS more specific.
-    # refs: https://github.com/actions/setup-python/issues/682
-
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
@@ -38,4 +34,20 @@ jobs:
       run: |
         conda create -n learnware python=${{ matrix.python-version }}
 
-    
+    - name: Update pip to the latest version
+      run: |
+        conda run -n learnware python -m pip install --upgrade pip
+
+    - name: Install learnware
+      run: |
+        conda run -n learnware python -m pip install learnware
+
+    - name: Install faiss for MacOS
+      if: ${{ matrix.os == 'macos-11' || matrix.os == 'macos-latest' }}
+      run: |
+        conda install -c pytorch faiss
+
+    - name: Test workflow
+      run: |
+        conda install pytest
+        pytest tests/test_workflow/test_workflow.py
