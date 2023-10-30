@@ -24,6 +24,7 @@ class TestRKME(unittest.TestCase):
 
             rkme2 = RKMEStatSpecification()
             rkme2.load(rkme_path)
+            assert rkme2.type == "RKMEStatSpecification"
 
 
 if __name__ == "__main__":
