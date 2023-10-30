@@ -15,11 +15,8 @@ class BaseStatSpecification:
         """
         self.type = type
 
-    def generate_stat_spec_from_data(self, **kwargs):
-        """Construct statistical specification from raw dataset
-        - kwargs may include the feature, label and model
-        - kwargs also can include hyperparameters of specific method for specifaction generation
-        """
+    def generate_stat_spec(self, **kwargs):
+        """Construct statistical specification"""
         raise NotImplementedError("generate_stat_spec_from_data is not implemented")
 
     def save(self, filepath: str):
