@@ -9,7 +9,7 @@ from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningR
 import time
 import pickle
 
-from learnware.market import EasyMarket, BaseUserInfo
+from learnware.market import instatiate_learnware_market, BaseUserInfo
 from learnware.market import database_ops
 from learnware.learnware import Learnware
 import learnware.specification as specification
@@ -37,25 +37,33 @@ os.makedirs(user_save_root, exist_ok=True)
 os.makedirs(uploader_save_root, exist_ok=True)
 os.makedirs(model_save_root, exist_ok=True)
 
-
+output_description = {
+    "Dimension": 2,
+    "Description": {
+        "0": "the probability of being negative",
+        "1": "the probability of being positive",
+    },
+}
 semantic_specs = [
     {
         "Data": {"Values": ["Text"], "Type": "Class"},
         "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Library": {"Values": ["Pytorch"], "Type": "Class"},
+        "Library": {"Values": ["PyTorch"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
+        "Output": output_description
     }
 ]
 
 user_semantic = {
     "Data": {"Values": ["Text"], "Type": "Class"},
     "Task": {"Values": ["Classification"], "Type": "Class"},
-    "Library": {"Values": ["Pytorch"], "Type": "Class"},
+    "Library": {"Values": ["PyTorch"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "Output": output_description
 }
 
 
@@ -112,7 +120,7 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
 
 
 def prepare_market():
-    text_market = EasyMarket(market_id="sst2", rebuild=True)
+    text_market = instatiate_learnware_market(market_id="sst2", rebuild=True)
     try:
         rmtree(learnware_pool_dir)
     except:
@@ -138,10 +146,10 @@ def prepare_market():
 
 def test_search(gamma=0.1, load_market=True):
     if load_market:
-        text_market = EasyMarket(market_id="sst2")
+        text_market = instatiate_learnware_market(market_id="sst2")
     else:
         prepare_market()
-        text_market = EasyMarket(market_id="sst2")
+        text_market = instatiate_learnware_market(market_id="sst2")
     logger.info("Number of items in the market: %d" % len(text_market))
 
     select_list = []
@@ -162,7 +170,7 @@ def test_search(gamma=0.1, load_market=True):
         # user_stat_spec = specification.utils.generate_rkme_spec(X=user_data, gamma=gamma, cuda_idx=0)
         user_stat_spec = specification.TextRKMEStatSpecification()
         user_stat_spec.generate_stat_spec_from_text(X=user_data)
-        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec})
+        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"TextRKMEStatSpecification": user_stat_spec})
         logger.info("Searching Market for user: %d" % (i))
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = text_market.search_learnware(
             user_info

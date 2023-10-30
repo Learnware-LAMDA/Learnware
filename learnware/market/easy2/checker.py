@@ -69,7 +69,6 @@ class EasyStatisticalChecker(BaseChecker):
 
         try:
             learnware_model = learnware.get_model()
-
             # Check input shape
             if semantic_spec["Data"]["Values"][0] == "Table":
                 input_shape = (semantic_spec["Input"]["Dimension"],)
@@ -77,13 +76,20 @@ class EasyStatisticalChecker(BaseChecker):
                 input_shape = learnware_model.input_shape
 
             # Check rkme dimension
-            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMEStatSpecification")
-            if stat_spec is not None:
+            is_text = "TextRKMEStatSpecification" in learnware.get_specification().stat_spec
+            if is_text:
+                stat_spec = learnware.get_specification().get_stat_spec_by_name("TextRKMEStatSpecification")
+            else:
+                stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMEStatSpecification")
+            if stat_spec is not None and not is_text:
                 if stat_spec.get_z().shape[1:] != input_shape:
                     logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification.")
                     return self.INVALID_LEARNWARE
 
-            inputs = np.random.randn(10, *input_shape)
+            if is_text:
+                inputs = ["This is an example sentence"]
+            else:
+                inputs = np.random.randn(10, *input_shape)
             outputs = learnware.predict(inputs)
 
             # Check output

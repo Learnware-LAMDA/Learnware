@@ -252,7 +252,7 @@ class EasyTableSearcher(BaseSearcher):
         """
         learnware_num = len(learnware_list)
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list
         ]
 
         if type(intermediate_K) == np.ndarray:
@@ -321,7 +321,7 @@ class EasyTableSearcher(BaseSearcher):
         """
         num = intermediate_K.shape[0] - 1
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list
         ]
         for i in range(intermediate_K.shape[0]):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
@@ -377,7 +377,7 @@ class EasyTableSearcher(BaseSearcher):
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
             mixture_weight = [1]
-            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name("RKMEStatSpecification"))
+            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name(self.stat_info_name))
         else:
             if len(mixture_list) > max_search_num:
                 mixture_list = mixture_list[:max_search_num]
@@ -439,7 +439,9 @@ class EasyTableSearcher(BaseSearcher):
         user_rkme_dim = str(list(user_rkme.get_z().shape)[1:])
 
         for learnware in learnware_list:
-            rkme = learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
+            if self.stat_info_name not in learnware.specification.stat_spec:
+                continue
+            rkme = learnware.specification.get_stat_spec_by_name(self.stat_info_name)
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
                 filtered_learnware_list.append(learnware)
@@ -538,7 +540,7 @@ class EasyTableSearcher(BaseSearcher):
             both lists are sorted by mmd dist
         """
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list
         ]
         mmd_dist_list = []
         for RKME in RKME_list:
@@ -558,7 +560,11 @@ class EasyTableSearcher(BaseSearcher):
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
-        user_rkme = user_info.stat_info["RKMEStatSpecification"]
+        if "TextRKMEStatSpecification" in user_info.stat_info:
+            self.stat_info_name = "TextRKMEStatSpecification"
+        else:
+            self.stat_info_name = "RKMEStatSpecification"
+        user_rkme = user_info.stat_info[self.stat_info_name]
         learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
         logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
@@ -632,6 +638,8 @@ class EasySearcher(BaseSearcher):
         if len(learnware_list) == 0:
             return [], [], 0.0, []
         elif "RKMEStatSpecification" in user_info.stat_info:
+            return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
+        elif "TextRKMEStatSpecification" in user_info.stat_info:
             return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
             return None, learnware_list, 0.0, None

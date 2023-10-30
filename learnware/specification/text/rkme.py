@@ -1,5 +1,5 @@
 from sentence_transformers import SentenceTransformer
-from ..rkme import RKMEStatSpecification
+from ..table import RKMEStatSpecification
 import numpy as np
 import os
 
