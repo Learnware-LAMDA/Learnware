@@ -1,4 +1,4 @@
-name: Test leanrnware from pip
+name: Test leanrnware from source code
 
 on:
   push:
