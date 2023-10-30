@@ -7,6 +7,10 @@ import math
 
 __all__ = ("NNGPKernel", "Conv2d", "ReLU", "Sequential", "ConvKP", "NonlinKP")
 """
+With this package, we are able to accurately and efficiently compute the kernel matrix corresponding to the NNGP during the search phase.
+
+Github Repository: https://github.com/cambridge-mlg/cnn-gp 
+
 References: [1] A. Garriga-Alonso, L. Aitchison, and C. E. Rasmussen, ‘Deep Convolutional Networks as shallow Gaussian Processes’, in International Conference on Learning Representations, 2019.
 """
 
