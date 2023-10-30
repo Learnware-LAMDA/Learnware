@@ -1,6 +1,9 @@
-from .anchor import AnchoredUserInfo, AnchoredMarket
-from .base import BaseUserInfo, BaseMarket
-from .evolve_anchor import EvolvedAnchoredMarket
-from .evolve import EvolvedMarket
+from .anchor import AnchoredUserInfo, AnchoredOrganizer
+from .base import BaseUserInfo, LearnwareMarket, BaseChecker, BaseOrganizer, BaseSearcher
+from .evolve_anchor import EvolvedAnchoredOrganizer
+from .evolve import EvolvedOrganizer
+from .easy2 import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatisticalChecker
+from .hetergeneous import HeterogeneousOrganizer, MappingFunction
+
 from .easy import EasyMarket
-from .heterogeneous_feature import HeterogeneousFeatureMarket
+from .module import instatiate_learnware_market

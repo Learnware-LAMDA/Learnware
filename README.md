@@ -178,7 +178,7 @@ For example, the following code is designed to work with Reduced Set Kernel Embe
 ```python
 import learnware.specification as specification
 
-user_spec = specification.rkme.RKMEStatSpecification()
+user_spec = specification.RKMEStatSpecification()
 user_spec.load(os.path.join(unzip_path, "rkme.json"))
 user_info = BaseUserInfo(
     semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}

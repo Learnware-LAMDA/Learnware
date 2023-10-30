@@ -11,7 +11,7 @@ Here you can find all ``learnware`` interfaces.
 Market
 ====================
 
-.. autoclass:: learnware.market.BaseMarket
+.. autoclass:: learnware.market.LearnwareMarket
     :members:
 
 .. autoclass:: learnware.market.EasyMarket

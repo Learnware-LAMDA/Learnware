@@ -3,8 +3,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy import Column, Integer, Text, DateTime, String
 import os
 import json
-from ..learnware import get_learnware_from_dirpath
-from ..logger import get_module_logger
+from ...learnware import get_learnware_from_dirpath
+from ...logger import get_module_logger
 
 logger = get_module_logger("database")
 DeclarativeBase = declarative_base()
@@ -135,12 +135,11 @@ class DatabaseOperations(object):
             pass
         pass
 
-    def update_learnware_use_flag(self, id: str, semantic_spec: dict):
+    def update_learnware_use_flag(self, id: str, use_flag: str):
         with self.engine.connect() as conn:
-            semantic_spec_str = json.dumps(semantic_spec)
             r = conn.execute(
-                text("UPDATE tb_learnware SET semantic_spec=:semantic_spec WHERE id=:id;"),
-                dict(id=id, semantic_spec=semantic_spec_str),
+                text("UPDATE tb_learnware SET use_flag=:use_flag WHERE id=:id;"),
+                dict(id=id, use_flag=use_flag),
             )
             conn.commit()
             pass
@@ -153,6 +152,7 @@ class DatabaseOperations(object):
             learnware_list = {}
             zip_list = {}
             folder_list = {}
+            use_flags = {}
             max_count = 0
 
             for id, semantic_spec, zip_path, folder_path, use_flag in cursor:
@@ -166,10 +166,11 @@ class DatabaseOperations(object):
                 # assert new_learnware is not None
                 zip_list[id] = zip_path
                 folder_list[id] = folder_path
+                use_flags[id] = use_flag
                 max_count = max(max_count, int(id))
             pass
 
-        return learnware_list, zip_list, folder_list, max_count + 1
+        return learnware_list, zip_list, folder_list, use_flags, max_count + 1
         pass
 
     pass
