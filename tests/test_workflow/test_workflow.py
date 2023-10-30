@@ -155,7 +155,7 @@ class TestAllWorkflow(unittest.TestCase):
             with zipfile.ZipFile(zip_path, "r") as zip_obj:
                 zip_obj.extractall(path=unzip_dir)
 
-            user_spec = specification.rkme.RKMEStatSpecification()
+            user_spec = specification.RKMEStatSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec})
             (

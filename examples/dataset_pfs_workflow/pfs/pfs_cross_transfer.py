@@ -85,9 +85,7 @@ def get_split_errs(algo):
                 split = train_xs.shape[0] - proportion_list[tmp]
 
                 model.fit(
-                    train_xs[
-                        split:,
-                    ],
+                    train_xs[split:,],
                     train_ys[split:],
                     eval_set=[(val_xs, val_ys)],
                     early_stopping_rounds=50,
