@@ -4,7 +4,7 @@ import pandas as pd
 from typing import Union
 
 from .base import BaseStatSpecification
-from .table import RKMEStatSpecification
+from .regular import RKMEStatSpecification
 from ..config import C
 
 
