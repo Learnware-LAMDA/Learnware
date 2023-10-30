@@ -1,0 +1,8 @@
+name: Test leanrnware from pip
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
