@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 from learnware.learnware import Learnware
 import learnware.specification as specification
 from .base import BaseReuser
-from ..specification import RKMEStatSpecification
+from ..specification import RKMEStatSpecification, TextRKMEStatSpecification, sentence_embedding
 from ..logger import get_module_logger
 
 logger = get_module_logger("job_selector_reuse")
@@ -45,6 +45,10 @@ class JobSelectorReuser(BaseReuser):
         np.ndarray
             Prediction given by job-selector method
         """
+        ori_user_data = user_data
+        if isinstance(user_data[0], str):
+            user_data = sentence_embedding(user_data)
+
         select_result = self.job_selector(user_data)
         pred_y_list = []
         data_idxs_list = []
@@ -52,7 +56,8 @@ class JobSelectorReuser(BaseReuser):
         for idx in range(len(self.learnware_list)):
             data_idx_list = np.where(select_result == idx)[0]
             if len(data_idx_list) > 0:
-                pred_y = self.learnware_list[idx].predict(user_data[data_idx_list])
+                # pred_y = self.learnware_list[idx].predict(ori_user_data[data_idx_list])
+                pred_y = self.learnware_list[idx].predict([ori_user_data[i] for i in data_idx_list])
                 if isinstance(pred_y, torch.Tensor):
                     pred_y = pred_y.detach().cpu().numpy()
                 # elif isinstance(pred_y, tf.Tensor):
@@ -86,6 +91,9 @@ class JobSelectorReuser(BaseReuser):
             user_data_num = len(user_data)
             return np.array([0] * user_data_num)
         else:
+            ori_user_data = user_data
+            if isinstance(user_data[0], str):
+                user_data = sentence_embedding(user_data)
             learnware_rkme_spec_list = [
                 learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
                 for learnware in self.learnware_list
@@ -169,6 +177,8 @@ class JobSelectorReuser(BaseReuser):
             Inner product matrix calculated from task_rkme_list.
         """
         task_num = len(task_rkme_list)
+        if isinstance(user_data[0], str):
+            user_data = sentence_embedding(user_data)
         user_rkme_spec = specification.utils.generate_rkme_spec(X=user_data, reduce=False)
         K = task_rkme_matrix
         v = np.array([user_rkme_spec.inner_prod(task_rkme) for task_rkme in task_rkme_list])
@@ -229,6 +239,7 @@ class JobSelectorReuser(BaseReuser):
             "boosting_type": "gbdt",
             "n_estimators": 2000,
             "boost_from_average": False,
+            "verbose": -1
         }
 
         if num_class == 2:

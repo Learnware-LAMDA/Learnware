@@ -177,19 +177,19 @@ def test_search(gamma=0.1, load_market=True):
             acc_list.append(acc)
             logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
 
-        # # test reuse (job selector)
-        # reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
-        # reuse_predict = reuse_baseline.predict(user_data=user_data)
-        # reuse_score = eval_prediction(reuse_predict, user_label)
-        # job_selector_score_list.append(reuse_score)
-        # print(f"mixture reuse loss: {reuse_score}")
+        # test reuse (job selector)
+        reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
+        reuse_predict = reuse_baseline.predict(user_data=user_data)
+        reuse_score = eval_prediction(reuse_predict, user_label)
+        job_selector_score_list.append(reuse_score)
+        print(f"mixture reuse loss(job selector): {reuse_score}")
 
         # test reuse (ensemble)
         reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_label")
         ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
         ensemble_score = eval_prediction(ensemble_predict_y, user_label)
         ensemble_score_list.append(ensemble_score)
-        print(f"mixture reuse accuracy (ensemble): {ensemble_score}\n")
+        print(f"mixture reuse accuracy (ensemble): {ensemble_score}")
 
         select_list.append(acc_list[0])
         avg_list.append(np.mean(acc_list))
@@ -200,7 +200,7 @@ def test_search(gamma=0.1, load_market=True):
         pruning_predict_y = reuse_pruning.predict(user_data=user_data)
         pruning_score = eval_prediction(pruning_predict_y, user_label)
         pruning_score_list.append(pruning_score)
-        print(f"mixture reuse accuracy (ensemble): {pruning_score}\n")
+        print(f"mixture reuse accuracy (ensemble Pruning): {pruning_score}\n")
 
         select_list.append(acc_list[0])
         avg_list.append(np.mean(acc_list))
@@ -226,4 +226,4 @@ def test_search(gamma=0.1, load_market=True):
 if __name__ == "__main__":
     # prepare_data()
     # prepare_model()
-    test_search(load_market=True)
+    test_search(load_market=False)

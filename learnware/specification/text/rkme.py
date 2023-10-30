@@ -1,5 +1,7 @@
 from sentence_transformers import SentenceTransformer
 from ..rkme import RKMEStatSpecification
+import numpy as np
+import os
 
 class TextRKMEStatSpecification(RKMEStatSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification for Text"""
@@ -32,8 +34,7 @@ class TextRKMEStatSpecification(RKMEStatSpecification):
         """
         
         # Sentence embedding for Text
-        model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-        X = model.encode(X)
+        X = sentence_embedding(X)
 
         return self.generate_stat_spec_from_data(
             X, K, step_size,steps,
@@ -41,3 +42,11 @@ class TextRKMEStatSpecification(RKMEStatSpecification):
             reduce,
         )
 
+def sentence_embedding(X):
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    X = model.encode(X)
+    X = np.array(X)
+    # print(X.shape, np.mean(X, axis=1).shape, np.std(X, axis=1).reshape(X.shape[0], 1).shape)
+    # X = (X - np.mean(X, axis=1).reshape(X.shape[0], 1)) / np.std(X, axis=1).reshape(X.shape[0], 1)
+    return X

@@ -15,7 +15,7 @@ import learnware.specification as specification
 from pfs import Dataloader
 from learnware.logger import get_module_logger
 
-logger = get_module_logger("m5_test", level="INFO")
+logger = get_module_logger("pfs_test", level="INFO")
 
 
 semantic_specs = [

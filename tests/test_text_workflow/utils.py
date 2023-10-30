@@ -156,7 +156,7 @@ def train(X, y, out_classes, epochs=35, batch_size=128):
 
     model.to(DEVICE)
 
-    num_epochs = 10
+    num_epochs = 30
 
     for e in range(num_epochs):
         for batch in train_dataloader:
