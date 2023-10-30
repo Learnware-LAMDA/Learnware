@@ -6,6 +6,9 @@ from typing import Dict
 class BaseStatSpecification:
     """The Statistical Specification Interface, which provide save and load method"""
 
+    def __init__(self, type):
+        self.type = type
+
     def generate_stat_spec_from_data(self, **kwargs):
         """Construct statistical specification from raw dataset
         - kwargs may include the feature, label and model
