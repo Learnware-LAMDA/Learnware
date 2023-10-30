@@ -123,7 +123,7 @@ You can search learnware by providing a statistical specification. The statistic
 
     import learnware.specification as specification
 
-    user_spec = specification.rkme.RKMEStatSpecification()
+    user_spec = specification.RKMEStatSpecification()
     user_spec.load(os.path.join(unzip_path, "rkme.json"))
     
     specification = learnware.specification.Specification()
@@ -151,7 +151,7 @@ You can provide both semantic and statistical specification to search learnwares
         senarioes=[],
         input_description={}, output_description={})
 
-    stat_spec = specification.rkme.RKMEStatSpecification()
+    stat_spec = specification.RKMEStatSpecification()
     stat_spec.load(os.path.join(unzip_path, "rkme.json"))
     specification = learnware.specification.Specification()
     specification.update_semantic_spec(semantic_spec)

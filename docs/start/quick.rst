@@ -170,7 +170,7 @@ For example, the code below executes learnware search when using Reduced Set Ker
 
     import learnware.specification as specification
 
-    user_spec = specification.rkme.RKMEStatSpecification()
+    user_spec = specification.RKMEStatSpecification()
 
     # unzip_path: directory for unzipped learnware zipfile
     user_spec.load(os.path.join(unzip_path, "rkme.json"))
