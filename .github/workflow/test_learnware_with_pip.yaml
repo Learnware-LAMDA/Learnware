@@ -6,3 +6,14 @@ on:
   pull_request:
     branches: [ main ]
 
+jobs:
+  build:
+    timeout-minutes: 120
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-20.04, ubuntu-22.04, macos-11, macos-latest]
+        python-version: [3.8, 3.9, 3.10]
+
+  
