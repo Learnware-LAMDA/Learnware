@@ -38,17 +38,17 @@ jobs:
     - name: Update pip to the latest version
       run: |
         python -m pip install --upgrade pip
-
-    - name: Install learnware
-      run: |
-        python -m pip install learnware
+        python -m pip install pytest
 
     - name: Install faiss for MacOS
       if: ${{ matrix.os == 'macos-11' || matrix.os == 'macos-latest' }}
       run: |
         conda install -c pytorch faiss
 
+    - name: Install learnware
+      run: |
+        python -m pip install learnware
+
     - name: Test workflow
       run: |
-        conda install pytest
-        conda run -n learnware pytest tests/test_workflow/test_workflow.py
+        pytest tests/test_workflow/test_workflow.py
