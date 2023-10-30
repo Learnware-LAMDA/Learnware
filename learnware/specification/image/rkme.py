@@ -32,7 +32,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         cuda_idx : int
             A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
         """
-        self.RKME_IMAGE_VERSION = 1 # Please maintain backward compatibility.
+        self.RKME_IMAGE_VERSION = 1  # Please maintain backward compatibility.
         # torch.cuda.empty_cache()
 
         self.z = None
@@ -42,13 +42,15 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         self.cache = False
 
         self.n_models = kwargs["n_models"] if "n_models" in kwargs else 16
-        self.model_config = {
-            "k": 2, "mu": 0, "sigma": None, "net_width": 128, "net_depth": 3
-        } if "model_config" not in kwargs else kwargs["model_config"]
+        self.model_config = (
+            {"k": 2, "mu": 0, "sigma": None, "net_width": 128, "net_depth": 3}
+            if "model_config" not in kwargs
+            else kwargs["model_config"]
+        )
 
         setup_seed(0)
 
-    def _generate_models(self, n_models: int, channel: int=3, fixed_seed=None):
+    def _generate_models(self, n_models: int, channel: int = 3, fixed_seed=None):
         model_class = functools.partial(_ConvNet_wide, channel=channel, **self.model_config)
 
         def __builder(i):
@@ -63,11 +65,11 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         X: np.ndarray,
         K: int = 50,
         step_size: float = 0.01,
-        steps: int=100,
+        steps: int = 100,
         resize: bool = False,
         nonnegative_beta: bool = True,
         reduce: bool = True,
-        **kwargs
+        **kwargs,
     ):
         """Construct reduced set from raw dataset using iterative optimization.
 
@@ -92,11 +94,15 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         -------
 
         """
-        if  (X.shape[2] != RKMEImageStatSpecification.IMAGE_WIDTH or
-             X.shape[3] != RKMEImageStatSpecification.IMAGE_WIDTH) and not resize:
-            raise ValueError("X should be in shape of [N, C, {0:d}, {0:d}]. "
-                             "Or set resize=True and the image will be automatically resized to {0:d} x {0:d}."
-                             .format(RKMEImageStatSpecification.IMAGE_WIDTH))
+        if (
+            X.shape[2] != RKMEImageStatSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageStatSpecification.IMAGE_WIDTH
+        ) and not resize:
+            raise ValueError(
+                "X should be in shape of [N, C, {0:d}, {0:d}]. "
+                "Or set resize=True and the image will be automatically resized to {0:d} x {0:d}.".format(
+                    RKMEImageStatSpecification.IMAGE_WIDTH
+                )
+            )
 
         if not torch.is_tensor(X):
             X = torch.from_numpy(X)
@@ -112,10 +118,8 @@ class RKMEImageStatSpecification(BaseStatSpecification):
                     img_mean = torch.nanmean(img)
                     X[i] = torch.where(is_nan, img_mean, img)
 
-        if (X.shape[2] != RKMEImageStatSpecification.IMAGE_WIDTH or
-             X.shape[3] != RKMEImageStatSpecification.IMAGE_WIDTH):
-            X = Resize((RKMEImageStatSpecification.IMAGE_WIDTH,
-                        RKMEImageStatSpecification.IMAGE_WIDTH))(X)
+        if X.shape[2] != RKMEImageStatSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageStatSpecification.IMAGE_WIDTH:
+            X = Resize((RKMEImageStatSpecification.IMAGE_WIDTH, RKMEImageStatSpecification.IMAGE_WIDTH))(X)
 
         num_points = X.shape[0]
         X_shape = X.shape
@@ -140,8 +144,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             x_features = self._generate_random_feature(X_train, random_models=random_models)
         self._update_beta(x_features, nonnegative_beta, random_models=random_models)
 
-        optimizer = torch_optimizer.AdaBelief([{"params": [self.z]}],
-                                              lr=step_size, eps=1e-16)
+        optimizer = torch_optimizer.AdaBelief([{"params": [self.z]}], lr=step_size, eps=1e-16)
 
         for i in range(steps):
             # Regenerate Random Models
@@ -216,8 +219,9 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             dataloader_Y = DataLoader(dataset_Y, batch_size=batch_size, shuffle=True)
             assert data_X.shape[1] == data_Y.shape[1]
 
-        for m, model in enumerate(random_models if random_models else
-                                  self._generate_models(n_models=self.n_models, channel=data_X.shape[1])):
+        for m, model in enumerate(
+            random_models if random_models else self._generate_models(n_models=self.n_models, channel=data_X.shape[1])
+        ):
             model.eval()
 
             curr_features_list = []
@@ -305,8 +309,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         return K_12
 
     def herding(self, T: int) -> np.ndarray:
-        raise NotImplementedError(
-            "The function herding hasn't been supported in Image RKME Specification.")
+        raise NotImplementedError("The function herding hasn't been supported in Image RKME Specification.")
 
     def _sampling_candidates(self, N: int) -> np.ndarray:
         raise NotImplementedError()
@@ -382,19 +385,16 @@ def _get_zca_matrix(X, reg_coef=0.1):
     reg_amount = reg_coef * torch.trace(cov) / cov.shape[0]
     u, s, _ = torch.svd(cov.cuda() + reg_amount * torch.eye(cov.shape[0]).cuda())
     inv_sqrt_zca_eigs = s ** (-0.5)
-    whitening_transform = torch.einsum(
-        'ij,j,kj->ik', u, inv_sqrt_zca_eigs, u)
+    whitening_transform = torch.einsum("ij,j,kj->ik", u, inv_sqrt_zca_eigs, u)
 
     return whitening_transform
 
 
 class _ConvNet_wide(nn.Module):
-    def __init__(self, channel, mu=None, sigma=None, k=2, net_width=128,
-                 net_depth=3, im_size=(32, 32)):
+    def __init__(self, channel, mu=None, sigma=None, k=2, net_width=128, net_depth=3, im_size=(32, 32)):
         self.k = k
         super().__init__()
-        self.features, shape_feat = self._make_layers(channel, net_width, net_depth,
-                                                      im_size, mu, sigma)
+        self.features, shape_feat = self._make_layers(channel, net_width, net_depth, im_size, mu, sigma)
         # self.aggregation = nn.AvgPool2d(kernel_size=shape_feat[1])
 
     def forward(self, x):
@@ -410,8 +410,7 @@ class _ConvNet_wide(nn.Module):
         in_channels = channel
         shape_feat = [in_channels, im_size[0], im_size[1]]
         for d in range(net_depth):
-            layers += [_build_conv2d_gaussian(in_channels, int(k * net_width), 3,
-                                             1, mean=mu, std=sigma)]
+            layers += [_build_conv2d_gaussian(in_channels, int(k * net_width), 3, 1, mean=mu, std=sigma)]
             shape_feat[0] = int(k * net_width)
 
             layers += [nn.ReLU(inplace=True)]
@@ -423,29 +422,29 @@ class _ConvNet_wide(nn.Module):
 
         return nn.Sequential(*layers), shape_feat
 
+
 def _build_conv2d_gaussian(in_channels, out_channels, kernel=3, padding=1, mean=None, std=None):
     layer = nn.Conv2d(in_channels, out_channels, kernel, padding=padding)
     if mean is None:
         mean = 0
     if std is None:
-        std = np.sqrt(2)/np.sqrt(layer.weight.shape[1] * layer.weight.shape[2] * layer.weight.shape[3])
+        std = np.sqrt(2) / np.sqrt(layer.weight.shape[1] * layer.weight.shape[2] * layer.weight.shape[3])
     # print('Initializing Conv. Mean=%.2f, std=%.2f'%(mean, std))
     torch.nn.init.normal_(layer.weight, mean, std)
-    torch.nn.init.normal_(layer.bias, 0, .1)
+    torch.nn.init.normal_(layer.bias, 0, 0.1)
     return layer
 
-def _build_ConvNet_NNGP(channel, k=2, net_width=128,
-                 net_depth=3, kernel_size=3, im_size=(32, 32), **kwargs):
+
+def _build_ConvNet_NNGP(channel, k=2, net_width=128, net_depth=3, kernel_size=3, im_size=(32, 32), **kwargs):
     layers = []
     for d in range(net_depth):
-        layers += [cnn_gp.Conv2d(kernel_size=kernel_size, padding="same", var_bias=0.1,
-                                 var_weight=np.sqrt(2))]
+        layers += [cnn_gp.Conv2d(kernel_size=kernel_size, padding="same", var_bias=0.1, var_weight=np.sqrt(2))]
         # /np.sqrt(kernel_size * kernel_size * channel)
         layers += [cnn_gp.ReLU()]
         # AvgPooling
         layers += [cnn_gp.Conv2d(kernel_size=2, padding=0, stride=2)]
 
-    assert im_size[0] % (2 ** net_depth) == 0
-    layers.append(cnn_gp.Conv2d(kernel_size=im_size[0] // (2 ** net_depth), padding=0))
+    assert im_size[0] % (2**net_depth) == 0
+    layers.append(cnn_gp.Conv2d(kernel_size=im_size[0] // (2**net_depth), padding=0))
 
     return cnn_gp.Sequential(*layers)

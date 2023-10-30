@@ -49,7 +49,7 @@ semantic_specs = [
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
-        "Output": {"Dimension": 10}
+        "Output": {"Dimension": 10},
     }
 ]
 
