@@ -17,7 +17,7 @@ from torchvision.transforms import Resize
 
 from . import cnn_gp
 from ..base import BaseStatSpecification
-from ..rkme import solve_qp, choose_device, setup_seed
+from ..table.rkme import solve_qp, choose_device, setup_seed
 
 
 class RKMEImageStatSpecification(BaseStatSpecification):
@@ -49,6 +49,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         )
 
         setup_seed(0)
+        super(RKMEImageStatSpecification, self).__init__(type=self.__class__.__name__)
 
     def _generate_models(self, n_models: int, channel: int = 3, fixed_seed=None):
         model_class = functools.partial(_ConvNet_wide, channel=channel, **self.model_config)
@@ -337,7 +338,6 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             rkme_to_save["beta"] = rkme_to_save["beta"].detach().cpu().numpy()
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
-        rkme_to_save["type"] = self.__class__.__name__
 
         json.dump(
             rkme_to_save,

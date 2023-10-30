@@ -428,7 +428,6 @@ class RKMEStatSpecification(BaseStatSpecification):
             rkme_to_save["beta"] = rkme_to_save["beta"].detach().cpu().numpy()
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
-        rkme_to_save["type"] = self.type
         json.dump(
             rkme_to_save,
             codecs.open(save_path, "w", encoding="utf-8"),
