@@ -1,10 +1,12 @@
-import os
-import numpy as np
-import pandas as pd
-from typing import Tuple, Any, List, Union, Dict
+import zipfile
+import tempfile
 
-from ..learnware import Learnware
-from ..specification import RKMEStatSpecification
+
+from typing import Tuple, Any, List, Union
+from ..learnware import Learnware, get_learnware_from_dirpath
+from ..logger import get_module_logger
+
+logger = get_module_logger("market_base", "INFO")
 
 
 class BaseUserInfo:
@@ -40,21 +42,155 @@ class BaseUserInfo:
         return self.stat_info.get(name, None)
 
 
-class BaseMarket:
+class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
 
-    def __init__(self, market_id: str = None):
+    def __init__(
+        self,
+        market_id: str = None,
+        organizer: "BaseOrganizer" = None,
+        searcher: "BaseSearcher" = None,
+        checker_list: List["BaseChecker"] = None,
+        rebuild=False,
+    ):
         self.market_id = market_id
+        self.learnware_organizer = BaseOrganizer() if organizer is None else organizer
+        self.learnware_organizer.reset(market_id=market_id)
+        self.learnware_organizer.reload_market(rebuild=rebuild)
+        self.learnware_searcher = BaseSearcher() if searcher is None else searcher
+        self.learnware_searcher.reset(organizer=self.learnware_organizer)
 
-    def reload_market(self, market_path: str, semantic_spec_list_path: str) -> bool:
-        """Reload the market when server restared.
+        if checker_list is None:
+            self.learnware_checker = {"BaseChecker": BaseChecker()}
+        else:
+            self.learnware_checker = {checker.__class__.__name__: checker for checker in checker_list}
+        for name, checker in self.learnware_checker.items():
+            checker.reset(organizer=self.learnware_organizer)
+
+    def reload_market(self, **kwargs) -> bool:
+        self.learnware_organizer.reload_market(**kwargs)
+
+    def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
+        try:
+            with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
+                with zipfile.ZipFile(zip_path, mode="r") as z_file:
+                    z_file.extractall(tempdir)
+
+                pending_learnware = get_learnware_from_dirpath(
+                    id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
+                )
+
+                final_status = BaseChecker.INVALID_LEARNWARE
+                checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
+
+                for name in checker_names:
+                    checker = self.learnware_checker[name]
+                    check_status = checker(pending_learnware)
+                    final_status = max(final_status, check_status)
+
+                    if check_status == BaseChecker.INVALID_LEARNWARE:
+                        return BaseChecker.INVALID_LEARNWARE
+
+                return final_status
+
+        except Exception as err:
+            logger.warning(f"Check learnware failed! Due to {err}.")
+            return BaseChecker.INVALID_LEARNWARE
+
+    def add_learnware(
+        self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
+    ) -> Tuple[str, int]:
+        """Add a learnware into the market.
 
         Parameters
         ----------
-        market_path : str
-            Directory for market data. '_IP_:_port_' for loading from database.
-        semantic_spec_list_path : str
-            Directory for available semantic_spec. Should be a json file.
+        zip_path : str
+            Filepath for learnware model, a zipped file.
+        semantic_spec : dict
+            semantic_spec for new learnware, in dictionary format.
+        checker_names : List[str], optional
+            List contains checker names, by default None
+
+        Returns
+        -------
+        Tuple[str, int]
+            - str indicating model_id
+            - int indicating the final learnware check_status
+        """
+        check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
+        return self.learnware_organizer.add_learnware(
+            zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
+        )
+
+    def search_learnware(self, user_info: BaseUserInfo, **kwargs) -> Tuple[Any, List[Learnware]]:
+        return self.learnware_searcher(user_info, **kwargs)
+
+    def delete_learnware(self, id: str, **kwargs) -> bool:
+        return self.learnware_organizer.delete_learnware(id, **kwargs)
+
+    def update_learnware(
+        self,
+        id: str,
+        zip_path: str,
+        semantic_spec: dict,
+        checker_names: List[str] = None,
+        check_status: int = None,
+        **kwargs,
+    ) -> int:
+        """Update learnware with zip_path and semantic_specification
+
+        Parameters
+        ----------
+        id : str
+            Learnware id
+        zip_path : str
+            Filepath for learnware model, a zipped file.
+        semantic_spec : dict
+            semantic_spec for new learnware, in dictionary format.
+        checker_names : List[str], optional
+            List contains checker names, by default None.
+        check_status : int, optional
+            A flag indicating whether the learnware is usable, by default None.
+
+        Returns
+        -------
+        int
+            The final learnware check_status.
+        """
+        update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
+        check_status = (
+            update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
+        )
+
+        return self.learnware_organizer.update_learnware(
+            id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
+        )
+
+    def get_learnware_ids(self, top: int = None, **kwargs):
+        return self.learnware_organizer.get_learnware_ids(top, **kwargs)
+
+    def get_learnwares(self, top: int = None, **kwargs):
+        return self.learnware_organizer.get_learnwares(top, **kwargs)
+
+    def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        raise self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
+
+    def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
+
+    def __len__(self):
+        return len(self.learnware_organizer)
+
+
+class BaseOrganizer:
+    def __init__(self, market_id=None):
+        self.reset(market_id=market_id)
+
+    def reset(self, market_id=None, **kwargs):
+        self.market_id = market_id
+
+    def reload_market(self, rebuild=False, **kwargs) -> bool:
+        """Reload the learnware organizer when server restared.
 
         Returns
         -------
@@ -62,25 +198,9 @@ class BaseMarket:
             A flag indicating whether the market is reload successfully.
         """
 
-        raise NotImplementedError("reload market is Not Implemented")
+        raise NotImplementedError("reload market is Not Implemented in BaseOrganizer")
 
-    def check_learnware(self, learnware: Learnware) -> bool:
-        """Check the utility of a learnware
-
-        Parameters
-        ----------
-        learnware : Learnware
-
-        Returns
-        -------
-        bool
-            A flag indicating whether the learnware can be accepted.
-        """
-        return True
-
-    def add_learnware(
-        self, learnware_name: str, model_path: str, stat_spec_path: str, semantic_spec: dict, desc: str
-    ) -> Tuple[str, bool]:
+    def add_learnware(self, zip_path: str, semantic_spec: dict, check_status: int) -> Tuple[str, bool]:
         """Add a learnware into the market.
 
         .. note::
@@ -90,22 +210,17 @@ class BaseMarket:
 
         Parameters
         ----------
-        learnware_name : str
-            Name of new learnware.
-        model_path : str
+        zip_path : str
             Filepath for learnware model, a zipped file.
-        stat_spec_path : str
-            Filepath for statistical specification, a '.npy' file.
-            How to pass parameters requires further discussion.
         semantic_spec : dict
             semantic_spec for new learnware, in dictionary format.
-        desc : str
-            Brief desciption for new learnware.
 
         Returns
         -------
-        Tuple[str, bool]
-            str indicating model_id, bool indicating whether the learnware is added successfully.
+        Tuple[str, int]
+            - str indicating model_id
+            - int indicating what the flag of learnware is added.
+
 
         Raises
         ------
@@ -113,45 +228,7 @@ class BaseMarket:
             file for model or statistical specification not found
 
         """
-        raise NotImplementedError("add learnware is Not Implemented")
-
-    def search_learnware(self, user_info: BaseUserInfo) -> Tuple[Any, List[Learnware]]:
-        """Search Learnware based on user_info
-
-        Parameters
-        ----------
-        user_info : BaseUserInfo
-            user_info with emantic specifications and statistical information
-
-        Returns
-        -------
-        Tuple[Any, List[Any]]
-            return two items:
-
-            - first is recommended combination, None when no recommended combination is calculated or statistical specification is not provided.
-            - second is a list of matched learnwares
-        """
-
-        raise NotImplementedError("search learnware is Not Implemented")
-
-    def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
-        """
-            Get Learnware from market by id
-
-        Parameters
-        ----------
-        id : Union[str, List[str]]
-            Given one id or a list of ids as target.
-
-        Returns
-        -------
-        Union[Learnware, List[Learnware]]
-            Return a Learnware object or a list of Learnware objects based on the type of input param.
-
-            - The returned items are search results.
-            - 'None' indicating the target id not found.
-        """
-        raise NotImplementedError("search learnware is Not Implemented")
+        raise NotImplementedError("add learnware is Not Implemented in BaseOrganizer")
 
     def delete_learnware(self, id: str) -> bool:
         """Delete a learnware from market
@@ -171,27 +248,133 @@ class BaseMarket:
         Exception
             Raise an excpetion when given id is NOT found in learnware list
         """
-        raise NotImplementedError("delete learnware is Not Implemented")
+        raise NotImplementedError("delete learnware is Not Implemented in BaseOrganizer")
 
-    def update_learnware(self, id: str) -> bool:
+    def update_learnware(self, id: str, zip_path: str, semantic_spec: dict, check_status: int) -> bool:
         """
             Update Learnware with id and content to be updated.
-            Empty interface. TODO
 
         Parameters
         ----------
         id : str
             id of target learnware.
         """
-        raise NotImplementedError("update learnware is Not Implemented")
+        raise NotImplementedError("update learnware is Not Implemented in BaseOrganizer")
 
-    def get_semantic_spec_list(self) -> dict:
-        """Return all semantic specifications available
+    def get_learnware_by_ids(self, id: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """
+            Get Learnware from market by id
+
+        Parameters
+        ----------
+        id : Union[str, List[str]]
+            Given one id or a list of ids as target.
 
         Returns
         -------
-        dict
-            All emantic specifications in dictionary format
+        Union[Learnware, List[Learnware]]
+            Return a Learnware object or a list of Learnware objects based on the type of input param.
 
+            - The returned items are search results.
+            - 'None' indicating the target id not found.
         """
-        raise NotImplementedError("get semantic spec list is not implemented")
+        raise NotImplementedError("get_learnware_by_ids is not implemented in BaseOrganizer")
+
+    def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """Get Zipped Learnware file by id
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of targer learware
+            List[str]: A list of ids of target learnwares
+
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return the path for target learnware or list of path.
+            None for Learnware NOT Found.
+        """
+        raise NotImplementedError("get_learnware_path_by_ids is not implemented in BaseOrganizer")
+
+    def get_learnware_ids(self, top: int = None) -> List[str]:
+        """get the list of learnware ids
+
+        Parameters
+        ----------
+        top : int, optional
+            the first top element to return, by default None
+
+        Raises
+        ------
+        List[str]
+            the first top ids
+        """
+        raise NotImplementedError("get_learnware_ids is not implemented in BaseOrganizer")
+
+    def get_learnwares(self, top: int = None) -> List[Learnware]:
+        """get the list of learnwares
+
+        Parameters
+        ----------
+        top : int, optional
+            the first top element to return, by default None
+
+        Raises
+        ------
+        List[Learnware]
+            the first top learnwares
+        """
+        raise NotImplementedError("get_learnwares is not implemented in BaseOrganizer")
+
+    def __len__(self):
+        raise NotImplementedError("__len__ is not implemented in BaseOrganizer")
+
+
+class BaseSearcher:
+    def __init__(self, organizer: BaseOrganizer = None):
+        self.learnware_oganizer = organizer
+
+    def reset(self, organizer):
+        self.learnware_oganizer = organizer
+
+    def __call__(self, user_info: BaseUserInfo):
+        """Search learnwares based on user_info
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            user_info contains semantic_spec and stat_info
+        """
+        raise NotImplementedError("'__call__' method is not implemented in BaseSearcher")
+
+
+class BaseChecker:
+    INVALID_LEARNWARE = -1
+    NONUSABLE_LEARNWARE = 0
+    USABLE_LEARWARE = 1
+
+    def __init__(self, organizer: BaseOrganizer = None):
+        self.learnware_oganizer = organizer
+
+    def reset(self, organizer):
+        self.learnware_oganizer = organizer
+
+    def __call__(self, learnware: Learnware) -> int:
+        """Check the utility of a learnware
+
+        Parameters
+        ----------
+        learnware : Learnware
+
+        Returns
+        -------
+        int
+            A flag indicating whether the learnware can be accepted.
+            - The INVALID_LEARNWARE denotes the learnware does not pass the check
+            - The NOPREDICTION_LEARNWARE denotes the learnware pass the check but cannot make prediction due to some env dependency
+            - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
+        """
+
+        raise NotImplementedError("'__call__' method is not implemented in BaseChecker")
