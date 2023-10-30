@@ -24,7 +24,7 @@ processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
 dataset = "sst2"
-n_uploaders = 50
+n_uploaders = 10
 n_users = 5
 n_classes = 2
 data_root = os.path.join(origin_data_root, dataset)
@@ -140,8 +140,6 @@ def prepare_market():
         text_market.add_learnware(new_learnware_path, semantic_spec)
 
     logger.info("Total Item: %d" % (len(text_market)))
-    curr_inds = text_market._get_ids()
-    logger.info("Available ids: " + str(curr_inds))
 
 
 def test_search(gamma=0.1, load_market=True):
@@ -234,4 +232,4 @@ def test_search(gamma=0.1, load_market=True):
 if __name__ == "__main__":
     # prepare_data()
     # prepare_model()
-    test_search(load_market=False)
+    test_search(load_market=True)

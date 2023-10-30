@@ -94,8 +94,11 @@ class JobSelectorReuser(BaseReuser):
             ori_user_data = user_data
             if isinstance(user_data[0], str):
                 user_data = sentence_embedding(user_data)
+            spec_name = "RKMEStatSpecification"
+            if "TextRKMEStatSpecification" in self.learnware_list[0].specification.stat_spec:
+                spec_name = "TextRKMEStatSpecification"
             learnware_rkme_spec_list = [
-                learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
+                learnware.specification.get_stat_spec_by_name(spec_name)
                 for learnware in self.learnware_list
             ]
 
