@@ -1,1 +1,1 @@
-from .rkme import RKMEImageStatSpecification
+from .rkme import RKMEImageSpecification

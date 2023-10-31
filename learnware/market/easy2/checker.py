@@ -77,7 +77,7 @@ class EasyStatisticalChecker(BaseChecker):
                 input_shape = learnware_model.input_shape
 
             # Check rkme dimension
-            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMEStatSpecification")
+            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMETableSpecification")
             if stat_spec is not None:
                 if stat_spec.get_z().shape[1:] != input_shape:
                     logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification.")

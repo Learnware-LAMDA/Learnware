@@ -117,13 +117,13 @@ You can search learnwares in official market using semantic specification. All t
 Statistical Specification Search
 ---------------------------------
 
-You can search learnware by providing a statistical specification. The statistical specification is a json file that contains the statistical information of your training data. For example, the code below searches learnwares with `RKMEStatSpecification`:
+You can search learnware by providing a statistical specification. The statistical specification is a json file that contains the statistical information of your training data. For example, the code below searches learnwares with `RKMETableSpecification`:
 
 .. code-block:: python
 
     import learnware.specification as specification
 
-    user_spec = specification.RKMEStatSpecification()
+    user_spec = specification.RKMETableSpecification()
     user_spec.load(os.path.join(unzip_path, "rkme.json"))
     
     specification = learnware.specification.Specification()
@@ -138,7 +138,7 @@ You can search learnware by providing a statistical specification. The statistic
 
 Combine Semantic and Statistical Search
 ----------------------------------------
-You can provide both semantic and statistical specification to search learnwares. The engine will first filter learnwares by semantic specification and then search by statistical specification. For example, the code below searches learnwares with `Table` data type and `RKMEStatSpecification`:
+You can provide both semantic and statistical specification to search learnwares. The engine will first filter learnwares by semantic specification and then search by statistical specification. For example, the code below searches learnwares with `Table` data type and `RKMETableSpecification`:
 
 .. code-block:: python
 
@@ -151,7 +151,7 @@ You can provide both semantic and statistical specification to search learnwares
         senarioes=[],
         input_description={}, output_description={})
 
-    stat_spec = specification.RKMEStatSpecification()
+    stat_spec = specification.RKMETableSpecification()
     stat_spec.load(os.path.join(unzip_path, "rkme.json"))
     specification = learnware.specification.Specification()
     specification.update_semantic_spec(semantic_spec)

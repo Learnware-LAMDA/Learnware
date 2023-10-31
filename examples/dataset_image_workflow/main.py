@@ -6,7 +6,7 @@ from get_data import *
 import os
 import random
 
-from learnware.specification.image import RKMEImageStatSpecification
+from learnware.specification.image import RKMEImageSpecification
 from learnware.reuse.averaging import AveragingReuser
 from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
 from learnware.learnware import Learnware
@@ -100,7 +100,7 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
     X_sampled = X[indices]
 
     st = time.time()
-    user_spec = RKMEImageStatSpecification(cuda_idx=0)
+    user_spec = RKMEImageSpecification(cuda_idx=0)
     user_spec.generate_stat_spec_from_data(X=X_sampled)
     ed = time.time()
     logger.info("Stat spec generated in %.3f s" % (ed - st))
@@ -164,9 +164,9 @@ def test_search(gamma=0.1, load_market=True):
         user_label_path = os.path.join(user_save_root, "user_%d_y.npy" % (i))
         user_data = np.load(user_data_path)
         user_label = np.load(user_label_path)
-        user_stat_spec = RKMEImageStatSpecification(cuda_idx=0)
+        user_stat_spec = RKMEImageSpecification(cuda_idx=0)
         user_stat_spec.generate_stat_spec_from_data(X=user_data, resize=False)
-        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec})
+        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_stat_spec})
         logger.info("Searching Market for user: %d" % i)
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
             user_info

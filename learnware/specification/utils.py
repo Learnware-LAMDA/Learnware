@@ -4,7 +4,7 @@ import pandas as pd
 from typing import Union
 
 from .base import BaseStatSpecification
-from .regular import RKMEStatSpecification, RKMEImageStatSpecification
+from .regular import RKMETableSpecification, RKMEImageSpecification
 from ..config import C
 
 
@@ -42,10 +42,10 @@ def generate_rkme_spec(
     nonnegative_beta: bool = True,
     reduce: bool = True,
     cuda_idx: int = None,
-) -> RKMEStatSpecification:
+) -> RKMETableSpecification:
     """
         Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification.
-        Return a RKMEStatSpecification object, use .save() method to save as json file.
+        Return a RKMETableSpecification object, use .save() method to save as json file.
 
     Parameters
     ----------
@@ -73,8 +73,8 @@ def generate_rkme_spec(
 
     Returns
     -------
-    RKMEStatSpecification
-        A RKMEStatSpecification object
+    RKMETableSpecification
+        A RKMETableSpecification object
     """
     # Convert data type
     X = convert_to_numpy(X)
@@ -94,7 +94,7 @@ def generate_rkme_spec(
             cuda_idx = 0
 
     # Generate rkme spec
-    rkme_spec = RKMEStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
+    rkme_spec = RKMETableSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
     return rkme_spec
 
@@ -109,10 +109,10 @@ def generate_rkme_image_spec(
     reduce: bool = True,
     verbose: bool = True,
     cuda_idx: int = None,
-) -> RKMEImageStatSpecification:
+) -> RKMEImageSpecification:
     """
         Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification for Image.
-        Return a RKMEImageStatSpecification object, use .save() method to save as json file.
+        Return a RKMEImageSpecification object, use .save() method to save as json file.
 
     Parameters
     ----------
@@ -144,8 +144,8 @@ def generate_rkme_image_spec(
 
     Returns
     -------
-    RKMEImageStatSpecification
-        A RKMEImageStatSpecification object
+    RKMEImageSpecification
+        A RKMEImageSpecification object
     """
 
     # Check cuda_idx
@@ -157,7 +157,7 @@ def generate_rkme_image_spec(
             cuda_idx = 0
 
     # Generate rkme spec
-    rkme_image_spec = RKMEImageStatSpecification(cuda_idx=cuda_idx)
+    rkme_image_spec = RKMEImageSpecification(cuda_idx=cuda_idx)
     rkme_image_spec.generate_stat_spec_from_data(
         X, reduced_set_size, step_size, steps, resize, nonnegative_beta, reduce, verbose
     )

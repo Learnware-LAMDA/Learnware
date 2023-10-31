@@ -47,7 +47,7 @@ includes the following four components:
 
 - ``learnware.yaml``
     
-    A configuration file that details your model's class name, the type of statistical specification(e.g. ``RKMEStatSpecification`` for Reduced Kernel Mean Embedding), and 
+    A configuration file that details your model's class name, the type of statistical specification(e.g. ``RKMETableSpecification`` for Reduced Kernel Mean Embedding), and 
     the file name of your statistical specification file.
 
 - ``environment.yaml`` or ``requirements.txt``
@@ -170,12 +170,12 @@ For example, the code below executes learnware search when using Reduced Set Ker
 
     import learnware.specification as specification
 
-    user_spec = specification.RKMEStatSpecification()
+    user_spec = specification.RKMETableSpecification()
 
     # unzip_path: directory for unzipped learnware zipfile
     user_spec.load(os.path.join(unzip_path, "rkme.json"))
     user_info = BaseUserInfo(
-        semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
+        semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec}
     )
     (sorted_score_list, single_learnware_list,
         mixture_score, mixture_learnware_list) = easy_market.search_learnware(user_info)

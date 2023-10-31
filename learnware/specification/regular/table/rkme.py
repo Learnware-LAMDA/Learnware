@@ -29,7 +29,7 @@ if not _FAISS_INSTALLED:
     logger.warning("Required faiss version >= 1.7.1 is not detected! Please run 'conda install -c pytorch faiss-cpu' first")
 
 
-class RKMEStatSpecification(RegularStatsSpecification):
+class RKMETableSpecification(RegularStatsSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification"""
 
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
@@ -50,7 +50,7 @@ class RKMEStatSpecification(RegularStatsSpecification):
         torch.cuda.empty_cache()
         self.device = choose_device(cuda_idx=cuda_idx)
         setup_seed(0)
-        super(RKMEStatSpecification, self).__init__(type=self.__class__.__name__)
+        super(RKMETableSpecification, self).__init__(type=self.__class__.__name__)
 
     def get_beta(self) -> np.ndarray:
         """Move beta(RKME weights) back to memory accessible to the CPU.
@@ -333,12 +333,12 @@ class RKMEStatSpecification(RegularStatsSpecification):
         else:
             logger.warning("Not enough candidates for herding!")
 
-    def inner_prod(self, Phi2: RKMEStatSpecification) -> float:
+    def inner_prod(self, Phi2: RKMETableSpecification) -> float:
         """Compute the inner product between two RKME specifications
 
         Parameters
         ----------
-        Phi2 : RKMEStatSpecification
+        Phi2 : RKMETableSpecification
             The other RKME specification.
 
         Returns
@@ -354,12 +354,12 @@ class RKMEStatSpecification(RegularStatsSpecification):
 
         return float(v)
 
-    def dist(self, Phi2: RKMEStatSpecification, omit_term1: bool = False) -> float:
+    def dist(self, Phi2: RKMETableSpecification, omit_term1: bool = False) -> float:
         """Compute the Maximum-Mean-Discrepancy(MMD) between two RKME specifications
 
         Parameters
         ----------
-        Phi2 : RKMEStatSpecification
+        Phi2 : RKMETableSpecification
             The other RKME specification.
         omit_term1 : bool, optional
             True if the inner product of self with itself can be omitted, by default False.
@@ -463,6 +463,11 @@ class RKMEStatSpecification(RegularStatsSpecification):
         else:
             return False
 
+class RKMEStatSpecification(RKMETableSpecification):
+    """nickname for RKMETableSpecification, for compatibility currently.
+    TODO: modify all learnware in database and remove this nickname
+    """
+    pass
 
 def setup_seed(seed):
     """Fix a random seed for addressing reproducibility issues.

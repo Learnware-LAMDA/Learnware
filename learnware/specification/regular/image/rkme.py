@@ -21,7 +21,7 @@ from ..base import BaseStatSpecification
 from ..table.rkme import solve_qp, choose_device, setup_seed
 
 
-class RKMEImageStatSpecification(BaseStatSpecification):
+class RKMEImageSpecification(BaseStatSpecification):
     # INNER_PRODUCT_COUNT = 0
     IMAGE_WIDTH = 32
 
@@ -49,7 +49,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         )
 
         setup_seed(0)
-        super(RKMEImageStatSpecification, self).__init__(type=self.__class__.__name__)
+        super(RKMEImageSpecification, self).__init__(type=self.__class__.__name__)
 
     def _generate_models(self, n_models: int, channel: int = 3, fixed_seed=None):
         model_class = functools.partial(_ConvNet_wide, channel=channel, **self.model_config)
@@ -98,12 +98,12 @@ class RKMEImageStatSpecification(BaseStatSpecification):
 
         """
         if (
-            X.shape[2] != RKMEImageStatSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageStatSpecification.IMAGE_WIDTH
+            X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH
         ) and not resize:
             raise ValueError(
                 "X should be in shape of [N, C, {0:d}, {0:d}]. "
                 "Or set resize=True and the image will be automatically resized to {0:d} x {0:d}.".format(
-                    RKMEImageStatSpecification.IMAGE_WIDTH
+                    RKMEImageSpecification.IMAGE_WIDTH
                 )
             )
 
@@ -121,9 +121,9 @@ class RKMEImageStatSpecification(BaseStatSpecification):
                     img_mean = torch.nanmean(img)
                     X[i] = torch.where(is_nan, img_mean, img)
 
-        if X.shape[2] != RKMEImageStatSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageStatSpecification.IMAGE_WIDTH:
+        if X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH:
             X = Resize(
-                (RKMEImageStatSpecification.IMAGE_WIDTH, RKMEImageStatSpecification.IMAGE_WIDTH), antialias=None
+                (RKMEImageSpecification.IMAGE_WIDTH, RKMEImageSpecification.IMAGE_WIDTH), antialias=None
             )(X)
 
         num_points = X.shape[0]
@@ -253,12 +253,12 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             Y_features = Y_features / torch.sqrt(torch.asarray(Y_features.shape[1], device=self.device))
             return X_features, Y_features
 
-    def inner_prod(self, Phi2: RKMEImageStatSpecification) -> float:
+    def inner_prod(self, Phi2: RKMEImageSpecification) -> float:
         """Compute the inner product between two RKME Image specifications
 
         Parameters
         ----------
-        Phi2 : RKMEImageStatSpecification
+        Phi2 : RKMEImageSpecification
             The other RKME Image specification.
 
         Returns
@@ -269,7 +269,7 @@ class RKMEImageStatSpecification(BaseStatSpecification):
         v = self._inner_prod_nngp(Phi2)
         return v
 
-    def _inner_prod_nngp(self, Phi2: RKMEImageStatSpecification) -> float:
+    def _inner_prod_nngp(self, Phi2: RKMEImageSpecification) -> float:
         beta_1 = self.beta.reshape(1, -1).detach().to(self.device)
         beta_2 = Phi2.beta.reshape(1, -1).detach().to(self.device)
 
@@ -283,15 +283,15 @@ class RKMEImageStatSpecification(BaseStatSpecification):
             K_zz = kernel_fn(Z1, Z2)
         v = torch.sum(K_zz * (beta_1.T @ beta_2)).item()
 
-        # RKMEImageStatSpecification.INNER_PRODUCT_COUNT += 1
+        # RKMEImageSpecification.INNER_PRODUCT_COUNT += 1
         return v
 
-    def dist(self, Phi2: RKMEImageStatSpecification, omit_term1: bool = False) -> float:
+    def dist(self, Phi2: RKMEImageSpecification, omit_term1: bool = False) -> float:
         """Compute the Maximum-Mean-Discrepancy(MMD) between two RKME Image specifications
 
         Parameters
         ----------
-        Phi2 : RKMEImageStatSpecification
+        Phi2 : RKMEImageSpecification
             The other RKME specification.
         omit_term1 : bool, optional
             True if the inner product of self with itself can be omitted, by default False.
