@@ -20,7 +20,7 @@ from ... import utils
 from ...config import C as conf
 from ...logger import get_module_logger
 from ...learnware import Learnware, get_learnware_from_dirpath
-from ...specification import RKMEStatSpecification, Specification
+from ...specification import Specification
 
 from ..base import BaseOrganizer, BaseChecker
 from ...logger import get_module_logger

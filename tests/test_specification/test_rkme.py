@@ -5,13 +5,13 @@ import unittest
 import tempfile
 import numpy as np
 
-import learnware
 from learnware.specification import RKMEStatSpecification, RKMEImageStatSpecification
 from learnware.specification import generate_rkme_image_spec, generate_rkme_spec
 
 
 class TestRKME(unittest.TestCase):
     def test_rkme(self):
+        pass
         X = np.random.uniform(-10000, 10000, size=(5000, 200))
         rkme = generate_rkme_spec(X)
         rkme.generate_stat_spec_from_data(X)
