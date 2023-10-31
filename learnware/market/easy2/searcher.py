@@ -631,14 +631,9 @@ class EasySearcher(BaseSearcher):
 
         if len(learnware_list) == 0:
             return [], [], 0.0, []
-<<<<<<< HEAD
-        elif "RKMEStatSpecification" in user_info.stat_info:
+        elif "RKMETableSpecification" in user_info.stat_info:
             return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
         elif "RKMETextStatSpecification" in user_info.stat_info:
             return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
-=======
-        elif "RKMETableSpecification" in user_info.stat_info:
-            return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
->>>>>>> b0aaae48e77fb5d49d2b7a1c31a2023580ea2115
         else:
             return None, learnware_list, 0.0, None

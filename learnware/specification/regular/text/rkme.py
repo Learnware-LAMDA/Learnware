@@ -1,10 +1,10 @@
 from sentence_transformers import SentenceTransformer
-from ..table import RKMEStatSpecification
+from ..table import RKMETableSpecification
 import numpy as np
 import os
 
 
-class RKMETextStatSpecification(RKMEStatSpecification):
+class RKMETextStatSpecification(RKMETableSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification for Text"""
 
     def generate_stat_spec_from_data(

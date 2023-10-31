@@ -8,8 +8,7 @@ import tempfile
 import numpy as np
 
 import learnware.specification as specification
-from learnware.specification import RKMEStatSpecification, RKMETextStatSpecification
-from learnware.specification import RKMETableSpecification, RKMEImageSpecification
+from learnware.specification import RKMETableSpecification, RKMEImageSpecification, RKMETextStatSpecification
 from learnware.specification import generate_rkme_image_spec, generate_rkme_spec
 
 
