@@ -14,7 +14,7 @@ from typing import Union, List
 from ..config import C
 from .. import learnware
 from .container import LearnwaresContainer
-from ..market.easy import EasyMarket
+from ..market import EasyMarket, EasySemanticChecker
 from ..logger import get_module_logger
 from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
@@ -405,48 +405,14 @@ class LearnwareClient:
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
-        try:
-            for key in ["Data", "Task", "Library"]:
-                value = semantic_spec[key]["Values"]
-                key_list = C["semantic_specs"][key]["Values"]
-                if len(value) != 1 or value[0] not in key_list:
-                    logger.error(f"{key} must be in {key_list}!")
-                    return False
-
-            scenarios = semantic_spec["Scenario"]["Values"]
-            assert len(scenarios) > 0, "Scenarios are not empty"
-            scenario_list = C["semantic_specs"]["Scenario"]["Values"]
-            for scenario in scenarios:
-                if scenario not in scenario_list:
-                    logger.error(f"Elements in scenario must be in {scenario_list}!")
-                    return False
-
-            if semantic_spec["Data"]["Values"][0] == "Table":
-                assert semantic_spec["Input"] is not None, "Lack of input semantics"
-                dim = semantic_spec["Input"]["Dimension"]
-                for k, v in semantic_spec["Input"]["Description"].items():
-                    assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
-                    assert isinstance(v, str), "Description must be string"
-
-            if semantic_spec["Task"]["Values"][0] in ["Classification", "Regression", "Feature Extraction"]:
-                assert semantic_spec["Output"] is not None, "Lack of output semantics"
-                dim = semantic_spec["Output"]["Dimension"]
-                for k, v in semantic_spec["Output"]["Description"].items():
-                    assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
-                    assert isinstance(v, str), "Description must be string"
-
-            return True
-
-        except Exception as err:
-            logger.error(f"semantic_specification is not valid due to {err}!")
-            return False
+        return EasySemanticChecker.check_semantic_spec(semantic_spec)
 
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
-        if semantic_specification is None:
-            semantic_specification = get_semantic_specification()
-        else:
-            LearnwareClient._check_semantic_specification(semantic_specification)
+        semantic_specification = (
+            get_semantic_specification() if semantic_specification is None else semantic_specification
+        )
+        LearnwareClient._check_semantic_specification(semantic_specification)
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(learnware_zip_path, mode="r") as z_file:
