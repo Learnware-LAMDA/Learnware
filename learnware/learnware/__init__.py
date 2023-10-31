@@ -37,7 +37,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
         "stat_specifications": [
             {
                 "module_path": "learnware.specification",
-                "class_name": "RKMEStatSpecification",
+                "class_name": "RKMETableSpecification",
                 "file_name": "stat_spec.json",
                 "kwargs": {},
             },

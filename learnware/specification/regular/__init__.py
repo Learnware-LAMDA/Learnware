@@ -1,1 +1,3 @@
-from .table import RKMEStatSpecification
+from .table import RKMETableSpecification, RKMEStatSpecification
+from .image import RKMEImageSpecification
+from .base import RegularStatsSpecification

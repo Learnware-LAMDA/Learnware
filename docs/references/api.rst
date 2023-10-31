@@ -50,7 +50,7 @@ Specification
 .. autoclass:: learnware.specification.BaseStatSpecification
     :members:
 
-.. autoclass:: learnware.specification.RKMEStatSpecification
+.. autoclass:: learnware.specification.RKMETableSpecification
     :members:
 
 Model
