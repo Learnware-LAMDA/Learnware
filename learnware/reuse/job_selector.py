@@ -98,8 +98,7 @@ class JobSelectorReuser(BaseReuser):
             if "RKMETextStatSpecification" in self.learnware_list[0].specification.stat_spec:
                 spec_name = "RKMETextStatSpecification"
             learnware_rkme_spec_list = [
-                learnware.specification.get_stat_spec_by_name(spec_name)
-                for learnware in self.learnware_list
+                learnware.specification.get_stat_spec_by_name(spec_name) for learnware in self.learnware_list
             ]
 
             if self.use_herding:
@@ -238,12 +237,7 @@ class JobSelectorReuser(BaseReuser):
         max_depth = [66]
         params = (0, 0)
 
-        lgb_params = {
-            "boosting_type": "gbdt",
-            "n_estimators": 2000,
-            "boost_from_average": False,
-            "verbose": -1
-        }
+        lgb_params = {"boosting_type": "gbdt", "n_estimators": 2000, "boost_from_average": False, "verbose": -1}
 
         if num_class == 2:
             lgb_params["objective"] = "binary"

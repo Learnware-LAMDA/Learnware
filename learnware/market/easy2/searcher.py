@@ -251,9 +251,7 @@ class EasyTableSearcher(BaseSearcher):
             The second is the mmd dist between the mixture of learnware rkmes and the user's rkme
         """
         learnware_num = len(learnware_list)
-        RKME_list = [
-            learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list
-        ]
+        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list]
 
         if type(intermediate_K) == np.ndarray:
             K = intermediate_K
@@ -320,9 +318,7 @@ class EasyTableSearcher(BaseSearcher):
             The second is the intermediate value of C
         """
         num = intermediate_K.shape[0] - 1
-        RKME_list = [
-            learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list
-        ]
+        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list]
         for i in range(intermediate_K.shape[0]):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
@@ -539,9 +535,7 @@ class EasyTableSearcher(BaseSearcher):
             the second is the list of Learnware
             both lists are sorted by mmd dist
         """
-        RKME_list = [
-            learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list
-        ]
+        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list]
         mmd_dist_list = []
         for RKME in RKME_list:
             mmd_dist = RKME.dist(user_rkme)

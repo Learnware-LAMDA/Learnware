@@ -52,7 +52,7 @@ semantic_specs = [
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
-        "Output": output_description
+        "Output": output_description,
     }
 ]
 
@@ -63,7 +63,7 @@ user_semantic = {
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
-    "Output": output_description
+    "Output": output_description,
 }
 
 
@@ -93,8 +93,8 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
     tmp_model_path = os.path.join(save_root, "model.pth")
     tmp_yaml_path = os.path.join(save_root, "learnware.yaml")
     tmp_init_path = os.path.join(save_root, "__init__.py")
-    
-    with open(data_path, 'rb') as f:
+
+    with open(data_path, "rb") as f:
         X = pickle.load(f)
     semantic_spec = semantic_specs[0]
 
@@ -159,9 +159,9 @@ def test_search(gamma=0.1, load_market=True):
     for i in range(n_users):
         user_data_path = os.path.join(user_save_root, "user_%d_X.pkl" % (i))
         user_label_path = os.path.join(user_save_root, "user_%d_y.pkl" % (i))
-        with open(user_data_path, 'rb') as f:
+        with open(user_data_path, "rb") as f:
             user_data = pickle.load(f)
-        with open(user_label_path, 'rb') as f:
+        with open(user_label_path, "rb") as f:
             user_label = pickle.load(f)
         # user_data = np.load(user_data_path)
         # user_label = np.load(user_label_path)
@@ -222,10 +222,12 @@ def test_search(gamma=0.1, load_market=True):
         % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
     )
     logger.info(
-        "Averaging Ensemble Reuse Performance: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
+        "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
+        % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
     )
     logger.info(
-        "Selective Ensemble Reuse Performance: %.3f +/- %.3f" % (np.mean(pruning_score_list), np.std(pruning_score_list))
+        "Selective Ensemble Reuse Performance: %.3f +/- %.3f"
+        % (np.mean(pruning_score_list), np.std(pruning_score_list))
     )
 
 

@@ -71,7 +71,7 @@ REQUIRED = [
     "docker>=6.1.3",
     "rapidfuzz>=3.4.0",
     "torchtext>=0.16.0",
-    "sentence_transformers>=2.2.2"
+    "sentence_transformers>=2.2.2",
 ]
 
 if get_platform() != MACOS:

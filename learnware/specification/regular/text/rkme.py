@@ -3,6 +3,7 @@ from ..table import RKMEStatSpecification
 import numpy as np
 import os
 
+
 class RKMETextStatSpecification(RKMEStatSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification for Text"""
 
@@ -32,13 +33,16 @@ class RKMETextStatSpecification(RKMEStatSpecification):
         reduce : bool, optional
             Whether shrink original data to a smaller set, by default True
         """
-        
+
         # Sentence embedding for Text
         X = self.get_sentence_embedding(X)
-        
+
         # Generate specification
         return super().generate_stat_spec_from_data(
-            X, K, step_size,steps,
+            X,
+            K,
+            step_size,
+            steps,
             nonnegative_beta,
             reduce,
         )

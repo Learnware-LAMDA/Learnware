@@ -16,7 +16,6 @@ from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
 
-
 class TextDataLoader:
     def __init__(self, data_root, train: bool = True):
         self.data_root = data_root
@@ -28,18 +27,18 @@ class TextDataLoader:
             y_path = os.path.join(self.data_root, "uploader", "uploader_%d_y.pkl" % (idx))
             if not (os.path.exists(X_path) and os.path.exists(y_path)):
                 raise Exception("Index Error")
-            with open(X_path, 'rb') as f:
+            with open(X_path, "rb") as f:
                 X = pickle.load(f)
-            with open(y_path, 'rb') as f:
+            with open(y_path, "rb") as f:
                 y = pickle.load(f)
         else:
             X_path = os.path.join(self.data_root, "user", "user_%d_X.pkl" % (idx))
             y_path = os.path.join(self.data_root, "user", "user_%d_y.pkl" % (idx))
             if not (os.path.exists(X_path) and os.path.exists(y_path)):
                 raise Exception("Index Error")
-            with open(X_path, 'rb') as f:
+            with open(X_path, "rb") as f:
                 X = pickle.load(f)
-            with open(y_path, 'rb') as f:
+            with open(y_path, "rb") as f:
                 y = pickle.load(f)
         return X, y
 
@@ -50,13 +49,13 @@ def generate_uploader(data_x, data_y, n_uploaders=50, data_save_root=None):
     os.makedirs(data_save_root, exist_ok=True)
     n = len(data_x)
     for i in range(n_uploaders):
-        selected_X = data_x[i * (n // n_uploaders): (i + 1) * (n // n_uploaders)]
-        selected_y = data_y[i * (n // n_uploaders): (i + 1) * (n // n_uploaders)]
+        selected_X = data_x[i * (n // n_uploaders) : (i + 1) * (n // n_uploaders)]
+        selected_y = data_y[i * (n // n_uploaders) : (i + 1) * (n // n_uploaders)]
         X_save_dir = os.path.join(data_save_root, "uploader_%d_X.pkl" % (i))
         y_save_dir = os.path.join(data_save_root, "uploader_%d_y.pkl" % (i))
-        with open(X_save_dir, 'wb') as f:
+        with open(X_save_dir, "wb") as f:
             pickle.dump(selected_X, f)
-        with open(y_save_dir, 'wb') as f:
+        with open(y_save_dir, "wb") as f:
             pickle.dump(selected_y, f)
         print("Saving to %s" % (X_save_dir))
 
@@ -67,13 +66,13 @@ def generate_user(data_x, data_y, n_users=50, data_save_root=None):
     os.makedirs(data_save_root, exist_ok=True)
     n = len(data_x)
     for i in range(n_users):
-        selected_X = data_x[i * (n // n_users): (i + 1) * (n // n_users)]
-        selected_y = data_y[i * (n // n_users): (i + 1) * (n // n_users)]
+        selected_X = data_x[i * (n // n_users) : (i + 1) * (n // n_users)]
+        selected_y = data_y[i * (n // n_users) : (i + 1) * (n // n_users)]
         X_save_dir = os.path.join(data_save_root, "user_%d_X.pkl" % (i))
         y_save_dir = os.path.join(data_save_root, "user_%d_y.pkl" % (i))
-        with open(X_save_dir, 'wb') as f:
+        with open(X_save_dir, "wb") as f:
             pickle.dump(selected_X, f)
-        with open(y_save_dir, 'wb') as f:
+        with open(y_save_dir, "wb") as f:
             pickle.dump(selected_y, f)
         print("Saving to %s" % (X_save_dir))
 
@@ -134,10 +133,12 @@ def evaluate(model, criteria, dev_dataloader):
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 # Train Uploaders' models
 def train(X, y, out_classes, epochs=35, batch_size=128):
     # print(X.shape, y.shape)
     from torchdata.datapipes.iter import IterableWrapper
+
     X = sentence_preprocess(X)
     data_size = len(X)
     train_datapipe = list(zip(X, y))
