@@ -76,9 +76,9 @@ class EasyStatisticalChecker(BaseChecker):
                 input_shape = learnware_model.input_shape
 
             # Check rkme dimension
-            is_text = "TextRKMEStatSpecification" in learnware.get_specification().stat_spec
+            is_text = "RKMETextStatSpecification" in learnware.get_specification().stat_spec
             if is_text:
-                stat_spec = learnware.get_specification().get_stat_spec_by_name("TextRKMEStatSpecification")
+                stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMETextStatSpecification")
             else:
                 stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMEStatSpecification")
             if stat_spec is not None and not is_text:

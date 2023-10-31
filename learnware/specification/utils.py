@@ -1,10 +1,10 @@
 import torch
 import numpy as np
 import pandas as pd
-from typing import Union
+from typing import Union, List
 
 from .base import BaseStatSpecification
-from .table import RKMEStatSpecification
+from .regular import RKMEStatSpecification, RKMETextStatSpecification
 from ..config import C
 
 
@@ -97,6 +97,63 @@ def generate_rkme_spec(
     rkme_spec = RKMEStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
     return rkme_spec
+
+
+def generate_rkme_text_spec(
+    X: List[str],
+    gamma: float = 0.1,
+    reduced_set_size: int = 100,
+    step_size: float = 0.1,
+    steps: int = 3,
+    nonnegative_beta: bool = True,
+    reduce: bool = True,
+    cuda_idx: int = None,
+) -> RKMETextStatSpecification:
+    """
+        Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification for Text.
+        Return a RKMETextStatSpecification object, use .save() method to save as json file.
+
+    Parameters
+    ----------
+    X : List[str]
+        Raw data of text.
+    gamma : float
+        Bandwidth in gaussian kernel, by default 0.1.
+    reduced_set_size : int
+        Size of the construced reduced set.
+    step_size : float
+        Step size for gradient descent in the iterative optimization.
+    steps : int
+        Total rounds in the iterative optimization.
+    nonnegative_beta : bool, optional
+        True if weights for the reduced set are intended to be kept non-negative, by default False.
+    reduce : bool, optional
+        Whether shrink original data to a smaller set, by default True
+    cuda_idx : int
+        A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
+        None indicates that CUDA is automatically selected.
+
+    Returns
+    -------
+    RKMETextStatSpecification
+        A RKMETextStatSpecification object
+    """
+    # Check input type
+    if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
+        raise TypeError("Input data must be a list of strings.")
+
+    # Check cuda_idx
+    if not torch.cuda.is_available() or cuda_idx == -1:
+        cuda_idx = -1
+    else:
+        num_cuda_devices = torch.cuda.device_count()
+        if cuda_idx is None or not (cuda_idx >= 0 and cuda_idx < num_cuda_devices):
+            cuda_idx = 0
+
+    # Generate rkme text spec
+    rkme_text_spec = RKMETextStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
+    rkme_text_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
+    return rkme_text_spec
 
 
 def generate_stat_spec(X: np.ndarray) -> BaseStatSpecification:

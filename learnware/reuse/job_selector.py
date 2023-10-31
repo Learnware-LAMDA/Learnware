@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 from learnware.learnware import Learnware
 import learnware.specification as specification
 from .base import BaseReuser
-from ..specification import RKMEStatSpecification, TextRKMEStatSpecification, sentence_embedding
+from ..specification import RKMEStatSpecification, RKMETextStatSpecification
 from ..logger import get_module_logger
 
 logger = get_module_logger("job_selector_reuse")
@@ -47,7 +47,7 @@ class JobSelectorReuser(BaseReuser):
         """
         ori_user_data = user_data
         if isinstance(user_data[0], str):
-            user_data = sentence_embedding(user_data)
+            user_data = RKMETextStatSpecification.get_sentence_embedding(user_data)
 
         select_result = self.job_selector(user_data)
         pred_y_list = []
@@ -93,10 +93,10 @@ class JobSelectorReuser(BaseReuser):
         else:
             ori_user_data = user_data
             if isinstance(user_data[0], str):
-                user_data = sentence_embedding(user_data)
+                user_data = RKMETextStatSpecification.get_sentence_embedding(user_data)
             spec_name = "RKMEStatSpecification"
-            if "TextRKMEStatSpecification" in self.learnware_list[0].specification.stat_spec:
-                spec_name = "TextRKMEStatSpecification"
+            if "RKMETextStatSpecification" in self.learnware_list[0].specification.stat_spec:
+                spec_name = "RKMETextStatSpecification"
             learnware_rkme_spec_list = [
                 learnware.specification.get_stat_spec_by_name(spec_name)
                 for learnware in self.learnware_list
@@ -181,7 +181,7 @@ class JobSelectorReuser(BaseReuser):
         """
         task_num = len(task_rkme_list)
         if isinstance(user_data[0], str):
-            user_data = sentence_embedding(user_data)
+            user_data = RKMETextStatSpecification.get_sentence_embedding(user_data)
         user_rkme_spec = specification.utils.generate_rkme_spec(X=user_data, reduce=False)
         K = task_rkme_matrix
         v = np.array([user_rkme_spec.inner_prod(task_rkme) for task_rkme in task_rkme_list])
