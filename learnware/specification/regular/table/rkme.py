@@ -429,11 +429,8 @@ class RKMETableSpecification(RegularStatsSpecification):
             rkme_to_save["beta"] = rkme_to_save["beta"].detach().cpu().numpy()
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
-        json.dump(
-            rkme_to_save,
-            codecs.open(save_path, "w", encoding="utf-8"),
-            separators=(",", ":"),
-        )
+        with codecs.open(save_path, "w", encoding="utf-8") as fout:
+            json.dump(rkme_to_save, fout, separators=(",", ":"))
 
     def load(self, filepath: str) -> bool:
         """Load a RKME specification file in JSON format from the specified path.
