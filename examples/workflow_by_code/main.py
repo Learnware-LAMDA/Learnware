@@ -148,9 +148,9 @@ class LearnwareMarketWorkflow:
             with zipfile.ZipFile(zip_path, "r") as zip_obj:
                 zip_obj.extractall(path=unzip_dir)
 
-            user_spec = specification.RKMEStatSpecification()
+            user_spec = specification.RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
-            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec})
+            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
             (
                 sorted_score_list,
                 single_learnware_list,
@@ -175,7 +175,7 @@ class LearnwareMarketWorkflow:
         _, data_X, _, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
 
         stat_spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
-        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": stat_spec})
+        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": stat_spec})
 
         _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)
 

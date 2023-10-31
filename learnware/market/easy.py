@@ -18,7 +18,7 @@ from .. import utils
 from ..config import C as conf
 from ..logger import get_module_logger
 from ..learnware import Learnware, get_learnware_from_dirpath
-from ..specification import RKMEStatSpecification, Specification
+from ..specification import RKMETableSpecification, Specification
 
 
 logger = get_module_logger("market", "INFO")
@@ -116,7 +116,7 @@ class EasyMarket(LearnwareMarket):
                 pass
 
             # check rkme dimension
-            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMEStatSpecification")
+            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMETableSpecification")
             if stat_spec is not None:
                 if stat_spec.get_z().shape[1:] != input_shape:
                     logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification")
@@ -296,7 +296,7 @@ class EasyMarket(LearnwareMarket):
     def _calculate_rkme_spec_mixture_weight(
         self,
         learnware_list: List[Learnware],
-        user_rkme: RKMEStatSpecification,
+        user_rkme: RKMETableSpecification,
         intermediate_K: np.ndarray = None,
         intermediate_C: np.ndarray = None,
     ) -> Tuple[List[float], float]:
@@ -306,7 +306,7 @@ class EasyMarket(LearnwareMarket):
         ----------
         learnware_list : List[Learnware]
             A list of existing learnwares
-        user_rkme : RKMEStatSpecification
+        user_rkme : RKMETableSpecification
             User RKME statistical specification
         intermediate_K : np.ndarray, optional
             Intermediate kernel matrix K, by default None
@@ -321,7 +321,7 @@ class EasyMarket(LearnwareMarket):
         """
         learnware_num = len(learnware_list)
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name("RKMETableSpecification") for learnware in learnware_list
         ]
 
         if type(intermediate_K) == np.ndarray:
@@ -365,7 +365,7 @@ class EasyMarket(LearnwareMarket):
     def _calculate_intermediate_K_and_C(
         self,
         learnware_list: List[Learnware],
-        user_rkme: RKMEStatSpecification,
+        user_rkme: RKMETableSpecification,
         intermediate_K: np.ndarray = None,
         intermediate_C: np.ndarray = None,
     ) -> Tuple[np.ndarray, np.ndarray]:
@@ -375,7 +375,7 @@ class EasyMarket(LearnwareMarket):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares up till now
-        user_rkme : RKMEStatSpecification
+        user_rkme : RKMETableSpecification
             User RKME statistical specification
         intermediate_K : np.ndarray, optional
             Intermediate kernel matrix K, by default None
@@ -390,7 +390,7 @@ class EasyMarket(LearnwareMarket):
         """
         num = intermediate_K.shape[0] - 1
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name("RKMETableSpecification") for learnware in learnware_list
         ]
         for i in range(intermediate_K.shape[0]):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
@@ -400,7 +400,7 @@ class EasyMarket(LearnwareMarket):
     def _search_by_rkme_spec_mixture_auto(
         self,
         learnware_list: List[Learnware],
-        user_rkme: RKMEStatSpecification,
+        user_rkme: RKMETableSpecification,
         max_search_num: int,
         weight_cutoff: float = 0.98,
     ) -> Tuple[float, List[float], List[Learnware]]:
@@ -410,7 +410,7 @@ class EasyMarket(LearnwareMarket):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : RKMEStatSpecification
+        user_rkme : RKMETableSpecification
             User RKME statistical specification
         max_search_num : int
             The maximum number of the returned learnwares
@@ -446,7 +446,7 @@ class EasyMarket(LearnwareMarket):
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
             mixture_weight = [1]
-            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name("RKMEStatSpecification"))
+            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name("RKMETableSpecification"))
         else:
             if len(mixture_list) > max_search_num:
                 mixture_list = mixture_list[:max_search_num]
@@ -488,7 +488,7 @@ class EasyMarket(LearnwareMarket):
         return sorted_score_list[:idx], learnware_list[:idx]
 
     def _filter_by_rkme_spec_dimension(
-        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification
+        self, learnware_list: List[Learnware], user_rkme: RKMETableSpecification
     ) -> List[Learnware]:
         """Filter learnwares whose rkme dimension different from user_rkme
 
@@ -496,7 +496,7 @@ class EasyMarket(LearnwareMarket):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : RKMEStatSpecification
+        user_rkme : RKMETableSpecification
             User RKME statistical specification
 
         Returns
@@ -508,7 +508,7 @@ class EasyMarket(LearnwareMarket):
         user_rkme_dim = str(list(user_rkme.get_z().shape)[1:])
 
         for learnware in learnware_list:
-            rkme = learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
+            rkme = learnware.specification.get_stat_spec_by_name("RKMETableSpecification")
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
                 filtered_learnware_list.append(learnware)
@@ -518,7 +518,7 @@ class EasyMarket(LearnwareMarket):
     def _search_by_rkme_spec_mixture_greedy(
         self,
         learnware_list: List[Learnware],
-        user_rkme: RKMEStatSpecification,
+        user_rkme: RKMETableSpecification,
         max_search_num: int,
         score_cutoff: float = 0.001,
     ) -> Tuple[float, List[float], List[Learnware]]:
@@ -528,7 +528,7 @@ class EasyMarket(LearnwareMarket):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : RKMEStatSpecification
+        user_rkme : RKMETableSpecification
             User RKME statistical specification
         max_search_num : int
             The maximum number of the returned learnwares
@@ -588,7 +588,7 @@ class EasyMarket(LearnwareMarket):
         return mmd_dist, weight_min, mixture_list
 
     def _search_by_rkme_spec_single(
-        self, learnware_list: List[Learnware], user_rkme: RKMEStatSpecification
+        self, learnware_list: List[Learnware], user_rkme: RKMETableSpecification
     ) -> Tuple[List[float], List[Learnware]]:
         """Calculate the distances between learnwares in the given learnware_list and user_rkme
 
@@ -596,7 +596,7 @@ class EasyMarket(LearnwareMarket):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : RKMEStatSpecification
+        user_rkme : RKMETableSpecification
             user RKME statistical specification
 
         Returns
@@ -607,7 +607,7 @@ class EasyMarket(LearnwareMarket):
             both lists are sorted by mmd dist
         """
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name("RKMETableSpecification") for learnware in learnware_list
         ]
         mmd_dist_list = []
         for RKME in RKME_list:
@@ -819,12 +819,12 @@ class EasyMarket(LearnwareMarket):
         # if len(learnware_list) == 0:
         learnware_list = self._search_by_semantic_spec_fuzz(learnware_list, user_info)
 
-        if "RKMEStatSpecification" not in user_info.stat_info:
+        if "RKMETableSpecification" not in user_info.stat_info:
             return None, learnware_list, 0.0, None
         elif len(learnware_list) == 0:
             return [], [], 0.0, []
         else:
-            user_rkme = user_info.stat_info["RKMEStatSpecification"]
+            user_rkme = user_info.stat_info["RKMETableSpecification"]
             learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
             logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 

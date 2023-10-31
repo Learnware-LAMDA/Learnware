@@ -94,7 +94,7 @@ guaranteeing the security and privacy of your local original data.
 ------------------
 
 Additionally, you are asked to prepare a configuration file in YAML format.
-The file should detail your model's class name, the type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMEStatSpecification``), and 
+The file should detail your model's class name, the type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMETableSpecification``), and 
 the file name of your statistical specification file. The following ``learnware.yaml`` provides an example of
 how your learnware configuration file should be structured, based on our previous discussion:
 
@@ -105,7 +105,7 @@ how your learnware configuration file should be structured, based on our previou
       kwargs: {}
     stat_specifications:
       - module_path: learnware.specification
-        class_name: RKMEStatSpecification
+        class_name: RKMETableSpecification
         file_name: stat.json
         kwargs: {}  
 
