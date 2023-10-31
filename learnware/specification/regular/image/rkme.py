@@ -17,11 +17,11 @@ from torchvision.transforms import Resize
 from tqdm import tqdm
 
 from . import cnn_gp
-from ..base import BaseStatSpecification
+from ..base import RegularStatsSpecification
 from ..table.rkme import solve_qp, choose_device, setup_seed
 
 
-class RKMEImageSpecification(BaseStatSpecification):
+class RKMEImageSpecification(RegularStatsSpecification):
     # INNER_PRODUCT_COUNT = 0
     IMAGE_WIDTH = 32
 

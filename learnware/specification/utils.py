@@ -98,6 +98,7 @@ def generate_rkme_spec(
     rkme_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
     return rkme_spec
 
+
 def generate_rkme_image_spec(
     X: Union[np.ndarray, torch.Tensor],
     reduced_set_size: int = 50,
@@ -162,6 +163,7 @@ def generate_rkme_image_spec(
     )
     return rkme_image_spec
 
+
 def generate_rkme_text_spec(
     X: List[str],
     gamma: float = 0.1,
@@ -217,8 +219,6 @@ def generate_rkme_text_spec(
     rkme_text_spec = RKMETextStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_text_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
     return rkme_text_spec
-
-
 
 
 def generate_stat_spec(X: np.ndarray) -> BaseStatSpecification:
