@@ -3,9 +3,8 @@ import numpy as np
 import pandas as pd
 from typing import Union
 
-from .image import RKMEImageStatSpecification
 from .base import BaseStatSpecification
-from .table import RKMEStatSpecification
+from .regular import RKMEStatSpecification, RKMEImageStatSpecification
 from ..config import C
 
 

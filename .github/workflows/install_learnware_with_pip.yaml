@@ -1,0 +1,54 @@
+name: Test leanrnware from pip
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    timeout-minutes: 120
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-20.04, ubuntu-22.04, macos-11, macos-latest]
+        python-version: [3.8, 3.9, 3.10]
+
+    steps:
+    - name: Test learnware from pip
+      uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+     - name: Add conda to system path
+      run: |
+        # $CONDA is an environment variable pointing to the root of the miniconda directory
+        echo $CONDA/bin >> $GITHUB_PATH
+    
+    - name: Create conda env for macos
+      run: |
+        conda create -n learnware python=${{ matrix.python-version }}
+        conda create activate learnware
+
+    - name: Update pip to the latest version
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pytest
+
+    - name: Install faiss for MacOS
+      if: ${{ matrix.os == 'macos-11' || matrix.os == 'macos-latest' }}
+      run: |
+        conda install -c pytorch faiss
+
+    - name: Install learnware
+      run: |
+        python -m pip install learnware
+
+    - name: Test workflow
+      run: |
+        pytest tests/test_workflow/test_workflow.py

@@ -122,7 +122,9 @@ class RKMEImageStatSpecification(BaseStatSpecification):
                     X[i] = torch.where(is_nan, img_mean, img)
 
         if X.shape[2] != RKMEImageStatSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageStatSpecification.IMAGE_WIDTH:
-            X = Resize((RKMEImageStatSpecification.IMAGE_WIDTH, RKMEImageStatSpecification.IMAGE_WIDTH), antialias=None)(X)
+            X = Resize(
+                (RKMEImageStatSpecification.IMAGE_WIDTH, RKMEImageStatSpecification.IMAGE_WIDTH), antialias=None
+            )(X)
 
         num_points = X.shape[0]
         X_shape = X.shape
