@@ -33,7 +33,7 @@ jobs:
     - name: Create conda env for macos
       run: |
         conda create -n learnware python=${{ matrix.python-version }}
-        conda create activate learnware
+        conda activate learnware
 
     - name: Update pip to the latest version
       run: |
