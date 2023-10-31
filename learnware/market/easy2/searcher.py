@@ -2,12 +2,12 @@ import torch
 import numpy as np
 from rapidfuzz import fuzz
 from cvxopt import solvers, matrix
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 from .organizer import EasyOrganizer
 from ..base import BaseUserInfo, BaseSearcher
 from ...learnware import Learnware
-from ...specification import RKMETableSpecification
+from ...specification import RKMETableSpecification, RKMEImageSpecification
 from ...logger import get_module_logger
 
 logger = get_module_logger("easy_seacher")
@@ -188,7 +188,7 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
         return final_result
 
 
-class EasyTableSearcher(BaseSearcher):
+class EasyStatSearcher(BaseSearcher):
     def _convert_dist_to_score(
         self, dist_list: List[float], dist_epsilon: float = 0.01, min_score: float = 0.92
     ) -> List[float]:
@@ -419,7 +419,7 @@ class EasyTableSearcher(BaseSearcher):
         return sorted_score_list[:idx], learnware_list[:idx]
 
     def _filter_by_rkme_spec_dimension(
-        self, learnware_list: List[Learnware], user_rkme: RKMETableSpecification
+        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification]
     ) -> List[Learnware]:
         """Filter learnwares whose rkme dimension different from user_rkme
 
@@ -427,7 +427,7 @@ class EasyTableSearcher(BaseSearcher):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : RKMETableSpecification
+        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification]
             User RKME statistical specification
 
         Returns
@@ -519,7 +519,7 @@ class EasyTableSearcher(BaseSearcher):
         return mmd_dist, weight_min, mixture_list
 
     def _search_by_rkme_spec_single(
-        self, learnware_list: List[Learnware], user_rkme: RKMETableSpecification
+        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification]
     ) -> Tuple[List[float], List[Learnware]]:
         """Calculate the distances between learnwares in the given learnware_list and user_rkme
 
@@ -527,7 +527,7 @@ class EasyTableSearcher(BaseSearcher):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : RKMETableSpecification
+        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification]
             user RKME statistical specification
 
         Returns
@@ -599,12 +599,12 @@ class EasySearcher(BaseSearcher):
     def __init__(self, organizer: EasyOrganizer = None):
         super(EasySearcher, self).__init__(organizer)
         self.semantic_searcher = EasyFuzzSemanticSearcher(organizer)
-        self.table_searcher = EasyTableSearcher(organizer)
+        self.stat_searcher = EasyStatSearcher(organizer)
 
     def reset(self, organizer):
         self.learnware_oganizer = organizer
         self.semantic_searcher.reset(organizer)
-        self.table_searcher.reset(organizer)
+        self.stat_searcher.reset(organizer)
 
     def __call__(
         self, user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy"
@@ -632,6 +632,6 @@ class EasySearcher(BaseSearcher):
         if len(learnware_list) == 0:
             return [], [], 0.0, []
         elif "RKMETableSpecification" in user_info.stat_info:
-            return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
+            return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
             return None, learnware_list, 0.0, None

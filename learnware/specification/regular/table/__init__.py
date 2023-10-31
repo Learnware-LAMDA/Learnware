@@ -1,1 +1,1 @@
-from .rkme import RKMETableSpecification
+from .rkme import RKMETableSpecification, RKMEStatSpecification

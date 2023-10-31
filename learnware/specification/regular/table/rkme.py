@@ -26,7 +26,9 @@ from ....logger import get_module_logger
 logger = get_module_logger("rkme")
 
 if not _FAISS_INSTALLED:
-    logger.warning("Required faiss version >= 1.7.1 is not detected! Please run 'conda install -c pytorch faiss-cpu' first")
+    logger.warning(
+        "Required faiss version >= 1.7.1 is not detected! Please run 'conda install -c pytorch faiss-cpu' first"
+    )
 
 
 class RKMETableSpecification(RegularStatsSpecification):
@@ -463,11 +465,14 @@ class RKMETableSpecification(RegularStatsSpecification):
         else:
             return False
 
+
 class RKMEStatSpecification(RKMETableSpecification):
     """nickname for RKMETableSpecification, for compatibility currently.
     TODO: modify all learnware in database and remove this nickname
     """
+
     pass
+
 
 def setup_seed(seed):
     """Fix a random seed for addressing reproducibility issues.

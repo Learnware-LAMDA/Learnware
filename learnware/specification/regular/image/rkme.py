@@ -122,9 +122,7 @@ class RKMEImageSpecification(BaseStatSpecification):
                     X[i] = torch.where(is_nan, img_mean, img)
 
         if X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH:
-            X = Resize(
-                (RKMEImageSpecification.IMAGE_WIDTH, RKMEImageSpecification.IMAGE_WIDTH), antialias=None
-            )(X)
+            X = Resize((RKMEImageSpecification.IMAGE_WIDTH, RKMEImageSpecification.IMAGE_WIDTH), antialias=None)(X)
 
         num_points = X.shape[0]
         X_shape = X.shape
@@ -343,11 +341,8 @@ class RKMEImageSpecification(BaseStatSpecification):
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
         rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
 
-        json.dump(
-            rkme_to_save,
-            codecs.open(save_path, "w", encoding="utf-8"),
-            separators=(",", ":"),
-        )
+        with codecs.open(save_path, "w", encoding="utf-8") as fout:
+            json.dump(rkme_to_save, fout, separators=(",", ":"))
 
     def load(self, filepath: str) -> bool:
         """Load a RKME Image specification file in JSON format from the specified path.
