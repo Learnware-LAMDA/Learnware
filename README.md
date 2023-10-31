@@ -80,7 +80,7 @@ is composed of the following four parts.
 
 - ``learnware.yaml``
     
-    A config file describing your model class name, type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMEStatSpecification``), and 
+    A config file describing your model class name, type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMETableSpecification``), and 
     the file name of your statistical specification file.
 
 - ``environment.yaml``
@@ -178,10 +178,10 @@ For example, the following code is designed to work with Reduced Set Kernel Embe
 ```python
 import learnware.specification as specification
 
-user_spec = specification.RKMEStatSpecification()
+user_spec = specification.RKMETableSpecification()
 user_spec.load(os.path.join(unzip_path, "rkme.json"))
 user_info = BaseUserInfo(
-    semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
+    semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec}
 )
 (sorted_score_list, single_learnware_list,
     mixture_score, mixture_learnware_list) = easy_market.search_learnware(user_info)

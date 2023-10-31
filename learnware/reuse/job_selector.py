@@ -9,7 +9,7 @@ from sklearn.metrics import accuracy_score
 from learnware.learnware import Learnware
 import learnware.specification as specification
 from .base import BaseReuser
-from ..specification import RKMEStatSpecification, RKMETextStatSpecification
+from ..specification import RKMETableSpecification, RKMETextStatSpecification
 from ..logger import get_module_logger
 
 logger = get_module_logger("job_selector_reuse")
@@ -165,7 +165,7 @@ class JobSelectorReuser(BaseReuser):
             return job_select_result
 
     def _calculate_rkme_spec_mixture_weight(
-        self, user_data: np.ndarray, task_rkme_list: List[RKMEStatSpecification], task_rkme_matrix: np.ndarray
+        self, user_data: np.ndarray, task_rkme_list: List[RKMETableSpecification], task_rkme_matrix: np.ndarray
     ) -> List[float]:
         """_summary_
 
@@ -173,7 +173,7 @@ class JobSelectorReuser(BaseReuser):
         ----------
         user_data : np.ndarray
             Raw user data.
-        task_rkme_list : List[RKMEStatSpecification]
+        task_rkme_list : List[RKMETableSpecification]
             The list of learwares' rkmes whose mixture approximates the user's rkme
         task_rkme_matrix : np.ndarray
             Inner product matrix calculated from task_rkme_list.

@@ -142,7 +142,7 @@ class PFSDatasetWorkflow:
             user_spec_path = f"./user_spec/user_{idx}.json"
             user_spec.save(user_spec_path)
 
-            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec})
+            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
             (
                 sorted_score_list,
                 single_learnware_list,
