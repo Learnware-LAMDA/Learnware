@@ -70,7 +70,10 @@ REQUIRED = [
     "geatpy>=2.7.0",
     "docker>=6.1.3",
     "rapidfuzz>=3.4.0",
+    "torchtext>=0.16.0",
+    "sentence_transformers>=2.2.2",
     "torch-optimizer>=0.3.0",
+    "langdetect>=1.0.9",
 ]
 
 if get_platform() != MACOS:

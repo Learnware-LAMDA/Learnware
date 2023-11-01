@@ -1,6 +1,8 @@
 import traceback
 import numpy as np
 import torch
+import random
+import string
 
 from ..base import BaseChecker
 from ...config import C
@@ -73,7 +75,6 @@ class EasyStatisticalChecker(BaseChecker):
 
         try:
             learnware_model = learnware.get_model()
-
             # Check input shape
             if semantic_spec["Data"]["Values"][0] == "Table":
                 input_shape = (semantic_spec["Input"]["Dimension"],)
@@ -81,15 +82,36 @@ class EasyStatisticalChecker(BaseChecker):
                 input_shape = learnware_model.input_shape
 
             # Check rkme dimension
-            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMETableSpecification")
-            if stat_spec is not None:
+            is_text = "RKMETextSpecification" in learnware.get_specification().stat_spec
+            if is_text:
+                stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMETextSpecification")
+            else:
+                stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMETableSpecification")
+            if stat_spec is not None and not is_text:
                 if stat_spec.get_z().shape[1:] != input_shape:
                     logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification.")
                     return self.INVALID_LEARNWARE
-
-            inputs = np.random.randn(10, *input_shape)
+            
+            def generate_random_text_list(num, text_type="en", min_len=10, max_len=1000):
+                text_list = []
+                for i in range(num):
+                    length = random.randint(min_len, max_len)
+                    if text_type == "en":
+                        characters = string.ascii_letters + string.digits + string.punctuation
+                        result_str = "".join(random.choice(characters) for i in range(length))
+                        text_list.append(result_str)
+                    elif text_type == "zh":
+                        result_str = "".join(chr(random.randint(0x4E00, 0x9FFF)) for i in range(length))
+                        text_list.append(result_str)
+                    else:
+                        raise ValueError("Type should be en or zh")
+                return text_list
+            
+            if is_text:
+                inputs = generate_random_text_list(10)
+            else:
+                inputs = np.random.randn(10, *input_shape)
             outputs = learnware.predict(inputs)
-
             # Check output
             if outputs.ndim == 1:
                 outputs = outputs.reshape(-1, 1)
