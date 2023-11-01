@@ -95,7 +95,7 @@ class JobSelectorReuser(BaseReuser):
             if isinstance(user_data[0], str):
                 user_data = RKMETextStatSpecification.get_sentence_embedding(user_data)
             spec_name = "RKMETableSpecification"
-            if "RKMETextStatSpecification" in self.learnware_list[0].specification.stat_spec:
+            if len(self.learnware_list) and "RKMETextStatSpecification" in self.learnware_list[0].specification.stat_spec:
                 spec_name = "RKMETextStatSpecification"
             learnware_rkme_spec_list = [
                 learnware.specification.get_stat_spec_by_name(spec_name) for learnware in self.learnware_list

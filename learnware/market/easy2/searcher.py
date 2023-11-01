@@ -438,6 +438,9 @@ class EasyStatSearcher(BaseSearcher):
             if self.stat_info_name not in learnware.specification.stat_spec:
                 continue
             rkme = learnware.specification.get_stat_spec_by_name(self.stat_info_name)
+            if self.stat_info_name == "RKMETextStatSpecification":
+                if not set(user_rkme.language).issubset(set(rkme.language)):
+                    continue
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
                 filtered_learnware_list.append(learnware)
@@ -632,8 +635,8 @@ class EasySearcher(BaseSearcher):
         if len(learnware_list) == 0:
             return [], [], 0.0, []
         elif "RKMETableSpecification" in user_info.stat_info:
-            return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
+            return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         elif "RKMETextStatSpecification" in user_info.stat_info:
-            return self.table_searcher(learnware_list, user_info, max_search_num, search_method)
+            return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
             return None, learnware_list, 0.0, None
