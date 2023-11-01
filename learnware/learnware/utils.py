@@ -47,4 +47,4 @@ def get_stat_spec_from_config(stat_spec: dict) -> BaseStatSpecification:
     if stat_spec_inst.load(stat_spec["file_name"]) is False:
         raise ValueError("Load statistic specification failed!")
 
-    return stat_spec["class_name"], stat_spec_inst
+    return stat_spec_inst.type, stat_spec_inst

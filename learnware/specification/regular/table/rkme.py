@@ -468,7 +468,9 @@ class RKMEStatSpecification(RKMETableSpecification):
     TODO: modify all learnware in database and remove this nickname
     """
 
-    pass
+    def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
+        super(RKMEStatSpecification, self).__init__(gamma=gamma, cuda_idx=cuda_idx)
+        super(RKMETableSpecification, self).__init__(type=RKMETableSpecification.__name__)
 
 
 def setup_seed(seed):
