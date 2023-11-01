@@ -83,7 +83,7 @@ class Specification:
         or use class name as default name
         """
         for _v in args:
-            self.stat_spec[_v.__class__.__name__] = _v
+            self.stat_spec[_v.type] = _v
 
         for _k, _v in kwargs.items():
             self.stat_spec[_k] = _v
