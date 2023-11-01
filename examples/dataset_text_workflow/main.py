@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from get_data import *
+from get_data import get_sst2
 import os
 import random
 from utils import generate_uploader, generate_user, TextDataLoader, train, eval_prediction
