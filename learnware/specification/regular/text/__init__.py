@@ -1,1 +1,1 @@
-from .rkme import RKMETextStatSpecification
+from .rkme import RKMETextSpecification

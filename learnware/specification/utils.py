@@ -4,7 +4,7 @@ import pandas as pd
 from typing import Union, List
 
 from .base import BaseStatSpecification
-from .regular import RKMETableSpecification, RKMEImageSpecification, RKMETextStatSpecification
+from .regular import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
 from ..config import C
 
 
@@ -173,10 +173,10 @@ def generate_rkme_text_spec(
     nonnegative_beta: bool = True,
     reduce: bool = True,
     cuda_idx: int = None,
-) -> RKMETextStatSpecification:
+) -> RKMETextSpecification:
     """
         Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification for Text.
-        Return a RKMETextStatSpecification object, use .save() method to save as json file.
+        Return a RKMETextSpecification object, use .save() method to save as json file.
 
     Parameters
     ----------
@@ -200,8 +200,8 @@ def generate_rkme_text_spec(
 
     Returns
     -------
-    RKMETextStatSpecification
-        A RKMETextStatSpecification object
+    RKMETextSpecification
+        A RKMETextSpecification object
     """
     # Check input type
     if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
@@ -216,7 +216,7 @@ def generate_rkme_text_spec(
             cuda_idx = 0
 
     # Generate rkme text spec
-    rkme_text_spec = RKMETextStatSpecification(gamma=gamma, cuda_idx=cuda_idx)
+    rkme_text_spec = RKMETextSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_text_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
     return rkme_text_spec
 

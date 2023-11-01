@@ -5,10 +5,10 @@ import os
 import langdetect
 from ....logger import get_module_logger
 
-logger = get_module_logger("RKMETextStatSpecification", "INFO")
+logger = get_module_logger("RKMETextSpecification", "INFO")
 
 
-class RKMETextStatSpecification(RKMETableSpecification):
+class RKMETextSpecification(RKMETableSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification for Text"""
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
         RKMETableSpecification.__init__(self, gamma, cuda_idx)

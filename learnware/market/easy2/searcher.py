@@ -438,7 +438,7 @@ class EasyStatSearcher(BaseSearcher):
             if self.stat_info_name not in learnware.specification.stat_spec:
                 continue
             rkme = learnware.specification.get_stat_spec_by_name(self.stat_info_name)
-            if self.stat_info_name == "RKMETextStatSpecification":
+            if self.stat_info_name == "RKMETextSpecification":
                 if not set(user_rkme.language).issubset(set(rkme.language)):
                     continue
             rkme_dim = str(list(rkme.get_z().shape)[1:])
@@ -557,8 +557,8 @@ class EasyStatSearcher(BaseSearcher):
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
-        if "RKMETextStatSpecification" in user_info.stat_info:
-            self.stat_info_name = "RKMETextStatSpecification"
+        if "RKMETextSpecification" in user_info.stat_info:
+            self.stat_info_name = "RKMETextSpecification"
         else:
             self.stat_info_name = "RKMETableSpecification"
         user_rkme = user_info.stat_info[self.stat_info_name]
@@ -636,7 +636,7 @@ class EasySearcher(BaseSearcher):
             return [], [], 0.0, []
         elif "RKMETableSpecification" in user_info.stat_info:
             return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
-        elif "RKMETextStatSpecification" in user_info.stat_info:
+        elif "RKMETextSpecification" in user_info.stat_info:
             return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
             return None, learnware_list, 0.0, None

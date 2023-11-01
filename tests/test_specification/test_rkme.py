@@ -8,7 +8,7 @@ import tempfile
 import numpy as np
 
 import learnware.specification as specification
-from learnware.specification import RKMETableSpecification, RKMEImageSpecification, RKMETextStatSpecification
+from learnware.specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
 from learnware.specification import generate_rkme_image_spec, generate_rkme_spec
 
 
@@ -79,11 +79,11 @@ class TestRKME(unittest.TestCase):
 
                 with open(rkme_path, "r") as f:
                     data = json.load(f)
-                    assert data["type"] == "RKMETextStatSpecification"
+                    assert data["type"] == "RKMETextSpecification"
 
-                rkme2 = RKMETextStatSpecification()
+                rkme2 = RKMETextSpecification()
                 rkme2.load(rkme_path)
-                assert rkme2.type == "RKMETextStatSpecification"
+                assert rkme2.type == "RKMETextSpecification"
 
                 return rkme2.get_z().shape[1]
 
