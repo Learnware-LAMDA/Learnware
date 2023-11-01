@@ -7,7 +7,7 @@ from typing import Tuple, List, Union
 from .organizer import EasyOrganizer
 from ..base import BaseUserInfo, BaseSearcher
 from ...learnware import Learnware
-from ...specification import RKMETableSpecification, RKMEImageSpecification
+from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
 from ...logger import get_module_logger
 
 logger = get_module_logger("easy_seacher")
@@ -415,7 +415,7 @@ class EasyStatSearcher(BaseSearcher):
         return sorted_score_list[:idx], learnware_list[:idx]
 
     def _filter_by_rkme_spec_dimension(
-        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification]
+        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
     ) -> List[Learnware]:
         """Filter learnwares whose rkme dimension different from user_rkme
 
@@ -423,7 +423,7 @@ class EasyStatSearcher(BaseSearcher):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification]
+        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
             User RKME statistical specification
 
         Returns
@@ -520,7 +520,7 @@ class EasyStatSearcher(BaseSearcher):
         return mmd_dist, weight_min, mixture_list
 
     def _search_by_rkme_spec_single(
-        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification]
+        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
     ) -> Tuple[List[float], List[Learnware]]:
         """Calculate the distances between learnwares in the given learnware_list and user_rkme
 
@@ -528,7 +528,7 @@ class EasyStatSearcher(BaseSearcher):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification]
+        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
             user RKME statistical specification
 
         Returns
