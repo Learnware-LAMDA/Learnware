@@ -116,7 +116,7 @@ class EasyMarket(LearnwareMarket):
                 pass
 
             # check rkme dimension
-            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMETableSpecification")
+            stat_spec = learnware.get_specification().get_stat_spec_by_name("RKMEStatSpecification")
             if stat_spec is not None:
                 if stat_spec.get_z().shape[1:] != input_shape:
                     logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification")
@@ -446,7 +446,7 @@ class EasyMarket(LearnwareMarket):
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
             mixture_weight = [1]
-            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name("RKMETableSpecification"))
+            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name("RKMEStatSpecification"))
         else:
             if len(mixture_list) > max_search_num:
                 mixture_list = mixture_list[:max_search_num]
