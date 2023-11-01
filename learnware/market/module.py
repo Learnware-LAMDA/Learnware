@@ -10,7 +10,7 @@ MARKET_CONFIG = {
 }
 
 
-def instatiate_learnware_market(market_id, name="easy", **kwargs):
+def instatiate_learnware_market(market_id="default", name="easy", **kwargs):
     return LearnwareMarket(
         market_id=market_id,
         organizer=MARKET_CONFIG[name]["organizer"],

@@ -1,7 +1,7 @@
+from __future__ import annotations
+
 import zipfile
 import tempfile
-
-
 from typing import Tuple, Any, List, Union
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..logger import get_module_logger
@@ -47,10 +47,10 @@ class LearnwareMarket:
 
     def __init__(
         self,
-        market_id: str = None,
-        organizer: "BaseOrganizer" = None,
-        searcher: "BaseSearcher" = None,
-        checker_list: List["BaseChecker"] = None,
+        market_id: str = "default",
+        organizer: BaseOrganizer = None,
+        searcher: BaseSearcher = None,
+        checker_list: List[BaseChecker] = None,
         rebuild=False,
     ):
         self.market_id = market_id
