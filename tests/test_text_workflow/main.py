@@ -234,4 +234,4 @@ def test_search(gamma=0.1, load_market=True):
 if __name__ == "__main__":
     # prepare_data()
     # prepare_model()
-    test_search(load_market=False)
+    test_search(load_market=True)

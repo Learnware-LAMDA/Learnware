@@ -12,8 +12,8 @@ logger = get_module_logger("easy_checker", "INFO")
 
 
 class EasySemanticChecker(BaseChecker):
-    def __call__(self, learnware):
-        semantic_spec = learnware.get_specification().get_semantic_spec()
+    @staticmethod
+    def check_semantic_spec(semantic_spec):
         try:
             for key in C["semantic_specs"]:
                 value = semantic_spec[key]["Values"]
@@ -49,11 +49,15 @@ class EasySemanticChecker(BaseChecker):
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
 
-            return self.NONUSABLE_LEARNWARE
+            return EasySemanticChecker.NONUSABLE_LEARNWARE
 
         except Exception as err:
             logger.warning(f"semantic_specification is not valid due to {err}!")
-            return self.INVALID_LEARNWARE
+            return EasySemanticChecker.INVALID_LEARNWARE
+
+    def __call__(self, learnware):
+        semantic_spec = learnware.get_specification().get_semantic_spec()
+        return self.check_semantic_spec(semantic_spec)
 
 
 class EasyStatisticalChecker(BaseChecker):
