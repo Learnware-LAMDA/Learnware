@@ -1,6 +1,8 @@
 import traceback
 import numpy as np
 import torch
+import random
+import string
 
 from ..base import BaseChecker
 from ...config import C
@@ -85,13 +87,27 @@ class EasyStatisticalChecker(BaseChecker):
                 if stat_spec.get_z().shape[1:] != input_shape:
                     logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification.")
                     return self.INVALID_LEARNWARE
-
+            
+            def generate_random_text_list(num, text_type="en", min_len=10, max_len=1000):
+                text_list = []
+                for i in range(num):
+                    length = random.randint(min_len, max_len)
+                    if text_type == "en":
+                        characters = string.ascii_letters + string.digits + string.punctuation
+                        result_str = "".join(random.choice(characters) for i in range(length))
+                        text_list.append(result_str)
+                    elif text_type == "zh":
+                        result_str = "".join(chr(random.randint(0x4E00, 0x9FFF)) for i in range(length))
+                        text_list.append(result_str)
+                    else:
+                        raise ValueError("Type should be en or zh")
+                return text_list
+            
             if is_text:
-                inputs = ["This is an example sentence"]
+                inputs = generate_random_text_list(10)
             else:
                 inputs = np.random.randn(10, *input_shape)
             outputs = learnware.predict(inputs)
-
             # Check output
             if outputs.ndim == 1:
                 outputs = outputs.reshape(-1, 1)
