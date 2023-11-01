@@ -817,7 +817,9 @@ class EasyMarket(LearnwareMarket):
         learnware_list = [self.learnware_list[key] for key in self.learnware_list]
         # learnware_list = self._search_by_semantic_spec_exact(learnware_list, user_info)
         # if len(learnware_list) == 0:
+        logger.info(f"stat_info in user_info: {user_info.stat_info}")
         learnware_list = self._search_by_semantic_spec_fuzz(learnware_list, user_info)
+        logger.info(f"Number of learnwares after semantic fuzzy search: {len(learnware_list)}")
 
         if "RKMETableSpecification" not in user_info.stat_info:
             return None, learnware_list, 0.0, None
