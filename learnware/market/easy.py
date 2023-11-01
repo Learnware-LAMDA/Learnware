@@ -321,7 +321,7 @@ class EasyMarket(LearnwareMarket):
         """
         learnware_num = len(learnware_list)
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMETableSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
         ]
 
         if type(intermediate_K) == np.ndarray:
@@ -390,7 +390,7 @@ class EasyMarket(LearnwareMarket):
         """
         num = intermediate_K.shape[0] - 1
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMETableSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
         ]
         for i in range(intermediate_K.shape[0]):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
@@ -508,7 +508,7 @@ class EasyMarket(LearnwareMarket):
         user_rkme_dim = str(list(user_rkme.get_z().shape)[1:])
 
         for learnware in learnware_list:
-            rkme = learnware.specification.get_stat_spec_by_name("RKMETableSpecification")
+            rkme = learnware.specification.get_stat_spec_by_name("RKMEStatSpecification")
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
                 filtered_learnware_list.append(learnware)
@@ -607,7 +607,7 @@ class EasyMarket(LearnwareMarket):
             both lists are sorted by mmd dist
         """
         RKME_list = [
-            learnware.specification.get_stat_spec_by_name("RKMETableSpecification") for learnware in learnware_list
+            learnware.specification.get_stat_spec_by_name("RKMEStatSpecification") for learnware in learnware_list
         ]
         mmd_dist_list = []
         for RKME in RKME_list:
