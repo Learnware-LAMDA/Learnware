@@ -73,10 +73,10 @@ For example, the following code is designed to work with Reduced Kernel Mean Emb
 
     import learnware.specification as specification
 
-    user_spec = specification.RKMEStatSpecification()
+    user_spec = specification.RKMETableSpecification()
     user_spec.load(os.path.join("rkme.json"))
     user_info = BaseUserInfo(
-        semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_spec}
+        semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec}
     )
     (sorted_score_list, single_learnware_list,
         mixture_score, mixture_learnware_list) = easy_market.search_learnware(user_info)

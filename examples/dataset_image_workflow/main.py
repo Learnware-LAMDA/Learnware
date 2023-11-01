@@ -1,11 +1,15 @@
 import numpy as np
 import torch
+from tqdm import tqdm
+
 from get_data import *
 import os
 import random
+
+from learnware.specification.image import RKMEImageSpecification
+from learnware.reuse.averaging import AveragingReuser
 from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
 from learnware.learnware import Learnware
-from learnware.reuse import JobSelectorReuser, AveragingReuser
 import time
 
 from learnware.market import EasyMarket, BaseUserInfo
@@ -23,7 +27,7 @@ processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
 dataset = "cifar10"
-n_uploaders = 50
+n_uploaders = 30
 n_users = 20
 n_classes = 10
 data_root = os.path.join(origin_data_root, dataset)
@@ -45,6 +49,7 @@ semantic_specs = [
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
+        "Output": {"Dimension": 10},
     }
 ]
 
@@ -88,9 +93,15 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
     tmp_init_path = os.path.join(save_root, "__init__.py")
     tmp_model_file_path = os.path.join(save_root, "model.py")
     mmodel_file_path = "./example_files/model.py"
+
+    # Computing the specification from the whole dataset is too costly.
     X = np.load(data_path)
+    indices = np.random.choice(len(X), size=2000, replace=False)
+    X_sampled = X[indices]
+
     st = time.time()
-    user_spec = specification.utils.generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
+    user_spec = RKMEImageSpecification(cuda_idx=0)
+    user_spec.generate_stat_spec_from_data(X=X_sampled)
     ed = time.time()
     logger.info("Stat spec generated in %.3f s" % (ed - st))
     user_spec.save(tmp_spec_path)
@@ -117,7 +128,7 @@ def prepare_market():
     except:
         pass
     os.makedirs(learnware_pool_dir, exist_ok=True)
-    for i in range(n_uploaders):
+    for i in tqdm(range(n_uploaders), total=n_uploaders, desc="Preparing..."):
         data_path = os.path.join(uploader_save_root, "uploader_%d_X.npy" % (i))
         model_path = os.path.join(model_save_root, "uploader_%d.pth" % (i))
         init_file_path = "./example_files/example_init.py"
@@ -148,40 +159,38 @@ def test_search(gamma=0.1, load_market=True):
     improve_list = []
     job_selector_score_list = []
     ensemble_score_list = []
-    for i in range(n_users):
+    for i in tqdm(range(n_users), total=n_users, desc="Searching..."):
         user_data_path = os.path.join(user_save_root, "user_%d_X.npy" % (i))
         user_label_path = os.path.join(user_save_root, "user_%d_y.npy" % (i))
         user_data = np.load(user_data_path)
         user_label = np.load(user_label_path)
-        user_stat_spec = specification.utils.generate_rkme_spec(X=user_data, gamma=gamma, cuda_idx=0)
-        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMEStatSpecification": user_stat_spec})
-        logger.info("Searching Market for user: %d" % (i))
+        user_stat_spec = RKMEImageSpecification(cuda_idx=0)
+        user_stat_spec.generate_stat_spec_from_data(X=user_data, resize=False)
+        user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_stat_spec})
+        logger.info("Searching Market for user: %d" % i)
         sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
             user_info
         )
-        l = len(sorted_score_list)
         acc_list = []
-        for idx in range(l):
-            learnware = single_learnware_list[idx]
-            score = sorted_score_list[idx]
+        for idx, (score, learnware) in enumerate(zip(sorted_score_list[:5], single_learnware_list[:5])):
             pred_y = learnware.predict(user_data)
             acc = eval_prediction(pred_y, user_label)
             acc_list.append(acc)
-            logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
+            logger.info("Search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
 
         # test reuse (job selector)
-        reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
-        reuse_predict = reuse_baseline.predict(user_data=user_data)
-        reuse_score = eval_prediction(reuse_predict, user_label)
-        job_selector_score_list.append(reuse_score)
-        print(f"mixture reuse loss: {reuse_score}")
+        # reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
+        # reuse_predict = reuse_baseline.predict(user_data=user_data)
+        # reuse_score = eval_prediction(reuse_predict, user_label)
+        # job_selector_score_list.append(reuse_score)
+        # print(f"mixture reuse loss: {reuse_score}")
 
         # test reuse (ensemble)
-        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
+        reuse_ensemble = AveragingReuser(learnware_list=single_learnware_list[:3], mode="vote_by_prob")
         ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
         ensemble_score = eval_prediction(ensemble_predict_y, user_label)
         ensemble_score_list.append(ensemble_score)
-        print(f"mixture reuse accuracy (ensemble): {ensemble_score}\n")
+        print(f"reuse accuracy (vote_by_prob): {ensemble_score}\n")
 
         select_list.append(acc_list[0])
         avg_list.append(np.mean(acc_list))
@@ -191,17 +200,17 @@ def test_search(gamma=0.1, load_market=True):
         "Accuracy of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f"
         % (np.mean(select_list), np.std(select_list), np.mean(avg_list), np.std(avg_list))
     )
-    logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
-    logger.info(
-        "Average Job Selector Reuse Performance: %.3f +/- %.3f"
-        % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
-    )
     logger.info(
         "Ensemble Reuse Performance: %.3f +/- %.3f" % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
     )
 
 
 if __name__ == "__main__":
+    logger.info("=" * 40)
+    logger.info(f"n_uploaders:\t{n_uploaders}")
+    logger.info(f"n_users:\t{n_users}")
+    logger.info("=" * 40)
+
     prepare_data()
     prepare_model()
     test_search(load_market=False)
