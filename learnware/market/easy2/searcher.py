@@ -415,12 +415,12 @@ class EasyStatSearcher(BaseSearcher):
             idx = idx + 1
         return sorted_score_list[:idx], learnware_list[:idx]
 
-    def _filter_by_rkme_spec_dim(
+    def _filter_by_rkme_spec_metadata(
         self,
         learnware_list: List[Learnware],
         user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification],
     ) -> List[Learnware]:
-        """Filter learnwares whose rkme dimention different from user_rkme
+        """Filter learnwares whose rkme metadata different from user_rkme
 
         Parameters
         ----------
@@ -569,7 +569,7 @@ class EasyStatSearcher(BaseSearcher):
             raise KeyError("No supported stat specification is given in the user info")
 
         user_rkme = user_info.stat_info[self.stat_spec_type]
-        learnware_list = self._filter_by_rkme_spec_dim(learnware_list, user_rkme)
+        learnware_list = self._filter_by_rkme_spec_metadata(learnware_list, user_rkme)
         logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
         sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
