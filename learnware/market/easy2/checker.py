@@ -91,7 +91,7 @@ class EasyStatisticalChecker(BaseChecker):
                 if stat_spec.get_z().shape[1:] != input_shape:
                     logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification.")
                     return self.INVALID_LEARNWARE
-            
+
             def generate_random_text_list(num, text_type="en", min_len=10, max_len=1000):
                 text_list = []
                 for i in range(num):
@@ -106,7 +106,7 @@ class EasyStatisticalChecker(BaseChecker):
                     else:
                         raise ValueError("Type should be en or zh")
                 return text_list
-            
+
             if is_text:
                 inputs = generate_random_text_list(10)
             else:
