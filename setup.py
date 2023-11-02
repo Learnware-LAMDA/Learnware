@@ -74,6 +74,8 @@ REQUIRED = [
     "sentence_transformers>=2.2.2",
     "torch-optimizer>=0.3.0",
     "langdetect>=1.0.9",
+    "huggingface-hub<0.18",
+    "portalocker>=2.0.0",
 ]
 
 if get_platform() != MACOS:
