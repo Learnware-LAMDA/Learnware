@@ -441,9 +441,11 @@ class EasyStatSearcher(BaseSearcher):
             if self.stat_spec_type not in learnware.specification.stat_spec:
                 continue
             rkme = learnware.specification.get_stat_spec_by_name(self.stat_spec_type)
-            if self.stat_spec_type == "RKMETextSpecification" and not set(user_rkme.language).issubset(set(rkme.language)):
+            if self.stat_spec_type == "RKMETextSpecification" and not set(user_rkme.language).issubset(
+                set(rkme.language)
+            ):
                 continue
-            
+
             # TODO: must we check dim for Text and Image specification?
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
@@ -563,7 +565,6 @@ class EasyStatSearcher(BaseSearcher):
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
-        
         self.stat_spec_type = parse_specification_type(stat_spec=user_info.stat_info)
         if self.stat_spec_type is None:
             raise KeyError("No supported stat specification is given in the user info")
@@ -641,7 +642,7 @@ class EasySearcher(BaseSearcher):
 
         if len(learnware_list) == 0:
             return [], [], 0.0, []
-        
+
         if parse_specification_type(stat_spec=user_info.stat_info) is not None:
             return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
