@@ -67,7 +67,7 @@ class Learnware:
         return self.specification
 
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
-        self.specification.update_stat_spec(name, new_stat_spec)
+        self.specification.update_stat_spec(**{name: new_stat_spec})
 
     def update_semantic_spec(self, new_semantic_spec: dict):
         self.specification.update_semantic_spec(new_semantic_spec)
