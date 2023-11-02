@@ -104,7 +104,7 @@ class EasyStatisticalChecker(BaseChecker):
 
             spec_type = parse_specification_type(learnware.get_specification())
             if spec_type is None:
-                logger.warning(f"No valid specification is found in stat spec {stat_spec}")
+                logger.warning(f"No valid specification is found in stat spec {spec_type}")
                 return self.INVALID_LEARNWARE
 
             if spec_type == "RKMETableSpecification":
