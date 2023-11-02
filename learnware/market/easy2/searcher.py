@@ -415,7 +415,9 @@ class EasyStatSearcher(BaseSearcher):
         return sorted_score_list[:idx], learnware_list[:idx]
 
     def _filter_by_rkme_spec_dimension(
-        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification],
     ) -> List[Learnware]:
         """Filter learnwares whose rkme dimension different from user_rkme
 
@@ -520,7 +522,9 @@ class EasyStatSearcher(BaseSearcher):
         return mmd_dist, weight_min, mixture_list
 
     def _search_by_rkme_spec_single(
-        self, learnware_list: List[Learnware], user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification],
     ) -> Tuple[List[float], List[Learnware]]:
         """Calculate the distances between learnwares in the given learnware_list and user_rkme
 

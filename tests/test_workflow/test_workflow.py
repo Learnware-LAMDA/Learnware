@@ -97,7 +97,9 @@ class TestAllWorkflow(unittest.TestCase):
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
             semantic_spec["Input"] = {"Dimension": 64}
-            semantic_spec["Input"].update({f"{i}": f"The value in the digit image with row is {i // 8} and col is {i % 8}." for i in range(64)})
+            semantic_spec["Input"].update(
+                {f"{i}": f"The value in the digit image with row is {i // 8} and col is {i % 8}." for i in range(64)}
+            )
             semantic_spec["Output"] = {"Dimension": 1, "Description": {"0": "The label of the hand-written digit."}}
             easy_market.add_learnware(zip_path, semantic_spec)
 
