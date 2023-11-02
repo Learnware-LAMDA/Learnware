@@ -173,7 +173,7 @@ class LearnwareMarket:
         return self.learnware_organizer.get_learnwares(top, **kwargs)
 
     def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
-        raise self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
+        return self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
 
     def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
