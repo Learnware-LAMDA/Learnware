@@ -5,6 +5,7 @@ from cvxopt import solvers, matrix
 from typing import Tuple, List, Union
 
 from .organizer import EasyOrganizer
+from ..utils import parse_specification_type
 from ..base import BaseUserInfo, BaseSearcher
 from ...learnware import Learnware
 from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
@@ -251,7 +252,7 @@ class EasyStatSearcher(BaseSearcher):
             The second is the mmd dist between the mixture of learnware rkmes and the user's rkme
         """
         learnware_num = len(learnware_list)
-        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
 
         if type(intermediate_K) == np.ndarray:
             K = intermediate_K
@@ -318,7 +319,7 @@ class EasyStatSearcher(BaseSearcher):
             The second is the intermediate value of C
         """
         num = intermediate_K.shape[0] - 1
-        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
         for i in range(intermediate_K.shape[0]):
             intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
@@ -373,7 +374,7 @@ class EasyStatSearcher(BaseSearcher):
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
             mixture_weight = [1]
-            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name(self.stat_info_name))
+            mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name(self.stat_spec_type))
         else:
             if len(mixture_list) > max_search_num:
                 mixture_list = mixture_list[:max_search_num]
@@ -414,12 +415,12 @@ class EasyStatSearcher(BaseSearcher):
             idx = idx + 1
         return sorted_score_list[:idx], learnware_list[:idx]
 
-    def _filter_by_rkme_spec_dimension(
+    def _filter_by_rkme_spec_dim(
         self,
         learnware_list: List[Learnware],
         user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification],
     ) -> List[Learnware]:
-        """Filter learnwares whose rkme dimension different from user_rkme
+        """Filter learnwares whose rkme dimention different from user_rkme
 
         Parameters
         ----------
@@ -437,12 +438,13 @@ class EasyStatSearcher(BaseSearcher):
         user_rkme_dim = str(list(user_rkme.get_z().shape)[1:])
 
         for learnware in learnware_list:
-            if self.stat_info_name not in learnware.specification.stat_spec:
+            if self.stat_spec_type not in learnware.specification.stat_spec:
                 continue
-            rkme = learnware.specification.get_stat_spec_by_name(self.stat_info_name)
-            if self.stat_info_name == "RKMETextSpecification":
-                if not set(user_rkme.language).issubset(set(rkme.language)):
-                    continue
+            rkme = learnware.specification.get_stat_spec_by_name(self.stat_spec_type)
+            if self.stat_spec_type == "RKMETextSpecification" and not set(user_rkme.language).issubset(set(rkme.language)):
+                continue
+            
+            # TODO: must we check dim for Text and Image specification?
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
                 filtered_learnware_list.append(learnware)
@@ -542,7 +544,7 @@ class EasyStatSearcher(BaseSearcher):
             the second is the list of Learnware
             both lists are sorted by mmd dist
         """
-        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_info_name) for learnware in learnware_list]
+        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
         mmd_dist_list = []
         for RKME in RKME_list:
             mmd_dist = RKME.dist(user_rkme)
@@ -561,12 +563,13 @@ class EasyStatSearcher(BaseSearcher):
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
-        if "RKMETextSpecification" in user_info.stat_info:
-            self.stat_info_name = "RKMETextSpecification"
-        else:
-            self.stat_info_name = "RKMETableSpecification"
-        user_rkme = user_info.stat_info[self.stat_info_name]
-        learnware_list = self._filter_by_rkme_spec_dimension(learnware_list, user_rkme)
+        
+        self.stat_spec_type = parse_specification_type(stat_spec=user_info.stat_info)
+        if self.stat_spec_type is None:
+            raise KeyError("No supported stat specification is given in the user info")
+
+        user_rkme = user_info.stat_info[self.stat_spec_type]
+        learnware_list = self._filter_by_rkme_spec_dim(learnware_list, user_rkme)
         logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
         sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
@@ -638,9 +641,8 @@ class EasySearcher(BaseSearcher):
 
         if len(learnware_list) == 0:
             return [], [], 0.0, []
-        elif "RKMETableSpecification" in user_info.stat_info:
-            return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
-        elif "RKMETextSpecification" in user_info.stat_info:
+        
+        if parse_specification_type(stat_spec=user_info.stat_info) is not None:
             return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
             return None, learnware_list, 0.0, None
