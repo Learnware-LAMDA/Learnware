@@ -31,7 +31,7 @@ class BaseReuser:
         Parameters
         ----------
         user_data : np.ndarray
-            User's labeled raw data.
+            User's unlabeled raw data.
 
         Returns
         -------

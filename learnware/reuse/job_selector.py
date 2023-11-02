@@ -38,7 +38,7 @@ class JobSelectorReuser(BaseReuser):
         Parameters
         ----------
         user_data : np.ndarray
-            User's labeled raw data.
+            User's unlabeled raw data.
 
         Returns
         -------
@@ -84,7 +84,7 @@ class JobSelectorReuser(BaseReuser):
         Parameters
         ----------
         user_data : np.ndarray
-            User's labeled raw data.
+            User's raw data.
         """
         if len(self.learnware_list) == 1:
             # user_data_num = user_data.shape[0]
