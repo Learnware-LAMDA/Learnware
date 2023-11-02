@@ -10,6 +10,7 @@ logger = get_module_logger("RKMETextSpecification", "INFO")
 
 class RKMETextSpecification(RKMETableSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification for Text"""
+
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
         RKMETableSpecification.__init__(self, gamma, cuda_idx)
         self.language = []
@@ -59,7 +60,7 @@ class RKMETextSpecification(RKMETableSpecification):
     @staticmethod
     def get_language_ids(X):
         try:
-            text = ' '.join(X)
+            text = " ".join(X)
             lang = langdetect.detect(text)
             langs = langdetect.detect_langs(text)
             return [l.lang for l in langs]
