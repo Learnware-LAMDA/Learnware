@@ -22,10 +22,10 @@ logger = get_module_logger(module_name="client_container")
 
 
 class ModelContainer(BaseModel):
-    def __init__(self, model_config: dict, learnware_zippath: str, build: bool = True):
+    def __init__(self, model_config: dict, learnware_dirpath: str, build: bool = True):
         self.model_script = os.path.join(C.package_path, "client", "scripts", "run_model.py")
         self.model_config = model_config
-        self.learnware_zippath = learnware_zippath
+        self.learnware_dirpath = learnware_dirpath
         self.build = build
         self.cleanup_flag = False
 
@@ -78,12 +78,12 @@ class ModelContainer(BaseModel):
 
 
 class ModelCondaContainer(ModelContainer):
-    def __init__(self, model_config: dict, learnware_zippath: str, conda_env: str = None, build: bool = True):
+    def __init__(self, model_config: dict, learnware_dirpath: str, conda_env: str = None, build: bool = True):
         self.conda_env = f"learnware_{shortuuid.uuid()}" if conda_env is None else conda_env
-        super(ModelCondaContainer, self).__init__(model_config, learnware_zippath, build)
+        super(ModelCondaContainer, self).__init__(model_config, learnware_dirpath, build)
 
     def _init_env(self):
-        install_environment(self.learnware_zippath, self.conda_env)
+        install_environment(self.learnware_dirpath, self.conda_env)
 
     def _remove_env(self):
         remove_enviroment(self.conda_env)
@@ -175,7 +175,7 @@ class ModelDockerContainer(ModelContainer):
     def __init__(
         self,
         model_config: dict,
-        learnware_zippath: str,
+        learnware_dirpath: str,
         docker_container: object = None,
         build: bool = True,
     ):
@@ -192,7 +192,7 @@ class ModelDockerContainer(ModelContainer):
         self.docker_model_config = None
         self.docker_model_script_path = None
         # call init method of parent of parent class
-        super(ModelDockerContainer, self).__init__(model_config, learnware_zippath, build)
+        super(ModelDockerContainer, self).__init__(model_config, learnware_dirpath, build)
 
     @staticmethod
     def _generate_docker_container():
@@ -377,7 +377,7 @@ class ModelDockerContainer(ModelContainer):
 
     def _setup_env_and_metadata(self):
         """setup env and set the input and output shape by communicating with docker"""
-        self._install_environment(self.learnware_zippath, self.conda_env)
+        self._install_environment(self.learnware_dirpath, self.conda_env)
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
