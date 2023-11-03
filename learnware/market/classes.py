@@ -1,7 +1,9 @@
 from .base import BaseChecker, BaseOrganizer
 from ..learnware import Learnware
 from ..client.container import LearnwaresContainer
+from ..logger import get_module_logger
 
+logger = get_module_logger('market_classes')
 
 class CondaChecker(BaseChecker):
     def __init__(self, inner_checker, **kwargs):
@@ -10,9 +12,10 @@ class CondaChecker(BaseChecker):
 
     def __call__(self, learnware: Learnware) -> int:
         with LearnwaresContainer(learnware) as env_container:
+            if not all(env_container.get_learnware_flags()):
+                logger.warning(f"The env of learnware {learnware} installed failed")
+                return BaseChecker.INVALID_LEARNWARE
             learnwares = env_container.get_learnwares_with_container()
-            if len(learnwares) == 0:
-                raise AssertionError(f"The env of learnware {learnware} installed failed")
-            check_status = self.inner_checker(learnware[0])
+            check_status = self.inner_checker(learnwares[0])
 
         return check_status
