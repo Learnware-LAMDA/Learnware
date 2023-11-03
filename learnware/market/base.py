@@ -70,35 +70,33 @@ class LearnwareMarket:
     def reload_market(self, **kwargs) -> bool:
         self.learnware_organizer.reload_market(**kwargs)
 
-    def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
+    def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:        
         try:
-            with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
-                with zipfile.ZipFile(zip_path, mode="r") as z_file:
-                    z_file.extractall(tempdir)
+            final_status = BaseChecker.NONUSABLE_LEARNWARE
+            if len(checker_names):
+                with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
+                    with zipfile.ZipFile(zip_path, mode="r") as z_file:
+                        z_file.extractall(tempdir)
 
-                pending_learnware = get_learnware_from_dirpath(
-                    id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
-                )
+                    pending_learnware = get_learnware_from_dirpath(
+                        id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
+                    )
+                    checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
 
-                final_status = BaseChecker.NONUSABLE_LEARNWARE
-                checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
+                    for name in checker_names:
+                        checker = self.learnware_checker[name]
+                        check_status = checker(pending_learnware)
+                        final_status = max(final_status, check_status)
 
-                for name in checker_names:
-                    checker = self.learnware_checker[name]
-                    check_status = checker(pending_learnware)
-                    final_status = max(final_status, check_status)
-
-                    if check_status == BaseChecker.INVALID_LEARNWARE:
-                        return BaseChecker.INVALID_LEARNWARE
-
-                return final_status
-
+                        if check_status == BaseChecker.INVALID_LEARNWARE:
+                            return BaseChecker.INVALID_LEARNWARE
+            return final_status
         except Exception as err:
             logger.warning(f"Check learnware failed! Due to {err}.")
             return BaseChecker.INVALID_LEARNWARE
 
     def add_learnware(
-        self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, check_status: int = None, **kwargs
+        self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs
     ) -> Tuple[str, int]:
         """Add a learnware into the market.
 
@@ -110,8 +108,6 @@ class LearnwareMarket:
             semantic_spec for new learnware, in dictionary format.
         checker_names : List[str], optional
             List contains checker names, by default None
-        check_status : int, optional
-            A flag indicating whether the learnware is usable, by default None.
 
         Returns
         -------
@@ -119,11 +115,7 @@ class LearnwareMarket:
             - str indicating model_id
             - int indicating the final learnware check_status
         """
-        add_status = self.check_learnware(zip_path, semantic_spec, checker_names)
-        check_status = (
-            add_status if check_status is None or add_status == BaseChecker.INVALID_LEARNWARE else check_status
-        )
-
+        check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         return self.learnware_organizer.add_learnware(
             zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
