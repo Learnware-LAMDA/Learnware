@@ -47,13 +47,17 @@ class Learnware:
     def __repr__(self) -> str:
         return "{}({}, {}, {})".format(type(self).__name__, self.id, type(self.model).__name__, self.specification)
 
+    @staticmethod
+    def get_model_module_abspath(learnware_dirpath, module_path):
+        if isinstance(module_path, str) and module_path.endswith(".py") and not os.path.isabs(module_path):
+            module_path = os.path.join(learnware_dirpath, module_path)
+        return module_path
+    
     def instantiate_model(self):
         if isinstance(self.model, BaseModel):
             logger.info("The learnware had been instantiated, thus the instantiation operation is ignored!")
         elif isinstance(self.model, dict):
-            module_path = self.model["module_path"]
-            if isinstance(module_path, str) and module_path.endswith(".py") and not os.path.isabs(module_path):
-                module_path = os.path.join(self.learnware_dirpath, module_path)
+            module_path = Learnware.get_model_module_abspath(self.learnware_dirpath, self.model["module_path"])
             model_module = get_module_by_module_path(module_path)
             cls = getattr(model_module, self.model["class_name"])
             setattr(sys.modules["__main__"], self.model["class_name"], cls)

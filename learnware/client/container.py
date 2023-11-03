@@ -93,8 +93,10 @@ class ModelCondaContainer(ModelContainer):
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
 
+            model_config = self.model_config.copy()
+            model_config["module_path"] = Learnware.get_model_module_abspath(self.learnware_dirpath, model_config["module_path"])
             with open(model_path, "wb") as model_fp:
-                pickle.dump(self.model_config, model_fp)
+                pickle.dump(model_config, model_fp)
 
             system_execute(
                 [
@@ -128,9 +130,12 @@ class ModelCondaContainer(ModelContainer):
             input_path = os.path.join(tempdir, "input.pkl")
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
-
+            
+            model_config = self.model_config.copy()
+            model_config["module_path"] = Learnware.get_model_module_abspath(self.learnware_dirpath, model_config["module_path"])
+            
             with open(model_path, "wb") as model_fp:
-                pickle.dump(self.model_config, model_fp)
+                pickle.dump(model_config, model_fp)
 
             with open(input_path, "wb") as input_fp:
                 pickle.dump({"method": method, "kargs": kargs}, input_fp)
@@ -263,7 +268,7 @@ class ModelDockerContainer(ModelContainer):
         except docker.errors.NotFound as err:
             logger.error(f"Copy file from container failed due to {err}")
 
-    def _install_environment(self, zip_path, conda_env):
+    def _install_environment(self, learnware_dirpath, conda_env):
         """Install environment of a learnware in docker container
 
         Parameters
@@ -280,74 +285,71 @@ class ModelDockerContainer(ModelContainer):
         """
         run_cmd_times = 10
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-            with zipfile.ZipFile(file=zip_path, mode="r") as z_file:
-                success_flag = False
-                logger.info(f"zip_file namelist: {z_file.namelist()}")
+            success_flag = False
+            logger.info(f"zip_file namelist: {os.namelist()}")
 
-                if "environment.yaml" in z_file.namelist():
-                    z_file.extract(member="environment.yaml", path=tempdir)
-                    yaml_path: str = os.path.join(tempdir, "environment.yaml")
-                    yaml_path_filter: str = os.path.join(tempdir, "environment_filter.yaml")
-                    logger.info(f"checking the avaliabe conda packages for {conda_env}")
-                    filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
-                    self._copy_file_to_container(yaml_path_filter, yaml_path_filter)
+            if "environment.yaml" in os.listdir(learnware_dirpath):
+                yaml_path: str = os.path.join(learnware_dirpath, "environment.yaml")
+                yaml_path_filter: str = os.path.join(tempdir, "environment_filter.yaml")
+                logger.info(f"checking the avaliabe conda packages for {conda_env}")
+                filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
+                self._copy_file_to_container(yaml_path_filter, yaml_path_filter)
 
-                    # create environment
-                    logger.info(f"Create and update conda env [{conda_env}] according to .yaml file")
-                    for i in range(run_cmd_times):
-                        result = self.docker_container.exec_run(
-                            " ".join(
-                                ["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"]
-                            )
+                # create environment
+                logger.info(f"Create and update conda env [{conda_env}] according to .yaml file")
+                for i in range(run_cmd_times):
+                    result = self.docker_container.exec_run(
+                        " ".join(
+                            ["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"]
                         )
-                        if result.exit_code == 0:
-                            success_flag = True
-                            break
-
-                elif "requirements.txt" in z_file.namelist():
-                    z_file.extract(member="requirements.txt", path=tempdir)
-                    requirements_path: str = os.path.join(tempdir, "requirements.txt")
-                    requirements_path_filter: str = os.path.join(tempdir, "requirements_filter.txt")
-                    logger.info(f"checking the avaliabe pip packages for {conda_env}.")
-                    filter_nonexist_pip_packages_file(
-                        requirements_file=requirements_path, output_file=requirements_path_filter
                     )
-                    logger.info(f"Create empty conda env [{conda_env}] in docker.")
-                    for i in range(run_cmd_times):
-                        result = self.docker_container.exec_run(
-                            " ".join(["conda", "create", "-y", "--name", f"{conda_env}", "python=3.8"])
-                        )
-                        if result.exit_code == 0:
-                            break
-                    logger.info(f"install pip requirements for conda env [{conda_env}] in docker.")
+                    if result.exit_code == 0:
+                        success_flag = True
+                        break
 
-                    self._copy_file_to_container(requirements_path_filter, requirements_path_filter)
-                    for i in range(run_cmd_times):
-                        result = self.docker_container.exec_run(
-                            " ".join(
-                                [
-                                    "conda",
-                                    "run",
-                                    "-n",
-                                    f"{conda_env}",
-                                    "--no-capture-output",
-                                    "python3",
-                                    "-m",
-                                    "pip",
-                                    "install",
-                                    "-r",
-                                    f"{requirements_path_filter}",
-                                ]
-                            )
-                        )
-                        if result.exit_code == 0:
-                            success_flag = True
-                            break
-                else:
-                    raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
+            elif "requirements.txt" in os.listdir(learnware_dirpath):
+                requirements_path: str = os.path.join(learnware_dirpath, "requirements.txt")
+                requirements_path_filter: str = os.path.join(tempdir, "requirements_filter.txt")
+                logger.info(f"checking the avaliabe pip packages for {conda_env}.")
+                filter_nonexist_pip_packages_file(
+                    requirements_file=requirements_path, output_file=requirements_path_filter
+                )
+                logger.info(f"Create empty conda env [{conda_env}] in docker.")
+                for i in range(run_cmd_times):
+                    result = self.docker_container.exec_run(
+                        " ".join(["conda", "create", "-y", "--name", f"{conda_env}", "python=3.8"])
+                    )
+                    if result.exit_code == 0:
+                        break
+                logger.info(f"install pip requirements for conda env [{conda_env}] in docker.")
 
-                if not success_flag:
-                    logger.error(f"Install conda env [{conda_env}] in docker failed!")
+                self._copy_file_to_container(requirements_path_filter, requirements_path_filter)
+                for i in range(run_cmd_times):
+                    result = self.docker_container.exec_run(
+                        " ".join(
+                            [
+                                "conda",
+                                "run",
+                                "-n",
+                                f"{conda_env}",
+                                "--no-capture-output",
+                                "python3",
+                                "-m",
+                                "pip",
+                                "install",
+                                "-r",
+                                f"{requirements_path_filter}",
+                            ]
+                        )
+                    )
+                    if result.exit_code == 0:
+                        success_flag = True
+                        break
+            else:
+                raise Exception("Environment.yaml or requirements.txt not found in the learnware zip file.")
+
+            if not success_flag:
+                logger.error(f"Install conda env [{conda_env}] in docker failed!")
 
         success_flag = False
         logger.info(f"Install learnware package for conda env [{conda_env}] in docker.")
@@ -384,6 +386,8 @@ class ModelDockerContainer(ModelContainer):
             self.docker_model_script_path = os.path.join(tempdir, "run_model.py")
 
             docker_model_config = self.model_config.copy()
+            
+            
             with tempfile.TemporaryDirectory(prefix="learnware_model_config_") as config_tempdir:
                 basename = os.path.basename(self.model_config["module_path"])
                 docker_model_config["module_path"] = os.path.join(config_tempdir, basename)
