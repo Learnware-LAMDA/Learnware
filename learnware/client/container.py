@@ -386,19 +386,11 @@ class ModelDockerContainer(ModelContainer):
             self.docker_model_script_path = os.path.join(tempdir, "run_model.py")
 
             docker_model_config = self.model_config.copy()
-            
-            
-            with tempfile.TemporaryDirectory(prefix="learnware_model_config_") as config_tempdir:
-                basename = os.path.basename(self.model_config["module_path"])
-                docker_model_config["module_path"] = os.path.join(config_tempdir, basename)
-                self._copy_file_to_container(
-                    os.path.dirname(self.model_config["module_path"]),
-                    os.path.dirname(docker_model_config["module_path"]),
-                )
+            docker_model_config["module_path"] = Learnware.get_model_module_abspath(self.learnware_dirpath, docker_model_config["module_path"])
+            self._copy_file_to_container(self.learnware_dirpath, self.learnware_dirpath)
 
-            self.docker_model_config = docker_model_config
             with open(model_path, "wb") as model_fp:
-                pickle.dump(self.docker_model_config, model_fp)
+                pickle.dump(docker_model_config, model_fp)
 
             self._copy_file_to_container(model_path, model_path)
             self._copy_file_to_container(self.model_script, self.docker_model_script_path)
@@ -443,8 +435,10 @@ class ModelDockerContainer(ModelContainer):
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
 
+            docker_model_config = self.model_config.copy()
+            docker_model_config["module_path"] = Learnware.get_model_module_abspath(self.learnware_dirpath, docker_model_config["module_path"])
             with open(model_path, "wb") as model_fp:
-                pickle.dump(self.docker_model_config, model_fp)
+                pickle.dump(docker_model_config, model_fp)
 
             with open(input_path, "wb") as input_fp:
                 pickle.dump({"method": method, "kargs": kargs}, input_fp)
