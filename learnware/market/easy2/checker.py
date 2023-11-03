@@ -95,7 +95,6 @@ class EasyStatChecker(BaseChecker):
             # Check input shape
             input_shape = learnware_model.input_shape
 
-            ## WHY: why write this?
             if semantic_spec["Data"]["Values"][0] == "Table" and input_shape != (
                 int(semantic_spec["Input"]["Dimension"]),
             ):
