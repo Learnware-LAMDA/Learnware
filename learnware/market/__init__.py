@@ -6,4 +6,4 @@ from .easy2 import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatist
 from .hetergeneous import HeterogeneousOrganizer, MappingFunction
 
 from .easy import EasyMarket
-from .module import instatiate_learnware_market
+from .module import instantiate_learnware_market

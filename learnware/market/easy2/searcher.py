@@ -605,14 +605,14 @@ class EasySearcher(BaseSearcher):
         self.stat_searcher = EasyStatSearcher(organizer)
 
     def reset(self, organizer):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
         self.semantic_searcher.reset(organizer)
         self.stat_searcher.reset(organizer)
 
     def __call__(
-        self, user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy"
+        self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy"
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
-        """Search learnwares based on user_info
+        """Search learnwares based on user_info from learnwares with check_status
 
         Parameters
         ----------
@@ -620,6 +620,9 @@ class EasySearcher(BaseSearcher):
             user_info contains semantic_spec and stat_info
         max_search_num : int
             The maximum number of the returned learnwares
+        check_status : int, optional
+            - None: search from all learnwares
+            - Others: search from learnwares with check_status
 
         Returns
         -------
@@ -629,7 +632,7 @@ class EasySearcher(BaseSearcher):
             the third is the score of Learnware (mixture)
             the fourth is the list of Learnware (mixture), the size is search_num
         """
-        learnware_list = self.learnware_oganizer.get_learnwares()
+        learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
         learnware_list = self.semantic_searcher(learnware_list, user_info)
 
         if len(learnware_list) == 0:
