@@ -399,10 +399,10 @@ class BaseOrganizer:
 
 class BaseSearcher:
     def __init__(self, organizer: BaseOrganizer = None):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
     def reset(self, organizer):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
     def __call__(self, user_info: BaseUserInfo, check_status: int = None):
         """Search learnwares based on user_info from learnwares with check_status
@@ -424,10 +424,10 @@ class BaseChecker:
     USABLE_LEARWARE = 1
 
     def __init__(self, organizer: BaseOrganizer = None):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
     def reset(self, organizer):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
     def __call__(self, learnware: Learnware) -> int:
         """Check the utility of a learnware

@@ -605,7 +605,7 @@ class EasySearcher(BaseSearcher):
         self.stat_searcher = EasyStatSearcher(organizer)
 
     def reset(self, organizer):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
         self.semantic_searcher.reset(organizer)
         self.stat_searcher.reset(organizer)
 
@@ -632,7 +632,7 @@ class EasySearcher(BaseSearcher):
             the third is the score of Learnware (mixture)
             the fourth is the list of Learnware (mixture), the size is search_num
         """
-        learnware_list = self.learnware_oganizer.get_learnwares(check_status=check_status)
+        learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
         learnware_list = self.semantic_searcher(learnware_list, user_info)
 
         if len(learnware_list) == 0:
