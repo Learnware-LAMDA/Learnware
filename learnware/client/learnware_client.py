@@ -386,8 +386,7 @@ class LearnwareClient:
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
-        semantic_checker = EasySemanticChecker()
-        return semantic_checker(semantic_spec) != BaseChecker.INVALID_LEARNWARE
+        return EasySemanticChecker.check_semantic_spec(semantic_spec) != BaseChecker.INVALID_LEARNWARE
 
     @staticmethod
     def _check_stat_specification(learnware):
@@ -415,7 +414,7 @@ class LearnwareClient:
             if learnware is None:
                 raise Exception("The learnware is not valid.")
 
-            assert LearnwareClient._check_semantic_specification(learnware), "Stas specification check failed!"
+            assert LearnwareClient._check_stat_specification(learnware), "Stat specification check failed!"
 
     def cleanup(self):
         for tempdir in self.tempdir_list:
