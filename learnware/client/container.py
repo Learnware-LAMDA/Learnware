@@ -3,7 +3,6 @@ import docker
 import pickle
 import atexit
 import tarfile
-import zipfile
 import tempfile
 import shortuuid
 from concurrent.futures import ThreadPoolExecutor

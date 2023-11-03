@@ -14,7 +14,7 @@ from typing import Union, List
 from ..config import C
 from .. import learnware
 from .container import LearnwaresContainer
-from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker, CondaChecker
+from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker
 from ..logger import get_module_logger
 from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
@@ -389,6 +389,8 @@ class LearnwareClient:
 
     @staticmethod
     def _check_stat_specification(learnware):
+        from ..market import CondaChecker
+
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
         return stat_checker(learnware) != BaseChecker.INVALID_LEARNWARE
 
