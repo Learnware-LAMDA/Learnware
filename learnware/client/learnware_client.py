@@ -14,7 +14,7 @@ from typing import Union, List
 from ..config import C
 from .. import learnware
 from .container import LearnwaresContainer
-from ..market import EasySemanticChecker, EasyStatisticalChecker
+from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker, CondaChecker
 from ..logger import get_module_logger
 from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
@@ -386,14 +386,21 @@ class LearnwareClient:
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
-        return EasySemanticChecker.check_semantic_spec(semantic_spec)
+        semantic_checker = EasySemanticChecker()
+        return semantic_checker(semantic_spec) != BaseChecker.INVALID_LEARNWARE
+    
+    @staticmethod
+    def _check_stat_specification(learnware):
+        stat_checker = CondaChecker(inner_checker=EasyStatChecker())
+        return stat_checker(learnware) != BaseChecker.INVALID_LEARNWARE
 
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
         semantic_specification = (
             get_semantic_specification() if semantic_specification is None else semantic_specification
         )
-        LearnwareClient._check_semantic_specification(semantic_specification)
+        
+        assert LearnwareClient._check_semantic_specification(semantic_specification), "Semantic specification check failed!"
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(learnware_zip_path, mode="r") as z_file:
@@ -406,12 +413,7 @@ class LearnwareClient:
             if learnware is None:
                 raise Exception("The learnware is not valid.")
 
-            with LearnwaresContainer(learnware, learnware_zip_path) as env_container:
-                learnware = env_container.get_learnwares_with_container()[0]
-                if EasyStatisticalChecker()(learnware) == EasyStatisticalChecker.USABLE_LEARWARE:
-                    logger.info("The learnware passed the local test.")
-                else:
-                    raise Exception("The learnware is not usable.")
+            assert LearnwareClient._check_semantic_specification(learnware), "Stas specification check failed!"
 
     def cleanup(self):
         for tempdir in self.tempdir_list:

@@ -51,7 +51,7 @@ class EasySemanticChecker(BaseChecker):
 
             return EasySemanticChecker.NONUSABLE_LEARNWARE
 
-        except Exception as err:
+        except AssertionError as err:
             logger.warning(f"semantic_specification is not valid due to {err}!")
             return EasySemanticChecker.INVALID_LEARNWARE
 
@@ -60,7 +60,7 @@ class EasySemanticChecker(BaseChecker):
         return self.check_semantic_spec(semantic_spec)
 
 
-class EasyStatisticalChecker(BaseChecker):
+class EasyStatChecker(BaseChecker):
     def __call__(self, learnware):
         semantic_spec = learnware.get_specification().get_semantic_spec()
 
