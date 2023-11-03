@@ -390,6 +390,7 @@ class LearnwareClient:
     @staticmethod
     def _check_stat_specification(learnware):
         from ..market import CondaChecker
+
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
         return stat_checker(learnware) != BaseChecker.INVALID_LEARNWARE
 
