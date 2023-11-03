@@ -601,7 +601,7 @@ class LearnwaresContainer:
 
     def get_learnware_flags(self):
         return self.results
-    
+
     def get_learnwares_with_container(self):
         learnware_containers = [
             _learnware for _learnware, _result in zip(self.learnware_containers, self.results) if _result is True

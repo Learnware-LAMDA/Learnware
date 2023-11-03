@@ -70,7 +70,7 @@ class LearnwareMarket:
     def reload_market(self, **kwargs) -> bool:
         self.learnware_organizer.reload_market(**kwargs)
 
-    def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:        
+    def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
         try:
             final_status = BaseChecker.NONUSABLE_LEARNWARE
             if len(checker_names):

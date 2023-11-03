@@ -3,7 +3,8 @@ from ..learnware import Learnware
 from ..client.container import LearnwaresContainer
 from ..logger import get_module_logger
 
-logger = get_module_logger('market_classes')
+logger = get_module_logger("market_classes")
+
 
 class CondaChecker(BaseChecker):
     def __init__(self, inner_checker, **kwargs):

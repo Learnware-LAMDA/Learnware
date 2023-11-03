@@ -397,7 +397,7 @@ class LearnwareClient:
         semantic_specification = (
             get_semantic_specification() if semantic_specification is None else semantic_specification
         )
-        
+
         assert LearnwareClient._check_semantic_specification(
             semantic_specification
         ), "Semantic specification check failed!"
