@@ -38,7 +38,7 @@ def install_environment(learnware_dirpath, conda_env):
         Lack of the environment configuration file.
     """
     with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-        logger.info(f"zip_file namelist: {os.listdir(learnware_dirpath)}")
+        logger.info(f"learnware_dir namelist: {os.listdir(learnware_dirpath)}")
         if "environment.yaml" in os.listdir(learnware_dirpath):
             yaml_path: str = os.path.join(learnware_dirpath, "environment.yaml")
             yaml_path_filter: str = os.path.join(tempdir, "environment_filter.yaml")

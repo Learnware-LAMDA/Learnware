@@ -273,8 +273,8 @@ class ModelDockerContainer(ModelContainer):
 
         Parameters
         ----------
-        zip_path : str
-            Path of the learnware zip file
+        learnware_dirpath : str
+            Path of the learnware dir
         conda_env : str
             a new conda environment will be created with the given name
 
@@ -286,7 +286,7 @@ class ModelDockerContainer(ModelContainer):
         run_cmd_times = 10
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             success_flag = False
-            logger.info(f"zip_file namelist: {os.namelist()}")
+            logger.info(f"learnware_dir namelist: {os.listdir(learnware_dirpath)}")
 
             if "environment.yaml" in os.listdir(learnware_dirpath):
                 yaml_path: str = os.path.join(learnware_dirpath, "environment.yaml")
