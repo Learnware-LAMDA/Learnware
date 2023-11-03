@@ -287,17 +287,52 @@ class EasyOrganizer(BaseOrganizer):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
-    def get_learnware_ids(self, top: int = None) -> List[str]:
-        if top is None:
-            return list(self.learnware_list.keys())
-        else:
-            return list(self.learnware_list.keys())[:top]
+    def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
+        """Get learnware ids
 
-    def get_learnwares(self, top: int = None) -> List[str]:
+        Parameters
+        ----------
+        top : int, optional
+            The first top learnware ids to return, by default None
+        check_status : bool, optional
+            - None: return all learnware ids
+            - Others: return learnware ids with check_status
+
+        Returns
+        -------
+        List[str]
+            Learnware ids
+        """
+        if check_status is None:
+            filtered_ids = self.use_flags.keys()
+        elif check_status is True:
+            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.USABLE_LEARWARE]
+        elif check_status is False:
+            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.NONUSABLE_LEARNWARE]
+
         if top is None:
-            return list(self.learnware_list.values())
+            return filtered_ids
         else:
-            return list(self.learnware_list.values())[:top]
+            return filtered_ids[:top]
+
+    def get_learnwares(self, top: int = None, check_status: int = None) -> List[Learnware]:
+        """Get learnware list
+
+        Parameters
+        ----------
+        top : int, optional
+            The first top learnwares to return, by default None
+        check_status : bool, optional
+            - None: return all learnwares
+            - Others: return learnwares with check_status
+
+        Returns
+        -------
+        List[Learnware]
+            Learnware list
+        """
+        learnware_ids = self.get_learnware_ids(top, check_status)
+        return [self.learnware_list[idx] for idx in learnware_ids]
 
     def __len__(self):
         return len(self.learnware_list)

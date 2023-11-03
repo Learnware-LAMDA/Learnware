@@ -122,8 +122,25 @@ class LearnwareMarket:
             zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
 
-    def search_learnware(self, user_info: BaseUserInfo, **kwargs) -> Tuple[Any, List[Learnware]]:
-        return self.learnware_searcher(user_info, **kwargs)
+    def search_learnware(
+        self, user_info: BaseUserInfo, check_status: int = None, **kwargs
+    ) -> Tuple[Any, List[Learnware]]:
+        """Search learnwares based on user_info from learnwares with check_status
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            User information for searching learnwares
+        check_status : int, optional
+            - None: search from all learnwares
+            - Others: search from learnwares with check_status
+
+        Returns
+        -------
+        Tuple[Any, List[Learnware]]
+            Search results
+        """
+        return self.learnware_searcher(user_info, check_status, **kwargs)
 
     def delete_learnware(self, id: str, **kwargs) -> bool:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
@@ -166,11 +183,41 @@ class LearnwareMarket:
             id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
 
-    def get_learnware_ids(self, top: int = None, **kwargs):
-        return self.learnware_organizer.get_learnware_ids(top, **kwargs)
+    def get_learnware_ids(self, top: int = None, check_status: int = None, **kwargs) -> List[str]:
+        """get the list of learnware ids
 
-    def get_learnwares(self, top: int = None, **kwargs):
-        return self.learnware_organizer.get_learnwares(top, **kwargs)
+        Parameters
+        ----------
+        top : int, optional
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnware ids
+            - Others: return learnware ids with check_status
+
+        Raises
+        ------
+        List[str]
+            the first top ids
+        """
+        return self.learnware_organizer.get_learnware_ids(top, check_status, **kwargs)
+
+    def get_learnwares(self, top: int = None, check_status: int = None, **kwargs) -> List[Learnware]:
+        """get the list of learnwares
+
+        Parameters
+        ----------
+        top : int, optional
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnwares
+            - Others: return learnwares with check_status
+
+        Raises
+        ------
+        List[Learnware]
+            the first top learnwares
+        """
+        return self.learnware_organizer.get_learnwares(top, check_status, **kwargs)
 
     def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
@@ -298,13 +345,16 @@ class BaseOrganizer:
         """
         raise NotImplementedError("get_learnware_path_by_ids is not implemented in BaseOrganizer")
 
-    def get_learnware_ids(self, top: int = None) -> List[str]:
+    def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
         """get the list of learnware ids
 
         Parameters
         ----------
         top : int, optional
-            the first top element to return, by default None
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnware ids
+            - Others: return learnware ids with check_status
 
         Raises
         ------
@@ -313,13 +363,16 @@ class BaseOrganizer:
         """
         raise NotImplementedError("get_learnware_ids is not implemented in BaseOrganizer")
 
-    def get_learnwares(self, top: int = None) -> List[Learnware]:
+    def get_learnwares(self, top: int = None, check_status: int = None) -> List[Learnware]:
         """get the list of learnwares
 
         Parameters
         ----------
         top : int, optional
-            the first top element to return, by default None
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnwares
+            - Others: return learnwares with check_status
 
         Raises
         ------
@@ -339,13 +392,16 @@ class BaseSearcher:
     def reset(self, organizer):
         self.learnware_oganizer = organizer
 
-    def __call__(self, user_info: BaseUserInfo):
-        """Search learnwares based on user_info
+    def __call__(self, user_info: BaseUserInfo, check_status: int = None):
+        """Search learnwares based on user_info from learnwares with check_status
 
         Parameters
         ----------
         user_info : BaseUserInfo
             user_info contains semantic_spec and stat_info
+        check_status : int, optional
+            - None: search from all learnwares
+            - Others: search from learnwares with check_status
         """
         raise NotImplementedError("'__call__' method is not implemented in BaseSearcher")
 
