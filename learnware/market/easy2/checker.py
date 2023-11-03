@@ -52,7 +52,7 @@ class EasySemanticChecker(BaseChecker):
 
             return EasySemanticChecker.NONUSABLE_LEARNWARE
 
-        except Exception as err:
+        except AssertionError as err:
             logger.warning(f"semantic_specification is not valid due to {err}!")
             return EasySemanticChecker.INVALID_LEARNWARE
 
@@ -61,7 +61,7 @@ class EasySemanticChecker(BaseChecker):
         return self.check_semantic_spec(semantic_spec)
 
 
-class EasyStatisticalChecker(BaseChecker):
+class EasyStatChecker(BaseChecker):
     @staticmethod
     def _generate_random_text_list(num, text_type="en", min_len=10, max_len=1000):
         text_list = []
@@ -114,7 +114,7 @@ class EasyStatisticalChecker(BaseChecker):
                     return self.INVALID_LEARNWARE
                 inputs = np.random.randn(10, *input_shape)
             elif spec_type == "RKMETextSpecification":
-                inputs = EasyStatisticalChecker._generate_random_text_list(10)
+                inputs = EasyStatChecker._generate_random_text_list(10)
             elif spec_type == "RKMEImageSpecification":
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
             else:

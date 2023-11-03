@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 from shutil import copyfile, rmtree
 
 import learnware
-from learnware.market import instatiate_learnware_market, BaseUserInfo
+from learnware.market import instantiate_learnware_market, BaseUserInfo
 import learnware.specification as specification
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
@@ -43,7 +43,7 @@ class TestMarket(unittest.TestCase):
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        easy_market = instatiate_learnware_market(market_id="sklearn_digits", name="easy", rebuild=True)
+        easy_market = instantiate_learnware_market(market_id="sklearn_digits", name="easy", rebuild=True)
         return easy_market
 
     def test_prepare_learnware_randomly(self, learnware_num=5):

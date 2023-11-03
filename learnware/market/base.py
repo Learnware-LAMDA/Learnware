@@ -1,7 +1,7 @@
+from __future__ import annotations
+
 import zipfile
 import tempfile
-
-
 from typing import Tuple, Any, List, Union
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..logger import get_module_logger
@@ -47,10 +47,10 @@ class LearnwareMarket:
 
     def __init__(
         self,
-        market_id: str = None,
-        organizer: "BaseOrganizer" = None,
-        searcher: "BaseSearcher" = None,
-        checker_list: List["BaseChecker"] = None,
+        market_id: str = "default",
+        organizer: BaseOrganizer = None,
+        searcher: BaseSearcher = None,
+        checker_list: List[BaseChecker] = None,
         rebuild=False,
     ):
         self.market_id = market_id
@@ -72,27 +72,25 @@ class LearnwareMarket:
 
     def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
         try:
-            with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
-                with zipfile.ZipFile(zip_path, mode="r") as z_file:
-                    z_file.extractall(tempdir)
+            final_status = BaseChecker.NONUSABLE_LEARNWARE
+            if len(checker_names):
+                with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
+                    with zipfile.ZipFile(zip_path, mode="r") as z_file:
+                        z_file.extractall(tempdir)
 
-                pending_learnware = get_learnware_from_dirpath(
-                    id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
-                )
+                    pending_learnware = get_learnware_from_dirpath(
+                        id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
+                    )
+                    checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
 
-                final_status = BaseChecker.INVALID_LEARNWARE
-                checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
+                    for name in checker_names:
+                        checker = self.learnware_checker[name]
+                        check_status = checker(pending_learnware)
+                        final_status = max(final_status, check_status)
 
-                for name in checker_names:
-                    checker = self.learnware_checker[name]
-                    check_status = checker(pending_learnware)
-                    final_status = max(final_status, check_status)
-
-                    if check_status == BaseChecker.INVALID_LEARNWARE:
-                        return BaseChecker.INVALID_LEARNWARE
-
-                return final_status
-
+                        if check_status == BaseChecker.INVALID_LEARNWARE:
+                            return BaseChecker.INVALID_LEARNWARE
+            return final_status
         except Exception as err:
             logger.warning(f"Check learnware failed! Due to {err}.")
             return BaseChecker.INVALID_LEARNWARE
@@ -122,8 +120,25 @@ class LearnwareMarket:
             zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
 
-    def search_learnware(self, user_info: BaseUserInfo, **kwargs) -> Tuple[Any, List[Learnware]]:
-        return self.learnware_searcher(user_info, **kwargs)
+    def search_learnware(
+        self, user_info: BaseUserInfo, check_status: int = None, **kwargs
+    ) -> Tuple[Any, List[Learnware]]:
+        """Search learnwares based on user_info from learnwares with check_status
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            User information for searching learnwares
+        check_status : int, optional
+            - None: search from all learnwares
+            - Others: search from learnwares with check_status
+
+        Returns
+        -------
+        Tuple[Any, List[Learnware]]
+            Search results
+        """
+        return self.learnware_searcher(user_info, check_status, **kwargs)
 
     def delete_learnware(self, id: str, **kwargs) -> bool:
         return self.learnware_organizer.delete_learnware(id, **kwargs)
@@ -131,8 +146,8 @@ class LearnwareMarket:
     def update_learnware(
         self,
         id: str,
-        zip_path: str,
-        semantic_spec: dict,
+        zip_path: str = None,
+        semantic_spec: dict = None,
         checker_names: List[str] = None,
         check_status: int = None,
         **kwargs,
@@ -157,6 +172,12 @@ class LearnwareMarket:
         int
             The final learnware check_status.
         """
+        zip_path = self.get_learnware_path_by_ids(id) if zip_path is None else zip_path
+        semantic_spec = (
+            self.get_learnware_by_ids(id).get_specification().get_semantic_spec()
+            if semantic_spec is None
+            else semantic_spec
+        )
         update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         check_status = (
             update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
@@ -166,14 +187,44 @@ class LearnwareMarket:
             id, zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
         )
 
-    def get_learnware_ids(self, top: int = None, **kwargs):
-        return self.learnware_organizer.get_learnware_ids(top, **kwargs)
+    def get_learnware_ids(self, top: int = None, check_status: int = None, **kwargs) -> List[str]:
+        """get the list of learnware ids
 
-    def get_learnwares(self, top: int = None, **kwargs):
-        return self.learnware_organizer.get_learnwares(top, **kwargs)
+        Parameters
+        ----------
+        top : int, optional
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnware ids
+            - Others: return learnware ids with check_status
+
+        Raises
+        ------
+        List[str]
+            the first top ids
+        """
+        return self.learnware_organizer.get_learnware_ids(top, check_status, **kwargs)
+
+    def get_learnwares(self, top: int = None, check_status: int = None, **kwargs) -> List[Learnware]:
+        """get the list of learnwares
+
+        Parameters
+        ----------
+        top : int, optional
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnwares
+            - Others: return learnwares with check_status
+
+        Raises
+        ------
+        List[Learnware]
+            the first top learnwares
+        """
+        return self.learnware_organizer.get_learnwares(top, check_status, **kwargs)
 
     def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
-        raise self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
+        return self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
 
     def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
@@ -298,13 +349,16 @@ class BaseOrganizer:
         """
         raise NotImplementedError("get_learnware_path_by_ids is not implemented in BaseOrganizer")
 
-    def get_learnware_ids(self, top: int = None) -> List[str]:
+    def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
         """get the list of learnware ids
 
         Parameters
         ----------
         top : int, optional
-            the first top element to return, by default None
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnware ids
+            - Others: return learnware ids with check_status
 
         Raises
         ------
@@ -313,13 +367,16 @@ class BaseOrganizer:
         """
         raise NotImplementedError("get_learnware_ids is not implemented in BaseOrganizer")
 
-    def get_learnwares(self, top: int = None) -> List[Learnware]:
+    def get_learnwares(self, top: int = None, check_status: int = None) -> List[Learnware]:
         """get the list of learnwares
 
         Parameters
         ----------
         top : int, optional
-            the first top element to return, by default None
+            The first top element to return, by default None
+        check_status : int, optional
+            - None: return all learnwares
+            - Others: return learnwares with check_status
 
         Raises
         ------
@@ -334,18 +391,21 @@ class BaseOrganizer:
 
 class BaseSearcher:
     def __init__(self, organizer: BaseOrganizer = None):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
     def reset(self, organizer):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
-    def __call__(self, user_info: BaseUserInfo):
-        """Search learnwares based on user_info
+    def __call__(self, user_info: BaseUserInfo, check_status: int = None):
+        """Search learnwares based on user_info from learnwares with check_status
 
         Parameters
         ----------
         user_info : BaseUserInfo
             user_info contains semantic_spec and stat_info
+        check_status : int, optional
+            - None: search from all learnwares
+            - Others: search from learnwares with check_status
         """
         raise NotImplementedError("'__call__' method is not implemented in BaseSearcher")
 
@@ -356,10 +416,10 @@ class BaseChecker:
     USABLE_LEARWARE = 1
 
     def __init__(self, organizer: BaseOrganizer = None):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
     def reset(self, organizer):
-        self.learnware_oganizer = organizer
+        self.learnware_organizer = organizer
 
     def __call__(self, learnware: Learnware) -> int:
         """Check the utility of a learnware

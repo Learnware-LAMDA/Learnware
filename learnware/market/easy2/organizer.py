@@ -55,7 +55,9 @@ class EasyOrganizer(BaseOrganizer):
             self.count,
         ) = self.dbops.load_market()
 
-    def add_learnware(self, zip_path: str, semantic_spec: dict, check_status: int) -> Tuple[str, int]:
+    def add_learnware(
+        self, zip_path: str, semantic_spec: dict, check_status: int, learnware_id: str = None
+    ) -> Tuple[str, int]:
         """Add a learnware into the market.
 
         Parameters
@@ -66,7 +68,8 @@ class EasyOrganizer(BaseOrganizer):
             semantic_spec for new learnware, in dictionary format.
         check_status: int
             A flag indicating whether the learnware is usable.
-
+        learnware_id: int
+            A id in database for learnware
         Returns
         -------
         Tuple[str, int]
@@ -80,9 +83,9 @@ class EasyOrganizer(BaseOrganizer):
         semantic_spec = copy.deepcopy(semantic_spec)
         logger.info("Get new learnware from %s" % (zip_path))
 
-        id = "%08d" % (self.count)
-        target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (id))
-        target_folder_dir = os.path.join(self.learnware_folder_pool_path, id)
+        learnware_id = "%08d" % (self.count) if learnware_id is None else learnware_id
+        target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (learnware_id))
+        target_folder_dir = os.path.join(self.learnware_folder_pool_path, learnware_id)
         copyfile(zip_path, target_zip_dir)
 
         with zipfile.ZipFile(target_zip_dir, "r") as z_file:
@@ -91,7 +94,7 @@ class EasyOrganizer(BaseOrganizer):
 
         try:
             new_learnware = get_learnware_from_dirpath(
-                id=id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
+                id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
         except:
             try:
@@ -107,19 +110,19 @@ class EasyOrganizer(BaseOrganizer):
         learnwere_status = check_status if check_status is not None else BaseChecker.NONUSABLE_LEARNWARE
 
         self.dbops.add_learnware(
-            id=id,
+            id=learnware_id,
             semantic_spec=semantic_spec,
             zip_path=target_zip_dir,
             folder_path=target_folder_dir,
             use_flag=learnwere_status,
         )
 
-        self.learnware_list[id] = new_learnware
-        self.learnware_zip_list[id] = target_zip_dir
-        self.learnware_folder_list[id] = target_folder_dir
-        self.use_flags[id] = learnwere_status
+        self.learnware_list[learnware_id] = new_learnware
+        self.learnware_zip_list[learnware_id] = target_zip_dir
+        self.learnware_folder_list[learnware_id] = target_folder_dir
+        self.use_flags[learnware_id] = learnwere_status
         self.count += 1
-        return id, learnwere_status
+        return learnware_id, learnwere_status
 
     def delete_learnware(self, id: str) -> bool:
         """Delete Learnware from market
@@ -205,7 +208,8 @@ class EasyOrganizer(BaseOrganizer):
                 if new_learnware is None:
                     return BaseChecker.INVALID_LEARNWARE
 
-            copyfile(zip_path, target_zip_dir)
+            if zip_path != target_zip_dir:
+                copyfile(zip_path, target_zip_dir)
             with zipfile.ZipFile(target_zip_dir, "r") as z_file:
                 z_file.extractall(target_folder_dir)
 
@@ -284,17 +288,52 @@ class EasyOrganizer(BaseOrganizer):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
-    def get_learnware_ids(self, top: int = None) -> List[str]:
-        if top is None:
-            return list(self.learnware_list.keys())
-        else:
-            return list(self.learnware_list.keys())[:top]
+    def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
+        """Get learnware ids
 
-    def get_learnwares(self, top: int = None) -> List[str]:
+        Parameters
+        ----------
+        top : int, optional
+            The first top learnware ids to return, by default None
+        check_status : bool, optional
+            - None: return all learnware ids
+            - Others: return learnware ids with check_status
+
+        Returns
+        -------
+        List[str]
+            Learnware ids
+        """
+        if check_status is None:
+            filtered_ids = self.use_flags.keys()
+        elif check_status is True:
+            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.USABLE_LEARWARE]
+        elif check_status is False:
+            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.NONUSABLE_LEARNWARE]
+
         if top is None:
-            return list(self.learnware_list.values())
+            return filtered_ids
         else:
-            return list(self.learnware_list.values())[:top]
+            return filtered_ids[:top]
+
+    def get_learnwares(self, top: int = None, check_status: int = None) -> List[Learnware]:
+        """Get learnware list
+
+        Parameters
+        ----------
+        top : int, optional
+            The first top learnwares to return, by default None
+        check_status : bool, optional
+            - None: return all learnwares
+            - Others: return learnwares with check_status
+
+        Returns
+        -------
+        List[Learnware]
+            Learnware list
+        """
+        learnware_ids = self.get_learnware_ids(top, check_status)
+        return [self.learnware_list[idx] for idx in learnware_ids]
 
     def __len__(self):
         return len(self.learnware_list)

@@ -9,7 +9,7 @@ from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningR
 import time
 import pickle
 
-from learnware.market import instatiate_learnware_market, BaseUserInfo
+from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.market import database_ops
 from learnware.learnware import Learnware
 import learnware.specification as specification
@@ -120,7 +120,7 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
 
 
 def prepare_market():
-    text_market = instatiate_learnware_market(market_id="sst2", rebuild=True)
+    text_market = instantiate_learnware_market(market_id="sst2", rebuild=True)
     try:
         rmtree(learnware_pool_dir)
     except:
@@ -144,10 +144,10 @@ def prepare_market():
 
 def test_search(gamma=0.1, load_market=True):
     if load_market:
-        text_market = instatiate_learnware_market(market_id="sst2")
+        text_market = instantiate_learnware_market(market_id="sst2")
     else:
         prepare_market()
-        text_market = instatiate_learnware_market(market_id="sst2")
+        text_market = instantiate_learnware_market(market_id="sst2")
     logger.info("Number of items in the market: %d" % len(text_market))
 
     select_list = []

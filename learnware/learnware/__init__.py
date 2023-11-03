@@ -12,7 +12,7 @@ from ..config import C
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: str = None) -> Learnware:
+def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath) -> Learnware:
     """Get the learnware object from dirpath, and provide the manage interface tor Learnware class
 
     Parameters
@@ -44,32 +44,25 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
         ],
     }
 
-    if learnware_dirpath is not None:
-        try:
-            yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"]))
-        except FileNotFoundError:
-            yaml_config = {}
-            raise
-
-    if "name" in yaml_config:
-        learnware_config["name"] = yaml_config["name"]
-    if "model" in yaml_config:
-        learnware_config["model"].update(yaml_config["model"])
-    if "stat_specifications" in yaml_config:
-        learnware_config["stat_specifications"] = yaml_config["stat_specifications"].copy()
-
-    if "module_path" not in learnware_config["model"]:
-        learnware_config["model"]["module_path"] = os.path.join(
-            learnware_dirpath, C.learnware_folder_config["module_file"]
-        )
-
     try:
+        yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"]))
+
+        if "name" in yaml_config:
+            learnware_config["name"] = yaml_config["name"]
+        if "model" in yaml_config:
+            learnware_config["model"].update(yaml_config["model"])
+        if "stat_specifications" in yaml_config:
+            learnware_config["stat_specifications"] = yaml_config["stat_specifications"].copy()
+
+        if "module_path" not in learnware_config["model"]:
+            learnware_config["model"]["module_path"] = C.learnware_folder_config["module_file"]
+
         learnware_spec = Specification()
         for _stat_spec in learnware_config["stat_specifications"]:
             stat_spec = _stat_spec.copy()
             stat_spec["file_name"] = os.path.join(learnware_dirpath, stat_spec["file_name"])
-            stat_spac_name, stat_spec_inst = get_stat_spec_from_config(stat_spec)
-            learnware_spec.update_stat_spec(**{stat_spac_name: stat_spec_inst})
+            stat_spec_inst = get_stat_spec_from_config(stat_spec)
+            learnware_spec.update_stat_spec(**{stat_spec_inst.type: stat_spec_inst})
 
         learnware_spec.update_semantic_spec(copy.deepcopy(semantic_spec))
 
@@ -77,4 +70,6 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath: 
         logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")
         return None
 
-    return Learnware(id=id, model=learnware_config["model"], specification=learnware_spec)
+    return Learnware(
+        id=id, model=learnware_config["model"], specification=learnware_spec, learnware_dirpath=learnware_dirpath
+    )
