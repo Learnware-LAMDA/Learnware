@@ -92,7 +92,7 @@ class LearnwareClient:
 
     @require_login
     def upload_learnware(self, learnware_zip_path, semantic_specification):
-        assert self._check_semantic_specification(semantic_specification)
+        assert self._check_semantic_specification(semantic_specification), "Semantic specification check failed!"
         file_hash = compute_file_hash(learnware_zip_path)
         url_upload = f"{self.host}/user/chunked_upload"
 
@@ -276,8 +276,7 @@ class LearnwareClient:
         response = requests.get(url, headers=self.headers)
         result = response.json()
         semantic_conf = result["data"]["semantic_specification"]
-
-        return semantic_conf[key]["Values"]
+        return semantic_conf[key.value]["Values"]
 
     def load_learnware(
         self,
@@ -398,7 +397,7 @@ class LearnwareClient:
         semantic_specification = (
             get_semantic_specification() if semantic_specification is None else semantic_specification
         )
-
+        
         assert LearnwareClient._check_semantic_specification(
             semantic_specification
         ), "Semantic specification check failed!"
