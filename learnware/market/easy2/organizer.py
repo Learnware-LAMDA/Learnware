@@ -208,7 +208,8 @@ class EasyOrganizer(BaseOrganizer):
                 if new_learnware is None:
                     return BaseChecker.INVALID_LEARNWARE
 
-            copyfile(zip_path, target_zip_dir)
+            if zip_path != target_zip_dir:
+                copyfile(zip_path, target_zip_dir)
             with zipfile.ZipFile(target_zip_dir, "r") as z_file:
                 z_file.extractall(target_folder_dir)
 
