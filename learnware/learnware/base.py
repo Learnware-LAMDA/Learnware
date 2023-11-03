@@ -14,7 +14,7 @@ logger = get_module_logger("Learnware")
 class Learnware:
     """The learnware class, which is the basic components in learnware market"""
 
-    def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification):
+    def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification, learnware_dirpath: str):
         """The initialization method for learnware.
 
         Parameters
@@ -36,19 +36,29 @@ class Learnware:
                 - The kwards denotes the arguments of model, which is optional
         specification : Specification
             The specification including the semantic specification and the statistic specification
+        dirpath: str
+            The path of the learnware directory
         """
         self.id = id
         self.model = model
         self.specification = specification
+        self.learnware_dirpath = learnware_dirpath
 
     def __repr__(self) -> str:
         return "{}({}, {}, {})".format(type(self).__name__, self.id, type(self.model).__name__, self.specification)
+
+    @staticmethod
+    def get_model_module_abspath(learnware_dirpath, module_path):
+        if isinstance(module_path, str) and module_path.endswith(".py") and not os.path.isabs(module_path):
+            module_path = os.path.join(learnware_dirpath, module_path)
+        return module_path
 
     def instantiate_model(self):
         if isinstance(self.model, BaseModel):
             logger.info("The learnware had been instantiated, thus the instantiation operation is ignored!")
         elif isinstance(self.model, dict):
-            model_module = get_module_by_module_path(self.model["module_path"])
+            module_path = Learnware.get_model_module_abspath(self.learnware_dirpath, self.model["module_path"])
+            model_module = get_module_by_module_path(module_path)
             cls = getattr(model_module, self.model["class_name"])
             setattr(sys.modules["__main__"], self.model["class_name"], cls)
             self.model: BaseModel = cls(**self.model.get("kwargs", {}))
@@ -65,6 +75,9 @@ class Learnware:
 
     def get_specification(self) -> Specification:
         return self.specification
+
+    def get_dirpath(self) -> str:
+        return self.learnware_dirpath
 
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.specification.update_stat_spec(**{name: new_stat_spec})

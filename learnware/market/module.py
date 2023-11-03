@@ -1,11 +1,11 @@
 from .base import LearnwareMarket
-from .easy2 import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatisticalChecker
+from .easy2 import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
 
 MARKET_CONFIG = {
     "easy": {
         "organizer": EasyOrganizer(),
         "searcher": EasySearcher(),
-        "checker_list": [EasySemanticChecker(), EasyStatisticalChecker()],
+        "checker_list": [EasySemanticChecker(), EasyStatChecker()],
     }
 }
 
