@@ -148,8 +148,8 @@ class LearnwareMarket:
     def update_learnware(
         self,
         id: str,
-        zip_path: str,
-        semantic_spec: dict,
+        zip_path: str = None,
+        semantic_spec: dict = None,
         checker_names: List[str] = None,
         check_status: int = None,
         **kwargs,
@@ -174,6 +174,12 @@ class LearnwareMarket:
         int
             The final learnware check_status.
         """
+        zip_path = self.get_learnware_path_by_ids(id) if zip_path is None else zip_path
+        semantic_spec = (
+            self.get_learnware_by_ids(id).get_specification().get_semantic_spec()
+            if semantic_spec is None
+            else semantic_spec
+        )
         update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         check_status = (
             update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
