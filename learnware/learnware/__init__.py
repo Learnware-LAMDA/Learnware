@@ -71,4 +71,4 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath) 
         logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")
         return None
 
-    return Learnware(id=id, model=learnware_config["model"], specification=learnware_spec)
+    return Learnware(id=id, model=learnware_config["model"], specification=learnware_spec, learnware_dirpath=learnware_dirpath)

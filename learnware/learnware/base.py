@@ -14,7 +14,7 @@ logger = get_module_logger("Learnware")
 class Learnware:
     """The learnware class, which is the basic components in learnware market"""
 
-    def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification, dirpath: str):
+    def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification, learnware_dirpath: str):
         """The initialization method for learnware.
 
         Parameters
@@ -42,7 +42,7 @@ class Learnware:
         self.id = id
         self.model = model
         self.specification = specification
-        self.learnware_dirpath = dirpath
+        self.learnware_dirpath = learnware_dirpath
 
     def __repr__(self) -> str:
         return "{}({}, {}, {})".format(type(self).__name__, self.id, type(self.model).__name__, self.specification)

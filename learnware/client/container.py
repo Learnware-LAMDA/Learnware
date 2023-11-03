@@ -492,7 +492,6 @@ class LearnwaresContainer:
     def __init__(
         self,
         learnwares: Union[List[Learnware], Learnware],
-        learnware_zippaths: Union[List[str], str],
         cleanup=True,
         mode="conda",
     ):
@@ -505,8 +504,6 @@ class LearnwaresContainer:
         """
         if isinstance(learnwares, Learnware):
             learnwares = [learnwares]
-        if isinstance(learnware_zippaths, str):
-            learnware_zippaths = [learnware_zippaths]
 
         assert all(
             [isinstance(_learnware.get_model(), dict) for _learnware in learnwares]
@@ -515,26 +512,26 @@ class LearnwaresContainer:
         self.mode = mode
         assert self.mode in {"conda", "docker"}, f"mode must be in ['conda', 'docker'], should not be {self.mode}"
         self.learnware_list = learnwares
-        self.learnware_zippaths = learnware_zippaths
         self.cleanup = cleanup
 
     def __enter__(self):
         if self.mode == "conda":
             self.learnware_containers = [
                 Learnware(
-                    _learnware.id, ModelCondaContainer(_learnware.get_model(), _zippath), _learnware.get_specification()
+                    _learnware.id, ModelCondaContainer(_learnware.get_model(), _learnware.get_dirpath()), _learnware.get_specification(), _learnware.get_dirpath()
                 )
-                for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
+                for _learnware in self.learnware_list
             ]
         else:
             self._docker_container = ModelDockerContainer._generate_docker_container()
             self.learnware_containers = [
                 Learnware(
                     _learnware.id,
-                    ModelDockerContainer(_learnware.get_model(), _zippath, self._docker_container, build=False),
+                    ModelDockerContainer(_learnware.get_model(), _learnware.get_dirpath(), self._docker_container, build=False),
                     _learnware.get_specification(),
+                    _learnware.get_dirpath()
                 )
-                for _learnware, _zippath in zip(self.learnware_list, self.learnware_zippaths)
+                for _learnware in self.learnware_list
             ]
             atexit.register(ModelDockerContainer._destroy_docker_container, self._docker_container)
 

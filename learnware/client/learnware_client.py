@@ -373,10 +373,10 @@ class LearnwareClient:
                 for i in range(len(learnware_list)):
                     learnware_list[i].instantiate_model()
             elif runnable_option == "conda_env":
-                with LearnwaresContainer(learnware_list, zip_paths, cleanup=False, mode="conda") as env_container:
+                with LearnwaresContainer(learnware_list, cleanup=False, mode="conda") as env_container:
                     learnware_list = env_container.get_learnwares_with_container()
             elif runnable_option == "docker":
-                with LearnwaresContainer(learnware_list, zip_paths, cleanup=False, mode="docker") as env_container:
+                with LearnwaresContainer(learnware_list, cleanup=False, mode="docker") as env_container:
                     learnware_list = env_container.get_learnwares_with_container()
 
         if len(learnware_list) == 1:
