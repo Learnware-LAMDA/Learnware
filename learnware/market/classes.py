@@ -1,4 +1,4 @@
-from .base import BaseChecker, BaseOrganizer
+from .base import BaseChecker
 from ..learnware import Learnware
 from ..client.container import LearnwaresContainer
 from ..logger import get_module_logger
