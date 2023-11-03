@@ -1,15 +1,17 @@
 import torch
 import numpy as np
 
-from typing import List
+from typing import List, Union
 from cvxopt import matrix, solvers
 from lightgbm import LGBMClassifier, early_stopping
 from sklearn.metrics import accuracy_score
 
-from learnware.learnware import Learnware
-import learnware.specification as specification
+
 from .base import BaseReuser
+from ..market.utils import parse_specification_type
+from ..learnware import Learnware
 from ..specification import RKMETableSpecification, RKMETextSpecification
+from ..specification.utils import generate_rkme_spec
 from ..logger import get_module_logger
 
 logger = get_module_logger("job_selector_reuse")
@@ -32,7 +34,7 @@ class JobSelectorReuser(BaseReuser):
         self.herding_num = herding_num
         self.use_herding = use_herding
 
-    def predict(self, user_data: np.ndarray) -> np.ndarray:
+    def predict(self, user_data: Union[np.ndarray, List[str]]) -> np.ndarray:
         """Give prediction for user data using baseline job-selector method
 
         Parameters
@@ -41,12 +43,16 @@ class JobSelectorReuser(BaseReuser):
             User's unlabeled raw data.
 
         Returns
-        -------
+        ------
         np.ndarray
             Prediction given by job-selector method
         """
-        ori_user_data = user_data
+        raw_user_data = user_data
         if isinstance(user_data[0], str):
+            stat_spec_type = parse_specification_type(self.learnware_list[0].get_specification())
+            assert (
+                stat_spec_type == "RKMETextSpecification"
+            ), "stat_spec_type must be 'RKMETextSpecification' when user data is the List of string."
             user_data = RKMETextSpecification.get_sentence_embedding(user_data)
 
         select_result = self.job_selector(user_data)
@@ -56,8 +62,8 @@ class JobSelectorReuser(BaseReuser):
         for idx in range(len(self.learnware_list)):
             data_idx_list = np.where(select_result == idx)[0]
             if len(data_idx_list) > 0:
-                # pred_y = self.learnware_list[idx].predict(ori_user_data[data_idx_list])
-                pred_y = self.learnware_list[idx].predict([ori_user_data[i] for i in data_idx_list])
+                # pred_y = self.learnware_list[idx].predict(raw_user_data[data_idx_list])
+                pred_y = self.learnware_list[idx].predict([raw_user_data[i] for i in data_idx_list])
                 if isinstance(pred_y, torch.Tensor):
                     pred_y = pred_y.detach().cpu().numpy()
                 # elif isinstance(pred_y, tf.Tensor):
@@ -91,14 +97,9 @@ class JobSelectorReuser(BaseReuser):
             user_data_num = len(user_data)
             return np.array([0] * user_data_num)
         else:
-            ori_user_data = user_data
-            if isinstance(user_data[0], str):
-                user_data = RKMETextSpecification.get_sentence_embedding(user_data)
-            spec_name = "RKMETableSpecification"
-            if len(self.learnware_list) and "RKMETextSpecification" in self.learnware_list[0].specification.stat_spec:
-                spec_name = "RKMETextSpecification"
+            stat_spec_type = parse_specification_type(self.learnware_list[0].get_specification())
             learnware_rkme_spec_list = [
-                learnware.specification.get_stat_spec_by_name(spec_name) for learnware in self.learnware_list
+                learnware.specification.get_stat_spec_by_name(stat_spec_type) for learnware in self.learnware_list
             ]
 
             if self.use_herding:
@@ -179,9 +180,7 @@ class JobSelectorReuser(BaseReuser):
             Inner product matrix calculated from task_rkme_list.
         """
         task_num = len(task_rkme_list)
-        if isinstance(user_data[0], str):
-            user_data = RKMETextSpecification.get_sentence_embedding(user_data)
-        user_rkme_spec = specification.utils.generate_rkme_spec(X=user_data, reduce=False)
+        user_rkme_spec = generate_rkme_spec(X=user_data, reduce=False)
         K = task_rkme_matrix
         v = np.array([user_rkme_spec.inner_prod(task_rkme) for task_rkme in task_rkme_list])
 
