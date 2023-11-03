@@ -13,7 +13,7 @@ class CondaChecker(BaseChecker):
     def __call__(self, learnware: Learnware) -> int:
         with LearnwaresContainer(learnware) as env_container:
             if not all(env_container.get_learnware_flags()):
-                logger.warning(f"The env of learnware {learnware} installed failed")
+                logger.warning(f"Conda Checker failed due to installed learnware failed")
                 return BaseChecker.INVALID_LEARNWARE
             learnwares = env_container.get_learnwares_with_container()
             check_status = self.inner_checker(learnwares[0])
