@@ -76,6 +76,7 @@ def install_environment(zip_path, conda_env):
                         "install",
                         "-r",
                         f"{requirements_path_filter}",
+                        "--no-dependencies",
                     ]
                 )
             else:
