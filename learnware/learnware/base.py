@@ -14,7 +14,7 @@ logger = get_module_logger("Learnware")
 class Learnware:
     """The learnware class, which is the basic components in learnware market"""
 
-    def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification):
+    def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification, dirpath: str):
         """The initialization method for learnware.
 
         Parameters
@@ -36,10 +36,13 @@ class Learnware:
                 - The kwards denotes the arguments of model, which is optional
         specification : Specification
             The specification including the semantic specification and the statistic specification
+        dirpath: str
+            The path of the learnware directory 
         """
         self.id = id
         self.model = model
         self.specification = specification
+        self.learnware_dirpath = dirpath
 
     def __repr__(self) -> str:
         return "{}({}, {}, {})".format(type(self).__name__, self.id, type(self.model).__name__, self.specification)
@@ -48,7 +51,10 @@ class Learnware:
         if isinstance(self.model, BaseModel):
             logger.info("The learnware had been instantiated, thus the instantiation operation is ignored!")
         elif isinstance(self.model, dict):
-            model_module = get_module_by_module_path(self.model["module_path"])
+            module_path = self.model["module_path"]
+            if isinstance(module_path, str) and module_path.endswith(".py") and not os.path.isabs(module_path):
+                module_path = os.path.join(self.learnware_dirpath, module_path)
+            model_module = get_module_by_module_path(module_path)
             cls = getattr(model_module, self.model["class_name"])
             setattr(sys.modules["__main__"], self.model["class_name"], cls)
             self.model: BaseModel = cls(**self.model.get("kwargs", {}))
