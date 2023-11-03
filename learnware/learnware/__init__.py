@@ -46,7 +46,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath) 
 
     try:
         yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"]))
-        
+
         if "name" in yaml_config:
             learnware_config["name"] = yaml_config["name"]
         if "model" in yaml_config:
@@ -57,7 +57,6 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath) 
         if "module_path" not in learnware_config["model"]:
             learnware_config["model"]["module_path"] = C.learnware_folder_config["module_file"]
 
-    
         learnware_spec = Specification()
         for _stat_spec in learnware_config["stat_specifications"]:
             stat_spec = _stat_spec.copy()
@@ -71,4 +70,6 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath) 
         logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")
         return None
 
-    return Learnware(id=id, model=learnware_config["model"], specification=learnware_spec, learnware_dirpath=learnware_dirpath)
+    return Learnware(
+        id=id, model=learnware_config["model"], specification=learnware_spec, learnware_dirpath=learnware_dirpath
+    )

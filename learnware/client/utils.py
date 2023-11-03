@@ -46,17 +46,13 @@ def install_environment(learnware_dirpath, conda_env):
             filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
             # create environment
             logger.info(f"create conda env [{conda_env}] according to .yaml file")
-            system_execute(
-                args=["conda", "env", "create", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"]
-            )
+            system_execute(args=["conda", "env", "create", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"])
 
         elif "requirements.txt" in os.listdir(learnware_dirpath):
             requirements_path: str = os.path.join(learnware_dirpath, "requirements.txt")
             requirements_path_filter: str = os.path.join(tempdir, "requirements_filter.txt")
             logger.info(f"checking the avaliabe pip packages for {conda_env}")
-            filter_nonexist_pip_packages_file(
-                requirements_file=requirements_path, output_file=requirements_path_filter
-            )
+            filter_nonexist_pip_packages_file(requirements_file=requirements_path, output_file=requirements_path_filter)
             logger.info(f"create empty conda env [{conda_env}]")
             system_execute(args=["conda", "create", "-y", "--name", f"{conda_env}", "python=3.8"])
             logger.info(f"install pip requirements for conda env [{conda_env}]")

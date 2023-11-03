@@ -37,7 +37,7 @@ class Learnware:
         specification : Specification
             The specification including the semantic specification and the statistic specification
         dirpath: str
-            The path of the learnware directory 
+            The path of the learnware directory
         """
         self.id = id
         self.model = model
@@ -52,7 +52,7 @@ class Learnware:
         if isinstance(module_path, str) and module_path.endswith(".py") and not os.path.isabs(module_path):
             module_path = os.path.join(learnware_dirpath, module_path)
         return module_path
-    
+
     def instantiate_model(self):
         if isinstance(self.model, BaseModel):
             logger.info("The learnware had been instantiated, thus the instantiation operation is ignored!")
@@ -72,13 +72,13 @@ class Learnware:
 
     def get_model(self) -> Union[dict, BaseModel]:
         return self.model
-    
+
     def get_specification(self) -> Specification:
         return self.specification
 
     def get_dirpath(self) -> str:
         return self.learnware_dirpath
-    
+
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.specification.update_stat_spec(**{name: new_stat_spec})
 

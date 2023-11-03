@@ -388,7 +388,7 @@ class LearnwareClient:
     def _check_semantic_specification(semantic_spec):
         semantic_checker = EasySemanticChecker()
         return semantic_checker(semantic_spec) != BaseChecker.INVALID_LEARNWARE
-    
+
     @staticmethod
     def _check_stat_specification(learnware):
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
@@ -399,8 +399,10 @@ class LearnwareClient:
         semantic_specification = (
             get_semantic_specification() if semantic_specification is None else semantic_specification
         )
-        
-        assert LearnwareClient._check_semantic_specification(semantic_specification), "Semantic specification check failed!"
+
+        assert LearnwareClient._check_semantic_specification(
+            semantic_specification
+        ), "Semantic specification check failed!"
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(learnware_zip_path, mode="r") as z_file:
