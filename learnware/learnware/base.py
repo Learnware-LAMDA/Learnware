@@ -68,10 +68,13 @@ class Learnware:
 
     def get_model(self) -> Union[dict, BaseModel]:
         return self.model
-
+    
     def get_specification(self) -> Specification:
         return self.specification
 
+    def get_dirpath(self) -> str:
+        return self.learnware_dirpath
+    
     def update_stat_spec(self, name, new_stat_spec: BaseStatSpecification):
         self.specification.update_stat_spec(**{name: new_stat_spec})
 
