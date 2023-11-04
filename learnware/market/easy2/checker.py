@@ -118,7 +118,7 @@ class EasyStatChecker(BaseChecker):
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
             else:
                 raise ValueError(f"not supported spec type for spec_type = {spec_type}")
-            
+
             # Check output
             try:
                 outputs = learnware.predict(inputs)
@@ -137,8 +137,12 @@ class EasyStatChecker(BaseChecker):
                 if outputs.ndim == 1:
                     outputs = outputs.reshape(-1, 1)
                 # Check output shape
-                if outputs[0].shape != learnware_model.output_shape or learnware_model.output_shape != (int(semantic_spec["Output"]["Dimension"]), ):
-                    logger.warning(f"The learnware [{learnware.id}] output dimention mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}")
+                if outputs[0].shape != learnware_model.output_shape or learnware_model.output_shape != (
+                    int(semantic_spec["Output"]["Dimension"]),
+                ):
+                    logger.warning(
+                        f"The learnware [{learnware.id}] output dimention mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
+                    )
                     return self.INVALID_LEARNWARE
 
         except Exception as e:

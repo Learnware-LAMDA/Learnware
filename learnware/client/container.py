@@ -550,7 +550,7 @@ class LearnwaresContainer:
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
         with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
-            results = executor.map(self._initialize_model_container, model_list, [self.ignore_error]*len(model_list))
+            results = executor.map(self._initialize_model_container, model_list, [self.ignore_error] * len(model_list))
         self.results = list(results)
 
         if sum(self.results) < len(self.learnware_list):
@@ -569,7 +569,7 @@ class LearnwaresContainer:
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
         with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
-            executor.map(self._destroy_model_container, model_list, [self.ignore_error]*len(model_list))
+            executor.map(self._destroy_model_container, model_list, [self.ignore_error] * len(model_list))
 
         self.learnware_containers = None
         self.results = None
