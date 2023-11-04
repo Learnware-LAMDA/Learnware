@@ -120,7 +120,7 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
 
             if not any(package.startswith("python=") for package in exist_packages):
                 exist_packages = ["python=3.8"] + exist_packages
-            
+
             return exist_packages, nonexist_packages
         else:
             return packages, []
