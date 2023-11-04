@@ -14,7 +14,7 @@ def system_execute(args, timeout=None):
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
-        logger.error(f"System Execute Error: {com_process.stderr.decode()}")
+        logger.warning(f"System Execute Error: {com_process.stderr.decode()}")
         raise err
 
 
