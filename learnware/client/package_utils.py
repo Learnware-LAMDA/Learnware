@@ -20,7 +20,6 @@ def try_to_run(args, timeout=5, retry=5):
             break
         except subprocess.TimeoutExpired as e:
             pass
-        pass
 
     if not sucess:
         raise subprocess.TimeoutExpired(args, timeout)
@@ -42,8 +41,6 @@ def parse_pip_requirement(line: str):
         split_ch_index = package_str.find(split_ch)
         if split_ch_index != -1:
             package_str = package_str[:split_ch_index]
-            pass
-        pass
 
     return package_str
 
@@ -58,7 +55,6 @@ def read_pip_packages_from_requirements(requirements_file: str) -> List[str]:
             package_str = parse_pip_requirement(line)
             packages.append(package_str)
             lines.append(line)
-            pass
 
     return packages, lines
 
@@ -78,13 +74,11 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
     for package in packages:
         try:
             # os.system("python3 -m pip index versions {0}".format(package))
-            try_to_run(args=["python3", "-m", "pip", "index", "versions", package], timeout=5)
+            try_to_run(args=["python3", "-m", "pip", "index", "versions", parse_pip_requirement(package)], timeout=5)
             exist_packages.append(package)
         except Exception as e:
             logger.error(e)
             nonexist_packages.append(package)
-            pass
-        pass
 
     return exist_packages, nonexist_packages
 
@@ -98,7 +92,6 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
         exist_packages: list of exist packages
         nonexist_packages: list of non-exist packages
     """
-
     test_yaml = {
         "channels": ["defaults"],
         "dependencies": packages,
@@ -125,6 +118,9 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
                     exist_packages.append(package)
             logger.info(f"Filtered out {len(nonexist_packages)} non-exist conda dependencies.")
 
+            if not any(package.startswith("python=") for package in exist_packages):
+                exist_packages = ["python=3.8"] + exist_packages
+            
             return exist_packages, nonexist_packages
         else:
             return packages, []
@@ -149,22 +145,17 @@ def read_conda_packages_from_dict(env_desc: dict) -> Tuple[List[str], List[str]]
     if conda_packages is None:
         conda_packages = []
         pip_packages = []
-        pass
     else:
         pip_packages = []
         conda_packages_ = []
         for package in conda_packages:
             if isinstance(package, dict) and "pip" in package:
                 pip_packages = package["pip"]
-                pip_packages = [parse_pip_requirement(line) for line in pip_packages]
-                pass
+                # pip_packages = [parse_pip_requirement(line) for line in pip_packages]
             elif isinstance(package, str):
                 conda_packages_.append(package)
-                pass
-            pass
 
         conda_packages = conda_packages_
-        pass
 
     return conda_packages, pip_packages
 
@@ -172,7 +163,6 @@ def read_conda_packages_from_dict(env_desc: dict) -> Tuple[List[str], List[str]]
 def filter_nonexist_conda_packages_file(yaml_file: str, output_yaml_file: str):
     with open(yaml_file, "r") as fin:
         env_desc = yaml.safe_load(fin)
-        pass
 
     conda_packages, pip_packages = read_conda_packages_from_dict(env_desc)
 
@@ -182,11 +172,9 @@ def filter_nonexist_conda_packages_file(yaml_file: str, output_yaml_file: str):
     env_desc["dependencies"] = conda_packages
     if len(pip_packages) > 0:
         env_desc["dependencies"].append({"pip": pip_packages})
-        pass
 
     with open(output_yaml_file, "w") as fout:
         yaml.safe_dump(env_desc, fout)
-        pass
 
     return conda_packages, pip_packages, nonexist_conda_packages, nonexist_pip_packages
 
@@ -202,9 +190,6 @@ def filter_nonexist_pip_packages_file(requirements_file: str, output_file: str):
         for package, line in zip(packages, lines):
             if package is not None and package in exist_packages:
                 fout.write(line + "\n")
-                pass
-            pass
-        pass
 
     logger.info(f"exist packages: {packages}")
     return exist_packages, nonexist_packages
