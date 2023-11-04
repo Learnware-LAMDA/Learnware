@@ -500,6 +500,7 @@ class LearnwaresContainer:
         learnwares: Union[List[Learnware], Learnware],
         cleanup=True,
         mode="conda",
+        ignore_error=True,
     ):
         """The initializaiton method for base reuser
 

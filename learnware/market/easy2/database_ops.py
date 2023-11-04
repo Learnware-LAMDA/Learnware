@@ -169,7 +169,6 @@ class DatabaseOperations(object):
                 use_flags[id] = use_flag
                 max_count = max(max_count, int(id))
             pass
-
         return learnware_list, zip_list, folder_list, use_flags, max_count + 1
         pass
 

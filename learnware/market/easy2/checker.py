@@ -118,13 +118,12 @@ class EasyStatChecker(BaseChecker):
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
             else:
                 raise ValueError(f"not supported spec type for spec_type = {spec_type}")
-            outputs = learnware.predict(inputs)
+            
             # Check output
-            if outputs.ndim == 1:
-                outputs = outputs.reshape(-1, 1)
-
-            if outputs.shape[1:] != learnware_model.output_shape:
-                logger.warning(f"The learnware [{learnware.id}] output dimention mismatch, where {outputs.shape[1:]} != {learnware_model.output_shape}.")
+            try:
+                outputs = learnware.predict(inputs)
+            except Exception:
+                logger.warning(f"learnware {learnware} prediction method is not valid!")
                 return self.INVALID_LEARNWARE
 
             if semantic_spec["Task"]["Values"][0] in ("Classification", "Regression", "Feature Extraction"):
@@ -135,11 +134,11 @@ class EasyStatChecker(BaseChecker):
                     logger.warning(f"The learnware [{learnware.id}] output must be np.ndarray or torch.Tensor!")
                     return self.INVALID_LEARNWARE
 
+                if outputs.ndim == 1:
+                    outputs = outputs.reshape(-1, 1)
                 # Check output shape
-                if outputs[0].shape != learnware_model.output_shape or learnware_model.output_shape != int(
-                    semantic_spec["Output"]["Dimension"]
-                ):
-                    logger.warning(f"The learnware [{learnware.id}] output dimention mismatch!")
+                if outputs[0].shape != learnware_model.output_shape or learnware_model.output_shape != (int(semantic_spec["Output"]["Dimension"]), ):
+                    logger.warning(f"The learnware [{learnware.id}] output dimention mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}")
                     return self.INVALID_LEARNWARE
 
         except Exception as e:
