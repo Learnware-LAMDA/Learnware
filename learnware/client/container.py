@@ -556,11 +556,6 @@ class LearnwaresContainer:
                 f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnware will be ignored"
             )
 
-        # if not self.cleanup and self.mode == "docker":
-        #     _model_docker_container = self.learnware_containers[0].get_model()
-        #     _model_docker_container.cleanup_flag = True
-        #     atexit.register(_model_docker_container.remove_env)
-
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
