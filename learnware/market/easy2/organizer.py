@@ -306,10 +306,13 @@ class EasyOrganizer(BaseOrganizer):
         """
         if check_status is None:
             filtered_ids = self.use_flags.keys()
-        elif check_status is True:
-            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.USABLE_LEARWARE]
-        elif check_status is False:
-            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.NONUSABLE_LEARNWARE]
+        elif check_status in [BaseChecker.NONUSABLE_LEARNWARE, BaseChecker.USABLE_LEARWARE]:
+            filtered_ids = [key for key, value in self.use_flags.items() if value == check_status]
+        else:
+            logger.warning(
+                f"check_status must be in [{BaseChecker.NONUSABLE_LEARNWARE}, {BaseChecker.USABLE_LEARWARE}]!"
+            )
+            return None
 
         if top is None:
             return filtered_ids
