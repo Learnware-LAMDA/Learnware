@@ -124,7 +124,7 @@ class EasyStatChecker(BaseChecker):
                 outputs = outputs.reshape(-1, 1)
 
             if outputs.shape[1:] != learnware_model.output_shape:
-                logger.warning(f"The learnware [{learnware.id}] output dimention mismatch!")
+                logger.warning(f"The learnware [{learnware.id}] output dimention mismatch, where {outputs.shape[1:]} != {learnware_model.output_shape}.")
                 return self.INVALID_LEARNWARE
 
             if semantic_spec["Task"]["Values"][0] in ("Classification", "Regression", "Feature Extraction"):
