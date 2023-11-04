@@ -49,7 +49,7 @@ class JobSelectorReuser(BaseReuser):
         """
         raw_user_data = user_data
         if isinstance(user_data[0], str):
-            stat_spec_type = parse_specification_type(self.learnware_list[0].get_specification())
+            stat_spec_type = parse_specification_type(self.learnware_list[0].get_specification().stat_spec)
             assert (
                 stat_spec_type == "RKMETextSpecification"
             ), "stat_spec_type must be 'RKMETextSpecification' when user data is the List of string."
@@ -97,7 +97,7 @@ class JobSelectorReuser(BaseReuser):
             user_data_num = len(user_data)
             return np.array([0] * user_data_num)
         else:
-            stat_spec_type = parse_specification_type(self.learnware_list[0].get_specification())
+            stat_spec_type = parse_specification_type(self.learnware_list[0].get_specification().stat_spec)
             learnware_rkme_spec_list = [
                 learnware.specification.get_stat_spec_by_name(stat_spec_type) for learnware in self.learnware_list
             ]

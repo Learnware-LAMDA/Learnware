@@ -101,7 +101,7 @@ class EasyStatChecker(BaseChecker):
                 logger.warning("input shapes of model and semantic specifications are different")
                 return self.INVALID_LEARNWARE
 
-            spec_type = parse_specification_type(learnware.get_specification())
+            spec_type = parse_specification_type(learnware.get_specification().stat_spec)
             if spec_type is None:
                 logger.warning(f"No valid specification is found in stat spec {spec_type}")
                 return self.INVALID_LEARNWARE
