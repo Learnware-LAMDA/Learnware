@@ -81,8 +81,6 @@ class LearnwareMarket:
                     pending_learnware = get_learnware_from_dirpath(
                         id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
                     )
-                    checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
-
                     for name in checker_names:
                         checker = self.learnware_checker[name]
                         check_status = checker(pending_learnware)
@@ -115,6 +113,7 @@ class LearnwareMarket:
             - str indicating model_id
             - int indicating the final learnware check_status
         """
+        checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
         check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         return self.learnware_organizer.add_learnware(
             zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
@@ -178,6 +177,7 @@ class LearnwareMarket:
             if semantic_spec is None
             else semantic_spec
         )
+        checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
         update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         check_status = (
             update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
