@@ -256,7 +256,7 @@ class EasyOrganizer(BaseOrganizer):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
-    def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+    def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Get Zipped Learnware file by id
 
         Parameters

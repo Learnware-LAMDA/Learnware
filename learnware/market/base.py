@@ -172,7 +172,7 @@ class LearnwareMarket:
         int
             The final learnware check_status.
         """
-        zip_path = self.get_learnware_path_by_ids(id) if zip_path is None else zip_path
+        zip_path = self.get_learnware_zip_path_by_ids(id) if zip_path is None else zip_path
         semantic_spec = (
             self.get_learnware_by_ids(id).get_specification().get_semantic_spec()
             if semantic_spec is None
@@ -223,8 +223,8 @@ class LearnwareMarket:
         """
         return self.learnware_organizer.get_learnwares(top, check_status, **kwargs)
 
-    def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
-        return self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
+    def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        return self.learnware_organizer.get_learnware_zip_path_by_ids(ids, **kwargs)
 
     def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
@@ -331,7 +331,7 @@ class BaseOrganizer:
         """
         raise NotImplementedError("get_learnware_by_ids is not implemented in BaseOrganizer")
 
-    def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+    def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Get Zipped Learnware file by id
 
         Parameters
@@ -347,7 +347,7 @@ class BaseOrganizer:
             Return the path for target learnware or list of path.
             None for Learnware NOT Found.
         """
-        raise NotImplementedError("get_learnware_path_by_ids is not implemented in BaseOrganizer")
+        raise NotImplementedError("get_learnware_zip_path_by_ids is not implemented in BaseOrganizer")
 
     def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
         """get the list of learnware ids
