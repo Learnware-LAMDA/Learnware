@@ -226,6 +226,9 @@ class LearnwareMarket:
     def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_zip_path_by_ids(ids, **kwargs)
 
+    def get_learnware_dir_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        return self.learnware_organizer.get_learnware_dir_path_by_ids(ids, **kwargs)
+
     def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
 
@@ -348,6 +351,24 @@ class BaseOrganizer:
             None for Learnware NOT Found.
         """
         raise NotImplementedError("get_learnware_zip_path_by_ids is not implemented in BaseOrganizer")
+
+    def get_learnware_dir_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """Get Learnware dir path by id
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of targer learware
+            List[str]: A list of ids of target learnwares
+
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return the dir path for target learnware or list of path.
+            None for Learnware NOT Found.
+        """
+        raise NotImplementedError("get_learnware_dir_path_by_ids is not implemented in BaseOrganizer")
 
     def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
         """get the list of learnware ids

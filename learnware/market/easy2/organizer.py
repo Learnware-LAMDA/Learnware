@@ -288,6 +288,38 @@ class EasyOrganizer(BaseOrganizer):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
+    def get_learnware_dir_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """Get Learnware dir path by id
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of targer learware
+            List[str]: A list of ids of target learnwares
+
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return the dir path for target learnware or list of path.
+            None for Learnware NOT Found.
+        """
+        if isinstance(ids, list):
+            ret = []
+            for id in ids:
+                if id in self.learnware_folder_list:
+                    ret.append(self.learnware_folder_list[id])
+                else:
+                    logger.warning("Learnware ID '%s' NOT Found!" % (id))
+                    ret.append(None)
+            return ret
+        else:
+            try:
+                return self.learnware_folder_list[ids]
+            except:
+                logger.warning("Learnware ID '%s' NOT Found!" % (ids))
+                return None
+
     def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
         """Get learnware ids
 
