@@ -1,1 +1,2 @@
-from .organizer import MappingFunction, HeterogeneousOrganizer
+from .organizer import HeteroMapTableOrganizer
+from .searcher import HeteroMapTableSearcher
