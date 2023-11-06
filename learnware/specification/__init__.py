@@ -7,3 +7,4 @@ from .regular import (
     RKMEImageSpecification,
     RKMETextSpecification,
 )
+from .system import HeteroSpecification
