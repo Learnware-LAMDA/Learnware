@@ -13,15 +13,14 @@ def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stde
     if env is None:
         env = os.environ.copy()
         pass
-    
+
     if isinstance(args, str):
         pass
     else:
-        args = ' '.join(args)
+        args = " ".join(args)
         pass
-        
-    com_process = subprocess.run(
-        args, stdout=stdout, stderr=stderr, timeout=timeout, env=env, shell=True)
+
+    com_process = subprocess.run(args, stdout=stdout, stderr=stderr, timeout=timeout, env=env, shell=True)
 
     try:
         com_process.check_returncode()
