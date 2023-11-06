@@ -9,17 +9,29 @@ from .package_utils import filter_nonexist_conda_packages_file, filter_nonexist_
 logger = get_module_logger(module_name="client_utils")
 
 
-def system_execute(args, timeout=None):
-    com_process = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=timeout)
+def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE):
+    if env is None:
+        env = os.environ.copy()
+        pass
+
+    if isinstance(args, str):
+        pass
+    else:
+        args = " ".join(args)
+        pass
+
+    com_process = subprocess.run(args, stdout=stdout, stderr=stderr, timeout=timeout, env=env, shell=True)
+
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
-        logger.error(f"System Execute Error: {com_process.stderr.decode()}")
+        logger.warning(f"System Execute Error: {com_process.stderr.decode()}")
         raise err
 
 
 def remove_enviroment(conda_env):
     system_execute(args=["conda", "env", "remove", "-n", f"{conda_env}"])
+    logger.info(f"The learnware conda env [{conda_env}] is removed.")
 
 
 def install_environment(learnware_dirpath, conda_env):

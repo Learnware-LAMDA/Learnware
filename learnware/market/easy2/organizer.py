@@ -256,7 +256,7 @@ class EasyOrganizer(BaseOrganizer):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
-    def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+    def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Get Zipped Learnware file by id
 
         Parameters
@@ -288,6 +288,38 @@ class EasyOrganizer(BaseOrganizer):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
+    def get_learnware_dir_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """Get Learnware dir path by id
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of targer learware
+            List[str]: A list of ids of target learnwares
+
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return the dir path for target learnware or list of path.
+            None for Learnware NOT Found.
+        """
+        if isinstance(ids, list):
+            ret = []
+            for id in ids:
+                if id in self.learnware_folder_list:
+                    ret.append(self.learnware_folder_list[id])
+                else:
+                    logger.warning("Learnware ID '%s' NOT Found!" % (id))
+                    ret.append(None)
+            return ret
+        else:
+            try:
+                return self.learnware_folder_list[ids]
+            except:
+                logger.warning("Learnware ID '%s' NOT Found!" % (ids))
+                return None
+
     def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
         """Get learnware ids
 
@@ -306,10 +338,13 @@ class EasyOrganizer(BaseOrganizer):
         """
         if check_status is None:
             filtered_ids = self.use_flags.keys()
-        elif check_status is True:
-            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.USABLE_LEARWARE]
-        elif check_status is False:
-            filtered_ids = [key for key, value in self.use_flags.items() if value == BaseChecker.NONUSABLE_LEARNWARE]
+        elif check_status in [BaseChecker.NONUSABLE_LEARNWARE, BaseChecker.USABLE_LEARWARE]:
+            filtered_ids = [key for key, value in self.use_flags.items() if value == check_status]
+        else:
+            logger.warning(
+                f"check_status must be in [{BaseChecker.NONUSABLE_LEARNWARE}, {BaseChecker.USABLE_LEARWARE}]!"
+            )
+            return None
 
         if top is None:
             return filtered_ids

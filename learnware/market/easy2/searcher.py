@@ -565,7 +565,7 @@ class EasyStatSearcher(BaseSearcher):
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
-        self.stat_spec_type = parse_specification_type(stat_spec=user_info.stat_info)
+        self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info)
         if self.stat_spec_type is None:
             raise KeyError("No supported stat specification is given in the user info")
 
@@ -646,7 +646,7 @@ class EasySearcher(BaseSearcher):
         if len(learnware_list) == 0:
             return [], [], 0.0, []
 
-        if parse_specification_type(stat_spec=user_info.stat_info) is not None:
+        if parse_specification_type(stat_specs=user_info.stat_info) is not None:
             return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
             return None, learnware_list, 0.0, None
