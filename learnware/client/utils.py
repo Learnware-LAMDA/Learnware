@@ -9,8 +9,20 @@ from .package_utils import filter_nonexist_conda_packages_file, filter_nonexist_
 logger = get_module_logger(module_name="client_utils")
 
 
-def system_execute(args, timeout=None):
-    com_process = subprocess.run(args, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=timeout)
+def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE):
+    if env is None:
+        env = os.environ.copy()
+        pass
+    
+    if isinstance(args, str):
+        pass
+    else:
+        args = ' '.join(args)
+        pass
+        
+    com_process = subprocess.run(
+        args, stdout=stdout, stderr=stderr, timeout=timeout, env=env, shell=True)
+
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
