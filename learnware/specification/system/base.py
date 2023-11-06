@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from ..base import BaseStatSpecification
 from loguru import logger
+
+from ..base import BaseStatSpecification
 
 
 class SystemStatsSpecification(BaseStatSpecification):

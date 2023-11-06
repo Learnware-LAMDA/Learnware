@@ -1,40 +1,38 @@
 from __future__ import annotations
 
+import multiprocessing
 import os
 from collections import defaultdict
 from typing import List
 
 import pandas as pd
-import multiprocessing
 
-from .config import C as conf
-from .hetero_mapping import Trainer, HeteroMapping
-from ..database_ops import DatabaseOperations
-from ...base import BaseUserInfo, BaseOrganizer
 from ....learnware import Learnware
 from ....logger import get_module_logger
 from ....specification.system import HeteroSpecification
-
+from ...base import BaseOrganizer, BaseUserInfo
+from ..database_ops import DatabaseOperations
+from .config import C as conf
+from .hetero_mapping import HeteroMapping, Trainer
 
 logger = get_module_logger("hetero_market")
 
+
 class HeteroMapTableOrganizer(BaseOrganizer):
-    def reload_market(
-        self, rebuild=False, auto_update_limit=50
-    ):
+    def reload_market(self, rebuild=False, auto_update_limit=50):
         self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
         self.market_mapping_path = os.path.join(self.market_store_path, conf.market_model_path)
         self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
         self.learnware_zip_pool_path = os.path.join(self.market_store_path, "zips")
         self.learnware_folder_pool_path = os.path.join(self.market_store_path, "unzipped_learnwares")
-        self.learnware_list = {} # id:learnware
+        self.learnware_list = {}  # id:learnware
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
         self.count = 0
         # default root path: ../../.learnware
         self.root_path = conf.market_root_path
         self.dbops = DatabaseOperations(conf.database_url, "market_" + self.market_id)
-        self.auto_update_limit =  auto_update_limit
+        self.auto_update_limit = auto_update_limit
 
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
@@ -62,15 +60,17 @@ class HeteroMapTableOrganizer(BaseOrganizer):
             else:
                 logger.warning(f"No Existing Market Mapping!!")
                 self.market_mapping = HeteroMapping()
-    
+
     def reset(self, market_id=None, auto_update=False, **kwargs):
         # model training arguments(model architecture + optimization) set via self.reset
         self.auto_update = auto_update
         self.market_id = market_id
         self.training_args = kwargs
 
-    def add_learnware(self, zip_path: str, semantic_spec: dict, check_status: int, learnware: Learnware) -> Tuple[str, int]:
-        self._update_learnware_list([learnware])     
+    def add_learnware(
+        self, zip_path: str, semantic_spec: dict, check_status: int, learnware: Learnware
+    ) -> Tuple[str, int]:
+        self._update_learnware_list([learnware])
         self.learnware_list[learnware.id] = learnware
         self.count += 1
 
@@ -78,13 +78,13 @@ class HeteroMapTableOrganizer(BaseOrganizer):
             train_process = multiprocessing.Process(target=self.train, args=(self.learnware_list,))
             train_process.start()
             # train_process.join()
-    
+
     def delete_learnware(self, id: str) -> bool:
         raise NotImplementedError
-    
+
     def update_learnware(self, learnware: Learnware):
         raise NotImplementedError
-    
+
     def get_learnwares(self):
         return self.learnware_list
 
@@ -95,7 +95,7 @@ class HeteroMapTableOrganizer(BaseOrganizer):
             model=self.market_mapping,
             train_set_list=allset,
             collate_fn=self.market_mapping.collate_fn,
-            **self.training_args
+            **self.training_args,
         )
         market_mapping_trainer.train()
 
@@ -128,7 +128,7 @@ class HeteroMapTableOrganizer(BaseOrganizer):
         user_features = user_info.semantic_spec["Input"]["Description"].values()
         user_hetero_spec = self.market_mapping.hetero_mapping(user_rkme, user_features)
         return user_hetero_spec
-    
+
     def _learnwares_to_dataframes(self, learnware_list: List[Learnware]) -> List[pd.DataFrame]:
         learnware_df_dict = defaultdict(list)
         for learnware in learnware_list:
@@ -138,12 +138,12 @@ class HeteroMapTableOrganizer(BaseOrganizer):
             learnware_df = pd.DataFrame(data=learnware_rkme.get_z(), columns=learnware_features.values())
 
             learnware_df_dict[tuple(sorted(learnware_features))].append(learnware_df)
-        
+
         merged_dfs = [pd.concat(dfs) for dfs in learnware_df_dict.values()]
         return merged_dfs
 
     def save(self, save_path):
         return NotImplementedError
-    
+
     def __len__(self):
         return len(self.learnware_list)

@@ -1,11 +1,12 @@
 from typing import List
 
-from .organizer import HeteroMapTableOrganizer
 from ...learnware import Learnware
-from ..base import BaseSearcher, BaseUserInfo
 from ...logger import get_module_logger
+from ..base import BaseSearcher, BaseUserInfo
+from .organizer import HeteroMapTableOrganizer
 
 logger = get_module_logger("hetero_searcher")
+
 
 class HeteroMapTableSearcher(BaseSearcher):
     def __init__(self, organizer: HeteroMapTableOrganizer = None):
@@ -23,6 +24,6 @@ class HeteroMapTableSearcher(BaseSearcher):
                 min_dist = mmd_dist
                 target_learnware = learnware
         return target_learnware
-    
+
     def reset(self, organizer):
         self.learnware_oganizer = organizer

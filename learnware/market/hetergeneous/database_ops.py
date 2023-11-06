@@ -1,10 +1,11 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, text
-from sqlalchemy import Column, Integer, Text, DateTime, String
-import os
 import json
+import os
+
 from learnware.learnware import get_learnware_from_dirpath
 from learnware.logger import get_module_logger
+from sqlalchemy import (Column, DateTime, Integer, String, Text, create_engine,
+                        text)
+from sqlalchemy.ext.declarative import declarative_base
 
 logger = get_module_logger("database")
 DeclarativeBase = declarative_base()

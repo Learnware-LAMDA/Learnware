@@ -1,8 +1,9 @@
-import numpy as np
 from typing import List
 
-from ..evolve.organizer import EvolvedOrganizer
+import numpy as np
+
 from ...learnware import Learnware
+from ..evolve.organizer import EvolvedOrganizer
 
 
 class MappingFunction:

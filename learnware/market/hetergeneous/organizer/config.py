@@ -47,7 +47,7 @@ _DEFAULT_CONFIG = {
         "yaml_file": "learnware.yaml",
         "module_file": "__init__.py",
     },
-    "database_url": f"sqlite:///{DATABASE_PATH}"
+    "database_url": f"sqlite:///{DATABASE_PATH}",
 }
 
 C = Config(_DEFAULT_CONFIG)

@@ -7,10 +7,11 @@ import os
 
 import numpy as np
 import torch
+
 from ..regular.table import RKMEStatSpecification
 from ..regular.table.rkme import choose_device, setup_seed, torch_rbf_kernel
-
 from .base import SystemStatsSpecification
+
 
 class HeteroSpecification(SystemStatsSpecification):
     """Heterogeneous Embedding Specification"""

@@ -33,17 +33,17 @@ class HeteroMapping(nn.Module):
         **kwargs,
     ) -> None:
         super(HeteroMapping, self).__init__()
-        
+
         self.model_args = {
-            'num_partition': num_partition,
-            'overlap_ratio': overlap_ratio,
-            'hidden_dim': hidden_dim,
-            'num_layer': num_layer,
-            'num_attention_head': num_attention_head,
-            'hidden_dropout_prob': hidden_dropout_prob,
-            'ffn_dim': ffn_dim,
-            'projection_dim': projection_dim,
-            'activation': activation
+            "num_partition": num_partition,
+            "overlap_ratio": overlap_ratio,
+            "hidden_dim": hidden_dim,
+            "num_layer": num_layer,
+            "num_attention_head": num_attention_head,
+            "hidden_dropout_prob": hidden_dropout_prob,
+            "ffn_dim": ffn_dim,
+            "projection_dim": projection_dim,
+            "activation": activation,
         }
         self.model_args.update(kwargs)
 
@@ -126,13 +126,13 @@ class HeteroMapping(nn.Module):
         model_info = {
             "model_state_dict": self.state_dict(),
             "model_args": self.model_args,
-            "feature_tokenizer": self.feature_tokenizer
+            "feature_tokenizer": self.feature_tokenizer,
         }
         torch.save(model_info, os.path.join(ckpt_dir, conf.market_model_path))
 
     def forward(self, x, y=None):
         # do positive sampling
-        feat_x_list = []       
+        feat_x_list = []
         if isinstance(x, dict):
             # pretokenized inputs
             for input_x in x["input_sub_x"]:
@@ -149,7 +149,7 @@ class HeteroMapping(nn.Module):
         feat_x_multiview = torch.stack(feat_x_list, axis=1)  # bs, n_view, emb_dim
         loss = self._self_supervised_contrastive_loss(feat_x_multiview)
         return loss
-    
+
     def hetero_mapping(self, rkme_spec: RKMETableSpecification, cols: List[str]) -> HeteroSpecification:
         hetero_spec = HeteroSpecification()
         hetero_input_df = pd.DataFrame(data=rkme_spec.get_z(), columns=cols)
