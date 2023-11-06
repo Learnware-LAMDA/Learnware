@@ -10,7 +10,8 @@ import pandas as pd
 from ....learnware import Learnware
 from ....logger import get_module_logger
 from ....specification.system import HeteroSpecification
-from ...base import BaseOrganizer, BaseUserInfo
+from ...base import BaseUserInfo
+from ...easy2 import EasyOrganizer
 from ..database_ops import DatabaseOperations
 from .config import C as conf
 from .hetero_mapping import HeteroMapping, Trainer
@@ -18,7 +19,7 @@ from .hetero_mapping import HeteroMapping, Trainer
 logger = get_module_logger("hetero_market")
 
 
-class HeteroMapTableOrganizer(BaseOrganizer):
+class HeteroMapTableOrganizer(EasyOrganizer):
     def reload_market(self, rebuild=False, auto_update_limit=50):
         self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
         self.market_mapping_path = os.path.join(self.market_store_path, conf.market_model_path)
@@ -29,9 +30,8 @@ class HeteroMapTableOrganizer(BaseOrganizer):
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
         self.count = 0
-        # default root path: ../../.learnware
-        self.root_path = conf.market_root_path
         self.dbops = DatabaseOperations(conf.database_url, "market_" + self.market_id)
+        self.auto_update = False
         self.auto_update_limit = auto_update_limit
 
         os.makedirs(self.learnware_pool_path, exist_ok=True)
