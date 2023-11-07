@@ -91,7 +91,7 @@ class LearnwareMarket:
                             return BaseChecker.INVALID_LEARNWARE
             return final_status
         except Exception as err:
-            traceback.print_exc( )
+            traceback.print_exc()
             logger.warning(f"Check learnware failed! Due to {err}.")
             return BaseChecker.INVALID_LEARNWARE
 
