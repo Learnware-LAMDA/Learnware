@@ -17,7 +17,7 @@ class HeteroMapTableSearcher(BaseSearcher):
         learnware_list = self.learnware_oganizer.get_learnwares()
         target_learnware, min_dist = None, None
         user_hetero_spec = self.learnware_oganizer.generate_hetero_map_spec(user_info)
-        for learnware in learnware_list.values():
+        for learnware in learnware_list:
             learnware_hetero_spec = learnware.specification.get_stat_spec_by_name("HeteroSpecification")
             mmd_dist = learnware_hetero_spec.dist(user_hetero_spec)
             if target_learnware is None or mmd_dist < min_dist:

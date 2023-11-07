@@ -27,6 +27,7 @@ dist/
 *.db
 *.json
 *.zip
+*.bin
 
 # special software
 .pytest_cache/
@@ -43,3 +44,4 @@ tmp/
 learnware_pool/
 PFS/
 data/
+learnware/market/hetergeneous/.learnware/*

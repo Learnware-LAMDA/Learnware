@@ -8,7 +8,7 @@ import os
 import numpy as np
 import torch
 
-from ..regular.table import RKMEStatSpecification
+from ..regular import RKMETableSpecification
 from ..regular.table.rkme import choose_device, setup_seed, torch_rbf_kernel
 from .base import SystemStatsSpecification
 
@@ -34,7 +34,7 @@ class HeteroSpecification(SystemStatsSpecification):
     def get_beta(self) -> np.ndarray:
         return self.beta.detach().cpu().numpy
 
-    def generate_stat_spec_from_system(self, heter_embedding: np.ndarray, rkme_spec: RKMEStatSpecification):
+    def generate_stat_spec_from_system(self, heter_embedding: np.ndarray, rkme_spec: RKMETableSpecification):
         self.beta = rkme_spec.beta.to(self.device)
         self.z = torch.from_numpy(heter_embedding).double().to(self.device)
 
