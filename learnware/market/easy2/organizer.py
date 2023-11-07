@@ -337,7 +337,7 @@ class EasyOrganizer(BaseOrganizer):
             Learnware ids
         """
         if check_status is None:
-            filtered_ids = self.use_flags.keys()
+            filtered_ids = list(self.use_flags.keys())
         elif check_status in [BaseChecker.NONUSABLE_LEARNWARE, BaseChecker.USABLE_LEARWARE]:
             filtered_ids = [key for key, value in self.use_flags.items() if value == check_status]
         else:

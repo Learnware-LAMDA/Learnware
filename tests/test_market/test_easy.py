@@ -27,15 +27,6 @@ user_semantic = {
     "Scenario": {"Values": ["Education"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
-    "Input": {
-        
-    },
-    "Output": {
-        "Dimension": 10,
-        "Description": {
-            "0": "the probability of the label is zero",
-        },
-    },
 }
 
 
@@ -47,7 +38,7 @@ class TestMarket(unittest.TestCase):
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        easy_market = instantiate_learnware_market(market_id="sklearn_digits", name="easy", rebuild=True)
+        easy_market = instantiate_learnware_market(market_id="sklearn_digits_easy", name="easy", rebuild=True)
         return easy_market
 
     def test_prepare_learnware_randomly(self, learnware_num=5):
@@ -107,7 +98,8 @@ class TestMarket(unittest.TestCase):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            semantic_spec["Output"] = {"Dimension": 1, "Description": {"0": "The label of the hand-written digit."}}
+            semantic_spec["Input"] = {"Dimension": 64, "Description": {f"{i}": f"The value in the grid {i // 8}{i % 8} of the image of hand-written digit." for i in range(64)}}
+            semantic_spec["Output"] = {"Dimension": 10, "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)}}
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
