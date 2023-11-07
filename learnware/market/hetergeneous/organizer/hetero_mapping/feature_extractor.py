@@ -68,7 +68,7 @@ class FeatureTokenizer:
 
     def __init__(
         self,
-        disable_tokenizer_parallel=False,
+        disable_tokenizer_parallel=True,
         **kwargs,
     ) -> None:
         """args:

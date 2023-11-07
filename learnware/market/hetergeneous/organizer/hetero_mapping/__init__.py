@@ -60,6 +60,7 @@ class HeteroMapping(nn.Module):
             device=device,
         )
 
+        ##todo: BUG!!!!!!
         self.encoder = TransformerMultiLayer(
             hidden_dim=hidden_dim,
             num_layer=num_layer,
@@ -69,9 +70,6 @@ class HeteroMapping(nn.Module):
             activation=activation,
         )
         self.cls_token = CLSToken(hidden_dim=hidden_dim)
-        self.device = device
-        self.to(device)
-
         self.collate_fn = TransTabCollatorForCL(
             feature_tokenizer=feature_tokenizer, overlap_ratio=overlap_ratio, num_partition=num_partition
         )
@@ -103,7 +101,7 @@ class HeteroMapping(nn.Module):
         # load model weight state dict
         market_model_path = os.path.join(checkpoint, conf.market_model_path)
         model_info = torch.load(market_model_path, map_location="cpu")
-        model = HeteroMapping(feature_tokenizer=model_info["feature_tokenizer"], **model_info["model_args"])
+        model = HeteroMapping(**model_info["model_args"])
         model.load_state_dict(model_info["model_state_dict"], strict=False)
         return model
         # self.feature_tokenizer.load(checkpoint)
@@ -126,7 +124,7 @@ class HeteroMapping(nn.Module):
         model_info = {
             "model_state_dict": self.state_dict(),
             "model_args": self.model_args,
-            "feature_tokenizer": self.feature_tokenizer,
+            # "feature_tokenizer": self.feature_tokenizer,
         }
         torch.save(model_info, os.path.join(ckpt_dir, conf.market_model_path))
 
@@ -407,6 +405,7 @@ class TransformerMultiLayer(nn.Module):
                 use_layer_norm=True,
                 activation=activation,
             )
+            ##todo: BUG!!!!!!
             stacked_transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layer - 1)
             self.transformer_encoder.append(stacked_transformer)
 

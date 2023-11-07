@@ -56,7 +56,7 @@ class Trainer:
         self.args["steps_per_epoch"] = int(self.args["num_training_steps"] / (num_epoch * len(self.train_set_list)))
         self.optimizer = None
 
-    def train(self):
+    def train(self, verbose: bool = True):
         self._create_optimizer()
         start_time = time.time()
         final_train_loss = 0
@@ -72,17 +72,16 @@ class Trainer:
                     train_loss_all += loss.item()
                     ite += 1
 
-            logger.info(
-                "epoch: {}, train loss: {:.4f}, lr: {:.6f}, spent: {:.1f} secs".format(
-                    epoch,
-                    train_loss_all,
-                    self.optimizer.param_groups[0]["lr"],
-                    time.time() - start_time,
+            if verbose:
+                logger.info(
+                    "epoch: {}, train loss: {:.4f}, lr: {:.6f}, spent: {:.1f} secs".format(
+                        epoch,
+                        train_loss_all,
+                        self.optimizer.param_groups[0]["lr"],
+                        time.time() - start_time,
+                    )
                 )
-            )
             final_train_loss = train_loss_all
-
-        # self.save_model(self.output_dir)
 
         logger.info("training complete, cost {:.1f} secs.".format(time.time() - start_time))
         return final_train_loss
