@@ -13,12 +13,12 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
-import learnware.specification as specification
+from learnware.specification import RKMETableSpecification, generate_rkme_spec
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
 user_semantic = {
-    "Data": {"Values": ["Table"], "Type": "Class"},
+    "Data": {"Values": ["Image"], "Type": "Class"},
     "Task": {
         "Values": ["Classification"],
         "Type": "Class",
@@ -57,7 +57,7 @@ class TestAllWorkflow(unittest.TestCase):
 
             joblib.dump(clf, os.path.join(dir_path, "svm.pkl"))
 
-            spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "svm.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -96,11 +96,10 @@ class TestAllWorkflow(unittest.TestCase):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            semantic_spec["Input"] = {"Dimension": 64}
-            semantic_spec["Input"].update(
-                {f"{i}": f"The value in the digit image with row is {i // 8} and col is {i % 8}." for i in range(64)}
-            )
-            semantic_spec["Output"] = {"Dimension": 1, "Description": {"0": "The label of the hand-written digit."}}
+            semantic_spec["Output"] = {
+                "Dimension": 10,
+                "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)},
+            }
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
@@ -159,7 +158,7 @@ class TestAllWorkflow(unittest.TestCase):
             with zipfile.ZipFile(zip_path, "r") as zip_obj:
                 zip_obj.extractall(path=unzip_dir)
 
-            user_spec = specification.RKMETableSpecification()
+            user_spec = RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
             (
@@ -185,7 +184,7 @@ class TestAllWorkflow(unittest.TestCase):
         X, y = load_digits(return_X_y=True)
         train_X, data_X, train_y, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
 
-        stat_spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+        stat_spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": stat_spec})
 
         _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)

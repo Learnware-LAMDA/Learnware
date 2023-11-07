@@ -1,0 +1,1 @@
+input_shape_list=[20, 30]    # 20-input shape of example learnware 0, 30-input shape of example learnware 1

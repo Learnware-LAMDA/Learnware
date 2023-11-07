@@ -166,10 +166,9 @@ class DatabaseOperations(object):
                 # assert new_learnware is not None
                 zip_list[id] = zip_path
                 folder_list[id] = folder_path
-                use_flags[id] = use_flag
+                use_flags[id] = int(use_flag)
                 max_count = max(max_count, int(id))
             pass
-
         return learnware_list, zip_list, folder_list, use_flags, max_count + 1
         pass
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import traceback
 import zipfile
 import tempfile
 from typing import Tuple, Any, List, Union
@@ -81,8 +82,6 @@ class LearnwareMarket:
                     pending_learnware = get_learnware_from_dirpath(
                         id="pending", semantic_spec=semantic_spec, learnware_dirpath=tempdir
                     )
-                    checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
-
                     for name in checker_names:
                         checker = self.learnware_checker[name]
                         check_status = checker(pending_learnware)
@@ -92,6 +91,7 @@ class LearnwareMarket:
                             return BaseChecker.INVALID_LEARNWARE
             return final_status
         except Exception as err:
+            traceback.print_exc()
             logger.warning(f"Check learnware failed! Due to {err}.")
             return BaseChecker.INVALID_LEARNWARE
 
@@ -115,6 +115,7 @@ class LearnwareMarket:
             - str indicating model_id
             - int indicating the final learnware check_status
         """
+        checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
         check_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         return self.learnware_organizer.add_learnware(
             zip_path=zip_path, semantic_spec=semantic_spec, check_status=check_status, **kwargs
@@ -172,12 +173,13 @@ class LearnwareMarket:
         int
             The final learnware check_status.
         """
-        zip_path = self.get_learnware_path_by_ids(id) if zip_path is None else zip_path
+        zip_path = self.get_learnware_zip_path_by_ids(id) if zip_path is None else zip_path
         semantic_spec = (
             self.get_learnware_by_ids(id).get_specification().get_semantic_spec()
             if semantic_spec is None
             else semantic_spec
         )
+        checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
         update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
         check_status = (
             update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
@@ -223,8 +225,11 @@ class LearnwareMarket:
         """
         return self.learnware_organizer.get_learnwares(top, check_status, **kwargs)
 
-    def get_learnware_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
-        return self.learnware_organizer.get_learnware_path_by_ids(ids, **kwargs)
+    def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        return self.learnware_organizer.get_learnware_zip_path_by_ids(ids, **kwargs)
+
+    def get_learnware_dir_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
+        return self.learnware_organizer.get_learnware_dir_path_by_ids(ids, **kwargs)
 
     def get_learnware_by_ids(self, id: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_by_ids(id, **kwargs)
@@ -331,7 +336,7 @@ class BaseOrganizer:
         """
         raise NotImplementedError("get_learnware_by_ids is not implemented in BaseOrganizer")
 
-    def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+    def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Get Zipped Learnware file by id
 
         Parameters
@@ -347,7 +352,25 @@ class BaseOrganizer:
             Return the path for target learnware or list of path.
             None for Learnware NOT Found.
         """
-        raise NotImplementedError("get_learnware_path_by_ids is not implemented in BaseOrganizer")
+        raise NotImplementedError("get_learnware_zip_path_by_ids is not implemented in BaseOrganizer")
+
+    def get_learnware_dir_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+        """Get Learnware dir path by id
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of targer learware
+            List[str]: A list of ids of target learnwares
+
+        Returns
+        -------
+        Union[Learnware, List[Learnware]]
+            Return the dir path for target learnware or list of path.
+            None for Learnware NOT Found.
+        """
+        raise NotImplementedError("get_learnware_dir_path_by_ids is not implemented in BaseOrganizer")
 
     def get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]:
         """get the list of learnware ids

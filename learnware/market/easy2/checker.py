@@ -95,14 +95,13 @@ class EasyStatChecker(BaseChecker):
             # Check input shape
             input_shape = learnware_model.input_shape
 
-            ## WHY: why write this?
             if semantic_spec["Data"]["Values"][0] == "Table" and input_shape != (
                 int(semantic_spec["Input"]["Dimension"]),
             ):
                 logger.warning("input shapes of model and semantic specifications are different")
                 return self.INVALID_LEARNWARE
 
-            spec_type = parse_specification_type(learnware.get_specification())
+            spec_type = parse_specification_type(learnware.get_specification().stat_spec)
             if spec_type is None:
                 logger.warning(f"No valid specification is found in stat spec {spec_type}")
                 return self.INVALID_LEARNWARE
@@ -119,13 +118,12 @@ class EasyStatChecker(BaseChecker):
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
             else:
                 raise ValueError(f"not supported spec type for spec_type = {spec_type}")
-            outputs = learnware.predict(inputs)
-            # Check output
-            if outputs.ndim == 1:
-                outputs = outputs.reshape(-1, 1)
 
-            if outputs.shape[1:] != learnware_model.output_shape:
-                logger.warning(f"The learnware [{learnware.id}] output dimention mismatch!")
+            # Check output
+            try:
+                outputs = learnware.predict(inputs)
+            except Exception:
+                logger.warning(f"learnware {learnware} prediction method is not valid!")
                 return self.INVALID_LEARNWARE
 
             if semantic_spec["Task"]["Values"][0] in ("Classification", "Regression", "Feature Extraction"):
@@ -136,11 +134,15 @@ class EasyStatChecker(BaseChecker):
                     logger.warning(f"The learnware [{learnware.id}] output must be np.ndarray or torch.Tensor!")
                     return self.INVALID_LEARNWARE
 
+                if outputs.ndim == 1:
+                    outputs = outputs.reshape(-1, 1)
                 # Check output shape
-                if outputs[0].shape != learnware_model.output_shape or learnware_model.output_shape != int(
-                    semantic_spec["Output"]["Dimension"]
+                if outputs[0].shape != learnware_model.output_shape or learnware_model.output_shape != (
+                    int(semantic_spec["Output"]["Dimension"]),
                 ):
-                    logger.warning(f"The learnware [{learnware.id}] output dimention mismatch!")
+                    logger.warning(
+                        f"The learnware [{learnware.id}] output dimension mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
+                    )
                     return self.INVALID_LEARNWARE
 
         except Exception as e:

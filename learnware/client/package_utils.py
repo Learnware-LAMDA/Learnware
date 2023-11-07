@@ -4,6 +4,7 @@ import yaml
 import tempfile
 import subprocess
 from typing import List, Tuple
+from . import utils
 
 
 from ..logger import get_module_logger
@@ -15,7 +16,7 @@ def try_to_run(args, timeout=5, retry=5):
     sucess = False
     for i in range(retry):
         try:
-            subprocess.check_call(args=args, timeout=timeout, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            utils.system_execute(args=args, timeout=timeout, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             sucess = True
             break
         except subprocess.TimeoutExpired as e:
@@ -120,7 +121,7 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
 
             if not any(package.startswith("python=") for package in exist_packages):
                 exist_packages = ["python=3.8"] + exist_packages
-            
+
             return exist_packages, nonexist_packages
         else:
             return packages, []

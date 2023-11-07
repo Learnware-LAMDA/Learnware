@@ -80,10 +80,10 @@ the following code snippet offers guidance on how to construct and store the RKM
 
 .. code-block:: python
     
-    import learnware.specification as specification
+    from learnware.specification import generate_rkme_spec
     
     # generate rkme specification for digits dataset
-    spec = specification.utils.generate_rkme_spec(X=data_X)
+    spec = generate_rkme_spec(X=data_X)
     spec.save("stat.json")
 
 Significantly, the RKME generation process is entirely conducted on your local machine, without any involvement of cloud services, 
