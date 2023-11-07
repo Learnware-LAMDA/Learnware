@@ -312,7 +312,7 @@ class LearnwareClient:
             tempdir = self.tempdir_list[-1].name
             zip_path = os.path.join(tempdir, f"{str(uuid.uuid4())}.zip")
             self.download_learnware(_learnware_id, zip_path)
-            return zip_path, _get_learnware_by_path(zip_path, tempdir=tempdir)
+            return _get_learnware_by_path(zip_path, tempdir=tempdir)
 
         def _get_learnware_by_path(_learnware_zippath, tempdir=None):
             if tempdir is None:
@@ -342,16 +342,13 @@ class LearnwareClient:
             return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
 
         learnware_list = []
-        zip_paths = []
         if learnware_path is not None:
-            if isinstance(learnware_path, str):
-                zip_paths = [learnware_path]
-            elif isinstance(learnware_path, list):
-                zip_paths = learnware_path
+            zip_paths = [learnware_path] if isinstance(learnware_path, str) else learnware_path
 
             for zip_path in zip_paths:
                 learnware_obj = _get_learnware_by_path(zip_path)
                 learnware_list.append(learnware_obj)
+
         elif learnware_id is not None:
             if isinstance(learnware_id, str):
                 id_list = [learnware_id]
@@ -359,8 +356,7 @@ class LearnwareClient:
                 id_list = learnware_id
 
             for idx in id_list:
-                zip_path, learnware_obj = _get_learnware_by_id(idx)
-                zip_paths.append(zip_path)
+                learnware_obj = _get_learnware_by_id(idx)
                 learnware_list.append(learnware_obj)
 
         if runnable_option is not None:

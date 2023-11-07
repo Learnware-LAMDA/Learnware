@@ -43,7 +43,7 @@ class TestAllLearnware(unittest.TestCase):
                     failed_ids.append(idx)
                     print(f"check learnware {idx} failed!!!")
 
-        print(f"failed learnware ids: {failed_ids}")
+                print(f"The currently failed learnware ids: {failed_ids}")
 
 
 if __name__ == "__main__":
