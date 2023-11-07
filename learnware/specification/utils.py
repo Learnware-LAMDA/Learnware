@@ -221,7 +221,7 @@ def generate_rkme_text_spec(
     return rkme_text_spec
 
 
-def generate_stat_spec(X: np.ndarray) -> BaseStatSpecification:
+def generate_stat_spec(type="table", *args, **kwargs) -> BaseStatSpecification:
     """
         Interface for users to generate statistical specification.
         Return a StatSpecification object, use .save() method to save as npy file.
@@ -237,4 +237,12 @@ def generate_stat_spec(X: np.ndarray) -> BaseStatSpecification:
     StatSpecification
         A StatSpecification object
     """
+    if type == "table":
+        return generate_rkme_spec(*args, **kwargs)
+    elif type == "text":
+        return generate_rkme_text_spec(*args, **kwargs)
+    elif type == "image":
+        return generate_rkme_image_spec(*args, **kwargs)
+    else:
+        raise TypeError(f"type {type} is not supported!")
     return None
