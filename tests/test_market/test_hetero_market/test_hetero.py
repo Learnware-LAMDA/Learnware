@@ -59,8 +59,8 @@ class TestMarket(unittest.TestCase):
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        easy_market = instantiate_learnware_market(market_id="hetero_toy", name="hetero", rebuild=True)
-        return easy_market
+        hetero_market = instantiate_learnware_market(market_id="hetero_toy", name="hetero", rebuild=True)
+        return hetero_market
 
     def test_prepare_learnware_randomly(self, learnware_num=5):
         self.zip_path_list = []
@@ -121,38 +121,38 @@ class TestMarket(unittest.TestCase):
         # Use an assert statement to ensure that all checks return True
         self.assertTrue(all(results), "Not all learnwares passed the check")
 
-    # def test_upload_delete_learnware(self, learnware_num=5, delete=True):
-    #     easy_market = self._init_learnware_market()
-    #     self.test_prepare_learnware_randomly(learnware_num)
-    #     self.learnware_num = learnware_num
+    def test_upload_delete_learnware(self, learnware_num=5, delete=True):
+        hetero_market = self._init_learnware_market()
+        self.test_prepare_learnware_randomly(learnware_num)
+        self.learnware_num = learnware_num
 
-    #     print("Total Item:", len(easy_market))
-    #     assert len(easy_market) == 0, f"The market should be empty!"
+        print("Total Item:", len(hetero_market))
+        assert len(hetero_market) == 0, f"The market should be empty!"
 
-    #     for idx, zip_path in enumerate(self.zip_path_list):
-    #         semantic_spec = copy.deepcopy(user_semantic)
-    #         semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
-    #         semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-    #         easy_market.add_learnware(zip_path, semantic_spec)
+        for idx, zip_path in enumerate(self.zip_path_list):
+            semantic_spec = copy.deepcopy(user_semantic)
+            semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
+            semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
+            hetero_market.add_learnware(zip_path, semantic_spec)
 
-    #     print("Total Item:", len(easy_market))
-    #     assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+        print("Total Item:", len(hetero_market))
+        assert len(hetero_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
-    #     curr_inds = easy_market.get_learnware_ids()
-    #     print("Available ids After Uploading Learnwares:", curr_inds)
-    #     assert len(curr_inds) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+        curr_ids = hetero_market.get_learnware_ids()
+        print("Available ids After Uploading Learnwares:", curr_ids)
+        assert len(curr_ids) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
-    #     if delete:
-    #         for learnware_id in curr_inds:
-    #             easy_market.delete_learnware(learnware_id)
-    #             self.learnware_num -= 1
-    #             assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+        if delete:
+            for learnware_id in curr_ids:
+                hetero_market.delete_learnware(learnware_id)
+                self.learnware_num -= 1
+                assert len(hetero_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
-    #         curr_inds = easy_market.get_learnware_ids()
-    #         print("Available ids After Deleting Learnwares:", curr_inds)
-    #         assert len(curr_inds) == 0, f"The market should be empty!"
+            curr_ids = hetero_market.get_learnware_ids()
+            print("Available ids After Deleting Learnwares:", curr_ids)
+            assert len(curr_ids) == 0, f"The market should be empty!"
 
-    #     return easy_market
+        return hetero_market
 
     # def test_search_semantics(self, learnware_num=5):
     #     easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
