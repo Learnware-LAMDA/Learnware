@@ -10,9 +10,7 @@ import time
 import pickle
 
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.market import database_ops
-from learnware.learnware import Learnware
-import learnware.specification as specification
+from learnware.specification import RKMETextSpecification
 from learnware.logger import get_module_logger
 
 from shutil import copyfile, rmtree
@@ -99,8 +97,7 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
     semantic_spec = semantic_specs[0]
 
     st = time.time()
-    # user_spec = specification.utils.generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
-    user_spec = specification.RKMETextSpecification()
+    user_spec = RKMETextSpecification()
     user_spec.generate_stat_spec_from_data(X=X)
     ed = time.time()
     logger.info("Stat spec generated in %.3f s" % (ed - st))
@@ -163,10 +160,8 @@ def test_search(gamma=0.1, load_market=True):
             user_data = pickle.load(f)
         with open(user_label_path, "rb") as f:
             user_label = pickle.load(f)
-        # user_data = np.load(user_data_path)
-        # user_label = np.load(user_label_path)
-        # user_stat_spec = specification.utils.generate_rkme_spec(X=user_data, gamma=gamma, cuda_idx=0)
-        user_stat_spec = specification.RKMETextSpecification()
+
+        user_stat_spec = RKMETextSpecification()
         user_stat_spec.generate_stat_spec_from_data(X=user_data)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETextSpecification": user_stat_spec})
         logger.info("Searching Market for user: %d" % (i))

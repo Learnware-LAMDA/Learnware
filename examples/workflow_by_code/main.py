@@ -12,8 +12,7 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.reuse import JobSelectorReuser, AveragingReuser
-import learnware.specification as specification
-from learnware.utils import get_module_by_module_path
+from learnware.specification import generate_rkme_spec
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -54,7 +53,7 @@ class LearnwareMarketWorkflow:
 
             joblib.dump(clf, os.path.join(dir_path, "svm.pkl"))
 
-            spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "svm.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -174,7 +173,7 @@ class LearnwareMarketWorkflow:
         X, y = load_digits(return_X_y=True)
         _, data_X, _, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
 
-        stat_spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+        stat_spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": stat_spec})
 
         _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)

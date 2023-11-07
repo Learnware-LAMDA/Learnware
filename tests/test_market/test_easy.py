@@ -12,7 +12,7 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-import learnware.specification as specification
+from learnware.specification import RKMETableSpecification, generate_rkme_spec
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -62,7 +62,7 @@ class TestMarket(unittest.TestCase):
 
             joblib.dump(clf, os.path.join(dir_path, "svm.pkl"))
 
-            spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "svm.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -170,7 +170,7 @@ class TestMarket(unittest.TestCase):
             with zipfile.ZipFile(zip_path, "r") as zip_obj:
                 zip_obj.extractall(path=unzip_dir)
 
-            user_spec = specification.rkme.RKMETableSpecification()
+            user_spec = RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
             (

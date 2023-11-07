@@ -13,7 +13,7 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
-import learnware.specification as specification
+from learnware.specification import generate_rkme_spec, RKMETableSpecification
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,7 +57,7 @@ class TestAllWorkflow(unittest.TestCase):
 
             joblib.dump(clf, os.path.join(dir_path, "svm.pkl"))
 
-            spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "svm.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -159,7 +159,7 @@ class TestAllWorkflow(unittest.TestCase):
             with zipfile.ZipFile(zip_path, "r") as zip_obj:
                 zip_obj.extractall(path=unzip_dir)
 
-            user_spec = specification.RKMETableSpecification()
+            user_spec = RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
             (
@@ -185,7 +185,7 @@ class TestAllWorkflow(unittest.TestCase):
         X, y = load_digits(return_X_y=True)
         train_X, data_X, train_y, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
 
-        stat_spec = specification.utils.generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+        stat_spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": stat_spec})
 
         _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)
