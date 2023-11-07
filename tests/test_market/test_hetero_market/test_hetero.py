@@ -7,7 +7,6 @@ import zipfile
 import numpy as np
 from sklearn.linear_model import Ridge
 from sklearn.datasets import make_regression
-from sklearn.datasets import load_digits
 from shutil import copyfile, rmtree
 from multiprocessing import Pool
 from learnware.client import LearnwareClient
@@ -20,7 +19,7 @@ from example_learnwares.config import input_shape_list
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
 user_semantic = {
-    "Data": {"Values": ["Image"], "Type": "Class"},
+    "Data": {"Values": ["Table"], "Type": "Class"},
     "Task": {
         "Values": ["Classification"],
         "Type": "Class",
@@ -29,14 +28,7 @@ user_semantic = {
     "Scenario": {"Values": ["Education"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
-    "Output": {
-        "Dimension": 10,
-        "Description": {
-            "0": "the probability of the label is zero",
-        },
-    },
 }
-
 
 def check_learnware(learnware_name, dir_path=os.path.join(curr_root, "learnware_pool")):
     print(f"Checking Learnware: {learnware_name}")
@@ -64,7 +56,6 @@ class TestMarket(unittest.TestCase):
 
     def test_prepare_learnware_randomly(self, learnware_num=5):
         self.zip_path_list = []
-        X, y = load_digits(return_X_y=True)
 
         for i in range(learnware_num):
             dir_path = os.path.join(curr_root, "learnware_pool", "ridge_%d" % (i))
@@ -83,7 +74,7 @@ class TestMarket(unittest.TestCase):
 
             joblib.dump(clf, os.path.join(dir_path, "ridge.pkl"))
 
-            spec = specification.utils.generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
+            spec = specification.generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "stat.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -110,6 +101,8 @@ class TestMarket(unittest.TestCase):
 
             rmtree(dir_path)  # rm -r dir_path
 
+            self.zip_path_list.append(zip_file)
+
     def test_generated_learnwares(self):
         curr_root = os.path.dirname(os.path.abspath(__file__))
         dir_path = os.path.join(curr_root, "learnware_pool")
@@ -133,24 +126,34 @@ class TestMarket(unittest.TestCase):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
+            semantic_spec["Input"] = {
+                "Dimension": 64,
+                "Description": {
+                    f"{i}": f"The value in the grid {i // 8}{i % 8} of the image of hand-written digit."
+                    for i in range(64)
+                },
+            }
+            semantic_spec["Output"] = {
+                "Dimension": 10,
+                "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)},
+            }
             hetero_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(hetero_market))
         assert len(hetero_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
-
-        curr_ids = hetero_market.get_learnware_ids()
-        print("Available ids After Uploading Learnwares:", curr_ids)
-        assert len(curr_ids) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+        curr_inds = hetero_market.get_learnware_ids()
+        print("Available ids After Uploading Learnwares:", curr_inds)
+        assert len(curr_inds) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
         if delete:
-            for learnware_id in curr_ids:
+            for learnware_id in curr_inds:
                 hetero_market.delete_learnware(learnware_id)
                 self.learnware_num -= 1
                 assert len(hetero_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
-            curr_ids = hetero_market.get_learnware_ids()
-            print("Available ids After Deleting Learnwares:", curr_ids)
-            assert len(curr_ids) == 0, f"The market should be empty!"
+            curr_inds = hetero_market.get_learnware_ids()
+            print("Available ids After Deleting Learnwares:", curr_inds)
+            assert len(curr_inds) == 0, f"The market should be empty!"
 
         return hetero_market
 
