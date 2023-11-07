@@ -500,6 +500,7 @@ class LearnwaresContainer:
         learnwares: Union[List[Learnware], Learnware],
         cleanup=True,
         mode="conda",
+        ignore_error=True,
     ):
         """The initializaiton method for base reuser
 
@@ -519,6 +520,7 @@ class LearnwaresContainer:
         assert self.mode in {"conda", "docker"}, f"mode must be in ['conda', 'docker'], should not be {self.mode}"
         self.learnware_list = learnwares
         self.cleanup = cleanup
+        self.ignore_error = ignore_error
 
     def __enter__(self):
         if self.mode == "conda":
@@ -548,18 +550,13 @@ class LearnwaresContainer:
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
         with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
-            results = executor.map(self._initialize_model_container, model_list)
+            results = executor.map(self._initialize_model_container, model_list, [self.ignore_error] * len(model_list))
         self.results = list(results)
 
         if sum(self.results) < len(self.learnware_list):
             logger.warning(
                 f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnware will be ignored"
             )
-
-        # if not self.cleanup and self.mode == "docker":
-        #     _model_docker_container = self.learnware_containers[0].get_model()
-        #     _model_docker_container.cleanup_flag = True
-        #     atexit.register(_model_docker_container.remove_env)
 
         return self
 
@@ -572,7 +569,7 @@ class LearnwaresContainer:
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
         with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
-            executor.map(self._destroy_model_container, model_list)
+            executor.map(self._destroy_model_container, model_list, [self.ignore_error] * len(model_list))
 
         self.learnware_containers = None
         self.results = None
@@ -581,20 +578,24 @@ class LearnwaresContainer:
             ModelDockerContainer._destroy_docker_container(self._docker_container)
 
     @staticmethod
-    def _initialize_model_container(model: ModelCondaContainer):
+    def _initialize_model_container(model: ModelCondaContainer, ignore_error=True):
         try:
             model.init_and_setup_env()
         except Exception as err:
-            logger.error(f"build env {model.conda_env} failed due to {err}")
+            if not ignore_error:
+                raise err
+            logger.warning(f"build env {model.conda_env} failed due to {err}")
             return False
         return True
 
     @staticmethod
-    def _destroy_model_container(model: ModelCondaContainer):
+    def _destroy_model_container(model: ModelCondaContainer, ignore_error=True):
         try:
             model.remove_env()
         except Exception as err:
-            logger.error(f"remove env {model.conda_env} failed due to {err}")
+            if not ignore_error:
+                raise err
+            logger.warning(f"remove env {model.conda_env} failed due to {err}")
             return False
         return True
 

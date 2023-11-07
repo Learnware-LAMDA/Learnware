@@ -12,7 +12,7 @@ from ..config import C
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath) -> Learnware:
+def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, ignore_error=True) -> Learnware:
     """Get the learnware object from dirpath, and provide the manage interface tor Learnware class
 
     Parameters
@@ -67,6 +67,8 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath) 
         learnware_spec.update_semantic_spec(copy.deepcopy(semantic_spec))
 
     except Exception as e:
+        if not ignore_error:
+            raise e
         logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")
         return None
 
