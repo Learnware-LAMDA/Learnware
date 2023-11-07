@@ -7,9 +7,8 @@ import unittest
 import tempfile
 import numpy as np
 
-import learnware.specification as specification
 from learnware.specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
-from learnware.specification import generate_rkme_image_spec, generate_rkme_spec
+from learnware.specification import generate_rkme_image_spec, generate_rkme_spec, generate_rkme_text_spec
 
 
 class TestRKME(unittest.TestCase):
@@ -71,7 +70,7 @@ class TestRKME(unittest.TestCase):
             return text_list
 
         def _test_text_rkme(X):
-            rkme = specification.utils.generate_rkme_text_spec(X)
+            rkme = generate_rkme_text_spec(X)
 
             with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
                 rkme_path = os.path.join(tempdir, "rkme.json")

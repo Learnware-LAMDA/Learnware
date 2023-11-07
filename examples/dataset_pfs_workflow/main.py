@@ -8,10 +8,8 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
-from learnware.market import database_ops
-from learnware.learnware import Learnware
 from learnware.reuse import JobSelectorReuser, AveragingReuser
-import learnware.specification as specification
+from learnware.specification import generate_rkme_spec
 from pfs import Dataloader
 from learnware.logger import get_module_logger
 
@@ -86,7 +84,7 @@ class PFSDatasetWorkflow:
         for idx in tqdm(idx_list):
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
             st = time.time()
-            spec = specification.utils.generate_rkme_spec(X=train_x, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_spec(X=train_x, gamma=0.1, cuda_idx=0)
             ed = time.time()
             logger.info("Stat spec generated in %.3f s" % (ed - st))
 
@@ -138,7 +136,7 @@ class PFSDatasetWorkflow:
 
         for idx in idx_list:
             train_x, train_y, test_x, test_y = pfs.get_idx_data(idx)
-            user_spec = specification.utils.generate_rkme_spec(X=test_x, gamma=0.1, cuda_idx=0)
+            user_spec = generate_rkme_spec(X=test_x, gamma=0.1, cuda_idx=0)
             user_spec_path = f"./user_spec/user_{idx}.json"
             user_spec.save(user_spec_path)
 
