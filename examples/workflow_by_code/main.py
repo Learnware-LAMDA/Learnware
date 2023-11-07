@@ -12,7 +12,7 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import EasyMarket, BaseUserInfo
 from learnware.reuse import JobSelectorReuser, AveragingReuser
-from learnware.specification import generate_rkme_spec
+from learnware.specification import generate_rkme_spec, RKMETableSpecification
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -147,7 +147,7 @@ class LearnwareMarketWorkflow:
             with zipfile.ZipFile(zip_path, "r") as zip_obj:
                 zip_obj.extractall(path=unzip_dir)
 
-            user_spec = specification.RKMETableSpecification()
+            user_spec = RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
             (
