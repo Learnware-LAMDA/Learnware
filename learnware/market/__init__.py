@@ -3,7 +3,7 @@ from .base import BaseUserInfo, LearnwareMarket, BaseChecker, BaseOrganizer, Bas
 from .evolve_anchor import EvolvedAnchoredOrganizer
 from .evolve import EvolvedOrganizer
 from .easy2 import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
-from .hetergeneous import HeteroMapTableOrganizer, HeteroMapTableSearcher
+from .hetergeneous import HeteroMapTableOrganizer, HeteroSearcher
 
 from .easy import EasyMarket
 from .classes import CondaChecker

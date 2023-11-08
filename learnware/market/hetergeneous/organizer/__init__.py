@@ -167,7 +167,6 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             for learnware in learnware_list:
                 hetero_spec_path = os.path.join(hetero_mappings_save_path, f"{learnware.id}.npy")
                 self._update_learnware_specification(learnware, save_path=hetero_spec_path)
-                logger.info(f"Learnware {learnware.id} HeteroSpecification Successfully Saved")
         except Exception as err:
             logger.warning(f"Update learnware HeteroSpecification failed! Due to {err}")
 
