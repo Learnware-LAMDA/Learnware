@@ -1,4 +1,4 @@
-import sys
+import torch
 import unittest
 import os
 import copy
@@ -54,6 +54,7 @@ class TestMarket(unittest.TestCase):
         hetero_market = instantiate_learnware_market(market_id="hetero_toy", name="hetero", rebuild=True)
         return hetero_market
 
+
     def test_prepare_learnware_randomly(self, learnware_num=5):
         self.zip_path_list = []
 
@@ -67,7 +68,7 @@ class TestMarket(unittest.TestCase):
             input_dim=input_shape_list[example_learnware_idx]
             example_learnware_name="example_learnwares/example_learnware_%d" % (example_learnware_idx)
 
-            X, y = make_regression(n_samples=5000, n_features=input_dim, noise=0.1, random_state=42)
+            X, y = make_regression(n_samples=5000, n_informative=15, n_features=input_dim, noise=0.1, random_state=42)
 
             clf=Ridge(alpha=1.0)
             clf.fit(X, y)
@@ -172,6 +173,7 @@ class TestMarket(unittest.TestCase):
 
         organizer=hetero_market.learnware_organizer
         organizer.train()
+        return hetero_market
 
     def test_search_semantics(self, learnware_num=5):
         hetero_market = self.test_upload_delete_learnware(learnware_num, delete=False)
@@ -204,9 +206,53 @@ class TestMarket(unittest.TestCase):
             print("Choose learnware:", learnware.id, semantic_spec1)
 
     def test_stat_search(self, learnware_num=5):
-        hetero_market = self.test_upload_delete_learnware(learnware_num, delete=False)
+        hetero_market = self.test_train_market_model(learnware_num)
         print("Total Item:", len(hetero_market))
 
+        # hetero test
+        user_dim=15
+
+        test_folder = os.path.join(curr_root, "test_stat")
+
+        for idx, zip_path in enumerate(self.zip_path_list):
+            unzip_dir = os.path.join(test_folder, f"{idx}")
+
+            # unzip -o -q zip_path -d unzip_dir
+            if os.path.exists(unzip_dir):
+                rmtree(unzip_dir)
+            os.makedirs(unzip_dir, exist_ok=True)
+            with zipfile.ZipFile(zip_path, "r") as zip_obj:
+                zip_obj.extractall(path=unzip_dir)
+
+            user_spec = RKMETableSpecification()
+            user_spec.load(os.path.join(unzip_dir, "stat.json"))
+            z=user_spec.get_z()
+            z=z[:,:user_dim]
+            device=user_spec.device
+            z=torch.tensor(z, device=device)
+            user_spec.z=z
+
+            semantic_spec = copy.deepcopy(user_semantic)
+            semantic_spec["Input"]=copy.deepcopy(input_description_list[idx%2])
+            semantic_spec["Input"]['Dimension']=user_dim
+            # keep only the first user_dim descriptions
+            semantic_spec["Input"]['Description']={key: semantic_spec["Input"]['Description'][str(key)] for key in range(user_dim)}
+
+            user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
+            (
+                sorted_score_list,
+                single_learnware_list,
+                mixture_score,
+                mixture_learnware_list,
+            ) = hetero_market.search_learnware(user_info)
+
+            print(f"search result of user{idx}:")
+            for score, learnware in zip(sorted_score_list, single_learnware_list):
+                print(f"score: {score}, learnware_id: {learnware.id}")
+
+        rmtree(test_folder)  # rm -r test_folder
+
+        # homo test
         test_folder = os.path.join(curr_root, "test_stat")
 
         for idx, zip_path in enumerate(self.zip_path_list):
