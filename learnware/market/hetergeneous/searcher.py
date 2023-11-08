@@ -114,7 +114,7 @@ class HeteroSearcher(EasySearcher):
             return [], [], 0.0, []
 
         if parse_specification_type(stat_specs=user_info.stat_info) is not None:
-            if user_info.semantic_spec["Input"]["Description"] is not None:
+            if "Input" in user_info.semantic_spec and user_info.semantic_spec["Input"]["Description"] is not None:
                 return self.hetero_stat_searcher(learnware_list, user_info)
             else:
                 return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)

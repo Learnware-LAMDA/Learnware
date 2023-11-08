@@ -13,7 +13,7 @@ from learnware.client import LearnwareClient
 
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-import learnware.specification as specification
+from learnware.specification import RKMETableSpecification, generate_rkme_spec
 from example_learnwares.config import input_shape_list, input_description_list, output_description_list
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
@@ -74,7 +74,7 @@ class TestMarket(unittest.TestCase):
 
             joblib.dump(clf, os.path.join(dir_path, "ridge.pkl"))
 
-            spec = specification.generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "stat.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -203,41 +203,42 @@ class TestMarket(unittest.TestCase):
             semantic_spec1 = learnware.get_specification().get_semantic_spec()
             print("Choose learnware:", learnware.id, semantic_spec1)
 
-    # def test_stat_search(self, learnware_num=5):
-    #     easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
-    #     print("Total Item:", len(easy_market))
+    def test_stat_search(self, learnware_num=5):
+        hetero_market = self.test_upload_delete_learnware(learnware_num, delete=False)
+        print("Total Item:", len(hetero_market))
 
-    #     test_folder = os.path.join(curr_root, "test_stat")
+        test_folder = os.path.join(curr_root, "test_stat")
 
-    #     for idx, zip_path in enumerate(self.zip_path_list):
-    #         unzip_dir = os.path.join(test_folder, f"{idx}")
+        for idx, zip_path in enumerate(self.zip_path_list):
+            unzip_dir = os.path.join(test_folder, f"{idx}")
 
-    #         # unzip -o -q zip_path -d unzip_dir
-    #         if os.path.exists(unzip_dir):
-    #             rmtree(unzip_dir)
-    #         os.makedirs(unzip_dir, exist_ok=True)
-    #         with zipfile.ZipFile(zip_path, "r") as zip_obj:
-    #             zip_obj.extractall(path=unzip_dir)
+            # unzip -o -q zip_path -d unzip_dir
+            if os.path.exists(unzip_dir):
+                rmtree(unzip_dir)
+            os.makedirs(unzip_dir, exist_ok=True)
+            with zipfile.ZipFile(zip_path, "r") as zip_obj:
+                zip_obj.extractall(path=unzip_dir)
 
-    #         user_spec = specification.rkme.RKMETableSpecification()
-    #         user_spec.load(os.path.join(unzip_dir, "svm.json"))
-    #         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
-    #         (
-    #             sorted_score_list,
-    #             single_learnware_list,
-    #             mixture_score,
-    #             mixture_learnware_list,
-    #         ) = easy_market.search_learnware(user_info)
+            user_spec = RKMETableSpecification()
+            user_spec.load(os.path.join(unzip_dir, "stat.json"))
+            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
+            (
+                sorted_score_list,
+                single_learnware_list,
+                mixture_score,
+                mixture_learnware_list,
+            ) = hetero_market.search_learnware(user_info)
 
-    #         assert len(single_learnware_list) == self.learnware_num, f"Statistical search failed!"
-    #         print(f"search result of user{idx}:")
-    #         for score, learnware in zip(sorted_score_list, single_learnware_list):
-    #             print(f"score: {score}, learnware_id: {learnware.id}")
-    #         print(f"mixture_score: {mixture_score}\n")
-    #         mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-    #         print(f"mixture_learnware: {mixture_id}\n")
+            target_spec_num=3 if idx%2==0 else 2
+            assert len(single_learnware_list) == target_spec_num, f"Statistical search failed!"
+            print(f"search result of user{idx}:")
+            for score, learnware in zip(sorted_score_list, single_learnware_list):
+                print(f"score: {score}, learnware_id: {learnware.id}")
+            print(f"mixture_score: {mixture_score}\n")
+            mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
+            print(f"mixture_learnware: {mixture_id}\n")
 
-    #     rmtree(test_folder)  # rm -r test_folder
+        rmtree(test_folder)  # rm -r test_folder
 
 
 def suite():
@@ -246,8 +247,8 @@ def suite():
     # _suite.addTest(TestMarket("test_generated_learnwares"))
     # _suite.addTest(TestMarket("test_upload_delete_learnware"))
     # _suite.addTest(TestMarket("test_train_market_model"))
-    _suite.addTest(TestMarket("test_search_semantics"))
-    # _suite.addTest(TestMarket("test_stat_search"))
+    # _suite.addTest(TestMarket("test_search_semantics"))
+    _suite.addTest(TestMarket("test_stat_search"))
     return _suite
 
 
