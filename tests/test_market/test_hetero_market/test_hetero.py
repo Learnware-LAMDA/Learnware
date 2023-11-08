@@ -21,7 +21,7 @@ curr_root = os.path.dirname(os.path.abspath(__file__))
 user_semantic = {
     "Data": {"Values": ["Table"], "Type": "Class"},
     "Task": {
-        "Values": ["Classification"],
+        "Values": ["Regression"],
         "Type": "Class",
     },
     "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
@@ -173,35 +173,35 @@ class TestMarket(unittest.TestCase):
         organizer=hetero_market.learnware_organizer
         organizer.train()
 
-    # def test_search_semantics(self, learnware_num=5):
-    #     easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
-    #     print("Total Item:", len(easy_market))
-    #     assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+    def test_search_semantics(self, learnware_num=5):
+        hetero_market = self.test_upload_delete_learnware(learnware_num, delete=False)
+        print("Total Item:", len(hetero_market))
+        assert len(hetero_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
-    #     semantic_spec = copy.deepcopy(user_semantic)
-    #     semantic_spec["Name"]["Values"] = f"learnware_{learnware_num - 1}"
+        semantic_spec = copy.deepcopy(user_semantic)
+        semantic_spec["Name"]["Values"] = f"learnware_{learnware_num - 1}"
 
-    #     user_info = BaseUserInfo(semantic_spec=semantic_spec)
-    #     _, single_learnware_list, _, _ = easy_market.search_learnware(user_info)
+        user_info = BaseUserInfo(semantic_spec=semantic_spec)
+        _, single_learnware_list, _, _ = hetero_market.search_learnware(user_info)
 
-    #     print("User info:", user_info.get_semantic_spec())
-    #     print(f"Search result:")
-    #     assert len(single_learnware_list) == 1, f"Exact semantic search failed!"
-    #     for learnware in single_learnware_list:
-    #         semantic_spec1 = learnware.get_specification().get_semantic_spec()
-    #         print("Choose learnware:", learnware.id, semantic_spec1)
-    #         assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
+        print("User info:", user_info.get_semantic_spec())
+        print(f"Search result:")
+        assert len(single_learnware_list) == 1, f"Exact semantic search failed!"
+        for learnware in single_learnware_list:
+            semantic_spec1 = learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", learnware.id, semantic_spec1)
+            assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
 
-    #     semantic_spec["Name"]["Values"] = "laernwaer"
-    #     user_info = BaseUserInfo(semantic_spec=semantic_spec)
-    #     _, single_learnware_list, _, _ = easy_market.search_learnware(user_info)
+        semantic_spec["Name"]["Values"] = "laernwaer"
+        user_info = BaseUserInfo(semantic_spec=semantic_spec)
+        _, single_learnware_list, _, _ = hetero_market.search_learnware(user_info)
 
-    #     print("User info:", user_info.get_semantic_spec())
-    #     print(f"Search result:")
-    #     assert len(single_learnware_list) == self.learnware_num, f"Fuzzy semantic search failed!"
-    #     for learnware in single_learnware_list:
-    #         semantic_spec1 = learnware.get_specification().get_semantic_spec()
-    #         print("Choose learnware:", learnware.id, semantic_spec1)
+        print("User info:", user_info.get_semantic_spec())
+        print(f"Search result:")
+        assert len(single_learnware_list) == self.learnware_num, f"Fuzzy semantic search failed!"
+        for learnware in single_learnware_list:
+            semantic_spec1 = learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", learnware.id, semantic_spec1)
 
     # def test_stat_search(self, learnware_num=5):
     #     easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
@@ -245,8 +245,8 @@ def suite():
     # _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
     # _suite.addTest(TestMarket("test_generated_learnwares"))
     # _suite.addTest(TestMarket("test_upload_delete_learnware"))
-    _suite.addTest(TestMarket("test_train_market_model"))
-    # _suite.addTest(TestMarket("test_search_semantics"))
+    # _suite.addTest(TestMarket("test_train_market_model"))
+    _suite.addTest(TestMarket("test_search_semantics"))
     # _suite.addTest(TestMarket("test_stat_search"))
     return _suite
 
