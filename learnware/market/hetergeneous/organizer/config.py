@@ -3,26 +3,25 @@ import copy
 import json
 import logging
 import os
-from pathlib import Path
 
 from ....config import Config
 
-ROOT_PATH = Path(__file__).resolve().parent.parent
-HETERO_ROOT_DIRPATH = os.path.join(ROOT_PATH, ".learnware")
+ROOT_PATH = os.path.join(os.path.expanduser("~"), ".learnware")
+HETERO_ROOT_PATH = os.path.join(ROOT_PATH, "heterogeneous")
 PACKAGE_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
-LEARNWARE_POOL_PATH = os.path.join(HETERO_ROOT_DIRPATH, "learnware_pool")
+LEARNWARE_POOL_PATH = os.path.join(HETERO_ROOT_PATH, "learnware_pool")
 LEARNWARE_ZIP_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "zips")
 LEARNWARE_FOLDER_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "learnwares")
 
-DATABASE_PATH = os.path.join(HETERO_ROOT_DIRPATH, "database")
-STDOUT_PATH = os.path.join(HETERO_ROOT_DIRPATH, "stdout")
+DATABASE_PATH = os.path.join(HETERO_ROOT_PATH, "database")
+STDOUT_PATH = os.path.join(HETERO_ROOT_PATH, "stdout")
 
 # relative paths
 TRAINING_ARGS_NAME = "training_args.json"
 MODEL_PATH = "pytorch_model.bin"
 TOKENIZER_DIR = "tokenizer"
-HETERO_MAPPING_PATH = "hetero_mapping"
+HETERO_MAPPING_PATH = "hetero_mappings"
 
 # TODO: Delete them later
 # os.makedirs(HETERO_ROOT_DIRPATH, exist_ok=True)
@@ -30,12 +29,12 @@ HETERO_MAPPING_PATH = "hetero_mapping"
 # os.makedirs(STDOUT_PATH, exist_ok=True)
 
 _DEFAULT_CONFIG = {
-    "root_path": HETERO_ROOT_DIRPATH,
+    "root_path": ROOT_PATH,
+    "hetero_root_path": HETERO_ROOT_PATH,
     "package_path": PACKAGE_DIRPATH,
     "stdout_path": STDOUT_PATH,
     "logging_level": logging.INFO,
     "logging_outfile": None,
-    "market_root_path": HETERO_ROOT_DIRPATH,
     "market_model_path": MODEL_PATH,
     "market_training_args_path": TRAINING_ARGS_NAME,
     "market_tokenizer_path": TOKENIZER_DIR,

@@ -27,11 +27,12 @@ logger = get_module_logger("hetero_market")
 
 class HeteroMapTableOrganizer(EasyOrganizer):
     def reload_market(self, rebuild=False, auto_update_limit=100):
-        self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
+        self.market_store_path = os.path.join(conf.hetero_root_path, self.market_id)
         self.market_mapping_path = os.path.join(self.market_store_path, conf.market_model_path)
         self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
         self.learnware_zip_pool_path = os.path.join(self.market_store_path, "zips")
         self.learnware_folder_pool_path = os.path.join(self.market_store_path, "unzipped_learnwares")
+        self.hetero_mappings_path = os.path.join(self.market_store_path, conf.heter_mapping_path)
         self.learnware_list = {}  # id:learnware
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
@@ -55,6 +56,8 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
         os.makedirs(self.learnware_folder_pool_path, exist_ok=True)
+        os.makedirs(self.hetero_mappings_path, exist_ok=True)
+
         (
             self.learnware_list,
             self.learnware_zip_list,
@@ -162,10 +165,8 @@ class HeteroMapTableOrganizer(EasyOrganizer):
 
     def _update_learnware_list(self, learnware_list: List[Learnware]):
         try:
-            hetero_mappings_save_path = os.path.join(self.market_store_path, "hetero_mappings")
-            os.makedirs(hetero_mappings_save_path, exist_ok=True)
             for learnware in learnware_list:
-                hetero_spec_path = os.path.join(hetero_mappings_save_path, f"{learnware.id}.npy")
+                hetero_spec_path = os.path.join(self.hetero_mappings_path, f"{learnware.id}.npy")
                 self._update_learnware_specification(learnware, save_path=hetero_spec_path)
         except Exception as err:
             logger.warning(f"Update learnware HeteroSpecification failed! Due to {err}")
