@@ -79,3 +79,26 @@ output_description_list=[
     },
     
 ]
+
+user_description_list=[
+    {
+        "Dimension": 15,
+        "Description": {     # medical description
+            "0": "Whether the patient is on thyroxine medication (0: No, 1: Yes)",
+            "1": "Whether the patient has been queried about thyroxine medication (0: No, 1: Yes)",
+            "2": "Whether the patient is on antithyroid medication (0: No, 1: Yes)",
+            "3": "Whether the patient has undergone thyroid surgery (0: No, 1: Yes)",
+            "4": "Whether the patient has been queried about hypothyroidism (0: No, 1: Yes)",
+            "5": "Whether the patient has been queried about hyperthyroidism (0: No, 1: Yes)",
+            "6": "Whether the patient is pregnant (0: No, 1: Yes)",
+            "7": "Whether the patient is sick (0: No, 1: Yes)",
+            "8": "Whether the patient has a tumor (0: No, 1: Yes)",
+            "9": "Whether the patient is taking lithium (0: No, 1: Yes)",
+            "10": "Whether the patient has a goitre (enlarged thyroid gland) (0: No, 1: Yes)",
+            "11": "Whether TSH (Thyroid Stimulating Hormone) level has been measured (0: No, 1: Yes)",
+            "12": "Whether T3 (Triiodothyronine) level has been measured (0: No, 1: Yes)",
+            "13": "Whether TT4 (Total Thyroxine) level has been measured (0: No, 1: Yes)",
+            "14": "Whether T4U (Thyroxine Utilization) level has been measured (0: No, 1: Yes)"
+        },
+    }
+]

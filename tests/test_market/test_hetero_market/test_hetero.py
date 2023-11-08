@@ -10,11 +10,13 @@ from sklearn.datasets import make_regression
 from shutil import copyfile, rmtree
 from multiprocessing import Pool
 from learnware.client import LearnwareClient
+from sklearn.metrics import mean_squared_error
 
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_spec
-from example_learnwares.config import input_shape_list, input_description_list, output_description_list
+from learnware.reuse import HeteroMapTableReuser
+from example_learnwares.config import input_shape_list, input_description_list, output_description_list, user_description_list
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -286,6 +288,43 @@ class TestMarket(unittest.TestCase):
 
         rmtree(test_folder)  # rm -r test_folder
 
+    def test_model_reuse(self, learnware_num=5):
+        # generate toy regression problem
+        X, y = make_regression(n_samples=5000, n_informative=10, n_features=15, noise=0.1, random_state=0)
+
+        # generate rkme
+        user_spec = generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
+
+        # generate specification
+        semantic_spec = copy.deepcopy(user_semantic)
+        semantic_spec["Input"] = user_description_list[0]
+        user_info=BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
+
+        # learnware market search
+        hetero_market = self.test_train_market_model(learnware_num)
+        (
+            sorted_score_list,
+            single_learnware_list,
+            mixture_score,
+            mixture_learnware_list,
+        ) = hetero_market.search_learnware(user_info)
+
+        # model reuse
+        print([learnware.id for learnware in single_learnware_list])
+        reuser=HeteroMapTableReuser(single_learnware_list[0], task_type='regression')
+        reuser.fit(user_spec)
+        y_pred=reuser.predict(X)
+        
+        # calculate rmse
+        rmse=mean_squared_error(y, y_pred, squared=False)
+        print(f"rmse not finetune: {rmse}")
+
+        # finetune
+        reuser.finetune(X[:100], y[:100])
+        y_pred=reuser.predict(X)
+        rmse=mean_squared_error(y, y_pred, squared=False)
+        print(f"rmse finetune: {rmse}")
+
 
 def suite():
     _suite = unittest.TestSuite()
@@ -294,7 +333,8 @@ def suite():
     # _suite.addTest(TestMarket("test_upload_delete_learnware"))
     # _suite.addTest(TestMarket("test_train_market_model"))
     # _suite.addTest(TestMarket("test_search_semantics"))
-    _suite.addTest(TestMarket("test_stat_search"))
+    # _suite.addTest(TestMarket("test_stat_search"))
+    _suite.addTest(TestMarket("test_model_reuse"))
     return _suite
 
 

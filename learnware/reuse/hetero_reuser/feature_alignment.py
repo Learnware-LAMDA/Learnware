@@ -9,7 +9,7 @@ from tqdm import trange
 from loguru import logger
 
 from learnware.learnware import Learnware
-from learnware.specification import RKMEStatSpecification
+from learnware.specification import RKMETableSpecification
 from learnware.specification.regular.table.rkme import choose_device
 
 from ..base import BaseReuser
@@ -26,7 +26,7 @@ class FeatureAligner(BaseReuser):
         self.device = choose_device(cuda_idx=cuda_idx)
 
     def fit(self, user_rkme):
-        target_rkme=self.learnware.specification.get_stat_spec()["RKMEStatSpecification"]
+        target_rkme=self.learnware.specification.get_stat_spec()["RKMETableSpecification"]
         trainer=FeatureAlignmentTrainer(target_rkme=target_rkme, user_rkme=user_rkme, cuda_idx=self.cuda_idx, **self.align_arguments)
         self.align_model=trainer.model
         self.align_model.eval()
@@ -91,8 +91,8 @@ class FeatureAlignmentTrainer():
 
     def __init__(
         self,
-        target_rkme: RKMEStatSpecification,  # (X, weight)
-        user_rkme: RKMEStatSpecification,  # (X, weight)
+        target_rkme: RKMETableSpecification,  # (X, weight)
+        user_rkme: RKMETableSpecification,  # (X, weight)
         extra_labeled_data: Any = None,
         target_learnware: Learnware = None,
         num_epoch: int = 50,
