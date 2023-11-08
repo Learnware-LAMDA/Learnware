@@ -11,7 +11,7 @@ from .base import BaseReuser
 from ..market.utils import parse_specification_type
 from ..learnware import Learnware
 from ..specification import RKMETableSpecification, RKMETextSpecification
-from ..specification.utils import generate_rkme_spec
+from ..specification import generate_rkme_spec
 from ..logger import get_module_logger
 
 logger = get_module_logger("job_selector_reuse")

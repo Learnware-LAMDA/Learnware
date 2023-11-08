@@ -1,3 +1,4 @@
+import traceback
 from .base import BaseChecker
 from ..learnware import Learnware
 from ..client.container import LearnwaresContainer
@@ -17,6 +18,7 @@ class CondaChecker(BaseChecker):
                 learnwares = env_container.get_learnwares_with_container()
                 check_status = self.inner_checker(learnwares[0])
         except Exception as e:
+            traceback.print_exc()
             logger.warning(f"Conda Checker failed due to installed learnware failed and {e}")
             return BaseChecker.INVALID_LEARNWARE
         return check_status

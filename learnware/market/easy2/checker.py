@@ -141,7 +141,7 @@ class EasyStatChecker(BaseChecker):
                     int(semantic_spec["Output"]["Dimension"]),
                 ):
                     logger.warning(
-                        f"The learnware [{learnware.id}] output dimention mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
+                        f"The learnware [{learnware.id}] output dimension mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
                     )
                     return self.INVALID_LEARNWARE
 
