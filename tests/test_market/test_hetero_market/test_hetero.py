@@ -309,8 +309,11 @@ class TestMarket(unittest.TestCase):
             mixture_learnware_list,
         ) = hetero_market.search_learnware(user_info)
 
+        # print search results
+        for score, learnware in zip(sorted_score_list, single_learnware_list):
+            print(f"score: {score}, learnware_id: {learnware.id}")
+
         # model reuse
-        print([learnware.id for learnware in single_learnware_list])
         reuser=HeteroMapTableReuser(single_learnware_list[0], task_type='regression')
         reuser.fit(user_spec)
         y_pred=reuser.predict(X)
