@@ -147,6 +147,31 @@ class TestMarket(unittest.TestCase):
             assert len(curr_inds) == 0, f"The market should be empty!"
 
         return hetero_market
+    
+    def test_train_market_model(self, learnware_num=5):
+        hetero_market = self._init_learnware_market()
+        self.test_prepare_learnware_randomly(learnware_num)
+        self.learnware_num = learnware_num
+
+        print("Total Item:", len(hetero_market))
+        assert len(hetero_market) == 0, f"The market should be empty!"
+
+        for idx, zip_path in enumerate(self.zip_path_list):
+            semantic_spec = copy.deepcopy(user_semantic)
+            semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
+            semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
+            semantic_spec["Input"] = input_description_list[idx % 2]
+            semantic_spec["Output"] = output_description_list[idx % 2]
+            hetero_market.add_learnware(zip_path, semantic_spec)
+
+        print("Total Item:", len(hetero_market))
+        assert len(hetero_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+        curr_inds = hetero_market.get_learnware_ids()
+        print("Available ids After Uploading Learnwares:", curr_inds)
+        assert len(curr_inds) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+
+        organizer=hetero_market.learnware_organizer
+        organizer.train()
 
     # def test_search_semantics(self, learnware_num=5):
     #     easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
@@ -219,7 +244,8 @@ def suite():
     _suite = unittest.TestSuite()
     # _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
     # _suite.addTest(TestMarket("test_generated_learnwares"))
-    _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    # _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    _suite.addTest(TestMarket("test_train_market_model"))
     # _suite.addTest(TestMarket("test_search_semantics"))
     # _suite.addTest(TestMarket("test_stat_search"))
     return _suite
