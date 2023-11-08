@@ -14,7 +14,7 @@ from learnware.client import LearnwareClient
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 import learnware.specification as specification
-from example_learnwares.config import input_shape_list
+from example_learnwares.config import input_shape_list, input_description_list, output_description_list
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -126,17 +126,8 @@ class TestMarket(unittest.TestCase):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            semantic_spec["Input"] = {
-                "Dimension": 64,
-                "Description": {
-                    f"{i}": f"The value in the grid {i // 8}{i % 8} of the image of hand-written digit."
-                    for i in range(64)
-                },
-            }
-            semantic_spec["Output"] = {
-                "Dimension": 10,
-                "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)},
-            }
+            semantic_spec["Input"] = input_description_list[idx % 2]
+            semantic_spec["Output"] = output_description_list[idx % 2]
             hetero_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(hetero_market))
@@ -226,9 +217,9 @@ class TestMarket(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
-    _suite.addTest(TestMarket("test_generated_learnwares"))
-    # _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    # _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
+    # _suite.addTest(TestMarket("test_generated_learnwares"))
+    _suite.addTest(TestMarket("test_upload_delete_learnware"))
     # _suite.addTest(TestMarket("test_search_semantics"))
     # _suite.addTest(TestMarket("test_stat_search"))
     return _suite
