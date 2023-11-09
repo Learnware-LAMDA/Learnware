@@ -101,10 +101,9 @@ if __name__ == "__main__":
         install_requires=REQUIRED,
         extras_require={
             "dev": [
-                # For documentation
+                # For documentations
                 "sphinx",
                 "sphinx_rtd_theme",
-                "pre-commit",
                 # CI dependencies
                 "pytest>=3",
                 "wheel",
@@ -114,6 +113,7 @@ if __name__ == "__main__":
                 "mypy<0.981",
                 "flake8",
                 "black==23.1.0",
+                "pre-commit",
             ],
         },
         classifiers=[
