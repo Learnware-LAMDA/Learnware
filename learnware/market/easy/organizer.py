@@ -387,7 +387,8 @@ class EasyOrganizer(BaseOrganizer):
         self.learnware_folder_list[learnware_id] = target_folder_dir
         semantic_spec = self.dbops.get_learnware_semantic_specification(learnware_id)
         self.learnware_list[learnware_id] = get_learnware_from_dirpath(
-            id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir)
+            id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
+        )
         self.use_flags[learnware_id] = self.dbops.get_learnware_use_flag(learnware_id)
         pass
 
