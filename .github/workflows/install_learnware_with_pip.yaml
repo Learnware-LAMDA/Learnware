@@ -50,5 +50,4 @@ jobs:
 
     - name: Test workflow
       run: |
-        cd tests
-        conda run -n learnware python -m pytest test_workflow/test_workflow.py
+        conda run -n learnware python -m pytest tests/test_market/test_easy.py
