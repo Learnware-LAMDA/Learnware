@@ -129,7 +129,7 @@ class RKMETableSpecification(RegularStatsSpecification):
             return
 
         # Initialize Z by clustering, utiliing kmeans or faiss to speed up the process.
-        self._init_z_by_kmeans(X, K)
+        self._init_z_by_faiss(X, K)
         self._update_beta(X, nonnegative_beta)
 
         # Alternating optimize Z and beta

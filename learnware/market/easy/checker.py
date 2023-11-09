@@ -89,7 +89,6 @@ class EasyStatChecker(BaseChecker):
             traceback.print_exc()
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {e}.")
             return self.INVALID_LEARNWARE
-
         try:
             learnware_model = learnware.get_model()
             # Check input shape
@@ -117,10 +116,9 @@ class EasyStatChecker(BaseChecker):
             elif spec_type == "RKMEImageSpecification":
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
             else:
-                raise ValueError(f"not supported spec type for spec_type = {spec_type}")
+                raise ValueError(f"not supported spec type for spec_type = {spec_type}")  
 
             # Check output
-            outputs = learnware.predict(inputs)
             try:
                 outputs = learnware.predict(inputs)
             except Exception:

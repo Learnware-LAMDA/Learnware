@@ -44,7 +44,7 @@ user_semantic = {
     "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
-    "Name": {"Values": "learnware_1", "Type": "String"},
+    "Name": {"Values": "", "Type": "String"},
     "Input": input_description,
     "Output": output_description,
 }
@@ -55,7 +55,7 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         pfs.regenerate_data()
 
-        algo_list = ["ridge", "lgb"]
+        algo_list = ["ridge"] # , "lgb"
         for algo in algo_list:
             pfs.set_algo(algo)
             pfs.retrain_models()
@@ -88,7 +88,7 @@ class PFSDatasetWorkflow:
 
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
-        algo_list = ["lgb"]  # ["ridge", "lgb"]
+        algo_list = ["ridge"]  # ["ridge", "lgb"]
 
         curr_root = os.path.dirname(os.path.abspath(__file__))
         curr_root = os.path.join(curr_root, "learnware_pool")
