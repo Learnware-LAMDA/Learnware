@@ -1,6 +1,6 @@
 from .base import LearnwareMarket
 from .easy import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
-from .hetergeneous import HeteroMapTableOrganizer, HeteroSearcher
+from .heterogeneous import HeteroMapTableOrganizer, HeteroSearcher
 
 MARKET_CONFIG = {
     "easy": {

@@ -155,6 +155,7 @@ class TestMarket(unittest.TestCase):
         hetero_market = self._init_learnware_market()
         self.test_prepare_learnware_randomly(learnware_num)
         self.learnware_num = learnware_num
+        hetero_market.learnware_organizer.reset(auto_update=True, auto_update_limit=learnware_num)
 
         print("Total Item:", len(hetero_market))
         assert len(hetero_market) == 0, f"The market should be empty!"
@@ -173,8 +174,8 @@ class TestMarket(unittest.TestCase):
         print("Available ids After Uploading Learnwares:", curr_inds)
         assert len(curr_inds) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
-        organizer=hetero_market.learnware_organizer
-        organizer.train()
+        # organizer=hetero_market.learnware_organizer
+        # organizer.train(hetero_market.learnware_organizer.learnware_list.values())
         return hetero_market
 
     def test_search_semantics(self, learnware_num=5):

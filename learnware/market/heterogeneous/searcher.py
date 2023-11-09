@@ -1,10 +1,12 @@
 from typing import Tuple, List, Union
 
+import numpy as np
+
 from ...learnware import Learnware
 from ...logger import get_module_logger
 from ...specification import HeteroSpecification
 from ..base import BaseSearcher, BaseUserInfo
-from ..easy2 import EasySearcher
+from ..easy import EasySearcher
 from ..utils import parse_specification_type
 from .organizer import HeteroMapTableOrganizer
 
@@ -38,7 +40,7 @@ class HeteroMapTableSearcher(EasySearcher):
     ) -> Tuple[List[float], List[Learnware]]:
         hetero_spec_list = [learnware.specification.get_stat_spec_by_name("HeteroSpecification") for learnware in learnware_list]
         mmd_dist_list = []
-        for hetero_spec in hetero_spec_list:
+        for idx, hetero_spec in enumerate(hetero_spec_list):
             mmd_dist = hetero_spec.dist(user_hetero_spec)
             mmd_dist_list.append(mmd_dist)
         
@@ -83,15 +85,6 @@ class HeteroMapTableSearcher(EasySearcher):
         logger.info(f"After filter by hetero spec, learnware_list length is {len(single_learnware_list)}")
         return sorted_score_list, single_learnware_list, None, None
 
-        
-        # for learnware in learnware_list:
-        #     learnware_hetero_spec = learnware.specification.get_stat_spec_by_name("HeteroSpecification")
-        #     mmd_dist = learnware_hetero_spec.dist(user_hetero_spec)
-        #     if target_learnware is None or mmd_dist < min_dist:
-        #         min_dist = mmd_dist
-        #         target_learnware = learnware
-        # return target_learnware
-
     def reset(self, organizer):
         self.learnware_oganizer = organizer
 
@@ -103,6 +96,26 @@ class HeteroSearcher(EasySearcher):
     def reset(self, organizer):
         super().reset(organizer)
         self.hetero_stat_searcher.reset(organizer)
+    
+    @staticmethod
+    def check_user_info(user_info: BaseUserInfo):
+        try:
+            user_stat_spec = user_info.get_stat_info("RKMETableSpecification")
+            user_input_shape = user_stat_spec.get_z().shape[1]
+
+            user_input_description = user_info.get_semantic_spec()["Input"]
+
+            user_description_dim = int(user_input_description["Dimension"])
+            user_description_feature_num = len(user_input_description["Description"])
+
+            if user_input_shape != user_description_dim or user_input_shape != user_description_feature_num:
+                logger.warning("User data feature dimensions mismatch with semantic specification")
+                return False
+            
+            return True
+        except:
+            logger.info(f"No heterogeneous search information provided. Use homogeneous search instead.")
+            return False
 
     def __call__(
         self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy"
@@ -114,7 +127,7 @@ class HeteroSearcher(EasySearcher):
             return [], [], 0.0, []
 
         if parse_specification_type(stat_specs=user_info.stat_info) is not None:
-            if "Input" in user_info.semantic_spec and user_info.semantic_spec["Input"]["Description"] is not None:
+            if self.check_user_info(user_info):
                 return self.hetero_stat_searcher(learnware_list, user_info)
             else:
                 return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)

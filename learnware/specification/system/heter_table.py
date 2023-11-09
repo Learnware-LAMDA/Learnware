@@ -29,10 +29,10 @@ class HeteroSpecification(SystemStatsSpecification):
         super(HeteroSpecification, self).__init__(type=self.__class__.__name__)
 
     def get_z(self) -> np.ndarray:
-        return self.z.detach().cpu().numpy
+        return self.z.detach().cpu().numpy()
 
     def get_beta(self) -> np.ndarray:
-        return self.beta.detach().cpu().numpy
+        return self.beta.detach().cpu().numpy()
 
     def generate_stat_spec_from_system(self, heter_embedding: np.ndarray, rkme_spec: RKMETableSpecification):
         self.beta = rkme_spec.beta.to(self.device)

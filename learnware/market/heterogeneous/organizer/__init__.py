@@ -17,9 +17,9 @@ from ....learnware import Learnware, get_learnware_from_dirpath
 from ....logger import get_module_logger
 from ....specification.system import HeteroSpecification
 from ...base import BaseChecker, BaseUserInfo
-from ...easy2 import EasyOrganizer
-from ..database_ops import DatabaseOperations
-from .config import C as conf
+from ...easy import EasyOrganizer
+from ...easy.database_ops import DatabaseOperations
+from ....config import C as conf
 from .hetero_mapping import HeteroMapping, Trainer
 
 logger = get_module_logger("hetero_market")
@@ -27,12 +27,12 @@ logger = get_module_logger("hetero_market")
 
 class HeteroMapTableOrganizer(EasyOrganizer):
     def reload_market(self, rebuild=False, auto_update_limit=100):
-        self.market_store_path = os.path.join(conf.hetero_root_path, self.market_id)
-        self.market_mapping_path = os.path.join(self.market_store_path, conf.market_model_path)
+        self.market_store_path = os.path.join(conf.root_path, self.market_id)
+        self.market_mapping_path = os.path.join(self.market_store_path, "model.bin")
         self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
         self.learnware_zip_pool_path = os.path.join(self.market_store_path, "zips")
         self.learnware_folder_pool_path = os.path.join(self.market_store_path, "unzipped_learnwares")
-        self.hetero_mappings_path = os.path.join(self.market_store_path, conf.heter_mapping_path)
+        self.hetero_mappings_path = os.path.join(self.market_store_path, "hetero_mappings")
         self.learnware_list = {}  # id:learnware
         self.learnware_zip_list = {}
         self.learnware_folder_list = {}
@@ -41,8 +41,6 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         self.dbops = DatabaseOperations(conf.database_url, "market_" + self.market_id)
         self.auto_update = False
         self.auto_update_limit = auto_update_limit
-        self.auto_update_lock = mp.Lock()
-        self.is_training_in_progress = mp.Value('i', 0)
 
         if rebuild:
             logger.warning("Warning! You are trying to clear current database!")
@@ -75,7 +73,6 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             self.market_mapping = HeteroMapping()
 
     def reset(self, market_id=None, auto_update=False, auto_update_limit=None, **kwargs):
-        # model training arguments(model architecture + optimization) set via self.reset
         self.auto_update = auto_update
         self.market_id = market_id
         self.training_args = kwargs
@@ -126,42 +123,45 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         self.learnware_zip_list[learnware_id] = target_zip_dir
         self.learnware_folder_list[learnware_id] = target_folder_dir
         self.use_flags[learnware_id] = learnwere_status
-        self.count += 1  
+        self.count += 1
 
-        with self.auto_update_lock:
-            if self.auto_update and not self.is_training_in_progress.value and self.count - self.last_trained_learnware_num >= self.auto_update_limit:
-                self.is_training_in_progress.value = 1
-                curr_learnware_list = copy.deepcopy(self.learnware_list)
-                train_process = mp.Process(target=self.train, args=(curr_learnware_list.values(),))
-                train_process.start()
-                # train_process.join()
+        if self.auto_update and self.count - self.last_trained_learnware_num == self.auto_update_limit + 1:
+            logger.warning(f"Leanwares for training: {self.get_learnware_ids()}")
+
+            updated_market_mapping = self.train(
+                learnware_list=self.learnware_list.values(),
+                save_dir=self.market_store_path, 
+                **self.training_args
+            )
+            
+            logger.warning(f"Market mapping train completed. Now update HeteroSpecification for {self.get_learnware_ids()}")
+            
+            self.market_mapping = updated_market_mapping
+            self._update_learnware_list(self.learnware_list.values())
+            self.last_trained_learnware_num = self.count
         
         return learnware_id, learnwere_status
 
-    def train(self, learnware_list: List[Learnware] = None):
-        learnware_list = learnware_list or self.learnware_list.values()
-        logger.warning(f"Leanwares for training: {[learnware.id for learnware in learnware_list]}")
-        allset = self._learnwares_to_dataframes(learnware_list)
-        self.market_mapping = HeteroMapping(**self.training_args)
+    @staticmethod
+    def train(learnware_list: List[Learnware] = None, save_dir: str = None, **kwargs):
+        allset = HeteroMapTableOrganizer._learnwares_to_dataframes(learnware_list)
+        market_mapping = HeteroMapping(**kwargs)
         market_mapping_trainer = Trainer(
-            model=self.market_mapping,
+            model=market_mapping,
             train_set_list=allset,
-            collate_fn=self.market_mapping.collate_fn,
-            **self.training_args,
+            collate_fn=market_mapping.collate_fn,
+            **kwargs,
         )
+
         market_mapping_trainer.train()
+        market_mapping_trainer.save_model(output_dir=save_dir)
 
-        # auto save whenever market model retrained
-        market_mapping_trainer.save_model(output_dir=self.market_store_path)
+        return market_mapping
 
-        # essential hetero-mapping update for each market learnware when market model retrained
-        self._update_learnware_list(learnware_list)
-        self.last_trained_learnware_num = self.count
-
-        logger.warning(f"Updataed Specification For: {[learnware.id for learnware in learnware_list]}")
-
-        with self.auto_update_lock:
-            self.is_training_in_progress.value = 0
+        ############################################
+        # save_model & generateing new specification
+        # should be moved out of train thread
+        ############################################
 
     def _update_learnware_list(self, learnware_list: List[Learnware]):
         try:
@@ -169,7 +169,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 hetero_spec_path = os.path.join(self.hetero_mappings_path, f"{learnware.id}.npy")
                 self._update_learnware_specification(learnware, save_path=hetero_spec_path)
         except Exception as err:
-            logger.warning(f"Update learnware HeteroSpecification failed! Due to {err}")
+            logger.warning(f"Update HeteroSpecification failed! Due to {err}")
 
     def _update_learnware_specification(self, learnware: Learnware, save_path: str) -> Learnware:
         specification = learnware.specification
@@ -178,16 +178,16 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         learnware_hetero_spec = self.market_mapping.hetero_mapping(learnware_rkme, learnware_features)
         learnware.update_stat_spec("HeteroSpecification", learnware_hetero_spec)
 
-        # custom hetero spec save path?
         learnware_hetero_spec.save(save_path)
 
     def generate_hetero_map_spec(self, user_info: BaseUserInfo) -> HeteroSpecification:
         user_rkme = user_info.stat_info["RKMETableSpecification"]
-        user_features = user_info.semantic_spec["Input"]["Description"].values()
+        user_features = user_info.get_semantic_spec()["Input"]["Description"].values()
         user_hetero_spec = self.market_mapping.hetero_mapping(user_rkme, user_features)
         return user_hetero_spec
 
-    def _learnwares_to_dataframes(self, learnware_list: List[Learnware]) -> List[pd.DataFrame]:
+    @staticmethod
+    def _learnwares_to_dataframes(learnware_list: List[Learnware]) -> List[pd.DataFrame]:
         learnware_df_dict = defaultdict(list)
         for learnware in learnware_list:
             specification = learnware.get_specification()
@@ -199,6 +199,3 @@ class HeteroMapTableOrganizer(EasyOrganizer):
 
         merged_dfs = [pd.concat(dfs) for dfs in learnware_df_dict.values()]
         return merged_dfs
-
-    def save(self, save_path):
-        return NotImplementedError
