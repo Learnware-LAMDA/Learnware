@@ -7,7 +7,7 @@ from tqdm import tqdm
 from shutil import copyfile, rmtree
 
 import learnware
-from learnware.market import EasyMarket, BaseUserInfo
+from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.market import database_ops
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 from learnware.specification import generate_rkme_spec
@@ -53,7 +53,7 @@ class M5DatasetWorkflow:
         # database_ops.clear_learnware_table()
         learnware.init()
 
-        easy_market = EasyMarket(rebuild=True)
+        easy_market = instantiate_learnware_market(name="easy", rebuild=True)
         print("Total Item:", len(easy_market))
 
         zip_path_list = []
@@ -125,7 +125,7 @@ class M5DatasetWorkflow:
         self.prepare_learnware(regenerate_flag)
         self._init_learnware_market()
 
-        easy_market = EasyMarket()
+        easy_market = instantiate_learnware_market(name="easy")
         print("Total Item:", len(easy_market))
 
         m5 = DataLoader()

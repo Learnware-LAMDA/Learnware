@@ -1,5 +1,5 @@
 from .base import LearnwareMarket
-from .easy2 import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
+from .easy import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
 
 MARKET_CONFIG = {
     "easy": {
