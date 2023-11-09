@@ -8,7 +8,7 @@ import importlib.util
 from typing import Union
 from types import ModuleType
 import zipfile
-from .logger import get_module_logger
+from ..logger import get_module_logger
 
 logger = get_module_logger("utils")
 
