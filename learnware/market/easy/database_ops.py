@@ -166,7 +166,7 @@ class DatabaseOperations(object):
                 return int(row[0])
             pass
         pass
-    
+
     def load_market(self):
         with self.engine.connect() as conn:
             cursor = conn.execute(text("SELECT id, semantic_spec, zip_path, folder_path, use_flag FROM tb_learnware;"))

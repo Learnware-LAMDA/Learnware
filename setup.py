@@ -113,7 +113,7 @@ if __name__ == "__main__":
                 # For static analysis
                 "mypy<0.981",
                 "flake8",
-                "black==23.1.0"
+                "black==23.1.0",
             ],
         },
         classifiers=[
