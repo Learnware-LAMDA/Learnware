@@ -12,7 +12,7 @@ import numpy as np
 from qpsolvers import solve_qp, Problem, solve_problem
 from collections import Counter
 from typing import Tuple, Any, List, Union, Dict
-import scipy.sparse
+import scipy
 
 try:
     import faiss
@@ -557,12 +557,19 @@ def rkme_solve_qp(K: np.ndarray, C: np.ndarray):
     torch.tensor
             Solution to the QP problem.
     """
+    if torch.is_tensor(K):
+        K = K.cpu().numpy()
+    if torch.is_tensor(C):
+        C = C.cpu().numpy()
     n = K.shape[0]
-    P = np.array(K.cpu().numpy())
-    q = np.array(-C.cpu().numpy())
+    P = np.array(K)
+    P = scipy.sparse.csc_matrix(P)
+    q = np.array(-C)
     G = np.array(-np.eye(n))
+    G = scipy.sparse.csc_matrix(G)
     h = np.array(np.zeros((n, 1)))
     A = np.array(np.ones((1, n)))
+    A = scipy.sparse.csc_matrix(A)
     b = np.array(np.ones((1, 1)))
 
     # sol = solve_qp(P, q, G, h, A, b, solver="clarabel") # Requires the sum of x to be 1

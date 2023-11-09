@@ -184,7 +184,7 @@ class JobSelectorReuser(BaseReuser):
         K = task_rkme_matrix
         v = np.array([user_rkme_spec.inner_prod(task_rkme) for task_rkme in task_rkme_list])
 
-        sol, _ = rkme_solve_qp(K, V)
+        sol, _ = rkme_solve_qp(K, v)
         task_mixture_weight = np.array(sol).reshape(-1)
 
         return task_mixture_weight
