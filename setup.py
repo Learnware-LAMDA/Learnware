@@ -64,13 +64,13 @@ REQUIRED = [
     "fire>=0.3.1",
     "lightgbm>=3.3.0",
     "psutil>=5.9.4",
-    "torchvision>=0.15.1",
+    "torchvision>=0.14.1",
     "sqlalchemy>=2.0.21",
     "shortuuid>=1.0.11",
     "geatpy>=2.7.0",
     "docker>=6.1.3",
     "rapidfuzz>=3.4.0",
-    "torchtext>=0.16.0",
+    "torchtext>=0.14.1",
     "sentence_transformers>=2.2.2",
     "torch-optimizer>=0.3.0",
     "langdetect>=1.0.9",
@@ -99,6 +99,23 @@ if __name__ == "__main__":
         long_description_content_type="text/markdown",
         python_requires=REQUIRES_PYTHON,
         install_requires=REQUIRED,
+        extras_require={
+            "dev": [
+                # For documentation
+                "sphinx",
+                "sphinx_rtd_theme",
+                "pre-commit",
+                # CI dependencies
+                "pytest>=3",
+                "wheel",
+                "setuptools",
+                "pylint",
+                # For static analysis
+                "mypy<0.981",
+                "flake8",
+                "black==23.1.0"
+            ],
+        },
         classifiers=[
             "Intended Audience :: Science/Research",
             "Intended Audience :: Developers",
