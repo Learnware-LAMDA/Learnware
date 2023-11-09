@@ -28,5 +28,5 @@ def init(make_dir: bool = False, tf_loglevel: str = "2", **kwargs):
     # logger.info(f"The tensorflow log level is setted to {tf_loglevel}")
 
 
-if not is_torch_avaliable(verbose=True):
+if not is_torch_avaliable(verbose=False):
     logger.warning("The functionality of learnware is limited due to 'torch' is not installed!")
