@@ -7,7 +7,7 @@ from tqdm import tqdm
 from shutil import copyfile, rmtree
 
 import learnware
-from learnware.market import EasyMarket, BaseUserInfo
+from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 from learnware.specification import generate_rkme_spec
 from pfs import Dataloader
@@ -50,7 +50,7 @@ class PFSDatasetWorkflow:
     def _init_learnware_market(self):
         """initialize learnware market"""
         learnware.init()
-        easy_market = EasyMarket(market_id="pfs", rebuild=True)
+        easy_market = instantiate_learnware_market(market_id="pfs", name="easy", rebuild=True)
         print("Total Item:", len(easy_market))
 
         zip_path_list = []
@@ -122,7 +122,7 @@ class PFSDatasetWorkflow:
         self.prepare_learnware(regenerate_flag)
         self._init_learnware_market()
 
-        easy_market = EasyMarket(market_id="pfs")
+        easy_market = instantiate_learnware_market(market_id="pfs", name="easy")
         print("Total Item:", len(easy_market))
 
         pfs = Dataloader()

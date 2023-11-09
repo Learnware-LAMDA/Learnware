@@ -143,9 +143,11 @@ class EasyOrganizer(BaseOrganizer):
             return False
 
         zip_dir = self.learnware_zip_list[id]
-        os.remove(zip_dir)
+        if os.path.exists(zip_dir):
+            os.remove(zip_dir)
+            pass
         folder_dir = self.learnware_folder_list[id]
-        rmtree(folder_dir)
+        rmtree(folder_dir, ignore_errors=True)
         self.learnware_list.pop(id)
         self.learnware_zip_list.pop(id)
         self.learnware_folder_list.pop(id)
@@ -369,6 +371,25 @@ class EasyOrganizer(BaseOrganizer):
         """
         learnware_ids = self.get_learnware_ids(top, check_status)
         return [self.learnware_list[idx] for idx in learnware_ids]
+
+    def reload_learnware(self, learnware_id: str):
+        current_learnware = self.learnware_list.get(learnware_id)
+
+        if current_learnware is None:
+            # add learnware
+            self.count += 1
+        else:
+            pass
+
+        target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (learnware_id))
+        target_folder_dir = os.path.join(self.learnware_folder_pool_path, learnware_id)
+        self.learnware_zip_list[learnware_id] = target_zip_dir
+        self.learnware_folder_list[learnware_id] = target_folder_dir
+        semantic_spec = self.dbops.get_learnware_semantic_specification(learnware_id)
+        self.learnware_list[learnware_id] = get_learnware_from_dirpath(
+            id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir)
+        self.use_flags[learnware_id] = self.dbops.get_learnware_use_flag(learnware_id)
+        pass
 
     def __len__(self):
         return len(self.learnware_list)
