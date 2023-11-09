@@ -8,7 +8,6 @@ import torch.nn.functional as F
 from torch import Tensor, nn
 
 from .....specification import HeteroSpecification, RKMETableSpecification
-from ..config import C as conf
 from .feature_extractor import *
 from .trainer import Trainer, TransTabCollatorForCL
 
@@ -99,7 +98,7 @@ class HeteroMapping(nn.Module):
 
         """
         # load model weight state dict
-        market_model_path = os.path.join(checkpoint, conf.market_model_path)
+        market_model_path = os.path.join(checkpoint, "model.bin")
         model_info = torch.load(market_model_path, map_location="cpu")
         model = HeteroMapping(**model_info["model_args"])
         model.load_state_dict(model_info["model_state_dict"], strict=False)
@@ -126,7 +125,7 @@ class HeteroMapping(nn.Module):
             "model_args": self.model_args,
             # "feature_tokenizer": self.feature_tokenizer,
         }
-        torch.save(model_info, os.path.join(ckpt_dir, conf.market_model_path))
+        torch.save(model_info, os.path.join(ckpt_dir, "model.bin"))
 
     def forward(self, x, y=None):
         # do positive sampling

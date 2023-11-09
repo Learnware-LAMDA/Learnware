@@ -10,8 +10,6 @@ from loguru import logger
 from torch import Tensor, nn
 from transformers import BertTokenizerFast
 
-from ..config import C as conf
-
 
 class WordEmbedding(nn.Module):
     """

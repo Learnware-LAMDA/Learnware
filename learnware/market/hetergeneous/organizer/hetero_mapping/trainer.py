@@ -11,7 +11,6 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm.autonotebook import trange
 
-from ..config import C as conf
 from .feature_extractor import FeatureTokenizer
 
 
@@ -101,7 +100,7 @@ class Trainer:
                 if isinstance(v, int) or isinstance(v, str) or isinstance(v, float):
                     train_args[k] = v
             with open(
-                os.path.join(output_dir, conf.market_training_args_path),
+                os.path.join(output_dir, "training_args.json"),
                 "w",
                 encoding="utf-8",
             ) as f:
