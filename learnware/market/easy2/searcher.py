@@ -1,14 +1,13 @@
 import torch
 import numpy as np
 from rapidfuzz import fuzz
-from cvxopt import solvers, matrix
 from typing import Tuple, List, Union
 
 from .organizer import EasyOrganizer
 from ..utils import parse_specification_type
 from ..base import BaseUserInfo, BaseSearcher
 from ...learnware import Learnware
-from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
+from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification, rkme_solve_qp
 from ...logger import get_module_logger
 
 logger = get_module_logger("easy_seacher")
@@ -277,18 +276,9 @@ class EasyStatSearcher(BaseSearcher):
         # weight = torch.linalg.inv(K + torch.eye(K.shape[0]).to(user_rkme.device) * 1e-5) @ C
 
         # beta must be nonnegative
-        n = K.shape[0]
-        P = matrix(K.cpu().numpy())
-        q = matrix(-C.cpu().numpy())
-        G = matrix(-np.eye(n))
-        h = matrix(np.zeros((n, 1)))
-        A = matrix(np.ones((1, n)))
-        b = matrix(np.ones((1, 1)))
-        solvers.options["show_progress"] = False
-        sol = solvers.qp(P, q, G, h, A, b)
-        weight = np.array(sol["x"])
+        weight, obj = rkme_solve_qp(K, C)
         weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
-        score = user_rkme.inner_prod(user_rkme) + 2 * sol["primal objective"]
+        score = user_rkme.inner_prod(user_rkme) + 2 * obj
 
         return weight.detach().cpu().numpy().reshape(-1), score
 

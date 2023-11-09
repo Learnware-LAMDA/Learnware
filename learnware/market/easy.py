@@ -7,7 +7,6 @@ import traceback
 import numpy as np
 import pandas as pd
 from rapidfuzz import fuzz
-from cvxopt import solvers, matrix
 from shutil import copyfile, rmtree
 from typing import Tuple, Any, List, Union, Dict
 
@@ -18,7 +17,7 @@ from .. import utils
 from ..config import C as conf
 from ..logger import get_module_logger
 from ..learnware import Learnware, get_learnware_from_dirpath
-from ..specification import RKMETableSpecification, Specification
+from ..specification import RKMETableSpecification, Specification, rkme_solve_qp
 
 
 logger = get_module_logger("market", "INFO")
@@ -347,18 +346,9 @@ class EasyMarket(LearnwareMarket):
         # weight = torch.linalg.inv(K + torch.eye(K.shape[0]).to(user_rkme.device) * 1e-5) @ C
 
         # beta must be nonnegative
-        n = K.shape[0]
-        P = matrix(K.cpu().numpy())
-        q = matrix(-C.cpu().numpy())
-        G = matrix(-np.eye(n))
-        h = matrix(np.zeros((n, 1)))
-        A = matrix(np.ones((1, n)))
-        b = matrix(np.ones((1, 1)))
-        solvers.options["show_progress"] = False
-        sol = solvers.qp(P, q, G, h, A, b)
-        weight = np.array(sol["x"])
-        weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
-        score = user_rkme.inner_prod(user_rkme) + 2 * sol["primal objective"]
+        weight, obj = rkme_solve_qp(K, C)
+        weight = weight.to(user_rkme.device)
+        score = user_rkme.inner_prod(user_rkme) + 2 * obj
 
         return weight.detach().cpu().numpy().reshape(-1), score
 
@@ -926,7 +916,7 @@ class EasyMarket(LearnwareMarket):
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
-    def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
+    def get_learnware_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]:
         """Get Zipped Learnware file by id
 
         Parameters

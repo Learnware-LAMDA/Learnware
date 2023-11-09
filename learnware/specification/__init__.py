@@ -6,4 +6,5 @@ from .regular import (
     RKMETableSpecification,
     RKMEImageSpecification,
     RKMETextSpecification,
+    rkme_solve_qp,
 )

@@ -56,7 +56,6 @@ REQUIRED = [
     "scipy>=1.0.0",
     "matplotlib>=3.1.3",
     "torch>=1.11.0",
-    "cvxopt>=1.3.0",
     "tqdm>=4.65.0",
     "scikit-learn>=0.22",
     "joblib>=1.2.0",
@@ -76,6 +75,7 @@ REQUIRED = [
     "langdetect>=1.0.9",
     "huggingface-hub<0.18",
     "portalocker>=2.0.0",
+    "qpsolvers[clarabel]>=4.0.1"
 ]
 
 if get_platform() != MACOS:

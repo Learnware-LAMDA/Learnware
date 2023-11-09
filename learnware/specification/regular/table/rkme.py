@@ -8,9 +8,11 @@ import json
 import codecs
 import random
 import numpy as np
-from cvxopt import solvers, matrix
+# from cvxopt import solvers, matrix
+from qpsolvers import solve_qp, Problem, solve_problem
 from collections import Counter
 from typing import Tuple, Any, List, Union, Dict
+import scipy.sparse
 
 try:
     import faiss
@@ -177,7 +179,8 @@ class RKMETableSpecification(RegularStatsSpecification):
         C = torch.sum(C, dim=1) / X.shape[0]
 
         if nonnegative_beta:
-            beta = solve_qp(K, C).to(self.device)
+            beta, _ = rkme_solve_qp(K, C)
+            beta = beta.to(self.device)
         else:
             beta = torch.linalg.inv(K + torch.eye(K.shape[0]).to(self.device) * 1e-5) @ C
 
@@ -536,7 +539,7 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
     return torch.exp(-X12norm * gamma)
 
 
-def solve_qp(K: np.ndarray, C: np.ndarray):
+def rkme_solve_qp(K: np.ndarray, C: np.ndarray):
     """Solver for the following quadratic programming(QP) problem:
         - min   1/2 x^T K x - C^T x
         s.t     1^T x - 1 = 0
@@ -555,17 +558,17 @@ def solve_qp(K: np.ndarray, C: np.ndarray):
             Solution to the QP problem.
     """
     n = K.shape[0]
-    P = matrix(K.cpu().numpy())
-    q = matrix(-C.cpu().numpy())
-    G = matrix(-np.eye(n))
-    h = matrix(np.zeros((n, 1)))
-    A = matrix(np.ones((1, n)))
-    b = matrix(np.ones((1, 1)))
+    P = np.array(K.cpu().numpy())
+    q = np.array(-C.cpu().numpy())
+    G = np.array(-np.eye(n))
+    h = np.array(np.zeros((n, 1)))
+    A = np.array(np.ones((1, n)))
+    b = np.array(np.ones((1, 1)))
 
-    solvers.options["show_progress"] = False
-    sol = solvers.qp(P, q, G, h, A, b)  # Requires the sum of x to be 1
-    # sol = solvers.qp(P, q, G, h) # Otherwise
-    w = np.array(sol["x"])
+    # sol = solve_qp(P, q, G, h, A, b, solver="clarabel") # Requires the sum of x to be 1
+    # sol = solver_qp(P, q, G, h, solver="clarabel") # Otherwise
+    problem = Problem(P, q, G, h, A, b)
+    sol = solve_problem(problem, solver="clarabel")
+    w = sol.x
     w = torch.from_numpy(w).reshape(-1)
-
-    return w
+    return w, sol.obj
