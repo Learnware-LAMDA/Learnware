@@ -2,7 +2,6 @@ import torch
 import random
 import numpy as np
 import geatpy as ea
-
 from typing import List
 
 from learnware.learnware import Learnware

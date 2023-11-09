@@ -2,6 +2,9 @@ __version__ = "0.1.1.99"
 
 import os
 from .logger import get_module_logger
+from .utils import is_torch_avaliable
+
+logger = get_module_logger("Initialization")
 
 
 def init(make_dir: bool = False, tf_loglevel: str = "2", **kwargs):
@@ -10,9 +13,7 @@ def init(make_dir: bool = False, tf_loglevel: str = "2", **kwargs):
     C.reset()
     C.update(**kwargs)
 
-    logger = get_module_logger("Initialization")
     logger.info(f"init learnware market with {kwargs}")
-
     ## make dirs
     if make_dir:
         os.makedirs(C.root_path, exist_ok=True)
@@ -25,3 +26,7 @@ def init(make_dir: bool = False, tf_loglevel: str = "2", **kwargs):
     ## ignore tensorflow warning
     # os.environ["TF_CPP_MIN_LOG_LEVEL"] = tf_loglevel
     # logger.info(f"The tensorflow log level is setted to {tf_loglevel}")
+
+
+if not is_torch_avaliable(verbose=False):
+    logger.warning("The functionality of learnware is limited due to 'torch' is not installed!")
