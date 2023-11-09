@@ -6,13 +6,13 @@ from get_data import *
 import os
 import random
 
-from learnware.specification.image import RKMEImageSpecification
+from learnware.specification import RKMEImageSpecification
 from learnware.reuse.averaging import AveragingReuser
 from utils import generate_uploader, generate_user, ImageDataLoader, train, eval_prediction
 from learnware.learnware import Learnware
 import time
 
-from learnware.market import EasyMarket, BaseUserInfo
+from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.market import database_ops
 from learnware.learnware import Learnware
 import learnware.specification as specification
@@ -122,7 +122,7 @@ def prepare_learnware(data_path, model_path, init_file_path, yaml_path, save_roo
 
 
 def prepare_market():
-    image_market = EasyMarket(market_id="cifar10", rebuild=True)
+    image_market = instantiate_learnware_market(market_id="cifar10", name="easy", rebuild=True)
     try:
         rmtree(learnware_pool_dir)
     except:
@@ -148,10 +148,10 @@ def prepare_market():
 
 def test_search(gamma=0.1, load_market=True):
     if load_market:
-        image_market = EasyMarket(market_id="cifar10")
+        image_market = instantiate_learnware_market(market_id="cifar10", name="easy")
     else:
         prepare_market()
-        image_market = EasyMarket(market_id="cifar10")
+        image_market = instantiate_learnware_market(market_id="cifar10", name="easy")
     logger.info("Number of items in the market: %d" % len(image_market))
 
     select_list = []

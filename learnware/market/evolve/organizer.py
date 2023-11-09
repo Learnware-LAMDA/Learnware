@@ -1,6 +1,6 @@
 from typing import List
 
-from ..easy2.organizer import EasyOrganizer
+from ..easy.organizer import EasyOrganizer
 from ...learnware import Learnware
 from ...specification import BaseStatSpecification
 from ...logger import get_module_logger

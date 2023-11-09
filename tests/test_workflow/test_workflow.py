@@ -11,14 +11,14 @@ from sklearn.model_selection import train_test_split
 from shutil import copyfile, rmtree
 
 import learnware
-from learnware.market import EasyMarket, BaseUserInfo
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
+from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_spec
+from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
 user_semantic = {
-    "Data": {"Values": ["Image"], "Type": "Class"},
+    "Data": {"Values": ["Table"], "Type": "Class"},
     "Task": {
         "Values": ["Classification"],
         "Type": "Class",
@@ -30,7 +30,7 @@ user_semantic = {
 }
 
 
-class TestAllWorkflow(unittest.TestCase):
+class TestWorkflow(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         np.random.seed(2023)
@@ -38,7 +38,7 @@ class TestAllWorkflow(unittest.TestCase):
 
     def _init_learnware_market(self):
         """initialize learnware market"""
-        easy_market = EasyMarket(market_id="sklearn_digits", rebuild=True)
+        easy_market = instantiate_learnware_market(market_id="sklearn_digits_easy", name="easy", rebuild=True)
         return easy_market
 
     def test_prepare_learnware_randomly(self, learnware_num=5):
@@ -86,16 +86,25 @@ class TestAllWorkflow(unittest.TestCase):
 
             self.zip_path_list.append(zip_file)
 
-    def test_upload_delete_learnware(self, learnware_num=5, delete=False):
+    def test_upload_delete_learnware(self, learnware_num=5, delete=True):
         easy_market = self._init_learnware_market()
         self.test_prepare_learnware_randomly(learnware_num)
+        self.learnware_num = learnware_num
 
         print("Total Item:", len(easy_market))
+        assert len(easy_market) == 0, f"The market should be empty!"
 
         for idx, zip_path in enumerate(self.zip_path_list):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
+            semantic_spec["Input"] = {
+                "Dimension": 64,
+                "Description": {
+                    f"{i}": f"The value in the grid {i // 8}{i % 8} of the image of hand-written digit."
+                    for i in range(64)
+                },
+            }
             semantic_spec["Output"] = {
                 "Dimension": 10,
                 "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)},
@@ -103,21 +112,27 @@ class TestAllWorkflow(unittest.TestCase):
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        curr_inds = easy_market._get_ids()
+        assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+        curr_inds = easy_market.get_learnware_ids()
         print("Available ids After Uploading Learnwares:", curr_inds)
+        assert len(curr_inds) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
 
         if delete:
             for learnware_id in curr_inds:
                 easy_market.delete_learnware(learnware_id)
-            curr_inds = easy_market._get_ids()
+                self.learnware_num -= 1
+                assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+
+            curr_inds = easy_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
+            assert len(curr_inds) == 0, f"The market should be empty!"
 
         return easy_market
 
     def test_search_semantics(self, learnware_num=5):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))
-
+        assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
         test_folder = os.path.join(curr_root, "test_semantics")
 
         # unzip -o -q zip_path -d unzip_dir
@@ -168,6 +183,7 @@ class TestAllWorkflow(unittest.TestCase):
                 mixture_learnware_list,
             ) = easy_market.search_learnware(user_info)
 
+            assert len(single_learnware_list) == self.learnware_num, f"Statistical search failed!"
             print(f"search result of user{idx}:")
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 print(f"score: {score}, learnware_id: {learnware.id}")
@@ -210,11 +226,11 @@ class TestAllWorkflow(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestAllWorkflow("test_prepare_learnware_randomly"))
-    _suite.addTest(TestAllWorkflow("test_upload_delete_learnware"))
-    _suite.addTest(TestAllWorkflow("test_search_semantics"))
-    _suite.addTest(TestAllWorkflow("test_stat_search"))
-    _suite.addTest(TestAllWorkflow("test_learnware_reuse"))
+    _suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
+    _suite.addTest(TestWorkflow("test_upload_delete_learnware"))
+    _suite.addTest(TestWorkflow("test_search_semantics"))
+    _suite.addTest(TestWorkflow("test_stat_search"))
+    _suite.addTest(TestWorkflow("test_learnware_reuse"))
     return _suite
 
 

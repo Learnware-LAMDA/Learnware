@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from shutil import copyfile, rmtree
 
 import learnware
-from learnware.market import EasyMarket, BaseUserInfo
+from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 from learnware.specification import generate_rkme_spec, RKMETableSpecification
 
@@ -34,7 +34,7 @@ class LearnwareMarketWorkflow:
         """initialize learnware market"""
         learnware.init()
         np.random.seed(2023)
-        easy_market = EasyMarket(market_id="sklearn_digits", rebuild=True)
+        easy_market = instantiate_learnware_market(market_id="sklearn_digits", name="easy", rebuild=True)
         return easy_market
 
     def prepare_learnware_randomly(self, learnware_num=5):
@@ -92,13 +92,13 @@ class LearnwareMarketWorkflow:
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        curr_inds = easy_market._get_ids()
+        curr_inds = easy_market.get_learnware_ids()
         print("Available ids After Uploading Learnwares:", curr_inds)
 
         if delete:
             for learnware_id in curr_inds:
                 easy_market.delete_learnware(learnware_id)
-            curr_inds = easy_market._get_ids()
+            curr_inds = easy_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
 
         return easy_market
