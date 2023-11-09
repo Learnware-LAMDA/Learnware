@@ -120,6 +120,7 @@ class EasyStatChecker(BaseChecker):
                 raise ValueError(f"not supported spec type for spec_type = {spec_type}")
 
             # Check output
+            outputs = learnware.predict(inputs)
             try:
                 outputs = learnware.predict(inputs)
             except Exception:

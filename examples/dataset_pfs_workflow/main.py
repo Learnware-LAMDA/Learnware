@@ -15,25 +15,38 @@ from learnware.logger import get_module_logger
 
 logger = get_module_logger("pfs_test", level="INFO")
 
+output_description = {
+    "Dimension": 1,
+    "Description": {},
+}
+
+input_description = {
+    "Dimension": 31,
+    "Description": {},
+}
 
 semantic_specs = [
     {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class"},
+        "Data": {"Values": ["Table"], "Type": "Class"},
+        "Task": {"Values": ["Regression"], "Type": "Class"},
         "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
+        "Input": input_description,
+        "Output": output_description,
     }
 ]
 
 user_semantic = {
-    "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {"Values": ["Classification"], "Type": "Class"},
+    "Data": {"Values": ["Table"], "Type": "Class"},
+    "Task": {"Values": ["Regression"], "Type": "Class"},
     "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
-    "Name": {"Values": "", "Type": "String"},
+    "Name": {"Values": "learnware_1", "Type": "String"},
+    "Input": input_description,
+    "Output": output_description,
 }
 
 
@@ -66,8 +79,8 @@ class PFSDatasetWorkflow:
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        curr_inds = easy_market._get_ids()
-        print("Available ids:", curr_inds)
+        # curr_inds = easy_market._get_ids()
+        # print("Available ids:", curr_inds)
 
     def prepare_learnware(self, regenerate_flag=False):
         if regenerate_flag:

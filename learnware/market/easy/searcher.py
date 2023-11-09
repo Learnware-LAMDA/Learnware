@@ -277,7 +277,7 @@ class EasyStatSearcher(BaseSearcher):
 
         # beta must be nonnegative
         weight, obj = rkme_solve_qp(K, C)
-        weight = torch.from_numpy(weight).reshape(-1).double().to(user_rkme.device)
+        weight = weight.double().to(user_rkme.device)
         score = user_rkme.inner_prod(user_rkme) + 2 * obj
 
         return weight.detach().cpu().numpy().reshape(-1), score
