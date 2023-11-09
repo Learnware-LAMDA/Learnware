@@ -225,6 +225,9 @@ class LearnwareMarket:
         """
         return self.learnware_organizer.get_learnwares(top, check_status, **kwargs)
 
+    def reload_learnware(self, learnware_id: str):
+        self.learnware_organizer.reload_learnware(learnware_id)
+    
     def get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]], **kwargs) -> Union[Learnware, List[Learnware]]:
         return self.learnware_organizer.get_learnware_zip_path_by_ids(ids, **kwargs)
 
