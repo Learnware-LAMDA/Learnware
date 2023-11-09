@@ -1,7 +1,7 @@
 import os
 import zipfile
 
-from .import_utils import is_torch_avaliable, is_lightgbm_avaliable, is_geatpy_avaliable
+from .import_utils import is_torch_avaliable
 from .module import get_module_by_module_path
 from .file import read_yaml_to_dict, save_dict_to_yaml
 
