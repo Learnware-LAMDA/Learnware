@@ -1,6 +1,7 @@
 import torch
 import random
 import numpy as np
+import geatpy as ea
 from typing import List
 
 from learnware.learnware import Learnware
@@ -53,8 +54,6 @@ class EnsemblePruningReuser(BaseReuser):
         np.ndarray
             Binary one-dimensional vector, 1 indicates that the corresponding model is selected.
         """
-        import geatpy as ea
-
         model_num = v_predict.shape[1]
 
         @ea.Problem.single
@@ -139,8 +138,6 @@ class EnsemblePruningReuser(BaseReuser):
         np.ndarray
             Binary one-dimensional vector, 1 indicates that the corresponding model is selected.
         """
-        import geatpy as ea
-
         model_num = v_predict.shape[1]
 
         def find_top_two_freq(row):
@@ -255,8 +252,6 @@ class EnsemblePruningReuser(BaseReuser):
         np.ndarray
             Binary one-dimensional vector, 1 indicates that the corresponding model is selected.
         """
-        import geatpy as ea
-
         model_num = v_predict.shape[1]
         v_predict[v_predict == 0.0] = -1
         v_true[v_true == 0.0] = -1
