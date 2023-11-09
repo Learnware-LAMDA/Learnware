@@ -30,7 +30,7 @@ user_semantic = {
 }
 
 
-class TestMarket(unittest.TestCase):
+class TestWorkflow(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         np.random.seed(2023)
@@ -226,11 +226,11 @@ class TestMarket(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
-    _suite.addTest(TestMarket("test_upload_delete_learnware"))
-    _suite.addTest(TestMarket("test_search_semantics"))
-    _suite.addTest(TestMarket("test_stat_search"))
-    _suite.addTest(TestMarket("test_learnware_reuse"))
+    _suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
+    _suite.addTest(TestWorkflow("test_upload_delete_learnware"))
+    _suite.addTest(TestWorkflow("test_search_semantics"))
+    _suite.addTest(TestWorkflow("test_stat_search"))
+    _suite.addTest(TestWorkflow("test_learnware_reuse"))
     return _suite
 
 
