@@ -55,7 +55,7 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         pfs.regenerate_data()
 
-        algo_list = ["ridge"] # , "lgb"
+        algo_list = ["ridge"] # "ridge", "lgb"
         for algo in algo_list:
             pfs.set_algo(algo)
             pfs.retrain_models()
@@ -76,7 +76,8 @@ class PFSDatasetWorkflow:
             semantic_spec = semantic_specs[0]
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            easy_market.add_learnware(zip_path, semantic_spec)
+            x = easy_market.add_learnware(zip_path, semantic_spec)
+            print(x)
 
         print("Total Item:", len(easy_market))
         # curr_inds = easy_market._get_ids()
@@ -132,7 +133,7 @@ class PFSDatasetWorkflow:
                 rmtree(dir_path)
 
     def test(self, regenerate_flag=False):
-        self.prepare_learnware(regenerate_flag)
+        # self.prepare_learnware(regenerate_flag)
         self._init_learnware_market()
 
         easy_market = instantiate_learnware_market(market_id="pfs", name="easy")
@@ -170,7 +171,7 @@ class PFSDatasetWorkflow:
                 pred_y = learnware.predict(test_x)
                 loss_list.append(pfs.score(test_y, pred_y))
             print(
-                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[0]}"
+                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[0]}, random: {np.mean(loss_list)}"
             )
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
