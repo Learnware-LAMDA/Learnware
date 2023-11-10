@@ -213,6 +213,7 @@ class TestMarket(unittest.TestCase):
         print("Total Item:", len(hetero_market))
 
         # hetero test
+        print("+++++ HETERO TEST ++++++")
         user_dim=15
 
         test_folder = os.path.join(curr_root, "test_stat")
@@ -235,6 +236,7 @@ class TestMarket(unittest.TestCase):
             z=torch.tensor(z, device=device)
             user_spec.z=z
 
+            print(">> normal case test:")
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Input"]=copy.deepcopy(input_description_list[idx%2])
             semantic_spec["Input"]['Dimension']=user_dim
@@ -254,7 +256,7 @@ class TestMarket(unittest.TestCase):
                 print(f"score: {score}, learnware_id: {learnware.id}")
 
             # delete key "Task" in semantic_spec, use homo search and print WARNING INFO with "User doesn't provide correct task type"
-            print("delele key 'Task' test:")
+            print(">> delele key 'Task' test:")
             semantic_spec.pop("Task")
 
             # repeat search
@@ -268,9 +270,30 @@ class TestMarket(unittest.TestCase):
 
             assert(len(single_learnware_list)==0), f"Statistical search failed!"
 
+            # modify semantic info with mismatch dim, use homo search and print "User data feature dimensions mismatch with semantic specification."
+            print(">> mismatch dim test")
+            semantic_spec = copy.deepcopy(user_semantic)
+            semantic_spec["Input"]=copy.deepcopy(input_description_list[idx%2])
+            semantic_spec["Input"]['Dimension']=user_dim-2
+            # keep only the first user_dim descriptions
+            semantic_spec["Input"]['Description']={key: semantic_spec["Input"]['Description'][str(key)] for key in range(user_dim)}
+
+            # repeat search
+            user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
+            (
+                sorted_score_list,
+                single_learnware_list,
+                mixture_score,
+                mixture_learnware_list,
+            ) = hetero_market.search_learnware(user_info)
+
+            assert(len(single_learnware_list)==0), f"Statistical search failed!"
+
+
         rmtree(test_folder)  # rm -r test_folder
 
         # homo test
+        print("\n+++++ HOMO TEST ++++++")
         test_folder = os.path.join(curr_root, "test_stat")
 
         for idx, zip_path in enumerate(self.zip_path_list):
