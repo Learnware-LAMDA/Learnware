@@ -1,5 +1,4 @@
 import numpy as np
-import torch
 from typing import Union
 
 
@@ -19,7 +18,7 @@ class BaseModel:
         self.input_shape = input_shape
         self.output_shape = output_shape
 
-    def predict(self, X: Union[np.ndarray, torch.tensor]) -> Union[np.ndarray, torch.tensor]:
+    def predict(self, X: np.ndarray) -> np.ndarray:
         """The prediction method for model in learnware, which will be checked when learnware is submitted into the market.
 
         Parameters
@@ -33,10 +32,10 @@ class BaseModel:
         """
         pass
 
-    def fit(self, X: Union[np.ndarray, torch.tensor], y: Union[np.ndarray, torch.tensor]):
+    def fit(self, X: np.ndarray, y: np.ndarray):
         pass
 
-    def finetune(self, X: Union[np.ndarray, torch.tensor], y: np.ndarray):
+    def finetune(self, X: np.ndarray, y: np.ndarray):
         """The finetune method for continuing train the model searched by market
 
         Parameters

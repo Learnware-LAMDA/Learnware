@@ -1,4 +1,4 @@
-from .anchor import AnchoredUserInfo, AnchoredOrganizer
+from .anchor import AnchoredUserInfo, AnchoredSearcher, AnchoredOrganizer
 from .base import BaseUserInfo, LearnwareMarket, BaseChecker, BaseOrganizer, BaseSearcher
 from .evolve_anchor import EvolvedAnchoredOrganizer
 from .evolve import EvolvedOrganizer

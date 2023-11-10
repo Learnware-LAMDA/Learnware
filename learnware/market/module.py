@@ -2,25 +2,29 @@ from .base import LearnwareMarket
 from .easy import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
 from .heterogeneous import HeteroMapTableOrganizer, HeteroSearcher
 
-MARKET_CONFIG = {
-    "easy": {
-        "organizer": EasyOrganizer(),
-        "searcher": EasySearcher(),
-        "checker_list": [EasySemanticChecker(), EasyStatChecker()],
-    }, 
-    "hetero": {
+
+def get_market_config():
+    market_config = {
+        "easy": {
+            "organizer": EasyOrganizer(),
+            "searcher": EasySearcher(),
+            "checker_list": [EasySemanticChecker(), EasyStatChecker()],
+        },
+        "hetero": {
         "organizer": HeteroMapTableOrganizer(),
         "searcher": HeteroSearcher(),
         "checker_list": []
+        }
     }
-}
+    return market_config
 
 
 def instantiate_learnware_market(market_id="default", name="easy", **kwargs):
+    market_config = get_market_config()
     return LearnwareMarket(
         market_id=market_id,
-        organizer=MARKET_CONFIG[name]["organizer"],
-        searcher=MARKET_CONFIG[name]["searcher"],
-        checker_list=MARKET_CONFIG[name]["checker_list"],
+        organizer=market_config[name]["organizer"],
+        searcher=market_config[name]["searcher"],
+        checker_list=market_config[name]["checker_list"],
         **kwargs
     )

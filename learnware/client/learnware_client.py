@@ -18,7 +18,7 @@ from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker
 from ..logger import get_module_logger
 from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
-from ..test import get_semantic_specification
+from ..tests import get_semantic_specification
 
 CHUNK_SIZE = 1024 * 1024
 logger = get_module_logger(module_name="LearnwareClient")
