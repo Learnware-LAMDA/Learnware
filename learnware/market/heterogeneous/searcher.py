@@ -109,8 +109,8 @@ class HeteroSearcher(EasySearcher):
                 return False
 
             user_input_description = user_info.get_semantic_spec()["Input"]
-            user_description_dim = int(user_input_description.get("Dimension", 0))
-            user_description_feature_num = len(user_input_description.get("Description", []))
+            user_description_dim = int(user_input_description["Dimension"])
+            user_description_feature_num = len(user_input_description["Description"])
 
             if user_input_shape != user_description_dim or user_input_shape != user_description_feature_num:
                 logger.warning("User data feature dimensions mismatch with semantic specification.")
