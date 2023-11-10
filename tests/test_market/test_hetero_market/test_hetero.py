@@ -255,11 +255,25 @@ class TestMarket(unittest.TestCase):
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 print(f"score: {score}, learnware_id: {learnware.id}")
 
+            # empty value of key "Task" in semantic_spec, use homo search and print 
+            print(">> test for key 'Task' has empty 'Values':")
+            semantic_spec["Task"]={"Values":{}}
+
+            user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
+            (
+                sorted_score_list,
+                single_learnware_list,
+                mixture_score,
+                mixture_learnware_list,
+            ) = hetero_market.search_learnware(user_info)
+
+            assert(len(single_learnware_list)==0), f"Statistical search failed!"
+
+
             # delete key "Task" in semantic_spec, use homo search and print WARNING INFO with "User doesn't provide correct task type"
             print(">> delele key 'Task' test:")
             semantic_spec.pop("Task")
 
-            # repeat search
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
             (
                 sorted_score_list,
@@ -275,10 +289,8 @@ class TestMarket(unittest.TestCase):
             semantic_spec = copy.deepcopy(user_semantic)
             semantic_spec["Input"]=copy.deepcopy(input_description_list[idx%2])
             semantic_spec["Input"]['Dimension']=user_dim-2
-            # keep only the first user_dim descriptions
             semantic_spec["Input"]['Description']={key: semantic_spec["Input"]['Description'][str(key)] for key in range(user_dim)}
 
-            # repeat search
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
             (
                 sorted_score_list,

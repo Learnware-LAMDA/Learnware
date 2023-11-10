@@ -103,12 +103,12 @@ class HeteroSearcher(EasySearcher):
             user_stat_spec = user_info.get_stat_info("RKMETableSpecification")
             user_input_shape = user_stat_spec.get_z().shape[1]
 
-            user_task_type = user_info.get_semantic_spec().get("Task", {}).get("Values")
+            user_task_type = user_info.get_semantic_spec()["Task"]["Values"]
             if user_task_type not in [["Classification"], ["Regression"]]:
                 logger.warning("User doesn't provide correct task type, it must be either Classification or Regression.")
                 return False
 
-            user_input_description = user_info.get_semantic_spec().get("Input", {})
+            user_input_description = user_info.get_semantic_spec()["Input"]
             user_description_dim = int(user_input_description.get("Dimension", 0))
             user_description_feature_num = len(user_input_description.get("Description", []))
 
