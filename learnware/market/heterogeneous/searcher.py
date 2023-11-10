@@ -103,23 +103,22 @@ class HeteroSearcher(EasySearcher):
             user_stat_spec = user_info.get_stat_info("RKMETableSpecification")
             user_input_shape = user_stat_spec.get_z().shape[1]
 
-            user_input_description = user_info.get_semantic_spec()["Input"]
-
-            user_task_type=user_info.get_semantic_spec()["Task"]["Values"]
+            user_task_type = user_info.get_semantic_spec().get("Task", {}).get("Values")
             if user_task_type not in [["Classification"], ["Regression"]]:
-                logger.warning("User doesn't provide correct task type, it must be either Classification or Regression")
+                logger.warning("User doesn't provide correct task type, it must be either Classification or Regression.")
                 return False
 
-            user_description_dim = int(user_input_description["Dimension"])
-            user_description_feature_num = len(user_input_description["Description"])
+            user_input_description = user_info.get_semantic_spec().get("Input", {})
+            user_description_dim = int(user_input_description.get("Dimension", 0))
+            user_description_feature_num = len(user_input_description.get("Description", []))
 
             if user_input_shape != user_description_dim or user_input_shape != user_description_feature_num:
-                logger.warning("User data feature dimensions mismatch with semantic specification")
+                logger.warning("User data feature dimensions mismatch with semantic specification.")
                 return False
             
             return True
-        except:
-            logger.info(f"No heterogeneous search information provided. Use homogeneous search instead.")
+        except Exception as e:
+            logger.info(f"Invalid heterogeneous search information provided. Use homogeneous search instead. Error: {e}")
             return False
 
     def __call__(

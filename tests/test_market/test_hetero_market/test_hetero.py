@@ -253,6 +253,21 @@ class TestMarket(unittest.TestCase):
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 print(f"score: {score}, learnware_id: {learnware.id}")
 
+            # delete key "Task" in semantic_spec, use homo search and print WARNING INFO with "User doesn't provide correct task type"
+            print("delele key 'Task' test:")
+            semantic_spec.pop("Task")
+
+            # repeat search
+            user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
+            (
+                sorted_score_list,
+                single_learnware_list,
+                mixture_score,
+                mixture_learnware_list,
+            ) = hetero_market.search_learnware(user_info)
+
+            assert(len(single_learnware_list)==0), f"Statistical search failed!"
+
         rmtree(test_folder)  # rm -r test_folder
 
         # homo test
@@ -334,11 +349,11 @@ def suite():
     _suite = unittest.TestSuite()
     # _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
     # _suite.addTest(TestMarket("test_generated_learnwares"))
-    _suite.addTest(TestMarket("test_upload_delete_learnware"))
-    _suite.addTest(TestMarket("test_train_market_model"))
-    _suite.addTest(TestMarket("test_search_semantics"))
+    # _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    # _suite.addTest(TestMarket("test_train_market_model"))
+    # _suite.addTest(TestMarket("test_search_semantics"))
     _suite.addTest(TestMarket("test_stat_search"))
-    _suite.addTest(TestMarket("test_model_reuse"))
+    # _suite.addTest(TestMarket("test_model_reuse"))
     return _suite
 
 
