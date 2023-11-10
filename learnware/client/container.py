@@ -302,7 +302,7 @@ class ModelDockerContainer(ModelContainer):
                 logger.info(f"Create and update conda env [{conda_env}] according to .yaml file")
                 for i in range(run_cmd_times):
                     result = self.docker_container.exec_run(
-                        " ".join(["conda", "env", "update", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"])
+                        " ".join(["conda", "env", "create", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"])
                     )
                     if result.exit_code == 0:
                         success_flag = True
