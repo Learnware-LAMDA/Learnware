@@ -334,10 +334,10 @@ def suite():
     _suite = unittest.TestSuite()
     # _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
     # _suite.addTest(TestMarket("test_generated_learnwares"))
-    # _suite.addTest(TestMarket("test_upload_delete_learnware"))
-    # _suite.addTest(TestMarket("test_train_market_model"))
-    # _suite.addTest(TestMarket("test_search_semantics"))
-    # _suite.addTest(TestMarket("test_stat_search"))
+    _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    _suite.addTest(TestMarket("test_train_market_model"))
+    _suite.addTest(TestMarket("test_search_semantics"))
+    _suite.addTest(TestMarket("test_stat_search"))
     _suite.addTest(TestMarket("test_model_reuse"))
     return _suite
 
