@@ -1,4 +1,3 @@
-import torch
 from torchtext.datasets import SST2
 
 

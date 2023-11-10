@@ -1,2 +1,13 @@
 from .organizer import AnchoredOrganizer
-from .searcher import AnchoredUserInfo
+from .user_info import AnchoredUserInfo
+
+from ...utils import is_torch_avaliable
+from ...logger import get_module_logger
+
+logger = get_module_logger("market_anchor")
+
+if not is_torch_avaliable(verbose=False):
+    AnchoredSearcher = None
+    logger.warning("AnchoredSearcher is skipped because 'torch' is not installed!")
+else:
+    from .searcher import AnchoredSearcher

@@ -54,24 +54,22 @@ REQUIRED = [
     "numpy>=1.20.0",
     "pandas>=0.25.1",
     "scipy>=1.0.0",
+<<<<<<< HEAD
     "matplotlib>=3.1.3",
     "torch>=1.11.0",
+=======
+    "cvxopt>=1.3.0",
+>>>>>>> 93df27b2a16a169ecfb93e3a2e149b6c1ea56902
     "tqdm>=4.65.0",
     "scikit-learn>=0.22",
     "joblib>=1.2.0",
     "pyyaml>=6.0",
     "fire>=0.3.1",
-    "lightgbm>=3.3.0",
     "psutil>=5.9.4",
-    "torchvision>=0.15.1",
     "sqlalchemy>=2.0.21",
     "shortuuid>=1.0.11",
-    "geatpy>=2.7.0",
     "docker>=6.1.3",
     "rapidfuzz>=3.4.0",
-    "torchtext>=0.16.0",
-    "sentence_transformers>=2.2.2",
-    "torch-optimizer>=0.3.0",
     "langdetect>=1.0.9",
     "huggingface-hub<0.18",
     "portalocker>=2.0.0",
@@ -99,6 +97,23 @@ if __name__ == "__main__":
         long_description_content_type="text/markdown",
         python_requires=REQUIRES_PYTHON,
         install_requires=REQUIRED,
+        extras_require={
+            "dev": [
+                # For documentations
+                "sphinx",
+                "sphinx_rtd_theme",
+                # CI dependencies
+                "pytest>=3",
+                "wheel",
+                "setuptools",
+                "pylint",
+                # For static analysis
+                "mypy<0.981",
+                "flake8",
+                "black==23.1.0",
+                "pre-commit",
+            ],
+        },
         classifiers=[
             "Intended Audience :: Science/Research",
             "Intended Audience :: Developers",
@@ -108,8 +123,10 @@ if __name__ == "__main__":
             "Operating System :: POSIX :: Linux",
             "Operating System :: Microsoft :: Windows",
             "Operating System :: MacOS",
-            "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
+            "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
         ],
     )
