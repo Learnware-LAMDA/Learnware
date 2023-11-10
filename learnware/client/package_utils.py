@@ -75,7 +75,7 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
     for package in packages:
         try:
             # os.system("python3 -m pip index versions {0}".format(package))
-            try_to_run(args=["python3", "-m", "pip", "index", "versions", parse_pip_requirement(package)], timeout=5)
+            try_to_run(args=["pip", "index", "versions", parse_pip_requirement(package)], timeout=5)
             exist_packages.append(package)
         except Exception as e:
             logger.error(e)
