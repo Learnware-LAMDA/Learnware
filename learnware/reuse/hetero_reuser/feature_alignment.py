@@ -16,28 +16,98 @@ from ..base import BaseReuser
 
 
 class FeatureAligner(BaseReuser):
+    """
+    FeatureAligner is a class for aligning features from a user dataset with a target dataset using a learnware model.
+    It supports both classification and regression tasks and uses a feature alignment trainer for alignment.
+
+    Attributes
+    ----------
+    learnware : Learnware
+        The learnware model used for final prediction.
+    mode : str
+        Operation mode, either "classification" or "regression".
+    align_arguments : dict
+        Additional arguments for the feature alignment trainer.
+    cuda_idx : int
+        Index of the CUDA device to be used for computations.
+    device : torch.device
+        The device (CPU or CUDA) on which computations will be performed.
+    """
 
     def __init__(self, learnware: Learnware = None, mode: str = None, cuda_idx=0, **align_arguments):
-        self.learnware=learnware
-        assert mode in ["classification", "regression"]
-        self.mode=mode
-        self.align_arguments=align_arguments
-        self.cuda_idx=cuda_idx
+        """
+        Initialize the FeatureAligner with a learnware model, mode, CUDA device index, and alignment arguments.
+
+        Parameters
+        ----------
+        learnware : Learnware
+            A learnware model used for initial predictions.
+        mode : str
+            The mode of operation, either "regression" or "classification".
+        cuda_idx : int
+            The index of the CUDA device for computations.
+        align_arguments : dict
+            Additional arguments to be passed to the feature alignment trainer.
+        """
+        self.learnware = learnware
+        assert mode in ["classification", "regression"], "Mode must be either 'classification' or 'regression'"
+        self.mode = mode
+        self.align_arguments = align_arguments
+        self.cuda_idx = cuda_idx
         self.device = choose_device(cuda_idx=cuda_idx)
 
-    def fit(self, user_rkme):
-        target_rkme=self.learnware.specification.get_stat_spec()["RKMETableSpecification"]
-        trainer=FeatureAlignmentTrainer(target_rkme=target_rkme, user_rkme=user_rkme, cuda_idx=self.cuda_idx, **self.align_arguments)
-        self.align_model=trainer.model
+    def fit(self, user_rkme: RKMETableSpecification):
+        """
+        Fit the align model using the RKME (Relative Knowledge Model Embeddings) specifications from the learnware model.
+
+        Parameters
+        ----------
+        user_rkme : RKMETableSpecification
+            The RKME specification from the user dataset.
+        """
+        target_rkme = self.learnware.specification.get_stat_spec()["RKMETableSpecification"]
+        trainer = FeatureAlignmentTrainer(target_rkme=target_rkme, user_rkme=user_rkme, cuda_idx=self.cuda_idx, **self.align_arguments)
+        self.align_model = trainer.model
         self.align_model.eval()
 
     def predict(self, user_data: ndarray) -> ndarray:
-        user_data=self._fill_data(user_data)
-        transformed_user_data=self.align_model(torch.tensor(user_data, device=self.device).float()).detach().cpu().numpy()
-        y_pred=self.learnware.predict(transformed_user_data)
+        """
+        Predict the output for user data using the aligned model and learnware model.
+
+        Parameters
+        ----------
+        user_data : ndarray
+            Input data for making predictions.
+
+        Returns
+        -------
+        ndarray
+            Predicted output from the learnware model after alignment.
+        """
+        user_data = self._fill_data(user_data)
+        transformed_user_data = self.align_model(torch.tensor(user_data, device=self.device).float()).detach().cpu().numpy()
+        y_pred = self.learnware.predict(transformed_user_data)
         return y_pred
-    
+
     def _fill_data(self, X: np.ndarray):
+        """
+        Fill missing data (NaN, Inf) in the input array with the mean of the column.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Input data array that may contain missing values.
+
+        Returns
+        -------
+        np.ndarray
+            Data array with missing values filled.
+
+        Raises
+        ------
+        ValueError
+            If a column in X contains only exceptional values (NaN, Inf).
+        """
         X[np.isinf(X) | np.isneginf(X) | np.isposinf(X) | np.isneginf(X)] = np.nan
         if np.any(np.isnan(X)):
             for col in range(X.shape[1]):
@@ -45,15 +115,38 @@ class FeatureAligner(BaseReuser):
                 if np.any(is_nan):
                     if np.all(is_nan):
                         raise ValueError(f"All values in column {col} are exceptional, e.g., NaN and Inf.")
-                    # Fill np.nan with np.nanmean
                     col_mean = np.nanmean(X[:, col])
                     X[:, col] = np.where(is_nan, col_mean, X[:, col])
         return X
 
 
-class FeatureAlignmentModel(nn.Module):
 
-    def __init__(self, input_dim, output_dim, hidden_dims=[1024], activation="relu", dropout_ratio=0, use_bn=False):
+class FeatureAlignmentModel(nn.Module):
+    """
+    FeatureAlignmentModel is a neural network module designed for feature alignment tasks.
+    It consists of multiple fully connected (dense) layers, optional dropout and batch normalization layers,
+    and supports different activation functions.
+    """
+
+    def __init__(self, input_dim: int, output_dim: int, hidden_dims: list = [1024], activation: str = "relu", dropout_ratio: float = 0, use_bn: bool = False):
+        """
+        Initialize the FeatureAlignmentModel.
+
+        Parameters
+        ----------
+        input_dim : int
+            The dimensionality of the input features.
+        output_dim : int
+            The dimensionality of the output features.
+        hidden_dims : List[int], optional
+            A list specifying the number of units in each hidden layer.
+        activation : str, optional
+            The activation function to use. Supported options are "relu", "gelu", "selu", and "leakyrelu".
+        dropout_ratio : float, optional
+            The dropout ratio applied to each layer (0 means no dropout).
+        use_bn : bool, optional
+            Whether to use batch normalization after each fully connected layer.
+        """
         super().__init__()
         dims = [input_dim] + hidden_dims + [output_dim]
         self.fc_list = nn.ModuleList()
@@ -78,16 +171,66 @@ class FeatureAlignmentModel(nn.Module):
         else:
             self.activation = F.relu
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the model.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Input tensor.
+
+        Returns
+        -------
+        torch.Tensor
+            Output tensor after passing through the model.
+        """
         if len(self.fc_list) > 0:
             for fc, drop in zip(self.fc_list, self.drop_list):
-                x = fc(x)
-                x = self.activation(x)
-                x = drop(x)
-        return self.final_fc(x)
+                x = fc(x)      # Apply fully connected layer
+                x = self.activation(x)  # Apply activation function
+                x = drop(x)    # Apply dropout
+        return self.final_fc(x)  # Return output from final fully connected layer
     
 
 class FeatureAlignmentTrainer():
+    """
+    FeatureAlignmentTrainer is a class designed to train a neural network for aligning features from a user dataset
+    to a target dataset. It utilizes Maximum Mean Discrepancy (MMD) as the loss function for training.
+
+    Attributes
+    ----------
+    target_rkme : RKMETableSpecification
+        The RKME (Relative Knowledge Model Embeddings) specification of the target dataset.
+    user_rkme : RKMETableSpecification
+        The RKME specification of the user dataset.
+    extra_labeled_data : Any, optional
+        Additional labeled data for training, if available.
+    target_learnware : Learnware, optional
+        The learnware model used for the target dataset.
+    num_epoch : int
+        The number of training epochs.
+    lr : float
+        Learning rate for the optimizer.
+    gamma : float
+        The gamma parameter for the Gaussian kernel in MMD computation.
+    network_type : str
+        Type of the neural network used for feature alignment.
+    optimizer_type : str
+        Type of optimizer to be used in training ('Adam' or 'SGD').
+    hidden_dims : List[int]
+        A list specifying the number of units in each hidden layer.
+    activation : str
+        The activation function to use in the network.
+    dropout_ratio : float
+        The dropout ratio applied to each layer.
+    use_bn : bool
+        Whether to use batch normalization after each fully connected layer.
+    const : float
+        A constant value used in training.
+    cuda_idx : int
+        Index of the CUDA device to be used for computations.
+    """
 
     def __init__(
         self,
@@ -107,7 +250,8 @@ class FeatureAlignmentTrainer():
         const: float = 1e1,
         cuda_idx: int = 0
     ):
-        """Training the base mapping network
+        """
+        Initialize the FeatureAlignmentTrainer with the specified parameters.
         """
         self.target_rkme = target_rkme
         self.user_rkme = user_rkme
@@ -129,19 +273,56 @@ class FeatureAlignmentTrainer():
         else:
             self.train()
 
-    def gaussian_kernel(self, x1, x2):
+    def gaussian_kernel(self, x1: torch.Tensor, x2: torch.Tensor):
+        """
+        Compute the Gaussian kernel between two sets of samples.
+
+        Parameters
+        ----------
+        x1 : torch.Tensor
+            First set of samples.
+        x2 : torch.Tensor
+            Second set of samples.
+
+        Returns
+        -------
+        torch.Tensor
+            The computed Gaussian kernel matrix.
+        """
         x1 = x1.double()
         x2 = x2.double()
         X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
         return torch.exp(-X12norm * self.args["gamma"])
 
-    def compute_mmd(self, user_X, user_weight, target_X, target_weight):
+    def compute_mmd(self, user_X: torch.Tensor, user_weight: torch.Tensor, target_X: torch.Tensor, target_weight: torch.Tensor) -> torch.Tensor:
+        """
+        Compute the Maximum Mean Discrepancy (MMD) between the user and target datasets.
+
+        Parameters
+        ----------
+        user_X : torch.Tensor
+            Transformed user data.
+        user_weight : torch.Tensor
+            Weights of the user data.
+        target_X : torch.Tensor
+            Target data.
+        target_weight : torch.Tensor
+            Weights of the target data.
+
+        Returns
+        -------
+        torch.Tensor
+            The computed MMD loss.
+        """
         term1 = torch.sum(self.gaussian_kernel(user_X, user_X) * (user_weight.T @ user_weight))
         term2 = torch.sum(self.gaussian_kernel(user_X, target_X) * (user_weight.T @ target_weight))
         term3 = torch.sum(self.gaussian_kernel(target_X, target_X) * (target_weight.T @ target_weight))
         return term1 - 2 * term2 + term3
 
     def train(self):
+        """
+        Train the feature alignment model using MMD as the loss function.
+        """
         args = self.args
         input_dim = self.user_rkme.get_z().shape[1]
         output_dim = self.target_rkme.get_z().shape[1]

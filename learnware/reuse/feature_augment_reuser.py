@@ -15,7 +15,7 @@ class FeatureAugmentReuser(BaseReuser):
 
     def __init__(self, learnware: Learnware = None, mode: str = None):
         """
-        Initializes the FeatureAugmentReuser with a learnware model and a mode.
+        Initialize the FeatureAugmentReuser with a learnware model and a mode.
 
         Parameters
         ----------
@@ -30,7 +30,7 @@ class FeatureAugmentReuser(BaseReuser):
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """
-        Predicts the output for user data using the trained output aligner model.
+        Predict the output for user data using the trained output aligner model.
 
         Parameters
         ----------
@@ -50,7 +50,7 @@ class FeatureAugmentReuser(BaseReuser):
 
     def fit(self, x_train: np.ndarray, y_train: np.ndarray):
         """
-        Trains the output aligner model using the training data augmented with predictions from the learnware model.
+        Train the output aligner model using the training data augmented with predictions from the learnware model.
 
         Parameters
         ----------
@@ -73,7 +73,7 @@ class FeatureAugmentReuser(BaseReuser):
 
     def _fill_data(self, X: np.ndarray):
         """
-        Fills missing data (NaN, Inf) in the input array with the mean of the column.
+        Fill missing data (NaN, Inf) in the input array with the mean of the column.
 
         Parameters
         ----------
