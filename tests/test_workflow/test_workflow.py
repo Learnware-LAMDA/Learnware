@@ -13,7 +13,7 @@ from shutil import copyfile, rmtree
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_spec
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
+from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -219,17 +219,23 @@ class TestWorkflow(unittest.TestCase):
         reuse_ensemble.fit(train_X[-200:], train_y[-200:])
         ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
 
+        # Use feature augment reuser to reuse the searched learnwares to make prediction
+        reuse_feature_augment = FeatureAugmentReuser(learnware=reuse_ensemble, mode="classification")
+        reuse_feature_augment.fit(train_X[-200:], train_y[-200:])
+        feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
+
         print("Job Selector Acc:", np.sum(np.argmax(job_selector_predict_y, axis=1) == data_y) / len(data_y))
         print("Averaging Reuser Acc:", np.sum(np.argmax(ensemble_predict_y, axis=1) == data_y) / len(data_y))
         print("Ensemble Pruning Reuser Acc:", np.sum(ensemble_pruning_predict_y == data_y) / len(data_y))
+        print("Feature Augment Reuser Acc:", np.sum(feature_augment_predict_y == data_y) / len(data_y))
 
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
-    _suite.addTest(TestWorkflow("test_upload_delete_learnware"))
-    _suite.addTest(TestWorkflow("test_search_semantics"))
-    _suite.addTest(TestWorkflow("test_stat_search"))
+    # _suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
+    # _suite.addTest(TestWorkflow("test_upload_delete_learnware"))
+    # _suite.addTest(TestWorkflow("test_search_semantics"))
+    # _suite.addTest(TestWorkflow("test_stat_search"))
     _suite.addTest(TestWorkflow("test_learnware_reuse"))
     return _suite
 

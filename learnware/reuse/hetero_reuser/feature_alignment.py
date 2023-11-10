@@ -17,10 +17,10 @@ from ..base import BaseReuser
 
 class FeatureAligner(BaseReuser):
 
-    def __init__(self, learnware: Learnware = None, task_type: str = None, cuda_idx=0, **align_arguments):
+    def __init__(self, learnware: Learnware = None, mode: str = None, cuda_idx=0, **align_arguments):
         self.learnware=learnware
-        assert task_type in ["classification", "regression"]
-        self.task_type=task_type
+        assert mode in ["classification", "regression"]
+        self.mode=mode
         self.align_arguments=align_arguments
         self.cuda_idx=cuda_idx
         self.device = choose_device(cuda_idx=cuda_idx)

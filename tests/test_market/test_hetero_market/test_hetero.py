@@ -365,15 +365,8 @@ class TestMarket(unittest.TestCase):
             print(f"score: {score}, learnware_id: {learnware.id}")
 
         # model reuse
-        reuser=HeteroMapTableReuser(single_learnware_list[0], task_type='regression')
+        reuser=HeteroMapTableReuser(single_learnware_list[0], mode='regression')
         reuser.fit(user_spec)
-        y_pred=reuser.predict(X)
-        
-        # calculate rmse
-        rmse=mean_squared_error(y, y_pred, squared=False)
-        print(f"rmse not finetune: {rmse}")
-
-        # finetune
         reuser.finetune(X[:100], y[:100])
         y_pred=reuser.predict(X)
         rmse=mean_squared_error(y, y_pred, squared=False)
@@ -388,7 +381,7 @@ def suite():
     # _suite.addTest(TestMarket("test_train_market_model"))
     # _suite.addTest(TestMarket("test_search_semantics"))
     _suite.addTest(TestMarket("test_stat_search"))
-    # _suite.addTest(TestMarket("test_model_reuse"))
+    _suite.addTest(TestMarket("test_model_reuse"))
     return _suite
 
 
