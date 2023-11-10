@@ -11,7 +11,7 @@ MARKET_CONFIG = {
     "hetero": {
         "organizer": HeteroMapTableOrganizer(),
         "searcher": HeteroSearcher(),
-        "checker_list": [EasySemanticChecker(), EasyStatChecker()]
+        "checker_list": []
     }
 }
 

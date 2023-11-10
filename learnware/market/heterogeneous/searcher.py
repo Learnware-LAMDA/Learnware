@@ -105,6 +105,11 @@ class HeteroSearcher(EasySearcher):
 
             user_input_description = user_info.get_semantic_spec()["Input"]
 
+            user_task_type=user_info.get_semantic_spec()["Task"]["Values"]
+            if user_task_type not in [["Classification"], ["Regression"]]:
+                logger.warning("User doesn't provide correct task type, it must be either Classification or Regression")
+                return False
+
             user_description_dim = int(user_input_description["Dimension"])
             user_description_feature_num = len(user_input_description["Description"])
 
