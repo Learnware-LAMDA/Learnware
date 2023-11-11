@@ -1,0 +1,8 @@
+model:
+  class_name: Model
+  kwargs: { }
+stat_specifications:
+  - module_path: learnware.specification
+    class_name: RKMETextSpecification
+    file_name: rkme.json
+    kwargs: { }
