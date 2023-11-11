@@ -3,7 +3,7 @@ from __future__ import annotations
 from ..base import BaseStatSpecification
 
 
-class RegularStatsSpecification(BaseStatSpecification):
+class RegularStatSpecification(BaseStatSpecification):
     def generate_stat_spec(self, **kwargs):
         self.generate_stat_spec_from_data(**kwargs)
 

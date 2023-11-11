@@ -7,7 +7,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
-from .....specification import HeteroSpecification, RKMETableSpecification
+from .....specification import HeteroMapTableSpecification, RKMETableSpecification
 from .feature_extractor import *
 from .trainer import Trainer, TransTabCollatorForCL
 
@@ -147,8 +147,8 @@ class HeteroMapping(nn.Module):
         loss = self._self_supervised_contrastive_loss(feat_x_multiview)
         return loss
 
-    def hetero_mapping(self, rkme_spec: RKMETableSpecification, cols: List[str]) -> HeteroSpecification:
-        hetero_spec = HeteroSpecification()
+    def hetero_mapping(self, rkme_spec: RKMETableSpecification, cols: List[str]) -> HeteroMapTableSpecification:
+        hetero_spec = HeteroMapTableSpecification()
         hetero_input_df = pd.DataFrame(data=rkme_spec.get_z(), columns=cols)
         hetero_embedding = self._extract_batch_features(hetero_input_df)
         hetero_spec.generate_stat_spec_from_system(hetero_embedding, rkme_spec)

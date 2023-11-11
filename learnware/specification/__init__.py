@@ -1,13 +1,13 @@
 from .base import Specification, BaseStatSpecification
 from .regular import (
-    RegularStatsSpecification,
+    RegularStatSpecification,
     RKMEStatSpecification,
     RKMETableSpecification,
     RKMEImageSpecification,
     RKMETextSpecification,
 )
 
-from .system import HeteroSpecification
+from .system import HeteroMapTableSpecification
 
 from ..utils import is_torch_avaliable
 

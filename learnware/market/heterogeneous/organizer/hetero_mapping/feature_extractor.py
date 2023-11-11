@@ -6,7 +6,6 @@ from typing import Dict
 import numpy as np
 import torch
 import torch.nn.init as nn_init
-from loguru import logger
 from torch import Tensor, nn
 from transformers import BertTokenizerFast
 

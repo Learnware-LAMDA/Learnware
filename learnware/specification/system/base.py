@@ -1,11 +1,7 @@
-from __future__ import annotations
-
-from loguru import logger
-
 from ..base import BaseStatSpecification
 
 
-class SystemStatsSpecification(BaseStatSpecification):
+class SystemStatSpecification(BaseStatSpecification):
     def generate_stat_spec(self, **kwargs):
         self.generate_stat_spec_from_system(**kwargs)
 

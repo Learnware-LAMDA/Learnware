@@ -10,10 +10,10 @@ import torch
 
 from ..regular import RKMETableSpecification
 from ..regular.table.rkme import choose_device, setup_seed, torch_rbf_kernel
-from .base import SystemStatsSpecification
+from .base import SystemStatSpecification
 
 
-class HeteroSpecification(SystemStatsSpecification):
+class HeteroMapTableSpecification(SystemStatSpecification):
     """Heterogeneous Embedding Specification"""
 
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
@@ -26,7 +26,7 @@ class HeteroSpecification(SystemStatsSpecification):
         torch.cuda.empty_cache()
         self.device = choose_device(cuda_idx=cuda_idx)
         setup_seed(0)
-        super(HeteroSpecification, self).__init__(type=self.__class__.__name__)
+        super(HeteroMapTableSpecification, self).__init__(type=self.__class__.__name__)
 
     def get_z(self) -> np.ndarray:
         return self.z.detach().cpu().numpy()
@@ -38,7 +38,7 @@ class HeteroSpecification(SystemStatsSpecification):
         self.beta = rkme_spec.beta.to(self.device)
         self.z = torch.from_numpy(heter_embedding).double().to(self.device)
 
-    def inner_prod(self, Embed2: HeteroSpecification) -> float:
+    def inner_prod(self, Embed2: HeteroMapTableSpecification) -> float:
         beta_1 = self.beta.reshape(1, -1).double().to(self.device)
         beta_2 = Embed2.beta.reshape(1, -1).double().to(self.device)
         Z1 = self.z.double().reshape(self.z.shape[0], -1).to(self.device)
@@ -47,7 +47,7 @@ class HeteroSpecification(SystemStatsSpecification):
 
         return float(v)
 
-    def dist(self, Embed2: HeteroSpecification, omit_term1: bool = False) -> float:
+    def dist(self, Embed2: HeteroMapTableSpecification, omit_term1: bool = False) -> float:
         term1 = 0 if omit_term1 else self.inner_prod(self)
         term2 = self.inner_prod(Embed2)
         term3 = Embed2.inner_prod(Embed2)

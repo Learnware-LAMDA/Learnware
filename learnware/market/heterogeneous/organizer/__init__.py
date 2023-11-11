@@ -15,7 +15,7 @@ import torch.multiprocessing as mp
 
 from ....learnware import Learnware, get_learnware_from_dirpath
 from ....logger import get_module_logger
-from ....specification.system import HeteroSpecification
+from ....specification.system import HeteroMapTableSpecification
 from ...base import BaseChecker, BaseUserInfo
 from ...easy import EasyOrganizer
 from ...easy.database_ops import DatabaseOperations
@@ -71,15 +71,15 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             if not rebuild:
                 if os.path.exists(self.hetero_mappings_path):
                     for hetero_json_path in os.listdir(self.hetero_mappings_path):
-                        idx = hetero_json_path.split('.')[0]
-                        hetero_spec = HeteroSpecification()
+                        idx = hetero_json_path.split(".")[0]
+                        hetero_spec = HeteroMapTableSpecification()
                         hetero_spec.load(os.path.join(self.hetero_mappings_path, f"{idx}.json"))
                         try:
-                            self.learnware_list[idx].update_stat_spec("HeteroSpecification", hetero_spec)
+                            self.learnware_list[idx].update_stat_spec("HeteroMapTableSpecification", hetero_spec)
                         except:
                             logger.warning(f"Learnware ID {idx} NOT Found!")
                 else:
-                    logger.info("No HeteroSpecifications to reload. Use loaded market mapping to regenerate.")
+                    logger.info("No HeteroMapTableSpecification to reload. Use loaded market mapping to regenerate.")
                     self._update_learnware_by_ids(self.learnware_list.keys())
         else:
             logger.warning(f"No market mapping to reload!!")
@@ -90,7 +90,8 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         self.auto_update = auto_update
         self.market_id = market_id
         self.training_args = kwargs
-        if auto_update_limit is not None: self.auto_update_limit = auto_update_limit
+        if auto_update_limit is not None:
+            self.auto_update_limit = auto_update_limit
 
     def add_learnware(
         self, zip_path: str, semantic_spec: dict, check_status: int, learnware_id: str = None
@@ -98,7 +99,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         if check_status == BaseChecker.INVALID_LEARNWARE:
             logger.warning("Learnware is invalid!")
             return None, BaseChecker.INVALID_LEARNWARE
-        
+
         semantic_spec = copy.deepcopy(semantic_spec)
         logger.info("Get new learnware from %s" % (zip_path))
 
@@ -123,7 +124,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             except:
                 pass
             return None, BaseChecker.INVALID_LEARNWARE
-        
+
         if new_learnware is None:
             return None, BaseChecker.INVALID_LEARNWARE
 
@@ -143,7 +144,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         self.use_flags[learnware_id] = learnwere_status
         self._update_learnware_by_ids([learnware_id])
         self.count += 1
-        self.training_count += ([learnware_id] == self._get_table_type_learnware_ids([learnware_id]))
+        self.training_count += [learnware_id] == self._get_table_type_learnware_ids([learnware_id])
 
         if self.auto_update and self.training_count - self.last_training_count == self.auto_update_limit + 1:
             training_learnware_ids = self._get_table_type_learnware_ids(self.get_learnware_ids())
@@ -151,16 +152,16 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             logger.warning(f"Leanwares for training: {training_learnware_ids}")
 
             updated_market_mapping = self.train(
-                learnware_list=training_learnwares,
-                save_dir=self.market_store_path, 
-                **self.training_args
+                learnware_list=training_learnwares, save_dir=self.market_store_path, **self.training_args
             )
-            
-            logger.warning(f"Market mapping train completed. Now update HeteroSpecification for {training_learnware_ids}")
+
+            logger.warning(
+                f"Market mapping train completed. Now update HeteroMapTableSpecification for {training_learnware_ids}"
+            )
             self.market_mapping = updated_market_mapping
             self._update_learnware_by_ids(training_learnware_ids)
             self.last_training_count = len(training_learnware_ids)
-        
+
         return learnware_id, learnwere_status
 
     @staticmethod
@@ -178,7 +179,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         market_mapping_trainer.save_model(output_dir=save_dir)
 
         return market_mapping
-    
+
     def _update_learnware_by_ids(self, ids: List[str]):
         ids = self._get_table_type_learnware_ids(ids)
         for id in ids:
@@ -187,14 +188,14 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 semantic_spec, stat_spec = spec.get_semantic_spec(), spec.get_stat_spec()["RKMETableSpecification"]
                 features = semantic_spec["Input"]["Description"].values()
                 hetero_spec = self.market_mapping.hetero_mapping(stat_spec, features)
-                self.learnware_list[id].update_stat_spec("HeteroSpecification", hetero_spec)
-                
+                self.learnware_list[id].update_stat_spec("HeteroMapTableSpecification", hetero_spec)
+
                 save_path = os.path.join(self.hetero_mappings_path, f"{id}.json")
                 hetero_spec.save(save_path)
             except Exception as err:
-                logger.warning(f"Learnware {id} generate HeteroSpecification failed! Due to {err}")
-            
-    def generate_hetero_map_spec(self, user_info: BaseUserInfo) -> HeteroSpecification:
+                logger.warning(f"Learnware {id} generate HeteroMapTableSpecification failed! Due to {err}")
+
+    def generate_hetero_map_spec(self, user_info: BaseUserInfo) -> HeteroMapTableSpecification:
         user_stat_spec = user_info.stat_info["RKMETableSpecification"]
         user_features = user_info.get_semantic_spec()["Input"]["Description"].values()
 
@@ -210,9 +211,9 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             features = spec.get_semantic_spec()["Input"]["Description"]
             learnware_df = pd.DataFrame(data=stat_spec.get_z(), columns=features.values())
             learnware_df_dict[tuple(sorted(features))].append(learnware_df)
-        
+
         return [pd.concat(dfs) for dfs in learnware_df_dict.values()]
-    
+
     def _get_table_type_learnware_ids(self, ids: List[str]) -> List[str]:
         ret = []
         for id in ids:

@@ -6,13 +6,15 @@ import torch.nn.functional as F
 import torch
 import time
 from tqdm import trange
-from loguru import logger
 
 from learnware.learnware import Learnware
 from learnware.specification import RKMETableSpecification
 from learnware.specification.regular.table.rkme import choose_device
 
 from ..base import BaseReuser
+from ...logger import get_module_logger
+
+logger = get_module_logger("hetero_feature_alignment")
 
 
 class FeatureAligner(BaseReuser):
@@ -66,7 +68,9 @@ class FeatureAligner(BaseReuser):
             The RKME specification from the user dataset.
         """
         target_rkme = self.learnware.specification.get_stat_spec()["RKMETableSpecification"]
-        trainer = FeatureAlignmentTrainer(target_rkme=target_rkme, user_rkme=user_rkme, cuda_idx=self.cuda_idx, **self.align_arguments)
+        trainer = FeatureAlignmentTrainer(
+            target_rkme=target_rkme, user_rkme=user_rkme, cuda_idx=self.cuda_idx, **self.align_arguments
+        )
         self.align_model = trainer.model
         self.align_model.eval()
 
@@ -85,7 +89,9 @@ class FeatureAligner(BaseReuser):
             Predicted output from the learnware model after alignment.
         """
         user_data = self._fill_data(user_data)
-        transformed_user_data = self.align_model(torch.tensor(user_data, device=self.device).float()).detach().cpu().numpy()
+        transformed_user_data = (
+            self.align_model(torch.tensor(user_data, device=self.device).float()).detach().cpu().numpy()
+        )
         y_pred = self.learnware.predict(transformed_user_data)
         return y_pred
 
@@ -120,7 +126,6 @@ class FeatureAligner(BaseReuser):
         return X
 
 
-
 class FeatureAlignmentModel(nn.Module):
     """
     FeatureAlignmentModel is a neural network module designed for feature alignment tasks.
@@ -128,7 +133,15 @@ class FeatureAlignmentModel(nn.Module):
     and supports different activation functions.
     """
 
-    def __init__(self, input_dim: int, output_dim: int, hidden_dims: list = [1024], activation: str = "relu", dropout_ratio: float = 0, use_bn: bool = False):
+    def __init__(
+        self,
+        input_dim: int,
+        output_dim: int,
+        hidden_dims: list = [1024],
+        activation: str = "relu",
+        dropout_ratio: float = 0,
+        use_bn: bool = False,
+    ):
         """
         Initialize the FeatureAlignmentModel.
 
@@ -187,13 +200,13 @@ class FeatureAlignmentModel(nn.Module):
         """
         if len(self.fc_list) > 0:
             for fc, drop in zip(self.fc_list, self.drop_list):
-                x = fc(x)      # Apply fully connected layer
+                x = fc(x)  # Apply fully connected layer
                 x = self.activation(x)  # Apply activation function
-                x = drop(x)    # Apply dropout
+                x = drop(x)  # Apply dropout
         return self.final_fc(x)  # Return output from final fully connected layer
-    
 
-class FeatureAlignmentTrainer():
+
+class FeatureAlignmentTrainer:
     """
     FeatureAlignmentTrainer is a class designed to train a neural network for aligning features from a user dataset
     to a target dataset. It utilizes Maximum Mean Discrepancy (MMD) as the loss function for training.
@@ -248,7 +261,7 @@ class FeatureAlignmentTrainer():
         dropout_ratio: float = 0,
         use_bn: bool = False,
         const: float = 1e1,
-        cuda_idx: int = 0
+        cuda_idx: int = 0,
     ):
         """
         Initialize the FeatureAlignmentTrainer with the specified parameters.
@@ -266,7 +279,7 @@ class FeatureAlignmentTrainer():
         }
         self.network_type = network_type
         self.optimizer_type = optimizer_type
-        self.const=const
+        self.const = const
         self.device = choose_device(cuda_idx=cuda_idx)
         if extra_labeled_data is not None and target_learnware is not None:
             self.train_with_labeled_data(extra_labeled_data[0], extra_labeled_data[1], target_learnware)
@@ -294,7 +307,9 @@ class FeatureAlignmentTrainer():
         X12norm = torch.sum(x1**2, 1, keepdim=True) - 2 * x1 @ x2.T + torch.sum(x2**2, 1, keepdim=True).T
         return torch.exp(-X12norm * self.args["gamma"])
 
-    def compute_mmd(self, user_X: torch.Tensor, user_weight: torch.Tensor, target_X: torch.Tensor, target_weight: torch.Tensor) -> torch.Tensor:
+    def compute_mmd(
+        self, user_X: torch.Tensor, user_weight: torch.Tensor, target_X: torch.Tensor, target_weight: torch.Tensor
+    ) -> torch.Tensor:
         """
         Compute the Maximum Mean Discrepancy (MMD) between the user and target datasets.
 
@@ -327,7 +342,9 @@ class FeatureAlignmentTrainer():
         input_dim = self.user_rkme.get_z().shape[1]
         output_dim = self.target_rkme.get_z().shape[1]
 
-        user_model=FeatureAlignmentModel(input_dim, output_dim, args["hidden_dims"], args["activation"], args["dropout_ratio"], args["use_bn"])
+        user_model = FeatureAlignmentModel(
+            input_dim, output_dim, args["hidden_dims"], args["activation"], args["dropout_ratio"], args["use_bn"]
+        )
 
         # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         user_model.to(self.device)

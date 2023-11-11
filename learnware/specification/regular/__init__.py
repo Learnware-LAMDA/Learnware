@@ -1,4 +1,4 @@
-from .base import RegularStatsSpecification
+from .base import RegularStatSpecification
 from ...utils import is_torch_avaliable
 
 from .text import RKMETextSpecification

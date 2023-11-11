@@ -4,7 +4,7 @@ import numpy as np
 
 from ...learnware import Learnware
 from ...logger import get_module_logger
-from ...specification import HeteroSpecification
+from ...specification import HeteroMapTableSpecification
 from ..base import BaseSearcher, BaseUserInfo
 from ..easy import EasySearcher
 from ..utils import parse_specification_type
@@ -34,28 +34,28 @@ class HeteroMapTableSearcher(EasySearcher):
             return [(max_dist - dist) / (max_dist - dist_epsilon) for dist in dist_list]
 
     def _search_by_hetero_spec_single(
-        self, 
-        learnware_list: List[Learnware], 
-        user_hetero_spec: HeteroSpecification
+        self, learnware_list: List[Learnware], user_hetero_spec: HeteroMapTableSpecification
     ) -> Tuple[List[float], List[Learnware]]:
-        hetero_spec_list = [learnware.specification.get_stat_spec_by_name("HeteroSpecification") for learnware in learnware_list]
+        hetero_spec_list = [
+            learnware.specification.get_stat_spec_by_name("HeteroMapTableSpecification") for learnware in learnware_list
+        ]
         mmd_dist_list = []
         for idx, hetero_spec in enumerate(hetero_spec_list):
             mmd_dist = hetero_spec.dist(user_hetero_spec)
             mmd_dist_list.append(mmd_dist)
-        
+
         sorted_idx_list = sorted(range(len(learnware_list)), key=lambda k: mmd_dist_list[k])
         sorted_dist_list = [mmd_dist_list[idx] for idx in sorted_idx_list]
         sorted_learnware_list = [learnware_list[idx] for idx in sorted_idx_list]
 
         return sorted_dist_list, sorted_learnware_list
-    
+
     def _filter_by_hetero_spec_single(
         self,
         sorted_score_list: List[float],
         learnware_list: List[Learnware],
         filter_score: float = 0.5,
-        min_num: int = 5
+        min_num: int = 5,
     ) -> Tuple[List[float], List[Learnware]]:
         idx = min(min_num, len(learnware_list))
         while idx < len(learnware_list):
@@ -64,11 +64,10 @@ class HeteroMapTableSearcher(EasySearcher):
             idx += 1
         return sorted_score_list[:idx], learnware_list[:idx]
 
-
     def __call__(
-        self, 
-        learnware_list: List[Learnware], 
-        user_info: BaseUserInfo, 
+        self,
+        learnware_list: List[Learnware],
+        user_info: BaseUserInfo,
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
         # todo: use specially assigned search_gamma for calculating mmd dist
         user_hetero_spec = self.learnware_oganizer.generate_hetero_map_spec(user_info)
@@ -88,6 +87,7 @@ class HeteroMapTableSearcher(EasySearcher):
     def reset(self, organizer):
         self.learnware_oganizer = organizer
 
+
 class HeteroSearcher(EasySearcher):
     def __init__(self, organizer: HeteroMapTableOrganizer = None):
         super(HeteroSearcher, self).__init__(organizer)
@@ -96,7 +96,7 @@ class HeteroSearcher(EasySearcher):
     def reset(self, organizer):
         super().reset(organizer)
         self.hetero_stat_searcher.reset(organizer)
-    
+
     @staticmethod
     def check_user_info(user_info: BaseUserInfo):
         try:
@@ -105,7 +105,9 @@ class HeteroSearcher(EasySearcher):
 
             user_task_type = user_info.get_semantic_spec()["Task"]["Values"]
             if user_task_type not in [["Classification"], ["Regression"]]:
-                logger.warning("User doesn't provide correct task type, it must be either Classification or Regression.")
+                logger.warning(
+                    "User doesn't provide correct task type, it must be either Classification or Regression."
+                )
                 return False
 
             user_input_description = user_info.get_semantic_spec()["Input"]
@@ -115,10 +117,12 @@ class HeteroSearcher(EasySearcher):
             if user_input_shape != user_description_dim or user_input_shape != user_description_feature_num:
                 logger.warning("User data feature dimensions mismatch with semantic specification.")
                 return False
-            
+
             return True
         except Exception as e:
-            logger.info(f"Invalid heterogeneous search information provided. Use homogeneous search instead. Error: {e}")
+            logger.info(
+                f"Invalid heterogeneous search information provided. Use homogeneous search instead. Error: {e}"
+            )
             return False
 
     def __call__(
