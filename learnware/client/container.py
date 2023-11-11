@@ -340,7 +340,6 @@ class ModelDockerContainer(ModelContainer):
                                 "install",
                                 "-r",
                                 f"{requirements_path_filter}",
-                                "--no-dependencies",
                             ]
                         )
                     )
