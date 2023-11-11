@@ -107,6 +107,7 @@ semantic_config = {
             "Education",
             "Entertainment",
             "Architecture",
+            "Others",
         ],
         "Type": "Tag",  # Choose one or more tags
     },
