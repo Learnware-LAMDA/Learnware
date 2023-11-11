@@ -8,7 +8,9 @@ def get_data(data_root="./data"):
     dtest = pd.read_csv(os.path.join(data_root, "test.csv"))
 
     # returned X(DataFrame), y(Series)
-    return (dtrain[['discourse_text', 'discourse_type']],
-            dtrain["discourse_effectiveness"],
-            dtest[['discourse_text', 'discourse_type']],
-            dtest["discourse_effectiveness"])
+    return (
+        dtrain[["discourse_text", "discourse_type"]],
+        dtrain["discourse_effectiveness"],
+        dtest[["discourse_text", "discourse_type"]],
+        dtest["discourse_effectiveness"],
+    )

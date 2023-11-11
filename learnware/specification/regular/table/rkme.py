@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 import os
-
 import copy
 import torch
 import json
 import codecs
 import random
 import numpy as np
-# from cvxopt import solvers, matrix
 from qpsolvers import solve_qp, Problem, solve_problem
 from collections import Counter
 from typing import Tuple, Any, List, Union, Dict
@@ -19,6 +17,7 @@ from ..base import RegularStatsSpecification
 from ....logger import get_module_logger
 
 logger = get_module_logger("rkme")
+
 
 class RKMETableSpecification(RegularStatsSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification"""
@@ -137,7 +136,7 @@ class RKMETableSpecification(RegularStatsSpecification):
             Size of the construced reduced set.
         """
         X = X.astype("float32")
-        kmeans = MiniBatchKMeans(n_clusters=K, max_iter=100, verbose=False, n_init='auto')
+        kmeans = MiniBatchKMeans(n_clusters=K, max_iter=100, verbose=False, n_init="auto")
         kmeans.fit(X)
         center = torch.from_numpy(kmeans.cluster_centers_).double()
         self.z = center

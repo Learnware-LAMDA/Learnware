@@ -8,7 +8,6 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-# from learnware.market import database_ops
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 from learnware.specification import generate_rkme_spec
 from m5 import DataLoader
@@ -51,6 +50,7 @@ user_semantic = {
     "Output": output_description,
 }
 
+
 class M5DatasetWorkflow:
     def _init_m5_dataset(self):
         m5 = DataLoader()
@@ -82,8 +82,6 @@ class M5DatasetWorkflow:
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        # curr_inds = easy_market._get_ids()
-        # print("Available ids:", curr_inds)
 
     def prepare_learnware(self, regenerate_flag=False):
         if regenerate_flag:

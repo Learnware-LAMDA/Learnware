@@ -55,7 +55,7 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         pfs.regenerate_data()
 
-        algo_list = ["ridge"] # "ridge", "lgb"
+        algo_list = ["ridge"]  # "ridge", "lgb"
         for algo in algo_list:
             pfs.set_algo(algo)
             pfs.retrain_models()
@@ -79,8 +79,6 @@ class PFSDatasetWorkflow:
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        # curr_inds = easy_market._get_ids()
-        # print("Available ids:", curr_inds)
 
     def prepare_learnware(self, regenerate_flag=False):
         if regenerate_flag:
