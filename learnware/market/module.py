@@ -11,10 +11,10 @@ def get_market_config():
             "checker_list": [EasySemanticChecker(), EasyStatChecker()],
         },
         "hetero": {
-        "organizer": HeteroMapTableOrganizer(),
-        "searcher": HeteroSearcher(),
-        "checker_list": []
-        }
+            "organizer": HeteroMapTableOrganizer(),
+            "searcher": HeteroSearcher(),
+            "checker_list": [EasySemanticChecker(), EasyStatChecker()],
+        },
     }
     return market_config
 
