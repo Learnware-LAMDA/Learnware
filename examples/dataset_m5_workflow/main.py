@@ -8,7 +8,6 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.market import database_ops
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 from learnware.specification import generate_rkme_spec
 from m5 import DataLoader
@@ -17,24 +16,38 @@ from learnware.logger import get_module_logger
 logger = get_module_logger("m5_test", level="INFO")
 
 
+output_description = {
+    "Dimension": 1,
+    "Description": {},
+}
+
+input_description = {
+    "Dimension": 82,
+    "Description": {},
+}
+
 semantic_specs = [
     {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class"},
+        "Data": {"Values": ["Table"], "Type": "Class"},
+        "Task": {"Values": ["Regression"], "Type": "Class"},
         "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
+        "Input": input_description,
+        "Output": output_description,
     }
 ]
 
 user_semantic = {
-    "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {"Values": ["Classification"], "Type": "Class"},
+    "Data": {"Values": ["Table"], "Type": "Class"},
+    "Task": {"Values": ["Regression"], "Type": "Class"},
     "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "Input": input_description,
+    "Output": output_description,
 }
 
 
@@ -69,8 +82,6 @@ class M5DatasetWorkflow:
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        curr_inds = easy_market._get_ids()
-        print("Available ids:", curr_inds)
 
     def prepare_learnware(self, regenerate_flag=False):
         if regenerate_flag:
@@ -171,7 +182,7 @@ class M5DatasetWorkflow:
             job_selector_score = m5.score(test_y, job_selector_predict_y)
             print(f"mixture reuse loss (job selector): {job_selector_score}")
 
-            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote")
+            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_prob")
             ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
             ensemble_score = m5.score(test_y, ensemble_predict_y)
             print(f"mixture reuse loss (ensemble): {ensemble_score}\n")

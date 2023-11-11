@@ -1,34 +1,22 @@
 from __future__ import annotations
 
 import os
-
 import copy
 import torch
 import json
 import codecs
 import random
 import numpy as np
-from cvxopt import solvers, matrix
+from qpsolvers import solve_qp, Problem, solve_problem
 from collections import Counter
 from typing import Tuple, Any, List, Union, Dict
-
-try:
-    import faiss
-
-    ver = faiss.__version__
-    _FAISS_INSTALLED = ver >= "1.7.1"
-except ImportError:
-    _FAISS_INSTALLED = False
+import scipy
+from sklearn.cluster import MiniBatchKMeans
 
 from ..base import RegularStatsSpecification
 from ....logger import get_module_logger
 
 logger = get_module_logger("rkme")
-
-if not _FAISS_INSTALLED:
-    logger.warning(
-        "Required faiss version >= 1.7.1 is not detected! Please run 'conda install -c pytorch faiss-cpu' first"
-    )
 
 
 class RKMETableSpecification(RegularStatsSpecification):
@@ -125,8 +113,8 @@ class RKMETableSpecification(RegularStatsSpecification):
             self.beta = torch.from_numpy(self.beta).double().to(self.device)
             return
 
-        # Initialize Z by clustering, utiliing faiss to speed up the process.
-        self._init_z_by_faiss(X, K)
+        # Initialize Z by clustering, utiliing kmeans to speed up the process.
+        self._init_z_by_kmeans(X, K)
         self._update_beta(X, nonnegative_beta)
 
         # Alternating optimize Z and beta
@@ -137,8 +125,8 @@ class RKMETableSpecification(RegularStatsSpecification):
         # Reshape to original dimensions
         self.z = self.z.reshape(Z_shape)
 
-    def _init_z_by_faiss(self, X: Union[np.ndarray, torch.tensor], K: int):
-        """Intialize Z by faiss clustering.
+    def _init_z_by_kmeans(self, X: Union[np.ndarray, torch.tensor], K: int):
+        """Intialize Z by kmeans clustering.
 
         Parameters
         ----------
@@ -148,10 +136,9 @@ class RKMETableSpecification(RegularStatsSpecification):
             Size of the construced reduced set.
         """
         X = X.astype("float32")
-        numDim = X.shape[1]
-        kmeans = faiss.Kmeans(numDim, K, niter=100, verbose=False)
-        kmeans.train(X)
-        center = torch.from_numpy(kmeans.centroids).double()
+        kmeans = MiniBatchKMeans(n_clusters=K, max_iter=100, verbose=False, n_init="auto")
+        kmeans.fit(X)
+        center = torch.from_numpy(kmeans.cluster_centers_).double()
         self.z = center
 
     def _update_beta(self, X: Any, nonnegative_beta: bool = True):
@@ -177,7 +164,8 @@ class RKMETableSpecification(RegularStatsSpecification):
         C = torch.sum(C, dim=1) / X.shape[0]
 
         if nonnegative_beta:
-            beta = solve_qp(K, C).to(self.device)
+            beta, _ = rkme_solve_qp(K, C)
+            beta = beta.to(self.device)
         else:
             beta = torch.linalg.inv(K + torch.eye(K.shape[0]).to(self.device) * 1e-5) @ C
 
@@ -536,7 +524,7 @@ def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:
     return torch.exp(-X12norm * gamma)
 
 
-def solve_qp(K: np.ndarray, C: np.ndarray):
+def rkme_solve_qp(K: np.ndarray, C: np.ndarray):
     """Solver for the following quadratic programming(QP) problem:
         - min   1/2 x^T K x - C^T x
         s.t     1^T x - 1 = 0
@@ -554,18 +542,24 @@ def solve_qp(K: np.ndarray, C: np.ndarray):
     torch.tensor
             Solution to the QP problem.
     """
+    if torch.is_tensor(K):
+        K = K.cpu().numpy()
+    if torch.is_tensor(C):
+        C = C.cpu().numpy()
+    C = C.reshape(-1)
+
     n = K.shape[0]
-    P = matrix(K.cpu().numpy())
-    q = matrix(-C.cpu().numpy())
-    G = matrix(-np.eye(n))
-    h = matrix(np.zeros((n, 1)))
-    A = matrix(np.ones((1, n)))
-    b = matrix(np.ones((1, 1)))
-
-    solvers.options["show_progress"] = False
-    sol = solvers.qp(P, q, G, h, A, b)  # Requires the sum of x to be 1
-    # sol = solvers.qp(P, q, G, h) # Otherwise
-    w = np.array(sol["x"])
+    P = np.array(K)
+    P = scipy.sparse.csc_matrix(P)
+    q = np.array(-C)
+    G = np.array(-np.eye(n))
+    G = scipy.sparse.csc_matrix(G)
+    h = np.array(np.zeros((n, 1)))
+    A = np.array(np.ones((1, n)))
+    A = scipy.sparse.csc_matrix(A)
+    b = np.array(np.ones((1, 1)))
+    problem = Problem(P, q, G, h, A, b)
+    solution = solve_problem(problem, solver="clarabel")
+    w = solution.x
     w = torch.from_numpy(w).reshape(-1)
-
-    return w
+    return w, solution.obj

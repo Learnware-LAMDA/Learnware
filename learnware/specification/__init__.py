@@ -5,6 +5,7 @@ from .regular import (
     RKMETableSpecification,
     RKMEImageSpecification,
     RKMETextSpecification,
+    rkme_solve_qp,
 )
 from ..utils import is_torch_avaliable
 

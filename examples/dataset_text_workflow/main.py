@@ -196,10 +196,6 @@ def test_search(gamma=0.1, load_market=True):
         ensemble_score_list.append(ensemble_score)
         print(f"mixture reuse accuracy (ensemble): {ensemble_score}")
 
-        select_list.append(acc_list[0])
-        avg_list.append(np.mean(acc_list))
-        improve_list.append((acc_list[0] - np.mean(acc_list)) / np.mean(acc_list))
-
         # test reuse (ensemblePruning)
         reuse_pruning = EnsemblePruningReuser(learnware_list=mixture_learnware_list)
         pruning_predict_y = reuse_pruning.predict(user_data=user_data)

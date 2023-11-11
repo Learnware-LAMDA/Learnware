@@ -8,4 +8,4 @@ if not is_torch_avaliable(verbose=False):
     RKMEStatSpecification = None
     logger.warning("RKMETableSpecification is skipped because torch is not installed!")
 else:
-    from .rkme import RKMETableSpecification, RKMEStatSpecification
+    from .rkme import RKMETableSpecification, RKMEStatSpecification, rkme_solve_qp

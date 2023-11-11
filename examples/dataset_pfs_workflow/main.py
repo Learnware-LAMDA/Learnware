@@ -15,25 +15,38 @@ from learnware.logger import get_module_logger
 
 logger = get_module_logger("pfs_test", level="INFO")
 
+output_description = {
+    "Dimension": 1,
+    "Description": {},
+}
+
+input_description = {
+    "Dimension": 31,
+    "Description": {},
+}
 
 semantic_specs = [
     {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class"},
+        "Data": {"Values": ["Table"], "Type": "Class"},
+        "Task": {"Values": ["Regression"], "Type": "Class"},
         "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
         "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
+        "Input": input_description,
+        "Output": output_description,
     }
 ]
 
 user_semantic = {
-    "Data": {"Values": ["Tabular"], "Type": "Class"},
-    "Task": {"Values": ["Classification"], "Type": "Class"},
+    "Data": {"Values": ["Table"], "Type": "Class"},
+    "Task": {"Values": ["Regression"], "Type": "Class"},
     "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "Input": input_description,
+    "Output": output_description,
 }
 
 
@@ -42,7 +55,7 @@ class PFSDatasetWorkflow:
         pfs = Dataloader()
         pfs.regenerate_data()
 
-        algo_list = ["ridge", "lgb"]
+        algo_list = ["ridge"]  # "ridge", "lgb"
         for algo in algo_list:
             pfs.set_algo(algo)
             pfs.retrain_models()
@@ -66,8 +79,6 @@ class PFSDatasetWorkflow:
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
-        curr_inds = easy_market._get_ids()
-        print("Available ids:", curr_inds)
 
     def prepare_learnware(self, regenerate_flag=False):
         if regenerate_flag:
@@ -75,7 +86,7 @@ class PFSDatasetWorkflow:
 
         pfs = Dataloader()
         idx_list = pfs.get_idx_list()
-        algo_list = ["lgb"]  # ["ridge", "lgb"]
+        algo_list = ["ridge"]  # ["ridge", "lgb"]
 
         curr_root = os.path.dirname(os.path.abspath(__file__))
         curr_root = os.path.join(curr_root, "learnware_pool")
@@ -157,7 +168,7 @@ class PFSDatasetWorkflow:
                 pred_y = learnware.predict(test_x)
                 loss_list.append(pfs.score(test_y, pred_y))
             print(
-                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[0]}"
+                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[0]}, random: {np.mean(loss_list)}"
             )
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
