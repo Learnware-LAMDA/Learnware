@@ -39,11 +39,11 @@ def generate_uploader(data_x: pd.Series, data_y: pd.Series, n_uploaders=50, data
         return
     os.makedirs(data_save_root, exist_ok=True)
 
-    types = data_x['discourse_type'].unique()
+    types = data_x["discourse_type"].unique()
 
     for i in range(n_uploaders):
-        indices = data_x['discourse_type'] == types[i]
-        selected_X = data_x[indices]['discourse_text'].to_list()
+        indices = data_x["discourse_type"] == types[i]
+        selected_X = data_x[indices]["discourse_text"].to_list()
         selected_y = data_y[indices].to_list()
 
         X_save_dir = os.path.join(data_save_root, "uploader_%d_X.pkl" % (i))
@@ -61,11 +61,11 @@ def generate_user(data_x, data_y, n_users=50, data_save_root=None):
         return
     os.makedirs(data_save_root, exist_ok=True)
 
-    types = data_x['discourse_type'].unique()
+    types = data_x["discourse_type"].unique()
 
     for i in range(n_users):
-        indices = data_x['discourse_type'] == types[i]
-        selected_X = data_x[indices]['discourse_text'].to_list()
+        indices = data_x["discourse_type"] == types[i]
+        selected_X = data_x[indices]["discourse_text"].to_list()
         selected_y = data_y[indices].to_list()
 
         X_save_dir = os.path.join(data_save_root, "user_%d_X.pkl" % (i))
@@ -80,10 +80,10 @@ def generate_user(data_x, data_y, n_users=50, data_save_root=None):
 
 # Train Uploaders' models
 def train(X, y, out_classes):
-    vectorizer = TfidfVectorizer(stop_words='english')
+    vectorizer = TfidfVectorizer(stop_words="english")
     X_tfidf = vectorizer.fit_transform(X)
 
-    lgbm = LGBMClassifier(boosting_type='dart', n_estimators=500, num_leaves=21)
+    lgbm = LGBMClassifier(boosting_type="dart", n_estimators=500, num_leaves=21)
     lgbm.fit(X_tfidf, y)
 
     return vectorizer, lgbm

@@ -81,7 +81,6 @@ def install_environment(learnware_dirpath, conda_env):
                     "install",
                     "-r",
                     f"{requirements_path_filter}",
-                    "--no-dependencies",
                 ]
             )
         else:

@@ -54,7 +54,6 @@ REQUIRED = [
     "numpy>=1.20.0",
     "pandas>=0.25.1",
     "scipy>=1.0.0",
-    "cvxopt>=1.3.0",
     "tqdm>=4.65.0",
     "scikit-learn>=0.22",
     "joblib>=1.2.0",
@@ -68,10 +67,8 @@ REQUIRED = [
     "langdetect>=1.0.9",
     "huggingface-hub<0.18",
     "portalocker>=2.0.0",
+    "qpsolvers[clarabel]>=4.0.1",
 ]
-
-if get_platform() != MACOS:
-    REQUIRED.append("faiss-cpu>=1.7.1")
 
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "README.md"), encoding="utf-8") as f:

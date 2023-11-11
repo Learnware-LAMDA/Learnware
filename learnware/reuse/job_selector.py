@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from typing import List, Union
-from cvxopt import matrix, solvers
+from qpsolvers import solve_qp
 from lightgbm import LGBMClassifier, early_stopping
 from sklearn.metrics import accuracy_score
 
@@ -11,7 +11,7 @@ from .base import BaseReuser
 from ..market.utils import parse_specification_type
 from ..learnware import Learnware
 from ..specification import RKMETableSpecification, RKMETextSpecification
-from ..specification import generate_rkme_spec
+from ..specification import generate_rkme_spec, rkme_solve_qp
 from ..logger import get_module_logger
 
 logger = get_module_logger("job_selector_reuse")
@@ -184,16 +184,8 @@ class JobSelectorReuser(BaseReuser):
         K = task_rkme_matrix
         v = np.array([user_rkme_spec.inner_prod(task_rkme) for task_rkme in task_rkme_list])
 
-        P = matrix(K)
-        q = matrix(-v)
-        G = matrix(-np.eye(task_num))
-        h = matrix(np.zeros((task_num, 1)))
-        A = matrix(np.ones((1, task_num)))
-        b = matrix(np.ones((1, 1)))
-        solvers.options["show_progress"] = False
-
-        sol = solvers.qp(P, q, G, h, A, b, kktsolver="ldl")
-        task_mixture_weight = np.array(sol["x"]).reshape(-1)
+        sol, _ = rkme_solve_qp(K, v)
+        task_mixture_weight = np.array(sol).reshape(-1)
 
         return task_mixture_weight
 

@@ -5,6 +5,7 @@ from .regular import (
     RKMETableSpecification,
     RKMEImageSpecification,
     RKMETextSpecification,
+    rkme_solve_qp,
 )
 
 from .system import HeteroMapTableSpecification

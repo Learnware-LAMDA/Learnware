@@ -78,10 +78,10 @@ def prepare_model():
         modelv_save_path = os.path.join(model_save_root, "uploader_v_%d.pth" % (i))
         modell_save_path = os.path.join(model_save_root, "uploader_l_%d.pth" % (i))
 
-        with open(modelv_save_path, 'wb') as f:
+        with open(modelv_save_path, "wb") as f:
             pickle.dump(vectorizer, f)
 
-        with open(modell_save_path, 'wb') as f:
+        with open(modell_save_path, "wb") as f:
             pickle.dump(lgbm, f)
 
         logger.info("Model saved to '%s' and '%s'" % (modelv_save_path, modell_save_path))
