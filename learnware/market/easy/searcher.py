@@ -279,7 +279,6 @@ class EasyStatSearcher(BaseSearcher):
         weight, obj = rkme_solve_qp(K, C)
         weight = weight.double().to(user_rkme.device)
         score = user_rkme.inner_prod(user_rkme) + 2 * obj
-
         return weight.detach().cpu().numpy().reshape(-1), score
 
     def _calculate_intermediate_K_and_C(
@@ -311,7 +310,7 @@ class EasyStatSearcher(BaseSearcher):
         num = intermediate_K.shape[0] - 1
         RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
         for i in range(intermediate_K.shape[0]):
-            intermediate_K[num, i] = RKME_list[-1].inner_prod(RKME_list[i])
+            intermediate_K[num, i] = intermediate_K[i, num] = RKME_list[-1].inner_prod(RKME_list[i])
         intermediate_C[num, 0] = user_rkme.inner_prod(RKME_list[-1])
         return intermediate_K, intermediate_C
 

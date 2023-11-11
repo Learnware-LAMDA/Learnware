@@ -578,6 +578,7 @@ def rkme_solve_qp(K: np.ndarray, C: np.ndarray):
         K = K.cpu().numpy()
     if torch.is_tensor(C):
         C = C.cpu().numpy()
+    C = C.reshape(-1)
 
     n = K.shape[0]
     P = np.array(K)

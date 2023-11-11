@@ -76,8 +76,7 @@ class PFSDatasetWorkflow:
             semantic_spec = semantic_specs[0]
             semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            x = easy_market.add_learnware(zip_path, semantic_spec)
-            print(x)
+            easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
         # curr_inds = easy_market._get_ids()
