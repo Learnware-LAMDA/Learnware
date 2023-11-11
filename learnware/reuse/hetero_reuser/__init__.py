@@ -51,7 +51,9 @@ class HeteroMapTableReuser(BaseReuser):
         user_rkme : RKMETableSpecification
             The RKME specification from the user dataset.
         """
-        self.feature_aligner = FeatureAligner(learnware=self.learnware, mode=self.mode, cuda_idx=self.cuda_idx, **self.align_arguments)
+        self.feature_aligner = FeatureAligner(
+            learnware=self.learnware, mode=self.mode, cuda_idx=self.cuda_idx, **self.align_arguments
+        )
         self.feature_aligner.fit(user_rkme)
         self.reuser = self.feature_aligner
 

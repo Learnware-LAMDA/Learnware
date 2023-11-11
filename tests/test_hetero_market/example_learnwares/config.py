@@ -1,9 +1,9 @@
-input_shape_list=[20, 30]    # 20-input shape of example learnware 0, 30-input shape of example learnware 1
+input_shape_list = [20, 30]  # 20-input shape of example learnware 0, 30-input shape of example learnware 1
 
-input_description_list=[
+input_description_list = [
     {
         "Dimension": 20,
-        "Description": {     # medical description
+        "Description": {  # medical description
             "0": "baseline value: Baseline Fetal Heart Rate (FHR)",
             "1": "accelerations: Number of accelerations per second",
             "2": "fetal_movement: Number of fetal movements per second",
@@ -23,12 +23,12 @@ input_description_list=[
             "16": "histogram_mode: Hist mode",
             "17": "histogram_mean: Hist mean",
             "18": "histogram_median: Hist Median",
-            "19": "histogram_variance: Hist variance"
+            "19": "histogram_variance: Hist variance",
         },
     },
     {
         "Dimension": 30,
-        "Description": {     # business description
+        "Description": {  # business description
             "0": "This is a consecutive month number, used for convenience. For example, January 2013 is 0, February 2013 is 1,..., October 2015 is 33.",
             "1": "This is the unique identifier for each shop.",
             "2": "This is the unique identifier for each item.",
@@ -58,32 +58,28 @@ input_description_list=[
             "26": "This is the average count of items of the same subtype sold in the shop one month ago.",
             "27": "This is the average count of items sold in the same city one month ago.",
             "28": "This is the average count of this type of item sold in the same city one month ago.",
-            "29": "This is the average count of items of the same type sold one month ago."
+            "29": "This is the average count of items of the same type sold one month ago.",
         },
     },
-    
 ]
 
-output_description_list=[
+output_description_list = [
     {
         "Dimension": 1,
-        "Description": {     # medical description
-            "0": "length of stay: Length of hospital stay (days)"
-        },
+        "Description": {"0": "length of stay: Length of hospital stay (days)"},  # medical description
     },
     {
         "Dimension": 1,
-        "Description": {     # business description
+        "Description": {  # business description
             "0": "sales of the item in the next day: Number of items sold in the next day"
         },
     },
-    
 ]
 
-user_description_list=[
+user_description_list = [
     {
         "Dimension": 15,
-        "Description": {     # medical description
+        "Description": {  # medical description
             "0": "Whether the patient is on thyroxine medication (0: No, 1: Yes)",
             "1": "Whether the patient has been queried about thyroxine medication (0: No, 1: Yes)",
             "2": "Whether the patient is on antithyroid medication (0: No, 1: Yes)",
@@ -98,7 +94,7 @@ user_description_list=[
             "11": "Whether TSH (Thyroid Stimulating Hormone) level has been measured (0: No, 1: Yes)",
             "12": "Whether T3 (Triiodothyronine) level has been measured (0: No, 1: Yes)",
             "13": "Whether TT4 (Total Thyroxine) level has been measured (0: No, 1: Yes)",
-            "14": "Whether T4U (Thyroxine Utilization) level has been measured (0: No, 1: Yes)"
+            "14": "Whether T4U (Thyroxine Utilization) level has been measured (0: No, 1: Yes)",
         },
     }
 ]

@@ -16,7 +16,12 @@ import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_spec
 from learnware.reuse import HeteroMapTableReuser
-from example_learnwares.config import input_shape_list, input_description_list, output_description_list, user_description_list
+from example_learnwares.config import (
+    input_shape_list,
+    input_description_list,
+    output_description_list,
+    user_description_list,
+)
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -31,6 +36,7 @@ user_semantic = {
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
 }
+
 
 def check_learnware(learnware_name, dir_path=os.path.join(curr_root, "learnware_pool")):
     print(f"Checking Learnware: {learnware_name}")
@@ -56,7 +62,6 @@ class TestMarket(unittest.TestCase):
         hetero_market = instantiate_learnware_market(market_id="hetero_toy", name="hetero", rebuild=True)
         return hetero_market
 
-
     def test_prepare_learnware_randomly(self, learnware_num=5):
         self.zip_path_list = []
 
@@ -66,13 +71,13 @@ class TestMarket(unittest.TestCase):
 
             print("Preparing Learnware: %d" % (i))
 
-            example_learnware_idx=i%2
-            input_dim=input_shape_list[example_learnware_idx]
-            example_learnware_name="example_learnwares/example_learnware_%d" % (example_learnware_idx)
+            example_learnware_idx = i % 2
+            input_dim = input_shape_list[example_learnware_idx]
+            example_learnware_name = "example_learnwares/example_learnware_%d" % (example_learnware_idx)
 
             X, y = make_regression(n_samples=5000, n_informative=15, n_features=input_dim, noise=0.1, random_state=42)
 
-            clf=Ridge(alpha=1.0)
+            clf = Ridge(alpha=1.0)
             clf.fit(X, y)
 
             joblib.dump(clf, os.path.join(dir_path, "ridge.pkl"))
@@ -86,7 +91,9 @@ class TestMarket(unittest.TestCase):
             )  # cp example_init.py init_file
 
             yaml_file = os.path.join(dir_path, "learnware.yaml")
-            copyfile(os.path.join(curr_root, example_learnware_name, "learnware.yaml"), yaml_file)  # cp example.yaml yaml_file
+            copyfile(
+                os.path.join(curr_root, example_learnware_name, "learnware.yaml"), yaml_file
+            )  # cp example.yaml yaml_file
 
             env_file = os.path.join(dir_path, "requirements.txt")
             copyfile(os.path.join(curr_root, example_learnware_name, "requirements.txt"), env_file)
@@ -143,14 +150,16 @@ class TestMarket(unittest.TestCase):
             for learnware_id in curr_inds:
                 hetero_market.delete_learnware(learnware_id)
                 self.learnware_num -= 1
-                assert len(hetero_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
+                assert (
+                    len(hetero_market) == self.learnware_num
+                ), f"The number of learnwares must be {self.learnware_num}!"
 
             curr_inds = hetero_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
             assert len(curr_inds) == 0, f"The market should be empty!"
 
         return hetero_market
-    
+
     def test_train_market_model(self, learnware_num=5):
         hetero_market = self._init_learnware_market()
         self.test_prepare_learnware_randomly(learnware_num)
@@ -214,7 +223,7 @@ class TestMarket(unittest.TestCase):
 
         # hetero test
         print("+++++ HETERO TEST ++++++")
-        user_dim=15
+        user_dim = 15
 
         test_folder = os.path.join(curr_root, "test_stat")
 
@@ -230,18 +239,20 @@ class TestMarket(unittest.TestCase):
 
             user_spec = RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "stat.json"))
-            z=user_spec.get_z()
-            z=z[:,:user_dim]
-            device=user_spec.device
-            z=torch.tensor(z, device=device)
-            user_spec.z=z
+            z = user_spec.get_z()
+            z = z[:, :user_dim]
+            device = user_spec.device
+            z = torch.tensor(z, device=device)
+            user_spec.z = z
 
             print(">> normal case test:")
             semantic_spec = copy.deepcopy(user_semantic)
-            semantic_spec["Input"]=copy.deepcopy(input_description_list[idx%2])
-            semantic_spec["Input"]['Dimension']=user_dim
+            semantic_spec["Input"] = copy.deepcopy(input_description_list[idx % 2])
+            semantic_spec["Input"]["Dimension"] = user_dim
             # keep only the first user_dim descriptions
-            semantic_spec["Input"]['Description']={key: semantic_spec["Input"]['Description'][str(key)] for key in range(user_dim)}
+            semantic_spec["Input"]["Description"] = {
+                key: semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
+            }
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
             (
@@ -257,7 +268,7 @@ class TestMarket(unittest.TestCase):
 
             # empty value of key "Task" in semantic_spec, use homo search and print invalid semantic_spec
             print(">> test for key 'Task' has empty 'Values':")
-            semantic_spec["Task"]={"Values":{}}
+            semantic_spec["Task"] = {"Values": {}}
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
             (
@@ -267,8 +278,7 @@ class TestMarket(unittest.TestCase):
                 mixture_learnware_list,
             ) = hetero_market.search_learnware(user_info)
 
-            assert(len(single_learnware_list)==0), f"Statistical search failed!"
-
+            assert len(single_learnware_list) == 0, f"Statistical search failed!"
 
             # delete key "Task" in semantic_spec, use homo search and print WARNING INFO with "User doesn't provide correct task type"
             print(">> delele key 'Task' test:")
@@ -282,14 +292,16 @@ class TestMarket(unittest.TestCase):
                 mixture_learnware_list,
             ) = hetero_market.search_learnware(user_info)
 
-            assert(len(single_learnware_list)==0), f"Statistical search failed!"
+            assert len(single_learnware_list) == 0, f"Statistical search failed!"
 
             # modify semantic info with mismatch dim, use homo search and print "User data feature dimensions mismatch with semantic specification."
             print(">> mismatch dim test")
             semantic_spec = copy.deepcopy(user_semantic)
-            semantic_spec["Input"]=copy.deepcopy(input_description_list[idx%2])
-            semantic_spec["Input"]['Dimension']=user_dim-2
-            semantic_spec["Input"]['Description']={key: semantic_spec["Input"]['Description'][str(key)] for key in range(user_dim)}
+            semantic_spec["Input"] = copy.deepcopy(input_description_list[idx % 2])
+            semantic_spec["Input"]["Dimension"] = user_dim - 2
+            semantic_spec["Input"]["Description"] = {
+                key: semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
+            }
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
             (
@@ -299,8 +311,7 @@ class TestMarket(unittest.TestCase):
                 mixture_learnware_list,
             ) = hetero_market.search_learnware(user_info)
 
-            assert(len(single_learnware_list)==0), f"Statistical search failed!"
-
+            assert len(single_learnware_list) == 0, f"Statistical search failed!"
 
         rmtree(test_folder)  # rm -r test_folder
 
@@ -328,7 +339,7 @@ class TestMarket(unittest.TestCase):
                 mixture_learnware_list,
             ) = hetero_market.search_learnware(user_info)
 
-            target_spec_num=3 if idx%2==0 else 2
+            target_spec_num = 3 if idx % 2 == 0 else 2
             assert len(single_learnware_list) == target_spec_num, f"Statistical search failed!"
             print(f"search result of user{idx}:")
             for score, learnware in zip(sorted_score_list, single_learnware_list):
@@ -349,7 +360,7 @@ class TestMarket(unittest.TestCase):
         # generate specification
         semantic_spec = copy.deepcopy(user_semantic)
         semantic_spec["Input"] = user_description_list[0]
-        user_info=BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
+        user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
 
         # learnware market search
         hetero_market = self.test_train_market_model(learnware_num)
@@ -365,21 +376,21 @@ class TestMarket(unittest.TestCase):
             print(f"score: {score}, learnware_id: {learnware.id}")
 
         # model reuse
-        reuser=HeteroMapTableReuser(single_learnware_list[0], mode='regression')
+        reuser = HeteroMapTableReuser(single_learnware_list[0], mode="regression")
         reuser.fit(user_spec)
         reuser.finetune(X[:100], y[:100])
-        y_pred=reuser.predict(X)
-        rmse=mean_squared_error(y, y_pred, squared=False)
+        y_pred = reuser.predict(X)
+        rmse = mean_squared_error(y, y_pred, squared=False)
         print(f"rmse finetune: {rmse}")
 
 
 def suite():
     _suite = unittest.TestSuite()
-    # _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
-    # _suite.addTest(TestMarket("test_generated_learnwares"))
-    # _suite.addTest(TestMarket("test_upload_delete_learnware"))
-    # _suite.addTest(TestMarket("test_train_market_model"))
-    # _suite.addTest(TestMarket("test_search_semantics"))
+    _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
+    _suite.addTest(TestMarket("test_generated_learnwares"))
+    _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    _suite.addTest(TestMarket("test_train_market_model"))
+    _suite.addTest(TestMarket("test_search_semantics"))
     _suite.addTest(TestMarket("test_stat_search"))
     _suite.addTest(TestMarket("test_model_reuse"))
     return _suite

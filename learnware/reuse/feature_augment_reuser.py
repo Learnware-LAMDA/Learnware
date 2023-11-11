@@ -4,6 +4,7 @@ from sklearn.linear_model import RidgeCV, LogisticRegressionCV
 from .base import BaseReuser
 from learnware.learnware import Learnware
 
+
 class FeatureAugmentReuser(BaseReuser):
     """
     FeatureAugmentReuser is a class for augmenting features using predictions of a given learnware model and applying regression or classification on the augmented dataset.
