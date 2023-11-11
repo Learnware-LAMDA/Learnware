@@ -4,7 +4,7 @@ import numpy as np
 import geatpy as ea
 from typing import List
 
-from learnware.learnware import Learnware
+from ..learnware import Learnware
 from .base import BaseReuser
 from ..logger import get_module_logger
 

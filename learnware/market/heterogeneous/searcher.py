@@ -69,7 +69,7 @@ class HeteroMapTableSearcher(EasySearcher):
         learnware_list: List[Learnware],
         user_info: BaseUserInfo,
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
-        # todo: use specially assigned search_gamma for calculating mmd dist
+        # TODO: use specially assigned search_gamma for calculating mmd dist
         user_hetero_spec = self.learnware_oganizer.generate_hetero_map_spec(user_info)
         logger.info(f"After semantic search, learnware_list length is {len(learnware_list)}")
 

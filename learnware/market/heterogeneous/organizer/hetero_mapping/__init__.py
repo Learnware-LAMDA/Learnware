@@ -59,7 +59,6 @@ class HeteroMapping(nn.Module):
             device=device,
         )
 
-        ##todo: BUG!!!!!!
         self.encoder = TransformerMultiLayer(
             hidden_dim=hidden_dim,
             num_layer=num_layer,
@@ -404,7 +403,6 @@ class TransformerMultiLayer(nn.Module):
                 use_layer_norm=True,
                 activation=activation,
             )
-            ##todo: BUG!!!!!!
             stacked_transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layer - 1)
             self.transformer_encoder.append(stacked_transformer)
 

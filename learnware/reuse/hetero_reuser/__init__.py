@@ -1,5 +1,5 @@
-from learnware.learnware import Learnware
-from learnware.reuse.base import BaseReuser
+from ...learnware import Learnware
+from ..base import BaseReuser
 from .feature_alignment import FeatureAligner
 from ..feature_augment_reuser import FeatureAugmentReuser
 

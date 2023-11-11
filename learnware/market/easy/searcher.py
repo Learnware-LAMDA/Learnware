@@ -435,7 +435,6 @@ class EasyStatSearcher(BaseSearcher):
             ):
                 continue
 
-            # TODO: must we check dim for Text and Image specification?
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
                 filtered_learnware_list.append(learnware)

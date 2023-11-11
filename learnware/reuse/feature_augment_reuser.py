@@ -2,7 +2,7 @@ import numpy as np
 
 from sklearn.linear_model import RidgeCV, LogisticRegressionCV
 from .base import BaseReuser
-from learnware.learnware import Learnware
+from ..learnware import Learnware
 
 
 class FeatureAugmentReuser(BaseReuser):

@@ -7,9 +7,9 @@ import torch
 import time
 from tqdm import trange
 
-from learnware.learnware import Learnware
-from learnware.specification import RKMETableSpecification
-from learnware.specification.regular.table.rkme import choose_device
+from ...learnware import Learnware
+from ...specification import RKMETableSpecification
+from ...specification.regular.table.rkme import choose_device
 
 from ..base import BaseReuser
 from ...logger import get_module_logger

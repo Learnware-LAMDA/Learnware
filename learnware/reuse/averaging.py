@@ -4,7 +4,7 @@ from typing import List
 from scipy.special import softmax
 
 
-from learnware.learnware import Learnware
+from ..learnware import Learnware
 from .base import BaseReuser
 from ..logger import get_module_logger
 
