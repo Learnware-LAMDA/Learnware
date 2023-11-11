@@ -68,7 +68,7 @@ class FeatureAugmentReuser(BaseReuser):
             ridge_cv.fit(x_train_aug, y_train)
             self.output_aligner = ridge_cv
         elif self.mode == "classification":
-            self.output_aligner = LogisticRegressionCV()
+            self.output_aligner = LogisticRegressionCV(cv=5, max_iter=1000, random_state=0, multi_class="auto")
             self.output_aligner.fit(x_train_aug, y_train)
 
     def _fill_data(self, X: np.ndarray):

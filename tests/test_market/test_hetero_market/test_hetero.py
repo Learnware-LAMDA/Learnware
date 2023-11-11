@@ -255,7 +255,7 @@ class TestMarket(unittest.TestCase):
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 print(f"score: {score}, learnware_id: {learnware.id}")
 
-            # empty value of key "Task" in semantic_spec, use homo search and print 
+            # empty value of key "Task" in semantic_spec, use homo search and print invalid semantic_spec
             print(">> test for key 'Task' has empty 'Values':")
             semantic_spec["Task"]={"Values":{}}
 
