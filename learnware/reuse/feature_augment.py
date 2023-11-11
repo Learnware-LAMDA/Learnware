@@ -1,6 +1,8 @@
+import torch
 import numpy as np
-
+from typing import Union
 from sklearn.linear_model import RidgeCV, LogisticRegressionCV
+
 from .base import BaseReuser
 from ..learnware import Learnware
 
@@ -14,13 +16,13 @@ class FeatureAugmentReuser(BaseReuser):
     - "classification": Uses LogisticRegressionCV for classification tasks.
     """
 
-    def __init__(self, learnware: Learnware = None, mode: str = None):
+    def __init__(self, learnware: Union[Learnware, BaseReuser] = None, mode: str = None):
         """
         Initialize the FeatureAugmentReuser with a learnware model and a mode.
 
         Parameters
         ----------
-        learnware : Learnware
+        learnware : Union[Learnware, BaseReuser]
             A learnware model used for initial predictions.
         mode : str
             The mode of operation, either "regression" or "classification".
@@ -28,6 +30,7 @@ class FeatureAugmentReuser(BaseReuser):
         self.learnware = learnware
         assert mode in ["classification", "regression"], "Mode must be either 'classification' or 'regression'"
         self.mode = mode
+        self.output_aligner = None
 
     def predict(self, user_data: np.ndarray) -> np.ndarray:
         """
@@ -43,10 +46,12 @@ class FeatureAugmentReuser(BaseReuser):
         np.ndarray
             Predicted output from the output aligner model.
         """
+        assert self.output_aligner is not None, "FeatureAugmentReuser is not trained by labeled data yet."
+
         user_data = self._fill_data(user_data)
-        y_pred = self.learnware.predict(user_data)
-        user_data_aug = np.concatenate((user_data, y_pred.reshape(-1, 1)), axis=1)
+        user_data_aug = self._get_augment_data(user_data)
         y_pred_aug = self.output_aligner.predict(user_data_aug)
+
         return y_pred_aug
 
     def fit(self, x_train: np.ndarray, y_train: np.ndarray):
@@ -61,18 +66,18 @@ class FeatureAugmentReuser(BaseReuser):
             Training data labels.
         """
         x_train = self._fill_data(x_train)
-        y_pred = self.learnware.predict(x_train)
-        x_train_aug = np.concatenate((x_train, y_pred.reshape(-1, 1)), axis=1)
+        x_train_aug = self._get_augment_data(x_train)
+
         if self.mode == "regression":
             alpha_list = [0.01, 0.1, 1.0, 10, 100]
             ridge_cv = RidgeCV(alphas=alpha_list, store_cv_values=True)
             ridge_cv.fit(x_train_aug, y_train)
             self.output_aligner = ridge_cv
-        elif self.mode == "classification":
+        else:
             self.output_aligner = LogisticRegressionCV(cv=5, max_iter=1000, random_state=0, multi_class="auto")
             self.output_aligner.fit(x_train_aug, y_train)
 
-    def _fill_data(self, X: np.ndarray):
+    def _fill_data(self, X: np.ndarray) -> np.ndarray:
         """
         Fill missing data (NaN, Inf) in the input array with the mean of the column.
 
@@ -101,3 +106,31 @@ class FeatureAugmentReuser(BaseReuser):
                     col_mean = np.nanmean(X[:, col])
                     X[:, col] = np.where(is_nan, col_mean, X[:, col])
         return X
+
+    def _get_augment_data(self, X: np.ndarray) -> np.ndarray:
+        """Get the augmented data with model output.
+
+        Parameters
+        ----------
+        X : np.ndarray
+            Input data.
+
+        Returns
+        -------
+        np.ndarray
+            Augment data with model output.
+
+        Raises
+        ------
+        TypeError
+            If the type of model output not in [np.ndarray, torch.Tensor].
+        """
+        y_pred = self.learnware.predict(X)
+        if isinstance(y_pred, torch.Tensor):
+            y_pred = y_pred.detach().cpu().numpy()
+        if not isinstance(y_pred, np.ndarray):
+            raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
+        if len(y_pred.shape) == 1:
+            y_pred = y_pred.reshape(-1, 1)
+
+        return np.concatenate((X, y_pred), axis=1)

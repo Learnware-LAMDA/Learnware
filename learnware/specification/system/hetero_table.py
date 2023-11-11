@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import codecs
+import os
 import copy
 import json
-import os
-
-import numpy as np
 import torch
+import codecs
+import numpy as np
 
 from ..regular import RKMETableSpecification
 from ..regular.table.rkme import choose_device, setup_seed, torch_rbf_kernel
@@ -81,7 +80,6 @@ class HeteroMapTableSpecification(SystemStatSpecification):
             embedding_to_save["beta"] = embedding_to_save["beta"].detach().cpu().numpy()
         embedding_to_save["beta"] = embedding_to_save["beta"].tolist()
         embedding_to_save["device"] = "gpu" if embedding_to_save["cuda_idx"] != -1 else "cpu"
-        # embedding_to_save["type"] = self.type
         json.dump(
             embedding_to_save,
             codecs.open(save_path, "w", encoding="utf-8"),

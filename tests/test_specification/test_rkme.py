@@ -8,13 +8,13 @@ import tempfile
 import numpy as np
 
 from learnware.specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
-from learnware.specification import generate_rkme_image_spec, generate_rkme_spec, generate_rkme_text_spec
+from learnware.specification import generate_rkme_image_spec, generate_rkme_table_spec, generate_rkme_text_spec
 
 
 class TestRKME(unittest.TestCase):
     def test_rkme(self):
         X = np.random.uniform(-10000, 10000, size=(5000, 200))
-        rkme = generate_rkme_spec(X)
+        rkme = generate_rkme_table_spec(X)
         rkme.generate_stat_spec_from_data(X)
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:

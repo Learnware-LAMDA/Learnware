@@ -1,1 +1,1 @@
-from .heter_table import HeteroMapTableSpecification
+from .hetero_table import HeteroMapTableSpecification

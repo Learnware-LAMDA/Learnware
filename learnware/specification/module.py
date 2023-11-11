@@ -9,7 +9,7 @@ from .regular import RKMETableSpecification, RKMEImageSpecification, RKMETextSpe
 from ..config import C
 
 
-def generate_rkme_spec(
+def generate_rkme_table_spec(
     X: Union[np.ndarray, pd.DataFrame, torch.Tensor],
     gamma: float = 0.1,
     reduced_set_size: int = 100,
@@ -197,13 +197,18 @@ def generate_rkme_text_spec(
     return rkme_text_spec
 
 
-def generate_stat_spec(type="table", *args, **kwargs) -> BaseStatSpecification:
+def generate_stat_spec(
+    type: str, X: Union[np.ndarray, pd.DataFrame, torch.Tensor, List[str]], *args, **kwargs
+) -> BaseStatSpecification:
     """
         Interface for users to generate statistical specification.
         Return a StatSpecification object, use .save() method to save as npy file.
 
     Parameters
     ----------
+    type: str
+        Type of statistical specification.
+        Supported types: "table", "text", "image"
     X : np.ndarray
         Raw data in np.ndarray format.
         Size of array: (n*d)
@@ -214,10 +219,10 @@ def generate_stat_spec(type="table", *args, **kwargs) -> BaseStatSpecification:
         A StatSpecification object
     """
     if type == "table":
-        return generate_rkme_spec(*args, **kwargs)
+        return generate_rkme_table_spec(X=X, *args, **kwargs)
     elif type == "text":
-        return generate_rkme_text_spec(*args, **kwargs)
+        return generate_rkme_text_spec(X=X, *args, **kwargs)
     elif type == "image":
-        return generate_rkme_image_spec(*args, **kwargs)
+        return generate_rkme_image_spec(X=X, *args, **kwargs)
     else:
         raise TypeError(f"type {type} is not supported!")

@@ -1,7 +1,7 @@
 from ...learnware import Learnware
 from ..base import BaseReuser
-from .feature_alignment import FeatureAligner
-from ..feature_augment_reuser import FeatureAugmentReuser
+from .feature_align import FeatureAlignReuser
+from ..feature_augment import FeatureAugmentReuser
 
 
 class HeteroMapTableReuser(BaseReuser):
@@ -41,6 +41,8 @@ class HeteroMapTableReuser(BaseReuser):
         self.mode = mode
         self.cuda_idx = cuda_idx
         self.align_arguments = align_arguments
+        self.reuser = None
+        self.feature_align_reuser = None
 
     def fit(self, user_rkme):
         """
@@ -51,11 +53,11 @@ class HeteroMapTableReuser(BaseReuser):
         user_rkme : RKMETableSpecification
             The RKME specification from the user dataset.
         """
-        self.feature_aligner = FeatureAligner(
+        self.feature_align_reuser = FeatureAlignReuser(
             learnware=self.learnware, mode=self.mode, cuda_idx=self.cuda_idx, **self.align_arguments
         )
-        self.feature_aligner.fit(user_rkme)
-        self.reuser = self.feature_aligner
+        self.feature_align_reuser.fit(user_rkme)
+        self.reuser = self.feature_align_reuser
 
     def finetune(self, x_train, y_train):
         """
@@ -68,7 +70,8 @@ class HeteroMapTableReuser(BaseReuser):
         y_train : ndarray
             Training data labels.
         """
-        self.reuser = FeatureAugmentReuser(learnware=self.feature_aligner, mode=self.mode)
+        assert self.feature_align_reuser is not None, "HeteroMapTableReuser must be fitted before fine-tuning."
+        self.reuser = FeatureAugmentReuser(learnware=self.feature_align_reuser, mode=self.mode)
         self.reuser.fit(x_train, y_train)
 
     def predict(self, user_data):
@@ -85,4 +88,5 @@ class HeteroMapTableReuser(BaseReuser):
         ndarray
             Predicted output from the model.
         """
+        assert self.reuser is not None, "HeteroMapTableReuser must be fitted before making predictions."
         return self.reuser.predict(user_data)

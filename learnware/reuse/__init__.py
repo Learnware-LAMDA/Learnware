@@ -12,9 +12,16 @@ else:
 
 if not is_torch_avaliable(verbose=False):
     AveragingReuser = None
-    logger.warning("AveragingReuser is skipped due to 'torch' is not installed!")
+    FeatureAugmentReuser = None
+    HeteroMapTableReuser = None
+    FeatureAlignReuser = None
+    logger.warning(
+        "[AveragingReuser, FeatureAugmentReuser, HeteroMapTableReuser, FeatureAlignReuser] is skipped due to 'torch' is not installed!"
+    )
 else:
     from .averaging import AveragingReuser
+    from .feature_augment import FeatureAugmentReuser
+    from .hetero_reuser import HeteroMapTableReuser, FeatureAlignReuser
 
 if not is_lightgbm_avaliable(verbose=False) or not is_torch_avaliable(verbose=False):
     JobSelectorReuser = None
@@ -32,11 +39,3 @@ if not is_lightgbm_avaliable(verbose=False) or not is_torch_avaliable(verbose=Fa
     logger.warning(f"JobSelectorReuser is skipped due to {uninstall_packages} is not installed!")
 else:
     from .job_selector import JobSelectorReuser
-
-if not is_torch_avaliable(verbose=False):
-    HeteroMapTableReuser = None
-    logger.warning("FeatureAugmentReuser is skipped due to 'torch' is not installed!")
-else:
-    from .hetero_reuser import HeteroMapTableReuser
-
-from .feature_augment_reuser import FeatureAugmentReuser

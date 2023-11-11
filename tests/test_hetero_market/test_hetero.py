@@ -14,7 +14,7 @@ from sklearn.metrics import mean_squared_error
 
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.specification import RKMETableSpecification, generate_rkme_spec
+from learnware.specification import RKMETableSpecification, generate_rkme_table_spec
 from learnware.reuse import HeteroMapTableReuser
 from example_learnwares.config import (
     input_shape_list,
@@ -82,7 +82,7 @@ class TestMarket(unittest.TestCase):
 
             joblib.dump(clf, os.path.join(dir_path, "ridge.pkl"))
 
-            spec = generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_table_spec(X=X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "stat.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -355,7 +355,7 @@ class TestMarket(unittest.TestCase):
         X, y = make_regression(n_samples=5000, n_informative=10, n_features=15, noise=0.1, random_state=0)
 
         # generate rkme
-        user_spec = generate_rkme_spec(X=X, gamma=0.1, cuda_idx=0)
+        user_spec = generate_rkme_table_spec(X=X, gamma=0.1, cuda_idx=0)
 
         # generate specification
         semantic_spec = copy.deepcopy(user_semantic)
