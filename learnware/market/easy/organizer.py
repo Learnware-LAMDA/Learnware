@@ -3,7 +3,7 @@ import copy
 import zipfile
 import tempfile
 from shutil import copyfile, rmtree
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Dict
 
 from .database_ops import DatabaseOperations
 from ..base import BaseOrganizer, BaseChecker
@@ -391,6 +391,24 @@ class EasyOrganizer(BaseOrganizer):
         )
         self.use_flags[learnware_id] = self.dbops.get_learnware_use_flag(learnware_id)
         pass
+
+    def get_learnware_info_from_storage(self, learnware_id: str) -> Dict:
+        """return learnware zip path and semantic_specification from storage
+
+        Parameters
+        ----------
+        learnware_id : str
+            learnware id
+
+        Returns
+        -------
+        Dict
+            - semantic_spec: semantic_specification
+            - zip_path: zip_path
+            - folder_path: folder_path
+            - use_flag: use_flag
+        """
+        return self.dbops.get_learnware_info(learnware_id)
 
     def __len__(self):
         return len(self.learnware_list)
