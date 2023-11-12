@@ -1,8 +1,7 @@
 import os
-from typing import List, Optional
-
 import numpy as np
 import pandas as pd
+from typing import List, Optional
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
@@ -12,7 +11,7 @@ from .feature_extractor import *
 from .trainer import Trainer, TransTabCollatorForCL
 
 
-class HeteroMapping(nn.Module):
+class HeteroMap(nn.Module):
     def __init__(
         self,
         feature_tokenizer=None,
@@ -30,8 +29,8 @@ class HeteroMapping(nn.Module):
         device="cuda:0",
         checkpoint=None,
         **kwargs,
-    ) -> None:
-        super(HeteroMapping, self).__init__()
+    ):
+        super(HeteroMap, self).__init__()
 
         self.model_args = {
             "num_partition": num_partition,
@@ -90,19 +89,13 @@ class HeteroMapping(nn.Module):
         ----------
         ckpt_dir: str
             the directory path to load.
-
-        Returns
-        -------
-        None
-
         """
         # load model weight state dict
         market_model_path = os.path.join(checkpoint, "model.bin")
         model_info = torch.load(market_model_path, map_location="cpu")
-        model = HeteroMapping(**model_info["model_args"])
+        model = HeteroMap(**model_info["model_args"])
         model.load_state_dict(model_info["model_state_dict"], strict=False)
         return model
-        # self.feature_tokenizer.load(checkpoint)
 
     def save(self, ckpt_dir):
         """Save the model state_dict and feature_tokenizer configuration
@@ -112,11 +105,6 @@ class HeteroMapping(nn.Module):
         ----------
         ckpt_dir: str
             the directory path to save.
-
-        Returns
-        -------
-        None
-
         """
         # save model weight state dict
         model_info = {
@@ -174,7 +162,7 @@ class HeteroMapping(nn.Module):
         Parameters
         ----------
         x: pd.DataFrame or dict
-            pd.DataFrame: a batch of raw tabular samples; dict: the output of TransTabFeatureExtractor.
+            pd.DataFrame: a batch of raw tabular samples; dict: the output of feature_tokenizer
 
         Returns
         -------
@@ -190,7 +178,7 @@ class HeteroMapping(nn.Module):
         elif isinstance(x, torch.Tensor):
             inputs = self.feature_tokenizer.forward(cols, x)
         else:
-            raise ValueError(f"TransTabOutputFeatureExtractor takes inputs with dict or pd.DataFrame, find {type(x)}.")
+            raise ValueError(f"feature_tokenizer takes inputs with dict or pd.DataFrame, find {type(x)}.")
 
         outputs = self.feature_processor(**inputs)  # outputs is dict, "embedding" and "mask"
         outputs = self.cls_token(**outputs)  # add the cls embedding
@@ -284,7 +272,7 @@ class TransformerLayer(nn.Module):
         device=None,
         dtype=None,
         use_layer_norm=True,
-    ) -> None:
+    ):
         factory_kwargs = {"device": device, "dtype": dtype}
         super().__init__()
         self.self_attn = nn.MultiheadAttention(d_model, nhead, batch_first=batch_first, **factory_kwargs)
@@ -314,7 +302,6 @@ class TransformerLayer(nn.Module):
 
     # self-attention block
     def _sa_block(self, x: Tensor, attn_mask: Optional[Tensor], key_padding_mask: Optional[Tensor]) -> Tensor:
-        src = x
         key_padding_mask = ~key_padding_mask.bool()
         x = self.self_attn(
             x,
@@ -339,7 +326,7 @@ class TransformerLayer(nn.Module):
         super().__setstate__(state)
 
     def forward(self, src, src_mask=None, src_key_padding_mask=None, is_causal=None, **kwargs) -> Tensor:
-        r"""Pass the input through the encoder layer.
+        """Pass the input through the encoder layer.
 
         Args:
             src: the sequence to the encoder layer (required).

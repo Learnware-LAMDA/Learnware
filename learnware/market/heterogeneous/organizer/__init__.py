@@ -1,17 +1,10 @@
-from __future__ import annotations
-
-import copy
-import multiprocessing
 import os
-import tempfile
+import copy
 import zipfile
+import pandas as pd
 from collections import defaultdict
 from shutil import copyfile, rmtree
 from typing import List, Tuple
-
-import pandas as pd
-from torch import nn
-import torch.multiprocessing as mp
 
 from ....learnware import Learnware, get_learnware_from_dirpath
 from ....logger import get_module_logger
@@ -20,9 +13,9 @@ from ...base import BaseChecker, BaseUserInfo
 from ...easy import EasyOrganizer
 from ...easy.database_ops import DatabaseOperations
 from ....config import C as conf
-from .hetero_mapping import HeteroMapping, Trainer
+from .hetero_map import HeteroMap, Trainer
 
-logger = get_module_logger("hetero_market")
+logger = get_module_logger("hetero_map_table_organizer")
 
 
 class HeteroMapTableOrganizer(EasyOrganizer):
@@ -67,7 +60,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
 
         if os.path.exists(self.market_mapping_path):
             logger.info(f"Reload market mapping from checkpoint {self.market_mapping_path}")
-            self.market_mapping = HeteroMapping.load(checkpoint=self.market_store_path)
+            self.market_mapping = HeteroMap.load(checkpoint=self.market_store_path)
             if not rebuild:
                 if os.path.exists(self.hetero_mappings_path):
                     for hetero_json_path in os.listdir(self.hetero_mappings_path):
@@ -83,7 +76,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                     self._update_learnware_by_ids(self.learnware_list.keys())
         else:
             logger.warning(f"No market mapping to reload!!")
-            self.market_mapping = HeteroMapping()
+            self.market_mapping = HeteroMap()
             # rmtree(self.hetero_mappings_path)
 
     def reset(self, market_id=None, auto_update=False, auto_update_limit=None, **kwargs):
@@ -167,7 +160,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
     @staticmethod
     def train(learnware_list: List[Learnware], save_dir: str, **kwargs):
         allset = HeteroMapTableOrganizer._learnwares_to_dataframes(learnware_list)
-        market_mapping = HeteroMapping(**kwargs)
+        market_mapping = HeteroMap(**kwargs)
         market_mapping_trainer = Trainer(
             model=market_mapping,
             train_set_list=allset,

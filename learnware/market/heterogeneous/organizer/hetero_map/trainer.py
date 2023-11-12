@@ -174,7 +174,7 @@ class TrainDataset(Dataset):
 
 
 class TransTabCollatorForCL:
-    """support positive pair sampling for contrastive learning of transtab model."""
+    """support positive pair sampling for contrastive learning."""
 
     def __init__(
         self,
@@ -182,7 +182,7 @@ class TransTabCollatorForCL:
         overlap_ratio=0.5,
         num_partition=3,
         **kwargs,
-    ) -> None:
+    ):
         self.feature_tokenizer = feature_tokenizer or FeatureTokenizer(disable_tokenizer_parallel=True)
         assert num_partition > 0, f"number of contrastive subsets must be greater than 0, got {num_partition}"
         assert isinstance(num_partition, int), f"number of constrative subsets must be int, got {type(num_partition)}"

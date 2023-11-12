@@ -1,6 +1,5 @@
-import json
-import math
 import os
+import math
 from typing import Dict
 
 import numpy as np
@@ -22,7 +21,7 @@ class WordEmbedding(nn.Module):
         padding_idx=0,
         hidden_dropout_prob=0,
         layer_norm_eps=1e-5,
-    ) -> None:
+    ):
         super().__init__()
         self.word_embeddings = nn.Embedding(vocab_size, hidden_dim, padding_idx)
         nn_init.kaiming_normal_(self.word_embeddings.weight)
@@ -41,7 +40,7 @@ class NumEmbedding(nn.Module):
     Encode tokens drawn from column names and the corresponding numerical features.
     """
 
-    def __init__(self, hidden_dim) -> None:
+    def __init__(self, hidden_dim):
         super().__init__()
         self.norm = nn.LayerNorm(hidden_dim)
         self.num_bias = nn.Parameter(Tensor(1, 1, hidden_dim))  # add bias
@@ -58,7 +57,7 @@ class NumEmbedding(nn.Module):
 
 
 class FeatureTokenizer:
-    r"""
+    """
     Process input dataframe to input indices towards encoder,
     usually used to build dataloader for paralleling loading.
     """
@@ -67,7 +66,7 @@ class FeatureTokenizer:
         self,
         disable_tokenizer_parallel=True,
         **kwargs,
-    ) -> None:
+    ):
         """args:
         disable_tokenizer_parallel: true if use extractor for collator function in torch.DataLoader
         """
@@ -122,7 +121,6 @@ class FeatureTokenizer:
 
         return encoded_inputs
 
-    # ------------------------ New function ------------------------
     def forward(self, cols, x) -> Dict:
         """
         Parameters
@@ -157,19 +155,9 @@ class FeatureTokenizer:
 
         return encoded_inputs
 
-    # def save(self, path):
-    #     """save the feature extractor configuration to local dir."""
-    #     self.tokenizer.save_pretrained(os.path.join(path, conf.market_tokenizer_path))
-
-    # def load(self, path):
-    #     """load the feature extractor configuration from local dir."""
-    #     tokenizer_path = os.path.join(path, conf.market_tokenizer_path)
-    #     if os.path.exists(tokenizer_path):
-    #         self.tokenizer = BertTokenizerFast.from_pretrained(os.path.join(path, conf.market_tokenizer_path))
-
 
 class FeatureProcessor(nn.Module):
-    r"""
+    """
     Process inputs from feature extractor to map them to embeddings.
     """
 
@@ -180,7 +168,7 @@ class FeatureProcessor(nn.Module):
         hidden_dropout_prob=0,
         pad_token_id=0,
         device="cuda:0",
-    ) -> None:
+    ):
         super().__init__()
         self.word_embedding = WordEmbedding(
             vocab_size=vocab_size,
@@ -229,7 +217,7 @@ class FeatureProcessor(nn.Module):
 class CLSToken(nn.Module):
     """add a learnable cls token embedding at the end of each sequence."""
 
-    def __init__(self, hidden_dim) -> None:
+    def __init__(self, hidden_dim):
         super().__init__()
         self.weight = nn.Parameter(Tensor(hidden_dim))
         nn_init.uniform_(self.weight, a=-1 / math.sqrt(hidden_dim), b=1 / math.sqrt(hidden_dim))
