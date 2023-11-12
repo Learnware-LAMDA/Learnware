@@ -15,7 +15,7 @@ from sklearn.metrics import mean_squared_error
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_table_spec
-from learnware.reuse import HeteroMapTableReuser
+from learnware.reuse import HeteroMapAlignLearnware, AveragingReuser, EnsemblePruningReuser
 from example_learnwares.config import (
     input_shape_list,
     input_description_list,
@@ -265,6 +265,9 @@ class TestMarket(unittest.TestCase):
             print(f"search result of user{idx}:")
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 print(f"score: {score}, learnware_id: {learnware.id}")
+            print(
+                f"mixture_score: {mixture_score}, mixture_learnware_ids: {[item.id for item in mixture_learnware_list]}"
+            )
 
             # empty value of key "Task" in semantic_spec, use homo search and print invalid semantic_spec
             print(">> test for key 'Task' has empty 'Values':")
@@ -374,14 +377,32 @@ class TestMarket(unittest.TestCase):
         # print search results
         for score, learnware in zip(sorted_score_list, single_learnware_list):
             print(f"score: {score}, learnware_id: {learnware.id}")
+        print(f"mixture_score: {mixture_score}, mixture_learnware_ids: {[item.id for item in mixture_learnware_list]}")
 
-        # model reuse
-        reuser = HeteroMapTableReuser(single_learnware_list[0], mode="regression")
-        reuser.fit(user_spec)
-        reuser.finetune(X[:100], y[:100])
-        y_pred = reuser.predict(X)
-        rmse = mean_squared_error(y, y_pred, squared=False)
-        print(f"rmse finetune: {rmse}")
+        # single model reuse
+        hetero_learnware = HeteroMapAlignLearnware(single_learnware_list[0], mode="regression")
+        hetero_learnware.align(user_spec, X[:100], y[:100])
+        single_predict_y = hetero_learnware.predict(X)
+
+        # multi model reuse
+        hetero_learnware_list = []
+        for learnware in mixture_learnware_list:
+            hetero_learnware = HeteroMapAlignLearnware(learnware, mode="regression")
+            hetero_learnware.align(user_spec, X[:100], y[:100])
+            hetero_learnware_list.append(hetero_learnware)
+
+        # Use averaging ensemble reuser to reuse the searched learnwares to make prediction
+        reuse_ensemble = AveragingReuser(learnware_list=hetero_learnware_list, mode="mean")
+        ensemble_predict_y = reuse_ensemble.predict(user_data=X)
+
+        # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
+        reuse_ensemble = EnsemblePruningReuser(learnware_list=hetero_learnware_list, mode="regression")
+        reuse_ensemble.fit(X[:100], y[:100])
+        ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=X)
+
+        print("Single model RMSE by finetune:", mean_squared_error(y, single_predict_y, squared=False))
+        print("Averaging Reuser RMSE:", mean_squared_error(y, ensemble_predict_y, squared=False))
+        print("Ensemble Pruning Reuser RMSE:", mean_squared_error(y, ensemble_pruning_predict_y, squared=False))
 
 
 def suite():

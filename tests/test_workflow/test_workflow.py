@@ -220,7 +220,7 @@ class TestWorkflow(unittest.TestCase):
         ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
 
         # Use feature augment reuser to reuse the searched learnwares to make prediction
-        reuse_feature_augment = FeatureAugmentReuser(learnware=reuse_ensemble, mode="classification")
+        reuse_feature_augment = FeatureAugmentReuser(learnware_list=mixture_learnware_list, mode="classification")
         reuse_feature_augment.fit(train_X[-200:], train_y[-200:])
         feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
 
