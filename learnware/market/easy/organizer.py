@@ -145,7 +145,7 @@ class EasyOrganizer(BaseOrganizer):
         zip_dir = self.learnware_zip_list[id]
         if os.path.exists(zip_dir):
             os.remove(zip_dir)
-            pass
+
         folder_dir = self.learnware_folder_list[id]
         rmtree(folder_dir, ignore_errors=True)
         self.learnware_list.pop(id)
@@ -390,7 +390,6 @@ class EasyOrganizer(BaseOrganizer):
             id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
         )
         self.use_flags[learnware_id] = self.dbops.get_learnware_use_flag(learnware_id)
-        pass
 
     def get_learnware_info_from_storage(self, learnware_id: str) -> Dict:
         """return learnware zip path and semantic_specification from storage

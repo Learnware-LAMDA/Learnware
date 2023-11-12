@@ -43,7 +43,6 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 rmtree(self.learnware_pool_path)
             except Exception as err:
                 logger.warning(f"Clear current database failed due to {err}!!")
-                pass
 
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)

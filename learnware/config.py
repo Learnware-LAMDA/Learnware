@@ -13,8 +13,6 @@ class Config:
         if os.path.exists(config_file):
             with open(config_file, "r") as f:
                 self.__dict__["_config"].update(json.load(f))
-                pass
-            pass
 
     def __getitem__(self, key):
         return self.__dict__["_config"][key]

@@ -38,7 +38,6 @@ class EasyExactSemanticSearcher(BaseSearcher):
                 v1 = v1.lower()
                 if v1 not in name2 and v1 not in description2:
                     return False
-                pass
             else:
                 if len(v2) == 0:
                     # user input contains some key that is not in database
@@ -54,9 +53,6 @@ class EasyExactSemanticSearcher(BaseSearcher):
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
                         return False
-                    pass
-                pass
-            pass
 
         return True
 

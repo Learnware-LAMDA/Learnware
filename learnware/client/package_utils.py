@@ -109,7 +109,6 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
         last_bracket = stdout.rfind("\n{")
         if last_bracket != -1:
             stdout = stdout[last_bracket:]
-            pass
         print(stdout)
         output = json.loads(stdout).get("bad_deps", [])
 
