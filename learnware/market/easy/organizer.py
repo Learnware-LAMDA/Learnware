@@ -41,8 +41,8 @@ class EasyOrganizer(BaseOrganizer):
             try:
                 self.dbops.clear_learnware_table()
                 rmtree(self.learnware_pool_path)
-            except:
-                pass
+            except Exception as err:
+                logger.error(f"Clear current database failed due to {err}!!")
 
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
@@ -97,6 +97,7 @@ class EasyOrganizer(BaseOrganizer):
                 id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
         except:
+            logger.warning("New learnware is not properly added!")
             try:
                 os.remove(target_zip_dir)
                 rmtree(target_folder_dir)
