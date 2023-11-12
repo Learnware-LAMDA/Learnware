@@ -3,6 +3,7 @@ import numpy as np
 import torch
 import random
 import string
+import traceback
 
 from ..base import BaseChecker
 from ..utils import parse_specification_type
@@ -50,11 +51,11 @@ class EasySemanticChecker(BaseChecker):
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
 
-            return EasySemanticChecker.NONUSABLE_LEARNWARE
+            return EasySemanticChecker.NONUSABLE_LEARNWARE, 'EasySemanticChecker Success'
 
         except AssertionError as err:
             logger.warning(f"semantic_specification is not valid due to {err}!")
-            return EasySemanticChecker.INVALID_LEARNWARE
+            return EasySemanticChecker.INVALID_LEARNWARE, traceback.format_exc()
 
     def __call__(self, learnware):
         semantic_spec = learnware.get_specification().get_semantic_spec()
@@ -88,7 +89,7 @@ class EasyStatChecker(BaseChecker):
         except Exception as e:
             traceback.print_exc()
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {e}.")
-            return self.INVALID_LEARNWARE
+            return self.INVALID_LEARNWARE, traceback.format_exc()
         try:
             learnware_model = learnware.get_model()
             # Check input shape
@@ -97,19 +98,22 @@ class EasyStatChecker(BaseChecker):
             if semantic_spec["Data"]["Values"][0] == "Table" and input_shape != (
                 int(semantic_spec["Input"]["Dimension"]),
             ):
-                logger.warning("input shapes of model and semantic specifications are different")
-                return self.INVALID_LEARNWARE
+                message = "input shapes of model and semantic specifications are different"
+                logger.warning(message)
+                return self.INVALID_LEARNWARE, message
 
             spec_type = parse_specification_type(learnware.get_specification().stat_spec)
             if spec_type is None:
-                logger.warning(f"No valid specification is found in stat spec {spec_type}")
-                return self.INVALID_LEARNWARE
+                message = f"No valid specification is found in stat spec {spec_type}"
+                logger.warning(message)
+                return self.INVALID_LEARNWARE, message
 
             if spec_type == "RKMETableSpecification":
                 stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
                 if stat_spec.get_z().shape[1:] != input_shape:
-                    logger.warning(f"The learnware [{learnware.id}] input dimension mismatch with stat specification.")
-                    return self.INVALID_LEARNWARE
+                    message = f"The learnware [{learnware.id}] input dimension mismatch with stat specification."
+                    logger.warning(message)
+                    return self.INVALID_LEARNWARE, message
                 inputs = np.random.randn(10, *input_shape)
             elif spec_type == "RKMETextSpecification":
                 inputs = EasyStatChecker._generate_random_text_list(10)
@@ -122,16 +126,19 @@ class EasyStatChecker(BaseChecker):
             try:
                 outputs = learnware.predict(inputs)
             except Exception:
-                logger.warning(f"learnware {learnware} prediction method is not valid!")
-                return self.INVALID_LEARNWARE
+                message = f"The learnware {learnware.id} prediction is not avaliable!"
+                logger.warning(message)
+                message += '\r\n' + traceback.format_exc()
+                return self.INVALID_LEARNWARE, message
 
             if semantic_spec["Task"]["Values"][0] in ("Classification", "Regression"):
                 # Check output type
                 if isinstance(outputs, torch.Tensor):
                     outputs = outputs.detach().cpu().numpy()
                 if not isinstance(outputs, np.ndarray):
-                    logger.warning(f"The learnware [{learnware.id}] output must be np.ndarray or torch.Tensor!")
-                    return self.INVALID_LEARNWARE
+                    message = f"The learnware {learnware.id} output must be np.ndarray or torch.Tensor!"
+                    logger.warning(message)
+                    return self.INVALID_LEARNWARE, message
 
                 if outputs.ndim == 1:
                     outputs = outputs.reshape(-1, 1)
@@ -139,13 +146,13 @@ class EasyStatChecker(BaseChecker):
                 if outputs[0].shape != learnware_model.output_shape or learnware_model.output_shape != (
                     int(semantic_spec["Output"]["Dimension"]),
                 ):
-                    logger.warning(
-                        f"The learnware [{learnware.id}] output dimension mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
-                    )
-                    return self.INVALID_LEARNWARE
+                    message = f"The learnware [{learnware.id}] output dimension mismatch!, where pred_shape={outputs[0].shape}, model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
+                    logger.warning(message)
+                    return self.INVALID_LEARNWARE, message
 
         except Exception as e:
-            logger.warning(f"The learnware [{learnware.id}] prediction is not avaliable! Due to {repr(e)}.")
-            return self.INVALID_LEARNWARE
+            message = f"The learnware [{learnware.id}] is not valid! Due to {repr(e)}."
+            logger.warning(message)
+            return self.INVALID_LEARNWARE, message
 
-        return self.USABLE_LEARWARE
+        return self.USABLE_LEARWARE, "EasyStatChecker Success"
