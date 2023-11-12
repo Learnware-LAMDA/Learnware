@@ -19,6 +19,8 @@ class CondaChecker(BaseChecker):
                 check_status = self.inner_checker(learnwares[0])
         except Exception as e:
             traceback.print_exc()
-            logger.warning(f"Conda Checker failed due to installed learnware failed and {e}")
-            return BaseChecker.INVALID_LEARNWARE
+            message = f"Conda Checker failed due to installed learnware failed and {e}"
+            logger.warning(message)
+            message += "\n" + traceback.format_exc()
+            return BaseChecker.INVALID_LEARNWARE, message
         return check_status
