@@ -459,7 +459,7 @@ class BaseChecker:
     def reset(self, organizer):
         self.learnware_organizer = organizer
 
-    def __call__(self, learnware: Learnware) -> int:
+    def __call__(self, learnware: Learnware) -> Tuple[int, str]:
         """Check the utility of a learnware
 
         Parameters
@@ -468,11 +468,15 @@ class BaseChecker:
 
         Returns
         -------
-        int
-            A flag indicating whether the learnware can be accepted.
-            - The INVALID_LEARNWARE denotes the learnware does not pass the check
-            - The NOPREDICTION_LEARNWARE denotes the learnware pass the check but cannot make prediction due to some env dependency
-            - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
+        Tuple[int, str]:
+            flag and message of learnware check result
+            - int
+                A flag indicating whether the learnware can be accepted.
+                - The INVALID_LEARNWARE denotes the learnware does not pass the check
+                - The NOPREDICTION_LEARNWARE denotes the learnware pass the check but cannot make prediction due to some env dependency
+                - The NOPREDICTION_LEARNWARE denotes the leanrware pass the check and can make prediction
+            - str
+                A message indicating the reason of learnware check result
         """
 
         raise NotImplementedError("'__call__' method is not implemented in BaseChecker")

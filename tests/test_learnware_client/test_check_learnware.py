@@ -29,6 +29,13 @@ class TestCheckLearnware(unittest.TestCase):
             self.client.download_learnware(learnware_id, self.zip_path)
             LearnwareClient.check_learnware(self.zip_path)
 
+    def test_check_learnware_dependency(self):
+        learnware_id = "00000147"
+        with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
+            self.zip_path = os.path.join(tempdir, "test.zip")
+            self.client.download_learnware(learnware_id, self.zip_path)
+            LearnwareClient.check_learnware(self.zip_path)
+
 
 if __name__ == "__main__":
     unittest.main()
