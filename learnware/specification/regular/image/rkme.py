@@ -98,9 +98,7 @@ class RKMEImageSpecification(RegularStatsSpecification):
 
         """
         if len(X.shape) != 4:
-            raise ValueError(
-                "X should be in shape of [N, C, {0:d}, {0:d}]. ".format(RKMEImageSpecification.IMAGE_WIDTH)
-            )
+            raise ValueError("X should be in shape of [N, C, H, W]. ")
 
         if (
             X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH
