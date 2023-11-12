@@ -29,13 +29,13 @@ class AnchoredUserInfo(BaseUserInfo):
         self.anchor_learnware_ids += learnware_ids
 
     def update_stat_info(self, name: str, item: Any):
-        """Update stat_info based on anchor learnwares
+        """Update stat_info by market or user with anchor learnwares
 
         Parameters
         ----------
         name : str
             Name of stat_info
         item : Any
-            Statistical information calculated on anchor learnwares
+            Statistical information calculated by market or user with anchor learnwares
         """
         self.stat_info[name] = item
