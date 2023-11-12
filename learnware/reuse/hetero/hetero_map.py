@@ -1,12 +1,18 @@
+import numpy as np
+
+from ..align import AlignLearnware
 from ...learnware import Learnware
-from ..base import BaseReuser
-from .feature_align import FeatureAlignReuser
+from ...logger import get_module_logger
+from .feature_align import FeatureAlignLearnware
 from ..feature_augment import FeatureAugmentReuser
+from ...specification import RKMETableSpecification
+
+logger = get_module_logger("hetero_map_align")
 
 
-class HeteroMapTableReuser(BaseReuser):
+class HeteroMapAlignLearnware(AlignLearnware):
     """
-    HeteroMapTableReuser is a class designed for reusing learnware models with feature alignment and augmentation.
+    HeteroMapAlignLearnware is a class designed for reusing learnware models with feature alignment and augmentation.
     It can handle both classification and regression tasks and supports fine-tuning on additional training data.
 
     Attributes
@@ -23,7 +29,7 @@ class HeteroMapTableReuser(BaseReuser):
 
     def __init__(self, learnware: Learnware = None, mode: str = None, cuda_idx=0, **align_arguments):
         """
-        Initialize the HeteroMapTableReuser with a learnware model, mode, CUDA device index, and alignment arguments.
+        Initialize the HeteroMapAlignLearnware with a learnware model, mode, CUDA device index, and alignment arguments.
 
         Parameters
         ----------
@@ -36,43 +42,37 @@ class HeteroMapTableReuser(BaseReuser):
         align_arguments : dict
             Additional arguments to be passed to the feature alignment process.
         """
-        self.learnware = learnware
+        super(HeteroMapAlignLearnware, self).__init__(learnware)
         assert mode in ["classification", "regression"], "Mode must be either 'classification' or 'regression'"
         self.mode = mode
         self.cuda_idx = cuda_idx
         self.align_arguments = align_arguments
         self.reuser = None
-        self.feature_align_reuser = None
 
-    def fit(self, user_rkme):
+    def align(self, user_rkme: RKMETableSpecification, x_train: np.ndarray = None, y_train: np.ndarray = None):
         """
-        Fit the feature aligner using the user RKME (Relative Knowledge Model Embeddings) specification.
+        Align the hetero learnware using the user RKME specification and labeled data.
 
         Parameters
         ----------
         user_rkme : RKMETableSpecification
             The RKME specification from the user dataset.
-        """
-        self.feature_align_reuser = FeatureAlignReuser(
-            learnware=self.learnware, mode=self.mode, cuda_idx=self.cuda_idx, **self.align_arguments
-        )
-        self.feature_align_reuser.fit(user_rkme)
-        self.reuser = self.feature_align_reuser
-
-    def finetune(self, x_train, y_train):
-        """
-        Fine-tune the feature aligner using additional training data.
-
-        Parameters
-        ----------
         x_train : ndarray
             Training data features.
         y_train : ndarray
             Training data labels.
         """
-        assert self.feature_align_reuser is not None, "HeteroMapTableReuser must be fitted before fine-tuning."
-        self.reuser = FeatureAugmentReuser(learnware=self.feature_align_reuser, mode=self.mode)
-        self.reuser.fit(x_train, y_train)
+        self.feature_align_learnware = FeatureAlignLearnware(
+            learnware=self.learnware, cuda_idx=self.cuda_idx, **self.align_arguments
+        )
+        self.feature_align_learnware.align(user_rkme)
+
+        if x_train is None or y_train is None:
+            logger.warning("Hetero learnware may not perform well as labeled data alignment is not provided!")
+            self.reuser = self.feature_align_learnware
+        else:
+            self.reuser = FeatureAugmentReuser(learnware_list=[self.feature_align_learnware], mode=self.mode)
+            self.reuser.fit(x_train, y_train)
 
     def predict(self, user_data):
         """
@@ -88,5 +88,5 @@ class HeteroMapTableReuser(BaseReuser):
         ndarray
             Predicted output from the model.
         """
-        assert self.reuser is not None, "HeteroMapTableReuser must be fitted before making predictions."
+        assert self.reuser is not None, "HeteroMapAlignLearnware must be aligned before making predictions."
         return self.reuser.predict(user_data)

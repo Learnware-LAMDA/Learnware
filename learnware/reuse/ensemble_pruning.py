@@ -24,7 +24,7 @@ class EnsemblePruningReuser(BaseReuser):
         Parameters
         ----------
         learnware_list : List[Learnware]
-            The learnware list
+            The list contains learnwares
         mode : str
             - "regression" for regression task (learnware output is a real number)
             - "classification" for classification task (learnware output is a logitis vector or belongs to the set {0, 1, ..., class_num})

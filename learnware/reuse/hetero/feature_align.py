@@ -6,26 +6,24 @@ from typing import List
 from tqdm import trange
 import torch.nn.functional as F
 
-from ..base import BaseReuser
+from ..align import AlignLearnware
 from ...logger import get_module_logger
 from ...learnware import Learnware
 from ...specification import RKMETableSpecification
 from ...specification.regular.table.rkme import choose_device
 
-logger = get_module_logger("hetero_feature_align")
+logger = get_module_logger("feature_align")
 
 
-class FeatureAlignReuser(BaseReuser):
+class FeatureAlignLearnware(AlignLearnware):
     """
-    FeatureAlignReuser is a class for aligning features from a user dataset with a target dataset using a learnware model.
+    FeatureAlignLearnware is a class for aligning features from a user dataset with a target dataset using a learnware model.
     It supports both classification and regression tasks and uses a feature alignment trainer for alignment.
 
     Attributes
     ----------
     learnware : Learnware
         The learnware model used for final prediction.
-    mode : str
-        Operation mode, either "classification" or "regression".
     align_arguments : dict
         Additional arguments for the feature alignment trainer.
     cuda_idx : int
@@ -34,32 +32,28 @@ class FeatureAlignReuser(BaseReuser):
         The device (CPU or CUDA) on which computations will be performed.
     """
 
-    def __init__(self, learnware: Learnware = None, mode: str = None, cuda_idx=0, **align_arguments):
+    def __init__(self, learnware: Learnware = None, cuda_idx=0, **align_arguments):
         """
-        Initialize the FeatureAlignReuser with a learnware model, mode, CUDA device index, and alignment arguments.
+        Initialize the FeatureAlignLearnware with a learnware model, mode, CUDA device index, and alignment arguments.
 
         Parameters
         ----------
         learnware : Learnware
             A learnware model used for initial predictions.
-        mode : str
-            The mode of operation, either "regression" or "classification".
         cuda_idx : int
             The index of the CUDA device for computations.
         align_arguments : dict
             Additional arguments to be passed to the feature alignment trainer.
         """
-        self.learnware = learnware
-        assert mode in ["classification", "regression"], "Mode must be either 'classification' or 'regression'"
-        self.mode = mode
+        super(FeatureAlignLearnware, self).__init__(learnware)
         self.align_arguments = align_arguments
         self.cuda_idx = cuda_idx
         self.device = choose_device(cuda_idx=cuda_idx)
         self.align_model = None
 
-    def fit(self, user_rkme: RKMETableSpecification):
+    def align(self, user_rkme: RKMETableSpecification):
         """
-        Fit the align model using the RKME (Relative Knowledge Model Embeddings) specifications from the learnware model.
+        Train the align model using the RKME specifications from the user and the learnware.
 
         Parameters
         ----------
@@ -87,7 +81,7 @@ class FeatureAlignReuser(BaseReuser):
         np.ndarray
             Predicted output from the learnware model after alignment.
         """
-        assert self.align_model is not None, "FeatureAlignReuser must be fitted before making predictions."
+        assert self.align_model is not None, "FeatureAlignLearnware must be aligned before making predictions."
         user_data = self._fill_data(user_data)
         transformed_user_data = (
             self.align_model(torch.tensor(user_data, device=self.device).float()).detach().cpu().numpy()
