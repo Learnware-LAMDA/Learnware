@@ -6,7 +6,7 @@ This package contains code modified from the paper "TransTab: A Flexible Transfe
 
 ## Contents
 
-- `__init__.py`: The `__init__.py` file defines the HeteroMap class, which forms the main network structure of the market engine. It includes methods for handling heterogeneous tabular data, focusing on mapping data from diverse feature spaces into a unified "specification world".
+- `__init__.py`: The `__init__.py` file defines the `HeteroMap` class, which forms the main network structure of the market engine. It includes methods for handling heterogeneous tabular data, focusing on mapping data from diverse feature spaces into a unified "specification world".
 - `trainer.py`: The `trainer.py` file focuses on the unsupervised training process of the market engine. It defines the `TransTabCollatorForCL` class, which builds positive and negative samples from tabular vertical partitions for unsupervised learning.
 - `feature_extractor.py`: This file encompasses NLP-related functionalities crucial for processing and understanding table data features. It includes classes like `WordEmbedding`, which encodes tokens from column names into word embeddings, and `FeatureTokenizer`, which prepares tables for processing by the market engine.
 
