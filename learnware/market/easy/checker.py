@@ -116,7 +116,7 @@ class EasyStatChecker(BaseChecker):
             elif spec_type == "RKMEImageSpecification":
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
             else:
-                raise ValueError(f"not supported spec type for spec_type = {spec_type}")  
+                raise ValueError(f"not supported spec type for spec_type = {spec_type}")
 
             # Check output
             try:

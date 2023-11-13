@@ -44,11 +44,6 @@ jobs:
         # stop the build if there are Python syntax errors or undefined names
         conda run -n learnware python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-    - name: Install faiss for MacOS
-      if: ${{ matrix.os == 'macos-11' || matrix.os == 'macos-latest' }}
-      run: |
-        conda run -n learnware conda install -c pytorch faiss
-
     - name: Install learnware
       run: |
         conda run -n learnware python -m pip install .

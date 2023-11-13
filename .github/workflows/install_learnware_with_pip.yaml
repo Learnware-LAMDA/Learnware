@@ -39,11 +39,6 @@ jobs:
         conda run -n learnware python -m pip install --upgrade pip
         conda run -n learnware python -m pip install pytest
 
-    - name: Install faiss for MacOS
-      if: ${{ matrix.os == 'macos-11' || matrix.os == 'macos-latest' }}
-      run: |
-        conda run -n learnware conda install -c pytorch faiss
-
     - name: Install learnware
       run: |
         conda run -n learnware python -m pip install learnware
