@@ -76,7 +76,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                     )
                     self.market_mapping = updated_market_mapping
                     self._update_learnware_by_ids(training_learnware_ids)
-                else:
+                    
                     self.count_down = self.auto_update_limit
 
         return learnware_id, learnwere_status
