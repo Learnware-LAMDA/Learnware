@@ -12,6 +12,37 @@ from .trainer import Trainer, TransTabCollatorForCL
 
 
 class HeteroMap(nn.Module):
+    """
+    This class is based on 'TransTab' project as described in the paper
+    "TransTab: A flexible transferable tabular learning framework". The original project is available at
+    https://github.com/RyanWangZf/transtab and is licensed under the BSD 2-Clause License.
+
+    Modifications:
+    - Simplified the original code to focus primarily on methods related to numerical features.
+    - Retained only the unsupervised training method.
+    - While the original paper and the TransTab framework utilized the module for final predictions, this version
+      is modified for feature extraction purposes only.
+
+    The class implements a neural network module for processing tabular data, specifically tuned for numerical features.
+
+    Args:
+        feature_tokenizer (FeatureTokenizer, optional): Tokenizer for feature representation.
+        hidden_dim (int, optional): Dimension of hidden layer.
+        num_layer (int, optional): Number of layers in the transformer encoder.
+        num_attention_head (int, optional): Number of attention heads in the transformer.
+        hidden_dropout_prob (float, optional): Dropout probability for hidden layers.
+        ffn_dim (int, optional): Dimension of feedforward network.
+        projection_dim (int, optional): Dimension for projection head.
+        overlap_ratio (float, optional): Overlap ratio for tokenization.
+        num_partition (int, optional): Number of partitions for collation.
+        temperature (float, optional): Temperature parameter for contrastive learning.
+        base_temperature (float, optional): Base temperature parameter.
+        activation (str, optional): Activation function for transformer layers.
+        device (str, optional): Device to run the model on.
+        checkpoint (str, optional): Path to a pre-trained model checkpoint.
+        **kwargs: Additional keyword arguments.
+    """
+
     def __init__(
         self,
         feature_tokenizer=None,
