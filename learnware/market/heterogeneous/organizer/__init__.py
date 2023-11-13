@@ -15,7 +15,7 @@ logger = get_module_logger("hetero_map_table_organizer")
 
 class HeteroMapTableOrganizer(EasyOrganizer):
     def reload_market(self, rebuild=False, auto_update=False, auto_update_limit=100):
-        super().reload_market(rebuild=rebuild)
+        super(HeteroMapTableOrganizer, self).reload_market(rebuild=rebuild)
         self.auto_update = auto_update
         self.auto_update_limit = auto_update_limit
         self.count_down = auto_update_limit
@@ -55,7 +55,9 @@ class HeteroMapTableOrganizer(EasyOrganizer):
     def add_learnware(
         self, zip_path: str, semantic_spec: dict, check_status: int, learnware_id: str = None
     ) -> Tuple[str, int]:
-        learnware_id, learnwere_status = super().add_learnware(zip_path, semantic_spec, check_status, learnware_id)
+        learnware_id, learnwere_status = super(HeteroMapTableOrganizer, self).add_learnware(
+            zip_path, semantic_spec, check_status, learnware_id
+        )
 
         if learnwere_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(learnware_id)):
             self._update_learnware_by_ids(learnware_id)
@@ -76,13 +78,13 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                     )
                     self.market_mapping = updated_market_mapping
                     self._update_learnware_by_ids(training_learnware_ids)
-                    
+
                     self.count_down = self.auto_update_limit
 
         return learnware_id, learnwere_status
 
     def delete_learnware(self, id: str) -> bool:
-        flag = super().delete_learnware(id)
+        flag = super(HeteroMapTableOrganizer, self).delete_learnware(id)
         if flag:
             hetero_spec_path = os.path.join(self.hetero_specs_path, f"{id}.json")
             try:
@@ -92,13 +94,13 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         return flag
 
     def update_learnware(self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None):
-        final_status = super().update_learnware(id, zip_path, semantic_spec, check_status)
+        final_status = super(HeteroMapTableOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
         if final_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(id)):
             self._update_learnware_by_ids(id)
         return final_status
 
     def reload_learnware(self, learnware_id: str):
-        super().reload_learnware(learnware_id)
+        super(HeteroMapTableOrganizer, self).reload_learnware(learnware_id)
         try:
             hetero_spec_path = os.path.join(self.hetero_specs_path, f"{learnware_id}.json")
             if os.path.exists(hetero_spec_path):

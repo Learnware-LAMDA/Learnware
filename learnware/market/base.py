@@ -68,8 +68,7 @@ class LearnwareMarket:
     ):
         self.market_id = market_id
         self.learnware_organizer = BaseOrganizer() if organizer is None else organizer
-        self.learnware_organizer.reset(market_id=market_id)
-        self.learnware_organizer.reload_market(rebuild=rebuild)
+        self.learnware_organizer.reset(market_id=market_id, reload_kwargs={"rebuild": rebuild})
         self.learnware_searcher = BaseSearcher() if searcher is None else searcher
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
 
@@ -77,8 +76,19 @@ class LearnwareMarket:
             self.learnware_checker = {"BaseChecker": BaseChecker()}
         else:
             self.learnware_checker = {checker.__class__.__name__: checker for checker in checker_list}
-        for name, checker in self.learnware_checker.items():
+        for checker in self.learnware_checker.values():
             checker.reset(organizer=self.learnware_organizer)
+
+    def reset(self, organizer_kwargs=None, searcher_kwargs=None, checker_kwargs=None, **kwargs):
+        organizer_kwargs = {} if organizer_kwargs is None else organizer_kwargs
+        searcher_kwargs = {} if searcher_kwargs is None else searcher_kwargs
+        checker_kwargs = {} if checker_kwargs is None else checker_kwargs
+        self.learnware_organizer.reset(**organizer_kwargs)
+        self.learnware_searcher.reset(**searcher_kwargs)
+        for checker in self.learnware_checker.values():
+            checker.reset(**checker_kwargs)
+        for _k, _v in kwargs.items():
+            setattr(self, _k, _v)
 
     def reload_market(self, **kwargs) -> bool:
         self.learnware_organizer.reload_market(**kwargs)
@@ -254,11 +264,14 @@ class LearnwareMarket:
 
 
 class BaseOrganizer:
-    def __init__(self, market_id=None):
-        self.reset(market_id=market_id)
+    def __init__(self, market_id=None, **kwargs):
+        self.reset(market_id=market_id, **kwargs)
 
-    def reset(self, market_id=None, **kwargs):
-        self.market_id = market_id
+    def reset(self, market_id: str = None, reload_kwargs: dict = None):
+        if market_id is not None:
+            self.market_id = market_id
+        if reload_kwargs is not None:
+            self.reload_market(**reload_kwargs)
 
     def reload_market(self, rebuild=False, **kwargs) -> bool:
         """Reload the learnware organizer when server restared.
@@ -428,11 +441,12 @@ class BaseOrganizer:
 
 
 class BaseSearcher:
-    def __init__(self, organizer: BaseOrganizer = None):
-        self.learnware_organizer = organizer
+    def __init__(self, organizer: BaseOrganizer = None, **kwargs):
+        self.reset(organizer=organizer, **kwargs)
 
-    def reset(self, organizer):
-        self.learnware_organizer = organizer
+    def reset(self, organizer: BaseOrganizer = None, **kwargs):
+        if organizer is not None:
+            self.learnware_organizer = organizer
 
     def __call__(self, user_info: BaseUserInfo, check_status: int = None):
         """Search learnwares based on user_info from learnwares with check_status
@@ -456,8 +470,9 @@ class BaseChecker:
     def __init__(self, organizer: BaseOrganizer = None):
         self.learnware_organizer = organizer
 
-    def reset(self, organizer):
-        self.learnware_organizer = organizer
+    def reset(self, organizer=None):
+        if organizer is not None:
+            self.learnware_organizer = organizer
 
     def __call__(self, learnware: Learnware) -> Tuple[int, str]:
         """Check the utility of a learnware
