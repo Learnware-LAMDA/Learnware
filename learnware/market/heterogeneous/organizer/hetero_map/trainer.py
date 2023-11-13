@@ -88,25 +88,8 @@ class Trainer:
         return final_train_loss
 
     def save_model(self, output_dir=None):
-        if output_dir is None:
-            logger.info("no path assigned for save mode, default saved to ./ckpt/model.pt !")
-            output_dir = self.output_dir
-
         logger.info(f"saving model checkpoint to {output_dir}")
         self.model.save(output_dir)
-        # self.collate_fn.save(output_dir)
-
-        if self.args is not None:
-            train_args = {}
-            for k, v in self.args.items():
-                if isinstance(v, int) or isinstance(v, str) or isinstance(v, float):
-                    train_args[k] = v
-            with open(
-                os.path.join(output_dir, "training_args.json"),
-                "w",
-                encoding="utf-8",
-            ) as f:
-                f.write(json.dumps(train_args))
 
     def _create_optimizer(self):
         if self.optimizer is None:

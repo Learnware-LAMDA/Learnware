@@ -24,10 +24,11 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         os.makedirs(hetero_folder_path, exist_ok=True)
         self.market_mapping_path = os.path.join(hetero_folder_path, "model.bin")
         self.hetero_specs_path = os.path.join(hetero_folder_path, "hetero_specifications")
+        os.makedirs(self.hetero_specs_path, exist_ok=True)
 
         if os.path.exists(self.market_mapping_path):
             logger.info(f"Reload market mapping from checkpoint {self.market_mapping_path}")
-            self.market_mapping = HeteroMap.load(checkpoint=self.market_store_path)
+            self.market_mapping = HeteroMap.load(checkpoint=self.market_mapping_path)
             if not rebuild:
                 if os.path.exists(self.hetero_specs_path):
                     for hetero_json_path in os.listdir(self.hetero_specs_path):
@@ -40,7 +41,6 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                             logger.warning(f"Learnware {idx} hetero spec loaded failed!")
                 else:
                     logger.info("No HeteroMapTableSpecification to reload. Use loaded market mapping to regenerate.")
-                    os.makedirs(self.hetero_specs_path, exist_ok=True)
                     self._update_learnware_by_ids(self.get_learnware_ids(check_status=BaseChecker.USABLE_LEARWARE))
         else:
             logger.warning(f"No market mapping to reload!")
@@ -50,6 +50,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         self.market_id = market_id
         self.auto_update = auto_update
         self.auto_update_limit = auto_update_limit
+        self.count_down = auto_update_limit
         self.training_args = training_args
 
     def add_learnware(
@@ -69,7 +70,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                     training_learnwares = self.get_learnware_by_ids(training_learnware_ids)
                     logger.info(f"Verified leanwares for training: {training_learnware_ids}")
                     updated_market_mapping = self.train(
-                        learnware_list=training_learnwares, save_dir=self.market_store_path, **self.training_args
+                        learnware_list=training_learnwares, save_dir=self.market_mapping_path, **self.training_args
                     )
                     logger.info(
                         f"Market mapping train completed. Now update HeteroMapTableSpecification for {training_learnware_ids}"
@@ -141,7 +142,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
 
     def generate_hetero_map_spec(self, user_info: BaseUserInfo) -> HeteroMapTableSpecification:
         user_stat_spec = user_info.stat_info["RKMETableSpecification"]
-        user_features = user_info.get_semantic_spec()["Input"]["Description"].values()
+        user_features = user_info.get_semantic_spec()["Input"]["Description"]
         user_hetero_spec = self.market_mapping.hetero_mapping(user_stat_spec, user_features)
         return user_hetero_spec
 

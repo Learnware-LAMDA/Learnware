@@ -83,36 +83,34 @@ class HeteroMap(nn.Module):
     @staticmethod
     def load(checkpoint=None):
         """Load the model state_dict and feature_tokenizer configuration
-        from the ``ckpt_dir``.
+        from the ``checkpoint``.
 
         Parameters
         ----------
-        ckpt_dir: str
+        checkpoint: str
             the directory path to load.
         """
         # load model weight state dict
-        market_model_path = os.path.join(checkpoint, "model.bin")
-        model_info = torch.load(market_model_path, map_location="cpu")
+        model_info = torch.load(checkpoint, map_location="cpu")
         model = HeteroMap(**model_info["model_args"])
         model.load_state_dict(model_info["model_state_dict"], strict=False)
         return model
 
-    def save(self, ckpt_dir):
+    def save(self, checkpoint):
         """Save the model state_dict and feature_tokenizer configuration
-        to the ``ckpt_dir``.
+        to the ``checkpoint``.
 
         Parameters
         ----------
-        ckpt_dir: str
+        checkpoint: str
             the directory path to save.
         """
         # save model weight state dict
         model_info = {
             "model_state_dict": self.state_dict(),
-            "model_args": self.model_args,
-            # "feature_tokenizer": self.feature_tokenizer,
+            "model_args": self.model_args
         }
-        torch.save(model_info, os.path.join(ckpt_dir, "model.bin"))
+        torch.save(model_info, checkpoint)
 
     def forward(self, x, y=None):
         # do positive sampling
@@ -134,9 +132,12 @@ class HeteroMap(nn.Module):
         loss = self._self_supervised_contrastive_loss(feat_x_multiview)
         return loss
 
-    def hetero_mapping(self, rkme_spec: RKMETableSpecification, cols: List[str]) -> HeteroMapTableSpecification:
+    # def hetero_mapping(self, rkme_spec: RKMETableSpecification, features: dict) -> HeteroMapTableSpecification:
+    def hetero_mapping(self, rkme_spec: RKMETableSpecification, features: dict) -> HeteroMapTableSpecification:
         hetero_spec = HeteroMapTableSpecification()
-        hetero_input_df = pd.DataFrame(data=rkme_spec.get_z(), columns=cols)
+        data = rkme_spec.get_z()
+        cols = [features.get(str(i), "") for i in range(data.shape[1])]
+        hetero_input_df = pd.DataFrame(data=data, columns=cols)
         hetero_embedding = self._extract_batch_features(hetero_input_df)
         hetero_spec.generate_stat_spec_from_system(hetero_embedding, rkme_spec)
         return hetero_spec
