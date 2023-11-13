@@ -60,22 +60,20 @@ class LearnwareMarket:
 
     def __init__(
         self,
-        market_id: str = "default",
-        organizer: BaseOrganizer = None,
-        searcher: BaseSearcher = None,
+        market_id: str,
+        organizer: BaseOrganizer,
+        searcher: BaseSearcher,
         checker_list: List[BaseChecker] = None,
         rebuild=False,
     ):
         self.market_id = market_id
-        self.learnware_organizer = BaseOrganizer() if organizer is None else organizer
+        self.learnware_organizer = organizer
         self.learnware_organizer.reset(market_id=market_id, reload_kwargs={"rebuild": rebuild})
-        self.learnware_searcher = BaseSearcher() if searcher is None else searcher
+        self.learnware_searcher = searcher
         self.learnware_searcher.reset(organizer=self.learnware_organizer)
+        checker_list = [] if checker_list is None else checker_list
+        self.learnware_checker = {checker.__class__.__name__: checker for checker in checker_list}
 
-        if checker_list is None:
-            self.learnware_checker = {"BaseChecker": BaseChecker()}
-        else:
-            self.learnware_checker = {checker.__class__.__name__: checker for checker in checker_list}
         for checker in self.learnware_checker.values():
             checker.reset(organizer=self.learnware_organizer)
 
