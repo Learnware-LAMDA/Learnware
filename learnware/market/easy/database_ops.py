@@ -167,6 +167,29 @@ class DatabaseOperations(object):
             pass
         pass
 
+    def get_learnware_info(self, id: str):
+        with self.engine.connect() as conn:
+            r = conn.execute(
+                text("SELECT semantic_spec, zip_path, folder_path, use_flag FROM tb_learnware WHERE id=:id;"),
+                dict(id=id),
+            )
+            row = r.fetchone()
+            if row is None:
+                return None
+            else:
+                semantic_spec = json.loads(row[0])
+                zip_path = row[1]
+                folder_path = row[2]
+                use_flag = int(row[3])
+                return {
+                    "semantic_spec": semantic_spec,
+                    "zip_path": zip_path,
+                    "folder_path": folder_path,
+                    "use_flag": use_flag,
+                }
+            pass
+        pass
+
     def load_market(self):
         with self.engine.connect() as conn:
             cursor = conn.execute(text("SELECT id, semantic_spec, zip_path, folder_path, use_flag FROM tb_learnware;"))

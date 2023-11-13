@@ -70,6 +70,18 @@ class TestLearnwareLoad(unittest.TestCase):
         for learnware in learnware_list:
             print(learnware.id, learnware.predict(input_array))
 
+    def test_load_single_learnware_by_id_pip(self):
+        learnware_id = "00000147"
+        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="conda_env")
+        input_array = np.random.random(size=(20, 23))
+        print(learnware.predict(input_array))
+
+    def test_load_single_learnware_by_id_conda(self):
+        learnware_id = "00000148"
+        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="conda_env")
+        input_array = np.random.random(size=(20, 204))
+        print(learnware.predict(input_array))
+
 
 if __name__ == "__main__":
     unittest.main()

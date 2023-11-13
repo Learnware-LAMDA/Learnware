@@ -74,12 +74,14 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
     nonexist_packages = []
     for package in packages:
         try:
-            # os.system("python3 -m pip index versions {0}".format(package))
-            try_to_run(args=["pip", "index", "versions", parse_pip_requirement(package)], timeout=5)
-            exist_packages.append(package)
+            package_name = parse_pip_requirement(package)
+            if package_name != "learnware":
+                try_to_run(args=["pip", "index", "versions", package_name], timeout=5)
+                exist_packages.append(package)
+                continue
         except Exception as e:
             logger.error(e)
-            nonexist_packages.append(package)
+        nonexist_packages.append(package)
 
     return exist_packages, nonexist_packages
 
@@ -105,7 +107,13 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
 
         command = f"conda env create --name env_test --file {test_yaml_file} --dry-run --json"
         result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        output = json.loads(result.stdout.strip()).get("bad_deps", [])
+        stdout = result.stdout.strip()
+        last_bracket = stdout.rfind("\n{")
+        if last_bracket != -1:
+            stdout = stdout[last_bracket:]
+            pass
+        print(stdout)
+        output = json.loads(stdout).get("bad_deps", [])
 
         if len(output) > 0:
             exist_packages = []

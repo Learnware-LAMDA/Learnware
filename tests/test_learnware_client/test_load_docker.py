@@ -48,6 +48,18 @@ class TestLearnwareLoad(unittest.TestCase):
 
         learnware_list[0].get_model()._destroy_docker_container(docker_container)
 
+    def test_load_single_learnware_by_id_pip(self):
+        learnware_id = "00000147"
+        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="docker")
+        input_array = np.random.random(size=(20, 23))
+        print(learnware.predict(input_array))
+
+    def test_load_single_learnware_by_id_conda(self):
+        learnware_id = "00000148"
+        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="docker")
+        input_array = np.random.random(size=(20, 204))
+        print(learnware.predict(input_array))
+
 
 if __name__ == "__main__":
     unittest.main()
