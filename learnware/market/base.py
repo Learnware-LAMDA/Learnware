@@ -96,7 +96,7 @@ class LearnwareMarket:
                     )
                     for name in checker_names:
                         checker = self.learnware_checker[name]
-                        check_status = checker(pending_learnware)
+                        check_status, message = checker(pending_learnware)
                         final_status = max(final_status, check_status)
 
                         if check_status == BaseChecker.INVALID_LEARNWARE:

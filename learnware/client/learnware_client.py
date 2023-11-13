@@ -377,14 +377,14 @@ class LearnwareClient:
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
-        return EasySemanticChecker.check_semantic_spec(semantic_spec) != BaseChecker.INVALID_LEARNWARE
+        return EasySemanticChecker.check_semantic_spec(semantic_spec)[0] != BaseChecker.INVALID_LEARNWARE
 
     @staticmethod
     def _check_stat_specification(learnware):
         from ..market import CondaChecker
 
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
-        return stat_checker(learnware) != BaseChecker.INVALID_LEARNWARE
+        return stat_checker(learnware)[0] != BaseChecker.INVALID_LEARNWARE
 
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
