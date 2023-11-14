@@ -14,11 +14,8 @@ logger = get_module_logger("hetero_map_table_organizer")
 
 
 class HeteroMapTableOrganizer(EasyOrganizer):
-    def reload_market(self, rebuild=False, auto_update=False, auto_update_limit=100):
+    def reload_market(self, rebuild=False):
         super(HeteroMapTableOrganizer, self).reload_market(rebuild=rebuild)
-        self.auto_update = auto_update
-        self.auto_update_limit = auto_update_limit
-        self.count_down = auto_update_limit
 
         hetero_folder_path = os.path.join(self.market_store_path, "hetero")
         os.makedirs(hetero_folder_path, exist_ok=True)
@@ -46,10 +43,11 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             logger.warning(f"No market mapping to reload!")
             self.market_mapping = HeteroMap()
 
-    def reset(self, market_id=None, auto_update=False, auto_update_limit=100, **training_args):
-        self.market_id = market_id
+    def reset(self, market_id=None, rebuild=None, auto_update=False, auto_update_limit=100, **training_args):
+        super(HeteroMapTableOrganizer, self).reset(market_id, rebuild)
         self.auto_update = auto_update
         self.auto_update_limit = auto_update_limit
+        self.count_down = auto_update_limit
         self.training_args = training_args
 
     def add_learnware(
