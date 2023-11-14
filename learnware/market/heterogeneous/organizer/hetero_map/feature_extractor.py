@@ -149,7 +149,6 @@ class FeatureTokenizer:
         """
         encoded_inputs = {"x_num": None, "num_col_input_ids": None}
 
-        num_cols = x.columns.tolist() if not shuffle else np.random.shuffle(x.columns.tolist())
         index_cols = (
             [i for i in range(len(x.columns))] if not shuffle else np.random.shuffle([i for i in range(len(x.columns))])
         )
