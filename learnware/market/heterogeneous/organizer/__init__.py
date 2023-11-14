@@ -43,7 +43,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             logger.warning(f"No market mapping to reload!")
             self.market_mapping = HeteroMap()
 
-    def reset(self, market_id=None, rebuild=None, auto_update=False, auto_update_limit=100, **training_args):
+    def reset(self, market_id, rebuild=False, auto_update=False, auto_update_limit=100, **training_args):
         super(HeteroMapTableOrganizer, self).reset(market_id, rebuild)
         self.auto_update = auto_update
         self.auto_update_limit = auto_update_limit
