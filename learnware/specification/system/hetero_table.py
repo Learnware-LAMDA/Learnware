@@ -7,9 +7,10 @@ import torch
 import codecs
 import numpy as np
 
-from ..regular import RKMETableSpecification
-from ..regular.table.rkme import choose_device, setup_seed, torch_rbf_kernel
 from .base import SystemStatSpecification
+from ..regular import RKMETableSpecification
+from ..regular.table.rkme import torch_rbf_kernel
+from ...utils import choose_device, setup_seed
 
 
 class HeteroMapTableSpecification(SystemStatSpecification):

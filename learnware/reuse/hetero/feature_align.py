@@ -7,10 +7,11 @@ from tqdm import trange
 import torch.nn.functional as F
 
 from ..align import AlignLearnware
+from ...utils import choose_device
 from ...logger import get_module_logger
 from ...learnware import Learnware
 from ...specification import RKMETableSpecification
-from ...specification.regular.table.rkme import choose_device
+
 
 logger = get_module_logger("feature_align")
 

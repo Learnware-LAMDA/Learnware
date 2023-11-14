@@ -40,7 +40,7 @@ class HeteroMap(nn.Module):
         temperature=10,
         base_temperature=10,
         activation="relu",
-        device="cuda:0",
+        device="cpu",
         cache_dir=None,
         **kwargs,
     ):
