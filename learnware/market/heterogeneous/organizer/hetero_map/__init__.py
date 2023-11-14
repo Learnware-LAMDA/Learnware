@@ -40,8 +40,7 @@ class HeteroMap(nn.Module):
         temperature=10,
         base_temperature=10,
         activation="relu",
-        device="cpu",
-        cache_dir=None,
+        device="cuda:0",
         **kwargs,
     ):
         """
@@ -73,8 +72,6 @@ class HeteroMap(nn.Module):
             Activation function for transformer layer, by default "relu"
         device : str, optional
             Device to run the model on, by default "cuda:0"
-        cache_dir : str, optional
-            The cache directory, by default None
         """
         super(HeteroMap, self).__init__()
 
@@ -88,12 +85,11 @@ class HeteroMap(nn.Module):
             "ffn_dim": ffn_dim,
             "projection_dim": projection_dim,
             "activation": activation,
-            "cache_dir": cache_dir,
         }
         self.model_args.update(kwargs)
 
         if feature_tokenizer is None:
-            feature_tokenizer = FeatureTokenizer(cache_dir=cache_dir, **kwargs)
+            feature_tokenizer = FeatureTokenizer(**kwargs)
 
         self.feature_tokenizer = feature_tokenizer
 
