@@ -12,9 +12,7 @@ from .....config import C as conf
 
 
 class WordEmbedding(nn.Module):
-    """
-    Encode tokens drawn from column names
-    """
+    """Encode tokens drawn from column names"""
 
     def __init__(
         self,
@@ -38,9 +36,7 @@ class WordEmbedding(nn.Module):
 
 
 class NumEmbedding(nn.Module):
-    """
-    Encode tokens drawn from column names and the corresponding numerical features.
-    """
+    """Encode tokens drawn from column names and the corresponding numerical features."""
 
     def __init__(self, hidden_dim):
         super().__init__()
@@ -49,9 +45,13 @@ class NumEmbedding(nn.Module):
         nn_init.uniform_(self.num_bias, a=-1 / math.sqrt(hidden_dim), b=1 / math.sqrt(hidden_dim))
 
     def forward(self, col_emb, x_ts) -> Tensor:
-        """args:
-        col_emb: numerical column embedding, (# numerical columns, emb_dim)
-        x_ts: numerical features, (bs, emb_dim)
+        """
+        Parameters
+        ----------
+        col_emb : Any
+            numerical column embedding, (# numerical columns, emb_dim)
+        x_ts : Any
+            numerical features, (bs, emb_dim)
         """
         col_emb = col_emb.unsqueeze(0).expand((x_ts.shape[0], -1, -1))
         feat_emb = col_emb * x_ts.unsqueeze(-1).float() + self.num_bias
@@ -59,18 +59,18 @@ class NumEmbedding(nn.Module):
 
 
 class FeatureTokenizer:
-    """
-    Process input dataframe to input indices towards encoder,
-    usually used to build dataloader for paralleling loading.
-    """
+    """Process input dataframe to input indices towards encoder, usually used to build dataloader for paralleling loading."""
 
     def __init__(
         self,
         disable_tokenizer_parallel=True,
         **kwargs,
     ):
-        """args:
-        disable_tokenizer_parallel: true if use extractor for collator function in torch.DataLoader
+        """
+        Parameters
+        ----------
+        disable_tokenizer_parallel : bool, optional
+            true if use extractor for collator function in torch.DataLoader
         """
         cache_dir = conf["cache_path"]
         os.makedirs(cache_dir, exist_ok=True)
@@ -194,11 +194,6 @@ class FeatureProcessor(nn.Module):
         num_att_mask=None,
         **kwargs,
     ) -> Tensor:
-        """args:
-        x: pd.DataFrame with column names and features.
-        shuffle: if shuffle column order during the training.
-        num_mask: indicate the NaN place of numerical features, 0: NaN 1: normal.
-        """
         x_num = x_num.to(self.device)
 
         num_col_emb = self.word_embedding(num_col_input_ids.to(self.device))

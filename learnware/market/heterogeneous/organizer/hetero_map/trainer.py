@@ -30,11 +30,6 @@ class Trainer:
         eval_batch_size=256,
         **kwargs,
     ):
-        """args:
-        train_set_list: a list of training sets [(x_1,y_1),(x_2,y_2),...]
-        patience: the max number of early stop patience
-        eval_less_is_better: if the set eval_metric is the less the better. For val_loss, it should be set True.
-        """
         self.model = model
         if isinstance(train_set_list, tuple):
             train_set_list = [train_set_list]
@@ -129,9 +124,7 @@ class Trainer:
         return trainloader
 
     def _get_parameter_names(self, model, forbidden_layer_types):
-        """
-        Returns the names of the model parameters that are not inside a forbidden layer.
-        """
+        """Returns the names of the model parameters that are not inside a forbidden layer."""
         result = []
         for name, child in model.named_children():
             result += [
@@ -174,9 +167,7 @@ class TransTabCollatorForCL:
         self.num_partition = num_partition
 
     def __call__(self, data):
-        """
-        Take a list of subsets (views) from the original tests.
-        """
+        """Take a list of subsets (views) from the original tests."""
         # 1. build positive pairs
         # 2. encode each pair using feature extractor
         df_x = pd.concat([row for row in data])
@@ -192,15 +183,19 @@ class TransTabCollatorForCL:
         return res
 
     def _build_positive_pairs(self, x, n):
-        """
-        Builds positive pairs of sub-dataframes from the input dataframe x.
+        """Builds positive pairs of sub-dataframes from the input dataframe x.
 
-        Args:
-            x (pandas.DataFrame): Input dataframe.
-            n (int): Number of sub-dataframes to split x into.
+        Parameters
+        ----------
+        x : pandas.DataFrame
+            Input dataframe.
+        n : int
+            Number of sub-dataframes to split x into.
 
-        Returns:
-            list: List of sub-dataframes, each containing a positive pair of columns from x.
+        Returns
+        -------
+        List
+            List of sub-dataframes, each containing a positive pair of columns from x.
         """
         x_cols = x.columns.tolist()
         sub_col_list = np.array_split(np.array(x_cols), n)
@@ -217,14 +212,17 @@ class TransTabCollatorForCL:
         return sub_x_list
 
     def _build_positive_pairs_single_view(self, x):
-        """
-        Builds positive pairs for a single view of data by corrupting half of the columns and shuffling the corrupted columns.
+        """Builds positive pairs for a single view of data by corrupting half of the columns and shuffling the corrupted columns.
 
-        Args:
-            x (pandas.DataFrame): The input data.
+        Parameters
+        ----------
+        x : pandas.DataFrame
+            The input data.
 
-        Returns:
-            list: A list of two pandas DataFrames, where each DataFrame contains the original data with half of the columns corrupted and shuffled.
+        Returns
+        -------
+        List
+            A list of two pandas DataFrames, where each DataFrame contains the original data with half of the columns corrupted and shuffled.
         """
         x_cols = x.columns.tolist()
         sub_x_list = [x]

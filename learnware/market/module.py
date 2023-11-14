@@ -44,7 +44,6 @@ def instantiate_learnware_market(
 ):
     market_componets = get_market_component(name, market_id, rebuild, organizer_kwargs, searcher_kwargs, checker_kwargs)
     return LearnwareMarket(
-        market_id=market_id,
         organizer=market_componets["organizer"],
         searcher=market_componets["searcher"],
         checker_list=market_componets["checker_list"],
