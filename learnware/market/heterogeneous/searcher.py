@@ -1,5 +1,5 @@
 from typing import Tuple, List
-
+import traceback
 from ...learnware import Learnware
 from ...logger import get_module_logger
 from ..base import BaseUserInfo
@@ -34,9 +34,8 @@ class HeteroSearcher(EasySearcher):
             return True
 
         except Exception as e:
-            logger.warning(
-                f"Invalid heterogeneous search information provided. Use homogeneous search instead. Error: {e}"
-            )
+            traceback.print_exc()
+            logger.warning(f"Invalid heterogeneous search information provided. Use homogeneous search instead.")
             return False
 
     def __call__(

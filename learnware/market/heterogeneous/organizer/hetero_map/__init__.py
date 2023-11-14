@@ -39,7 +39,7 @@ class HeteroMap(nn.Module):
         temperature=10,
         base_temperature=10,
         activation="relu",
-        device="cuda:0",
+        device="cpu",
         **kwargs,
     ):
         """
@@ -174,7 +174,7 @@ class HeteroMap(nn.Module):
     def hetero_mapping(self, rkme_spec: RKMETableSpecification, features: dict) -> HeteroMapTableSpecification:
         hetero_spec = HeteroMapTableSpecification()
         data = rkme_spec.get_z()
-        cols = [features.get(str(i), "") for i in range(data.shape[1])]
+        cols = [features.get(str(i), "Unknown Feature") for i in range(data.shape[1])]
         hetero_input_df = pd.DataFrame(data=data, columns=cols)
         hetero_embedding = self._extract_batch_features(hetero_input_df)
         hetero_spec.generate_stat_spec_from_system(hetero_embedding, rkme_spec)

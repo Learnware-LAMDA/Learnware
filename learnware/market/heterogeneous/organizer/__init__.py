@@ -1,4 +1,5 @@
 import os
+import traceback
 import pandas as pd
 from collections import defaultdict
 from typing import List, Tuple, Union
@@ -125,6 +126,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 hetero_spec.save(save_path)
 
             except Exception as err:
+                traceback.print_exc()
                 logger.warning(f"Learnware {idx} generate HeteroMapTableSpecification failed! Due to {err}")
 
     def _get_hetero_learnware_ids(self, ids: Union[str, List[str]]) -> List[str]:

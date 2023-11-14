@@ -12,8 +12,8 @@ class FeatureAugmentReuser(BaseReuser):
     FeatureAugmentReuser is a class for augmenting features using predictions of a given learnware model and applying regression or classification on the augmented dataset.
 
     This class supports two modes:
-    - "regression": Uses RidgeCV for regression tasks.
-    - "classification": Uses LogisticRegressionCV for classification tasks.
+        - "regression": Uses RidgeCV for regression tasks.
+        - "classification": Uses LogisticRegressionCV for classification tasks.
     """
 
     def __init__(self, learnware_list: List[Learnware] = None, mode: str = None):

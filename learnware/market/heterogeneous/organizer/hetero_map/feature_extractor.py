@@ -53,6 +53,7 @@ class NumEmbedding(nn.Module):
         x_ts : Any
             numerical features, (bs, emb_dim)
         """
+        print(np.array(col_emb).shape, np.array(x_ts).shape)
         col_emb = col_emb.unsqueeze(0).expand((x_ts.shape[0], -1, -1))
         feat_emb = col_emb * x_ts.unsqueeze(-1).float() + self.num_bias
         return feat_emb
@@ -99,13 +100,18 @@ class FeatureTokenizer:
             }
         """
         encoded_inputs = {"x_num": None, "num_col_input_ids": None}
-        num_cols = x.columns.tolist() if not shuffle else np.random.shuffle(x.columns.tolist())
-        x_num = x[num_cols].fillna(0)
 
+        num_cols = x.columns.tolist() if not shuffle else np.random.shuffle(x.columns.tolist())
+        index_cols = (
+            [i for i in range(len(x.columns))] if not shuffle else np.random.shuffle([i for i in range(len(x.columns))])
+        )
+        num_cols = [x.columns[i] for i in index_cols]
+        x_num = x.iloc(axis=1)[index_cols].fillna(0)
         if keep_input_grad:
             x_num_ts = torch.tensor(x_num.values, dtype=float, requires_grad=True)  # keep the grad
         else:
             x_num_ts = torch.tensor(x_num.values, dtype=float)
+
         num_col_ts = self.tokenizer(
             num_cols,
             padding=True,
@@ -195,9 +201,11 @@ class FeatureProcessor(nn.Module):
         **kwargs,
     ) -> Tensor:
         x_num = x_num.to(self.device)
-
+        print("?1", np.array(x_num).shape, np.array(num_col_input_ids).shape)
         num_col_emb = self.word_embedding(num_col_input_ids.to(self.device))
+        print("?2", np.array(x_num).shape, np.array(num_col_emb).shape)
         num_col_emb = self._avg_embedding_by_mask(num_col_emb, num_att_mask)
+        print("?3", np.array(x_num).shape, np.array(num_col_emb).shape)
 
         num_feat_embedding = self.num_embedding(num_col_emb, x_num)
         num_feat_embedding = self.align_layer(num_feat_embedding).float()
