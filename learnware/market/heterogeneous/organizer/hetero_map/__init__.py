@@ -12,6 +12,37 @@ from .trainer import Trainer, TransTabCollatorForCL
 
 
 class HeteroMap(nn.Module):
+    """
+    This class is based on 'TransTab' project as described in the paper
+    "TransTab: A flexible transferable tabular learning framework". The original project is available at
+    https://github.com/RyanWangZf/transtab and is licensed under the BSD 2-Clause License.
+
+    Modifications:
+    - Simplified the original code to focus primarily on methods related to numerical features.
+    - Retained only the unsupervised training method.
+    - While the original paper and the TransTab framework utilized the module for final predictions, this version
+      is modified for feature extraction purposes only.
+
+    The class implements a neural network module for processing tabular data, specifically tuned for numerical features.
+
+    Args:
+        feature_tokenizer (FeatureTokenizer, optional): Tokenizer for feature representation.
+        hidden_dim (int, optional): Dimension of hidden layer.
+        num_layer (int, optional): Number of layers in the transformer encoder.
+        num_attention_head (int, optional): Number of attention heads in the transformer.
+        hidden_dropout_prob (float, optional): Dropout probability for hidden layers.
+        ffn_dim (int, optional): Dimension of feedforward network.
+        projection_dim (int, optional): Dimension for projection head.
+        overlap_ratio (float, optional): Overlap ratio for tokenization.
+        num_partition (int, optional): Number of partitions for collation.
+        temperature (float, optional): Temperature parameter for contrastive learning.
+        base_temperature (float, optional): Base temperature parameter.
+        activation (str, optional): Activation function for transformer layers.
+        device (str, optional): Device to run the model on.
+        checkpoint (str, optional): Path to a pre-trained model checkpoint.
+        **kwargs: Additional keyword arguments.
+    """
+
     def __init__(
         self,
         feature_tokenizer=None,
@@ -28,6 +59,7 @@ class HeteroMap(nn.Module):
         activation="relu",
         device="cuda:0",
         checkpoint=None,
+        cache_dir=None,
         **kwargs,
     ):
         super(HeteroMap, self).__init__()
@@ -42,11 +74,12 @@ class HeteroMap(nn.Module):
             "ffn_dim": ffn_dim,
             "projection_dim": projection_dim,
             "activation": activation,
+            "cache_dir": cache_dir
         }
         self.model_args.update(kwargs)
 
         if feature_tokenizer is None:
-            feature_tokenizer = FeatureTokenizer(**kwargs)
+            feature_tokenizer = FeatureTokenizer(cache_dir=cache_dir, **kwargs)
 
         self.feature_tokenizer = feature_tokenizer
 
@@ -83,36 +116,34 @@ class HeteroMap(nn.Module):
     @staticmethod
     def load(checkpoint=None):
         """Load the model state_dict and feature_tokenizer configuration
-        from the ``ckpt_dir``.
+        from the ``checkpoint``.
 
         Parameters
         ----------
-        ckpt_dir: str
+        checkpoint: str
             the directory path to load.
         """
         # load model weight state dict
-        market_model_path = os.path.join(checkpoint, "model.bin")
-        model_info = torch.load(market_model_path, map_location="cpu")
+        model_info = torch.load(checkpoint, map_location="cpu")
         model = HeteroMap(**model_info["model_args"])
         model.load_state_dict(model_info["model_state_dict"], strict=False)
         return model
 
-    def save(self, ckpt_dir):
+    def save(self, checkpoint):
         """Save the model state_dict and feature_tokenizer configuration
-        to the ``ckpt_dir``.
+        to the ``checkpoint``.
 
         Parameters
         ----------
-        ckpt_dir: str
+        checkpoint: str
             the directory path to save.
         """
         # save model weight state dict
         model_info = {
             "model_state_dict": self.state_dict(),
-            "model_args": self.model_args,
-            # "feature_tokenizer": self.feature_tokenizer,
+            "model_args": self.model_args
         }
-        torch.save(model_info, os.path.join(ckpt_dir, "model.bin"))
+        torch.save(model_info, checkpoint)
 
     def forward(self, x, y=None):
         # do positive sampling
@@ -134,9 +165,11 @@ class HeteroMap(nn.Module):
         loss = self._self_supervised_contrastive_loss(feat_x_multiview)
         return loss
 
-    def hetero_mapping(self, rkme_spec: RKMETableSpecification, cols: List[str]) -> HeteroMapTableSpecification:
+    def hetero_mapping(self, rkme_spec: RKMETableSpecification, features: dict) -> HeteroMapTableSpecification:
         hetero_spec = HeteroMapTableSpecification()
-        hetero_input_df = pd.DataFrame(data=rkme_spec.get_z(), columns=cols)
+        data = rkme_spec.get_z()
+        cols = [features.get(str(i), "") for i in range(data.shape[1])]
+        hetero_input_df = pd.DataFrame(data=data, columns=cols)
         hetero_embedding = self._extract_batch_features(hetero_input_df)
         hetero_spec.generate_stat_spec_from_system(hetero_embedding, rkme_spec)
         return hetero_spec

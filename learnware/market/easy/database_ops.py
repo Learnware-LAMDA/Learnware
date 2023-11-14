@@ -172,12 +172,17 @@ class DatabaseOperations(object):
             for id, semantic_spec, zip_path, folder_path, use_flag in cursor:
                 id = id.strip()
                 semantic_spec_dict = json.loads(semantic_spec)
-                new_learnware = get_learnware_from_dirpath(
-                    id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
-                )
-                logger.info(f"Load learnware: {id}")
+                try:
+                    new_learnware = get_learnware_from_dirpath(
+                        id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
+                    )
+                    assert new_learnware is not None, "learnware must not be None"
+                    logger.info(f"Load learnware: {id}")
+                except Exception as err:
+                    logger.error(f"Load learnware {id} failed due to {err}!")
+                    continue
+
                 learnware_list[id] = new_learnware
-                # assert new_learnware is not None
                 zip_list[id] = zip_path
                 folder_list[id] = folder_path
                 use_flags[id] = int(use_flag)
