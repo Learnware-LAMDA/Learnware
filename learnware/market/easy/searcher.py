@@ -591,10 +591,10 @@ class EasyStatSearcher(BaseSearcher):
 
 
 class EasySearcher(BaseSearcher):
-    def __init__(self, organizer: EasyOrganizer = None):
-        super(EasySearcher, self).__init__(organizer)
+    def __init__(self, organizer: EasyOrganizer):
         self.semantic_searcher = EasyFuzzSemanticSearcher(organizer)
         self.stat_searcher = EasyStatSearcher(organizer)
+        super(EasySearcher, self).__init__(organizer)
 
     def reset(self, organizer):
         self.learnware_organizer = organizer
