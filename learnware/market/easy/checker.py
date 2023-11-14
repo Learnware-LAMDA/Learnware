@@ -51,7 +51,7 @@ class EasySemanticChecker(BaseChecker):
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
 
-            return EasySemanticChecker.NONUSABLE_LEARNWARE, 'EasySemanticChecker Success'
+            return EasySemanticChecker.NONUSABLE_LEARNWARE, "EasySemanticChecker Success"
 
         except AssertionError as err:
             logger.warning(f"semantic_specification is not valid due to {err}!")
@@ -128,7 +128,7 @@ class EasyStatChecker(BaseChecker):
             except Exception:
                 message = f"The learnware {learnware.id} prediction is not avaliable!"
                 logger.warning(message)
-                message += '\r\n' + traceback.format_exc()
+                message += "\r\n" + traceback.format_exc()
                 return self.INVALID_LEARNWARE, message
 
             if semantic_spec["Task"]["Values"][0] in ("Classification", "Regression"):
