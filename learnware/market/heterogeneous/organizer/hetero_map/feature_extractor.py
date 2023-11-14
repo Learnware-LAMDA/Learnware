@@ -98,7 +98,6 @@ class NumEmbedding(nn.Module):
         torch.Tensor
             The combined feature embeddings.
         """
-        print(np.array(col_emb).shape, np.array(x_ts).shape)
         col_emb = col_emb.unsqueeze(0).expand((x_ts.shape[0], -1, -1))
         feat_emb = col_emb * x_ts.unsqueeze(-1).float() + self.num_bias
         return feat_emb
@@ -297,11 +296,8 @@ class FeatureProcessor(nn.Module):
             The processed feature embeddings.
         """
         x_num = x_num.to(self.device)
-        print("?1", np.array(x_num).shape, np.array(num_col_input_ids).shape)
         num_col_emb = self.word_embedding(num_col_input_ids.to(self.device))
-        print("?2", np.array(x_num).shape, np.array(num_col_emb).shape)
         num_col_emb = self._avg_embedding_by_mask(num_col_emb, num_att_mask)
-        print("?3", np.array(x_num).shape, np.array(num_col_emb).shape)
 
         num_feat_embedding = self.num_embedding(num_col_emb, x_num)
         num_feat_embedding = self.align_layer(num_feat_embedding).float()

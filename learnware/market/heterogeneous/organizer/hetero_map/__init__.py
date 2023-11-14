@@ -40,7 +40,7 @@ class HeteroMap(nn.Module):
         temperature: int = 10,
         base_temperature: int = 10,
         activation: Union[str, Callable] = "relu",
-        device: Union[str, torch.device] = "cuda:0",
+        device: Union[str, torch.device] = "cpu",
         **kwargs,
     ):
         """
