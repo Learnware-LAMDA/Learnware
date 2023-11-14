@@ -1,5 +1,6 @@
-from typing import Tuple, List
 import traceback
+from typing import Tuple, List
+
 from ...learnware import Learnware
 from ...logger import get_module_logger
 from ..base import BaseUserInfo
@@ -11,7 +12,19 @@ logger = get_module_logger("hetero_searcher")
 
 class HeteroSearcher(EasySearcher):
     @staticmethod
-    def check_user_info(user_info: BaseUserInfo):
+    def check_user_info(user_info: BaseUserInfo) -> bool:
+        """Check if user_info satifies all the criteria required for enabling heterogeneous learnware search
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            user_info contains semantic_spec and stat_info
+
+        Returns
+        -------
+        bool
+            A flag indicating whether heterogeneous search is enabled for user_info
+        """
         try:
             user_stat_spec = user_info.get_stat_info("RKMETableSpecification")
             user_input_shape = user_stat_spec.get_z().shape[1]
@@ -41,6 +54,27 @@ class HeteroSearcher(EasySearcher):
     def __call__(
         self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy"
     ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
+        """Search learnwares based on user_info from learnwares with check_status.
+           Employs heterogeneous learnware search if specific requirements are met, otherwise resorts to homogeneous search methods.
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            user_info contains semantic_spec and stat_info
+        max_search_num : int
+            The maximum number of the returned learnwares
+        check_status : int, optional
+            - None: search from all learnwares
+            - Others: search from learnwares with check_status
+
+        Returns
+        -------
+        Tuple[List[float], List[Learnware], float, List[Learnware]]
+            the first is the sorted list of rkme dist
+            the second is the sorted list of Learnware (single) by the rkme dist
+            the third is the score of Learnware (mixture)
+            the fourth is the list of Learnware (mixture), the size is search_num
+        """
         learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
         learnware_list = self.semantic_searcher(learnware_list, user_info)
 

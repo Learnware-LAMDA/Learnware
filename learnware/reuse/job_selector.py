@@ -166,7 +166,7 @@ class JobSelectorReuser(BaseReuser):
     def _calculate_rkme_spec_mixture_weight(
         self, user_data: np.ndarray, task_rkme_list: List[RKMETableSpecification], task_rkme_matrix: np.ndarray
     ) -> List[float]:
-        """_summary_
+        """Calculate mixture weight for the learnware_list based on user's data
 
         Parameters
         ----------

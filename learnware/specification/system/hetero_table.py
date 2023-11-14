@@ -14,9 +14,18 @@ from ...utils import choose_device, setup_seed
 
 
 class HeteroMapTableSpecification(SystemStatSpecification):
-    """Heterogeneous Embedding Specification"""
+    """Heterogeneous Map-Table Specification"""
 
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
+        """Initializing HeteroMapTableSpecification parameters.
+
+        Parameters
+        ----------
+        gamma : float
+            Bandwidth in gaussian kernel, by default 0.1.
+        cuda_idx : int
+            A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
+        """
         self.z = None
         self.beta = None
         self.embedding = None
@@ -29,16 +38,51 @@ class HeteroMapTableSpecification(SystemStatSpecification):
         super(HeteroMapTableSpecification, self).__init__(type=self.__class__.__name__)
 
     def get_z(self) -> np.ndarray:
+        """Move z(RKME reduced set points) back to memory accessible to the CPU.
+
+        Returns
+        -------
+        np.ndarray
+            A copy of z in CPU memory.
+        """
         return self.z.detach().cpu().numpy()
 
     def get_beta(self) -> np.ndarray:
+        """Move beta(RKME weights weights) back to memory accessible to the CPU.
+
+        Returns
+        -------
+        np.ndarray
+            A copy of beta in CPU memory.
+        """
         return self.beta.detach().cpu().numpy()
 
     def generate_stat_spec_from_system(self, heter_embedding: np.ndarray, rkme_spec: RKMETableSpecification):
+        """Construct heterogeneous map-table specification from RKME specification and embedding genereated by heterogeneous market mapping.
+
+        Parameters
+        ----------
+        heter_embedding : np.ndarray
+            Embedding genereated by the heterogeneous market mapping.
+        rkme_spec : RKMETableSpecification
+            The RKME specification.
+        """
         self.beta = rkme_spec.beta.to(self.device)
         self.z = torch.from_numpy(heter_embedding).double().to(self.device)
 
     def inner_prod(self, Embed2: HeteroMapTableSpecification) -> float:
+        """Compute the inner product between two HeteroMapTableSpecifications
+
+        Parameters
+        ----------
+        Embed2 : HeteroMapTableSpecification
+            The other HeteroMapTableSpecification.
+
+        Returns
+        -------
+        float
+            The inner product between two HeteroMapTableSpecifications.
+        """
         beta_1 = self.beta.reshape(1, -1).double().to(self.device)
         beta_2 = Embed2.beta.reshape(1, -1).double().to(self.device)
         Z1 = self.z.double().reshape(self.z.shape[0], -1).to(self.device)
@@ -48,6 +92,15 @@ class HeteroMapTableSpecification(SystemStatSpecification):
         return float(v)
 
     def dist(self, Embed2: HeteroMapTableSpecification, omit_term1: bool = False) -> float:
+        """Compute the Maximum-Mean-Discrepancy(MMD) between two HeteroMapTableSpecifications
+
+        Parameters
+        ----------
+        Phi2 : HeteroMapTableSpecification
+            The other HeteroMapTableSpecification.
+        omit_term1 : bool, optional
+            True if the inner product of self with itself can be omitted, by default False.
+        """
         term1 = 0 if omit_term1 else self.inner_prod(self)
         term2 = self.inner_prod(Embed2)
         term3 = Embed2.inner_prod(Embed2)
@@ -55,6 +108,18 @@ class HeteroMapTableSpecification(SystemStatSpecification):
         return float(term1 - 2 * term2 + term3)
 
     def load(self, filepath: str) -> bool:
+        """Load a HeteroMapTableSpecification file in JSON format from the specified path.
+
+        Parameters
+        ----------
+        filepath : str
+            The specified loading path.
+
+        Returns
+        -------
+        bool
+            True if the HeteroMapTableSpecification is loaded successfully.
+        """
         load_path = filepath
         if os.path.exists(load_path):
             with codecs.open(load_path, "r", encoding="utf-8") as fin:
@@ -72,6 +137,13 @@ class HeteroMapTableSpecification(SystemStatSpecification):
             return False
 
     def save(self, filepath: str) -> bool:
+        """Save the computed HeteroMapTableSpecification to a specified path in JSON format.
+
+        Parameters
+        ----------
+        filepath : str
+            The specified saving path.
+        """
         save_path = filepath
         embedding_to_save = copy.deepcopy(self.__dict__)
         if torch.is_tensor(embedding_to_save["z"]):

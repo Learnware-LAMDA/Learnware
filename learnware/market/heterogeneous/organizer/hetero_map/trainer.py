@@ -1,7 +1,7 @@
-import json
 import math
 import os
 import time
+from typing import Any, Callable, Dict, List
 
 import numpy as np
 import pandas as pd
@@ -10,8 +10,8 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm.autonotebook import trange
 
-from .feature_extractor import FeatureTokenizer
 from .....logger import get_module_logger
+from .feature_extractor import FeatureTokenizer
 
 logger = get_module_logger("hetero_mapping_trainer")
 
@@ -19,17 +19,44 @@ logger = get_module_logger("hetero_mapping_trainer")
 class Trainer:
     def __init__(
         self,
-        model,
-        train_set_list,
-        collate_fn=None,
-        output_dir="./ckpt",
-        num_epoch=10,
-        batch_size=64,
-        lr=1e-4,
-        weight_decay=0,
-        eval_batch_size=256,
+        model: Any,
+        train_set_list: List[Any],
+        collate_fn: Callable = None,
+        output_dir: str = "./ckpt",
+        num_epoch: int = 10,
+        batch_size: int = 64,
+        lr: float = 1e-4,
+        weight_decay: float = 0,
+        eval_batch_size: int = 256,
         **kwargs,
     ):
+        """
+        The initialization method for trainer.
+
+        Parameters
+        ----------
+        model : Any
+            The model to be trained.
+        train_set_list : List[Any]
+            A list of training datasets.
+        collate_fn : Callable, optional
+            The collate function to be used, by default None.
+        output_dir : str, optional
+            The directory where the trained model checkpoints will be saved, by default "./ckpt".
+        num_epoch : int, optional
+            Number of epochs for training, by default 10.
+        batch_size : int, optional
+            Batch size for training, by default 64.
+        lr : float, optional
+            Learning rate, by default 1e-4.
+        weight_decay : float, optional
+            Weight decay, by default 0.
+        eval_batch_size : int, optional
+            Batch size for evaluation, by default 256.
+        kwargs : dict
+            Additional keyword arguments.
+        """
+
         self.model = model
         if isinstance(train_set_list, tuple):
             train_set_list = [train_set_list]
@@ -52,7 +79,21 @@ class Trainer:
         self.args["steps_per_epoch"] = int(self.args["num_training_steps"] / (num_epoch * len(self.train_set_list)))
         self.optimizer = None
 
-    def train(self, verbose: bool = True):
+    def train(self, verbose: bool = True) -> float:
+        """
+        Trains the model using the provided training data.
+
+        Parameters
+        ----------
+        verbose : bool, optional
+            Whether to display verbose output, by default True.
+
+        Returns
+        -------
+        float
+            The final training loss.
+        """
+
         self._create_optimizer()
         start_time = time.time()
         final_train_loss = 0
@@ -82,11 +123,22 @@ class Trainer:
         logger.info("training complete, cost {:.1f} secs.".format(time.time() - start_time))
         return final_train_loss
 
-    def save_model(self, output_dir=None):
+    def save_model(self, output_dir: str = None):
+        """
+        Saves the trained model to the specified directory.
+
+        Parameters
+        ----------
+        output_dir : str, optional
+            The directory where the model will be saved, by default None.
+        """
+
         logger.info(f"saving model checkpoint to {output_dir}")
         self.model.save(output_dir)
 
     def _create_optimizer(self):
+        """Creates an optimizer for training the model."""
+
         if self.optimizer is None:
             decay_parameters = self._get_parameter_names(self.model, [nn.LayerNorm])
             decay_parameters = [name for name in decay_parameters if "bias" not in name]
@@ -104,7 +156,25 @@ class Trainer:
 
             self.optimizer = torch.optim.Adam(optimizer_grouped_parameters, lr=self.args["lr"])
 
-    def _get_num_train_steps(self, train_set_list, num_epoch, batch_size):
+    def _get_num_train_steps(self, train_set_list: List[Any], num_epoch: int, batch_size: int) -> int:
+        """
+        Calculates the total number of training steps.
+
+        Parameters
+        ----------
+        train_set_list : List[Any]
+            A list of training datasets.
+        num_epoch : int
+            Number of training epochs.
+        batch_size : int
+            Batch size for training.
+
+        Returns
+        -------
+        int
+            The total number of training steps.
+        """
+
         total_step = 0
         for trainset in train_set_list:
             x_train = trainset
@@ -112,7 +182,29 @@ class Trainer:
         total_step *= num_epoch
         return total_step
 
-    def _build_dataloader(self, trainset, batch_size, collator, shuffle=True):
+    def _build_dataloader(
+        self, trainset: Any, batch_size: int, collator: Callable, shuffle: bool = True
+    ) -> torch.utils.data.DataLoader:
+        """
+        Builds a DataLoader for training.
+
+        Parameters
+        ----------
+        trainset : Any
+            The training dataset.
+        batch_size : int
+            Batch size for the DataLoader.
+        collator : Callable
+            Collate function for the DataLoader.
+        shuffle : bool, optional
+            Whether to shuffle the data, by default True.
+
+        Returns
+        -------
+        torch.utils.data.DataLoader
+            The DataLoader for the training data.
+        """
+
         trainloader = DataLoader(
             TrainDataset(trainset),
             collate_fn=collator,
@@ -123,8 +215,22 @@ class Trainer:
         )
         return trainloader
 
-    def _get_parameter_names(self, model, forbidden_layer_types):
-        """Returns the names of the model parameters that are not inside a forbidden layer."""
+    def _get_parameter_names(self, model: Any, forbidden_layer_types: List[torch.dtype]) -> List[str]:
+        """
+        Retrieves the names of parameters not inside forbidden layers.
+
+        Parameters
+        ----------
+        model : Any
+            The model from which to retrieve parameters.
+        forbidden_layer_types : List[torch.dtype]
+            A list of layer types to exclude.
+
+        Returns
+        -------
+        List[str]
+            A list of parameter names not inside the forbidden layers.
+        """
         result = []
         for name, child in model.named_children():
             result += [
@@ -150,15 +256,27 @@ class TrainDataset(Dataset):
 
 
 class TransTabCollatorForCL:
-    """support positive pair sampling for contrastive learning."""
+    """Collator class supporting positive pair sampling for contrastive learning."""
 
     def __init__(
         self,
-        feature_tokenizer=None,
-        overlap_ratio=0.5,
-        num_partition=3,
+        feature_tokenizer: Callable = None,
+        overlap_ratio: float = 0.5,
+        num_partition: int = 3,
         **kwargs,
     ):
+        """
+        The initialization method for TransTabCollatorForCL.
+
+        Parameters
+        ----------
+        feature_tokenizer : Callable, optional
+            The tokenizer used to process data, by default None.
+        overlap_ratio : float, optional
+            The ratio of overlap between partitions, must be between 0 and 1 (exclusive), by default 0.5.
+        num_partition : int, optional
+            The number of partitions to create from the data for contrastive learning, by default 3.
+        """
         self.feature_tokenizer = feature_tokenizer or FeatureTokenizer(disable_tokenizer_parallel=True)
         assert num_partition > 0, f"number of contrastive subsets must be greater than 0, got {num_partition}"
         assert isinstance(num_partition, int), f"number of constrative subsets must be int, got {type(num_partition)}"
@@ -166,10 +284,20 @@ class TransTabCollatorForCL:
         self.overlap_ratio = overlap_ratio
         self.num_partition = num_partition
 
-    def __call__(self, data):
-        """Take a list of subsets (views) from the original tests."""
-        # 1. build positive pairs
-        # 2. encode each pair using feature extractor
+    def __call__(self, data: List[Any]) -> Dict[str, Any]:
+        """
+        Processes the data into subsets for contrastive learning.
+
+        Parameters
+        ----------
+        data : List[Any]
+            The input data to be processed.
+
+        Returns
+        -------
+        Dict[str, Any]
+            A dictionary containing the processed data subsets.
+        """
         df_x = pd.concat([row for row in data])
         if self.num_partition > 1:
             sub_x_list = self._build_positive_pairs(df_x, self.num_partition)
@@ -182,20 +310,21 @@ class TransTabCollatorForCL:
         res = {"input_sub_x": input_x_list}
         return res
 
-    def _build_positive_pairs(self, x, n):
-        """Builds positive pairs of sub-dataframes from the input dataframe x.
+    def _build_positive_pairs(self, x: pd.DataFrame, n: int) -> List[pd.DataFrame]:
+        """
+        Builds positive pairs of sub-dataframes from the input dataframe.
 
         Parameters
         ----------
-        x : pandas.DataFrame
-            Input dataframe.
+        x : pd.DataFrame
+            The input dataframe.
         n : int
-            Number of sub-dataframes to split x into.
+            The number of sub-dataframes to create.
 
         Returns
         -------
-        List
-            List of sub-dataframes, each containing a positive pair of columns from x.
+        List[pd.DataFrame]
+            A list of sub-dataframes, each containing a positive pair of columns.
         """
         x_cols = x.columns.tolist()
         sub_col_list = np.array_split(np.array(x_cols), n)
@@ -211,18 +340,19 @@ class TransTabCollatorForCL:
             sub_x_list.append(sub_x)
         return sub_x_list
 
-    def _build_positive_pairs_single_view(self, x):
-        """Builds positive pairs for a single view of data by corrupting half of the columns and shuffling the corrupted columns.
+    def _build_positive_pairs_single_view(self, x: pd.DataFrame) -> List[pd.DataFrame]:
+        """
+        Builds positive pairs for a single view of data by corrupting half of the columns and shuffling the corrupted columns..
 
         Parameters
         ----------
-        x : pandas.DataFrame
-            The input data.
+        x : pd.DataFrame
+            The input dataframe.
 
         Returns
         -------
-        List
-            A list of two pandas DataFrames, where each DataFrame contains the original data with half of the columns corrupted and shuffled.
+        List[pd.DataFrame]
+            A list containing two dataframes, one with original data and one with shuffled columns.
         """
         x_cols = x.columns.tolist()
         sub_x_list = [x]
