@@ -17,12 +17,12 @@ logger = get_module_logger("easy_organizer")
 
 class EasyOrganizer(BaseOrganizer):
     def reload_market(self, rebuild=False) -> bool:
-        """Reload the learnware organizer when server restared.
+        """Reload the learnware organizer when server restarted.
 
         Returns
         -------
         bool
-            A flag indicating whether the market is reload successfully.
+            A flag indicating whether the market is reloaded successfully.
         """
         self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
         self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
@@ -234,7 +234,7 @@ class EasyOrganizer(BaseOrganizer):
         ----------
         ids : Union[str, List[str]]
             Give a id or a list of ids
-            str: id of targer learware
+            str: id of target learware
             List[str]: A list of ids of target learnwares
 
         Returns

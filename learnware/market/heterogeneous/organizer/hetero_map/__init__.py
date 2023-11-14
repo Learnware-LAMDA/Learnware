@@ -1,10 +1,11 @@
 import os
 import numpy as np
 import pandas as pd
-from typing import List, Optional
+from typing import List, Optional, Union, Callable
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
+from loguru import logger
 
 from .....specification import HeteroMapTableSpecification, RKMETableSpecification
 from .feature_extractor import *
@@ -28,22 +29,24 @@ class HeteroMap(nn.Module):
 
     def __init__(
         self,
-        feature_tokenizer=None,
-        hidden_dim=128,
-        num_layer=2,
-        num_attention_head=8,
-        hidden_dropout_prob=0,
-        ffn_dim=256,
-        projection_dim=128,
-        overlap_ratio=0.5,
-        num_partition=3,
-        temperature=10,
-        base_temperature=10,
-        activation="relu",
-        device="cuda:0",
+        feature_tokenizer: FeatureTokenizer = None,
+        hidden_dim: int = 128,
+        num_layer: int = 2,
+        num_attention_head: int = 8,
+        hidden_dropout_prob: float = 0,
+        ffn_dim: int = 256,
+        projection_dim: int = 128,
+        overlap_ratio: float = 0.5,
+        num_partition: int = 3,
+        temperature: int = 10,
+        base_temperature: int = 10,
+        activation: Union[str, Callable] = "relu",
+        device: Union[str, torch.device] = "cuda:0", 
         **kwargs,
     ):
         """
+        The initialization method for hetero map.
+        
         Parameters
         ----------
         feature_tokenizer : FeatureTokenizer, optional
@@ -68,12 +71,12 @@ class HeteroMap(nn.Module):
             Temperature parameter for contrastive learnin, by default 10
         base_temperature : int, optional
             Base temperature paramete, by default 10
-        activation : str, optional
+        activation : Union[str, Callable], optional
             Activation function for transformer layer, by default "relu"
-        device : str, optional
+        device : Union[str, torch.device], optional
             Device to run the model on, by default "cuda:0"
-        cache_dir : str, optional
-            The cache directory, by default None
+        kwargs:
+            Additional arguments to be passed to the feature tokenizer
         """
         super(HeteroMap, self).__init__()
 
@@ -126,9 +129,8 @@ class HeteroMap(nn.Module):
         self.to(device)
 
     @staticmethod
-    def load(checkpoint=None):
-        """Load the model state_dict and feature_tokenizer configuration
-        from the ``checkpoint``.
+    def load(checkpoint: str = None):
+        """Load the model state_dict and architecture configuration from the specified checkpoint.
 
         Parameters
         ----------
@@ -141,9 +143,8 @@ class HeteroMap(nn.Module):
         model.load_state_dict(model_info["model_state_dict"], strict=False)
         return model
 
-    def save(self, checkpoint):
-        """Save the model state_dict and feature_tokenizer configuration
-        to the ``checkpoint``.
+    def save(self, checkpoint: str):
+        """Save the model state_dict and architecture configuration to the specified checkpoint.
 
         Parameters
         ----------
@@ -154,8 +155,19 @@ class HeteroMap(nn.Module):
         model_info = {"model_state_dict": self.state_dict(), "model_args": self.model_args}
         torch.save(model_info, checkpoint)
 
-    def forward(self, x, y=None):
-        # do positive sampling
+    def forward(self, x: dict):
+        """Processes the input data 'x', performs positive sampling, and computes contrastive loss. 
+
+        Parameters
+        ----------
+        x : dict
+            Pre-tokenized input tabular data in the form of a dictionary
+
+        Returns
+        -------
+        torch.Tensor
+            The self-supervised VPCL loss
+        """
         feat_x_list = []
         if isinstance(x, dict):
             # pretokenized inputs
@@ -175,6 +187,20 @@ class HeteroMap(nn.Module):
         return loss
 
     def hetero_mapping(self, rkme_spec: RKMETableSpecification, features: dict) -> HeteroMapTableSpecification:
+        """Generate HeteroMapTableSpecification from given tabular data's statistical specification and descriptions of features.
+
+        Parameters
+        ----------
+        rkme_spec : RKMETableSpecification
+            The RKME specification from the tabular data
+        features : dict
+            A dictionary mapping each feature's numerical identifier to its semantic description.
+
+        Returns
+        -------
+        HeteroMapTableSpecification
+            The resulting HeteroMapTableSpecification
+        """
         hetero_spec = HeteroMapTableSpecification()
         data = rkme_spec.get_z()
         cols = [features.get(str(i), "") for i in range(data.shape[1])]
@@ -183,7 +209,22 @@ class HeteroMap(nn.Module):
         hetero_spec.generate_stat_spec_from_system(hetero_embedding, rkme_spec)
         return hetero_spec
 
-    def _build_positive_pairs(self, x, n):
+    def _build_positive_pairs(self, x: pd.DataFrame, n: int):
+        """
+        Builds positive pairs by splitting the input DataFrame into 'n' parts with some overlap.
+
+        Parameters
+        ----------
+        x : pd.DataFrame
+            The input DataFrame to be split.
+        n : int
+            The number of partitions to divide the DataFrame into.
+
+        Returns
+        -------
+        List[pd.DataFrame]
+            A list of DataFrames, each representing a partition of the input DataFrame with some overlap.
+        """
         x_cols = x.columns.tolist()
         sub_col_list = np.array_split(np.array(x_cols), n)
         len_cols = len(sub_col_list[0])
@@ -198,24 +239,21 @@ class HeteroMap(nn.Module):
             sub_x_list.append(sub_x)
         return sub_x_list
 
-    def _extract_features(self, x, cols=None):
-        """Make forward pass given the input feature ``x``.
+    def _extract_features(self, x: Union[dict, pd.DataFrame], cols=None):
+        """Performs a forward pass with the given input feature `x`, and extracts features.
 
         Parameters
         ----------
-        x: pd.DataFrame or dict
-            pd.DataFrame: a batch of raw tabular samples; dict: the output of feature_tokenizer
+        x: Union[dict, pd.DataFrame]
+            pd.DataFrame: A batch of raw tabular samples
+            dict: The output of feature_tokenizer
 
         Returns
         -------
         output_features: numpy.ndarray
-            the [CLS] embedding at the end of transformer encoder.
+            The [CLS] embedding at the end of transformer encoder
         """
-        if isinstance(x, dict):
-            # input is the pre-tokenized encoded inputs
-            inputs = x
-        elif isinstance(x, pd.DataFrame):
-            # input is dataframe
+        if isinstance(x, pd.DataFrame):
             inputs = self.feature_tokenizer(x)
         elif isinstance(x, torch.Tensor):
             inputs = self.feature_tokenizer.forward(cols, x)
@@ -231,7 +269,21 @@ class HeteroMap(nn.Module):
 
         return output_features
 
-    def _extract_batch_features(self, x_test, eval_batch_size=256) -> np.ndarray:
+    def _extract_batch_features(self, x_test: pd.DataFrame, eval_batch_size=256) -> np.ndarray:
+        """Performs forward passes on a batch of input features `x_test`, extracting and returning features as an array.
+
+        Parameters
+        ----------
+        x_test : pd.DataFrame
+            A batch of raw tabular samples
+        eval_batch_size : int, optional
+            The size of each batch for processing, by default 256
+
+        Returns
+        -------
+        np.ndarray
+            An array containing the extracted features from all batches
+        """
         self.eval()
         output_feas_list = []
         for i in range(0, len(x_test), eval_batch_size):
@@ -243,18 +295,19 @@ class HeteroMap(nn.Module):
         all_output_features = np.concatenate(output_feas_list, 0)
         return all_output_features
 
-    def _self_supervised_contrastive_loss(self, features):
-        """Compute the self-supervised VPCL loss.
+    def _self_supervised_contrastive_loss(self, features: torch.Tensor):
+        """
+        Compute the self-supervised VPCL loss.
 
         Parameters
         ----------
-        features: torch.Tensor
-            the encoded features of multiple partitions of input tables, with shape ``(bs, n_partition, proj_dim)``.
+        features : torch.Tensor
+            The encoded features of multiple partitions of input tables, with shape (bs, n_partition, proj_dim).
 
         Returns
         -------
-        loss: torch.Tensor
-            the computed self-supervised VPCL loss.
+        torch.Tensor
+            The computed self-supervised VPCL loss.
         """
         batch_size = features.shape[0]
         labels = torch.arange(batch_size, dtype=torch.long, device=self.device).view(-1, 1)
@@ -286,35 +339,53 @@ class HeteroMap(nn.Module):
         return loss
 
 
-def _get_activation_fn(activation):
-    if activation == "relu":
-        return F.relu
-    elif activation == "gelu":
-        return F.gelu
-    elif activation == "selu":
-        return F.selu
-    elif activation == "leakyrelu":
-        return F.leaky_relu
-    raise RuntimeError("activation should be relu/gelu/selu/leakyrelu, not {}".format(activation))
-
-
 class TransformerLayer(nn.Module):
+    """A custom Transformer layer implemented as a PyTorch module. 
+    """
     __config__ = ["batch_first", "norm_first"]
 
     def __init__(
         self,
-        d_model,
-        nhead,
-        dim_feedforward=2048,
-        dropout=0.1,
-        activation=F.relu,
-        layer_norm_eps=1e-5,
-        batch_first=True,
-        norm_first=False,
-        device=None,
-        dtype=None,
-        use_layer_norm=True,
+        d_model: int,
+        nhead: int,
+        dim_feedforward: int = 2048,
+        dropout: float = 0.1,
+        activation: Union[str, Callable] = F.relu,
+        layer_norm_eps: float = 1e-5,
+        batch_first: bool = True,
+        norm_first: bool = False,
+        device: Union[str, torch.device] = None,
+        dtype: torch.dtype = None,
+        use_layer_norm: bool = True,
     ):
+        """
+        The initialization method for transformer layer.
+
+        Parameters
+        ----------
+        d_model : int
+            The number of expected features in the input
+        nhead : int
+            The number of heads in the multiheadattention models
+        dim_feedforward : int, optional
+            The dimension of the feedforward network model, by default 2048
+        dropout : float, optional
+            The dropout value, by default 0.1
+        activation : Union[str, Callable], optional
+            The activation function to use, by default F.relu
+        layer_norm_eps : float, optional
+            The epsilon used for layer normalization, by default 1e-5
+        batch_first : bool, optional
+            Whether to use (batch, seq, feature) format for input and output tensors, by default True
+        norm_first : bool, optional
+            Whether to perform layer normalization before attention and feedforward operations, by default False
+        device : Union[str, torch.device], optional
+            The device on which the layer is to be run, by default None
+        dtype : torch.dtype, optional
+            The data type of the layer's parameters, by default None
+        use_layer_norm : bool, optional
+            Whether to use layer normalization, by default True
+        """
         factory_kwargs = {"device": device, "dtype": dtype}
         super().__init__()
         self.self_attn = nn.MultiheadAttention(d_model, nhead, batch_first=batch_first, **factory_kwargs)
@@ -338,12 +409,29 @@ class TransformerLayer(nn.Module):
 
         # Legacy string support for activation function.
         if isinstance(activation, str):
-            self.activation = _get_activation_fn(activation)
+            self.activation = self._get_activation_fn(activation)
         else:
             self.activation = activation
 
     # self-attention block
-    def _sa_block(self, x: Tensor, attn_mask: Optional[Tensor], key_padding_mask: Optional[Tensor]) -> Tensor:
+    def _sa_block(self, x: torch.Tensor, attn_mask: torch.Tensor, key_padding_mask: torch.Tensor) -> torch.Tensor:
+        """
+        Applies a self-attention block to the input tensor.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input tensor for the self-attention block.
+        attn_mask : torch.Tensor
+            The attention mask for the self-attention operation.
+        key_padding_mask : torch.Tensor
+            The key padding mask for the self-attention operation.
+
+        Returns
+        -------
+        torch.Tensor
+            The output tensor after applying the self-attention block.
+        """
         key_padding_mask = ~key_padding_mask.bool()
         x = self.self_attn(
             x,
@@ -355,7 +443,20 @@ class TransformerLayer(nn.Module):
         return self.dropout1(x)
 
     # feed forward block
-    def _ff_block(self, x: Tensor) -> Tensor:
+    def _ff_block(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Applies a feed-forward block to the input tensor.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            The input tensor for the feed-forward block.
+
+        Returns
+        -------
+        torch.Tensor
+            The output tensor after applying the feed-forward block.
+        """
         g = self.gate_act(self.gate_linear(x))
         h = self.linear1(x)
         h = h * g  # add gate
@@ -367,19 +468,56 @@ class TransformerLayer(nn.Module):
             state["activation"] = F.relu
         super().__setstate__(state)
 
-    def forward(self, src, src_mask=None, src_key_padding_mask=None, is_causal=None, **kwargs) -> Tensor:
+    @staticmethod
+    def _get_activation_fn(activation: str) -> Callable:
+        """
+        Retrieves the activation function based on the provided activation name.
+
+        Parameters
+        ----------
+        activation : str
+            Name of the activation function. Supported values are "relu", "gelu", "selu", and "leakyrelu".
+
+        Returns
+        -------
+        Callable
+            The corresponding activation function from torch.nn.functional.
+        """
+        if activation == "relu":
+            return F.relu
+        elif activation == "gelu":
+            return F.gelu
+        elif activation == "selu":
+            return F.selu
+        elif activation == "leakyrelu":
+            return F.leaky_relu
+        raise RuntimeError("activation should be relu/gelu/selu/leakyrelu, not {}".format(activation))
+
+    def forward(self, 
+                src: torch.Tensor, 
+                src_mask: torch.Tensor = None, 
+                src_key_padding_mask: torch.Tensor = None, 
+                is_causal: torch.Tensor = None, 
+                **kwargs
+    ) -> torch.Tensor:
         """Pass the input through the encoder layer.
 
         Parameters
         ----------
-        src : Any
+        src : torch.Tensor
             The sequence to the encoder layer.
-        src_mask : Any, optional
+        src_mask : torch.Tensor, optional
             The mask for the src sequence, by default None
-        src_key_padding_mask : Any, optional
+        src_key_padding_mask : torch.Tensor, optional
             The mask for the src keys per batch, by default None
+        is_causal : torch.Tensor, optional
+            A flag indicating whether the layer should be causal, by default None
+        
+        Returns
+        -------
+        torch.Tensor
+            The output tensor after passing through the encoder layer.
         """
-
         # see Fig. 1 of https://arxiv.org/pdf/2002.04745v1.pdf
         x = src
         if self.use_layer_norm:
@@ -397,15 +535,35 @@ class TransformerLayer(nn.Module):
 
 
 class TransformerMultiLayer(nn.Module):
+    """A custom multi-layer Transformer module.
+    """
     def __init__(
         self,
-        hidden_dim=128,
-        num_layer=2,
-        num_attention_head=2,
-        hidden_dropout_prob=0,
-        ffn_dim=256,
-        activation="relu",
+        hidden_dim: int = 128,
+        num_layer: int = 2,
+        num_attention_head: int = 2,
+        hidden_dropout_prob: float = 0,
+        ffn_dim: int = 256,
+        activation: Union[str, Callable] = "relu",
     ):
+        """
+        The initialization method for align transformer multilayer.
+        
+        Parameters
+        ----------
+        hidden_dim : int, optional
+            Dimension of the hidden layer in the Transformer, by default 128.
+        num_layer : int, optional
+            Number of Transformer layers, by default 2.
+        num_attention_head : int, optional
+            Number of attention heads in each Transformer layer, by default 2.
+        hidden_dropout_prob : float, optional
+            Dropout probability for the hidden layers, by default 0.
+        ffn_dim : int, optional
+            Dimension of the feedforward network model, by default 256.
+        activation : Union[str, Callable], optional
+            The activation function to be used, by default "relu".
+        """
         super().__init__()
         self.transformer_encoder = nn.ModuleList(
             [
@@ -437,12 +595,21 @@ class TransformerMultiLayer(nn.Module):
             stacked_transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layer - 1)
             self.transformer_encoder.append(stacked_transformer)
 
-    def forward(self, embedding, attention_mask=None, **kwargs) -> Tensor:
+    def forward(self, embedding: torch.Tensor, attention_mask: torch.Tensor = None, **kwargs) -> torch.Tensor:
         """
+        Passes the input embedding through the Transformer encoder layers.
+
         Parameters
         ----------
-        embedding : Any
-            bs, num_token, hidden_dim
+        embedding : torch.Tensor
+            The input embedding tensor with shape (batch size, number of tokens, hidden dimension).
+        attention_mask : torch.Tensor, optional
+            The attention mask for the input tensor, by default None.
+
+        Returns
+        -------
+        Tensor
+            The output tensor after processing through Transformer encoder layers.
         """
         outputs = embedding
         for i, mod in enumerate(self.transformer_encoder):

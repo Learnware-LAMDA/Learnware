@@ -14,7 +14,14 @@ logger = get_module_logger("hetero_map_table_organizer")
 
 
 class HeteroMapTableOrganizer(EasyOrganizer):
-    def reload_market(self, rebuild=False):
+    def reload_market(self, rebuild=False) -> bool:
+        """Reload the heterogeneous learnware organizer when server restarted.
+
+        Returns
+        -------
+        bool
+            A flag indicating whether the heterogeneous market is reloaded successfully.
+        """
         super(HeteroMapTableOrganizer, self).reload_market(rebuild=rebuild)
 
         hetero_folder_path = os.path.join(self.market_store_path, "hetero")
@@ -44,6 +51,19 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             self.market_mapping = HeteroMap()
 
     def reset(self, market_id, rebuild=False, auto_update=False, auto_update_limit=100, **training_args):
+        """Reset the heterogeneous market with specified settings.
+
+        Parameters
+        ----------
+        market_id : str
+            the heterogeneous market's id
+        rebuild : bool, optional
+            A flag indicating whether to reload market, by default False
+        auto_update : bool, optional
+            A flag indicating whether to enable automatic updating of market mapping, by default False
+        auto_update_limit : int, optional
+            The threshold for the number of learnwares required to trigger an automatic market mapping update, by default 100
+        """
         self.auto_update = auto_update
         self.auto_update_limit = auto_update_limit
         self.count_down = auto_update_limit
@@ -54,6 +74,26 @@ class HeteroMapTableOrganizer(EasyOrganizer):
     def add_learnware(
         self, zip_path: str, semantic_spec: dict, check_status: int, learnware_id: str = None
     ) -> Tuple[str, int]:
+        """Add a learnware into the heterogeneous learnware market. 
+           Initiates an update of the market mapping if `auto_update` is True and the number of learnwares supporting training reaches `auto_update_limit`.
+
+        Parameters
+        ----------
+        zip_path : str
+            Filepath for learnware model, a zipped file.
+        semantic_spec : dict
+            semantic_spec for new learnware, in dictionary format.
+        check_status : int
+            A flag indicating whether the learnware is usable.
+        learnware_id : str, optional
+            A id in database for learnware
+
+        Returns
+        -------
+        Tuple[str, int]
+            - str indicating model_id
+            - int indicating the final learnware check_status
+        """
         learnware_id, learnwere_status = super(HeteroMapTableOrganizer, self).add_learnware(
             zip_path, semantic_spec, check_status, learnware_id
         )
@@ -83,6 +123,20 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         return learnware_id, learnwere_status
 
     def delete_learnware(self, id: str) -> bool:
+        """Delete learnware from heterogeneous learnware market.
+           If a corresponding HeteroMapTableSpecification exists, it is also removed.
+
+        Parameters
+        ----------
+        id : str
+            Learnware to be deleted
+
+        Returns
+        -------
+        bool
+            True for successful operation.
+            False for id not found.
+        """
         flag = super(HeteroMapTableOrganizer, self).delete_learnware(id)
         if flag:
             hetero_spec_path = os.path.join(self.hetero_specs_path, f"{id}.json")
@@ -92,13 +146,40 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 pass
         return flag
 
-    def update_learnware(self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None):
+    def update_learnware(self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None) -> bool:
+        """Update learnware with zip_path, semantic_specification and check_status.
+           If the learnware supports heterogeneous market training, its HeteroMapTableSpecification is also updated.
+
+        Parameters
+        ----------
+        id : str
+            Learnware id
+        zip_path : str, optional
+            Filepath for learnware model, a zipped file.
+        semantic_spec : dict, optional
+            semantic_spec for new learnware, in dictionary format.
+        check_status : int, optional
+            A flag indicating whether the learnware is usable.
+
+        Returns
+        -------
+        int
+            The final learnware check_status.
+        """
         final_status = super(HeteroMapTableOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
         if final_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(id)):
             self._update_learnware_by_ids(id)
         return final_status
 
     def reload_learnware(self, learnware_id: str):
+        """Reload learnware into heterogeneous learnware market.
+           If a corresponding HeteroMapTableSpecification exists, it is also reloaded.
+
+        Parameters
+        ----------
+        learnware_id : str
+            Learnware to be reloaded
+        """
         super(HeteroMapTableOrganizer, self).reload_learnware(learnware_id)
         try:
             hetero_spec_path = os.path.join(self.hetero_specs_path, f"{learnware_id}.json")
@@ -110,6 +191,15 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             logger.warning(f"Learnware {learnware_id} hetero spec loaded failed!")
 
     def _update_learnware_by_ids(self, ids: Union[str, List[str]]):
+        """Update learnware by ids, attempting to generate HeteroMapTableSpecification for them.
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of target learware
+            List[str]: A list of ids of target learnwares
+        """
         ids = self._get_hetero_learnware_ids(ids)
         for idx in ids:
             try:
@@ -126,6 +216,20 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 logger.warning(f"Learnware {idx} generate HeteroMapTableSpecification failed! Due to {err}")
 
     def _get_hetero_learnware_ids(self, ids: Union[str, List[str]]) -> List[str]:
+        """Get learnware ids that supports heterogeneous market training and search.
+
+        Parameters
+        ----------
+        ids : Union[str, List[str]]
+            Give a id or a list of ids
+            str: id of target learware
+            List[str]: A list of ids of target learnwares
+
+        Returns
+        -------
+        List[str]
+            Learnware ids
+        """
         if isinstance(ids, str):
             ids = [ids]
 
@@ -141,6 +245,18 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         return ret
 
     def generate_hetero_map_spec(self, user_info: BaseUserInfo) -> HeteroMapTableSpecification:
+        """Generate HeteroMapTableSpecificaion based on user's input description and statistical information.
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            user_info contains semantic_spec and stat_info
+
+        Returns
+        -------
+        HeteroMapTableSpecification
+            The generated HeteroMapTableSpecification for user
+        """
         user_stat_spec = user_info.stat_info["RKMETableSpecification"]
         user_features = user_info.get_semantic_spec()["Input"]["Description"]
         user_hetero_spec = self.market_mapping.hetero_mapping(user_stat_spec, user_features)
@@ -148,7 +264,20 @@ class HeteroMapTableOrganizer(EasyOrganizer):
 
     @staticmethod
     def train(learnware_list: List[Learnware], save_dir: str, **kwargs) -> HeteroMap:
-        # Convert learnware to dataframe
+        """Build the market mapping model using learnwares that supports heterogeneous market training.
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The learnware list to train the market mapping
+        save_dir : str
+            Filepath where the trained market mapping will be saved
+
+        Returns
+        -------
+        HeteroMap
+            The trained market mapping model
+        """
         learnware_df_dict = defaultdict(list)
         for learnware in learnware_list:
             spec = learnware.get_specification()

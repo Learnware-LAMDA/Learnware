@@ -1,6 +1,6 @@
 import os
 import math
-from typing import Dict
+from typing import Dict, Callable
 
 import numpy as np
 import torch
@@ -12,23 +12,53 @@ from .....config import C as conf
 
 
 class WordEmbedding(nn.Module):
-    """Encode tokens drawn from column names"""
+    """Encodes tokens drawn from column names into word embeddings.
+    """
 
     def __init__(
         self,
-        vocab_size,
-        hidden_dim,
-        padding_idx=0,
-        hidden_dropout_prob=0,
-        layer_norm_eps=1e-5,
+        vocab_size: int,
+        hidden_dim: int,
+        padding_idx: int = 0,
+        hidden_dropout_prob: float = 0,
+        layer_norm_eps: float = 1e-5,
     ):
+        """
+        The initialization method for word embedding.
+
+        Parameters
+        ----------
+        vocab_size : int
+            The size of the vocabulary.
+        hidden_dim : int
+            The dimension of the hidden layer.
+        padding_idx : int, optional
+            The index of the padding token, by default 0.
+        hidden_dropout_prob : float, optional
+            The dropout probability for the hidden layer, by default 0.
+        layer_norm_eps : float, optional
+            The epsilon value for layer normalization, by default 1e-5.
+        """
         super().__init__()
         self.word_embeddings = nn.Embedding(vocab_size, hidden_dim, padding_idx)
         nn_init.kaiming_normal_(self.word_embeddings.weight)
         self.norm = nn.LayerNorm(hidden_dim, eps=layer_norm_eps)
         self.dropout = nn.Dropout(hidden_dropout_prob)
 
-    def forward(self, input_ids) -> Tensor:
+    def forward(self, input_ids: torch.Tensor) -> torch.Tensor:
+        """
+        Performs the forward pass of the WordEmbedding module.
+
+        Parameters
+        ----------
+        input_ids : torch.Tensor
+            The input token IDs.
+
+        Returns
+        -------
+        torch.Tensor
+            The word embeddings corresponding to the input token IDs.
+        """
         embeddings = self.word_embeddings(input_ids)
         embeddings = self.norm(embeddings)
         embeddings = self.dropout(embeddings)
@@ -38,20 +68,35 @@ class WordEmbedding(nn.Module):
 class NumEmbedding(nn.Module):
     """Encode tokens drawn from column names and the corresponding numerical features."""
 
-    def __init__(self, hidden_dim):
+    def __init__(self, hidden_dim: int):
+        """
+        The initialization method for num embedding.
+
+        Parameters
+        ----------
+        hidden_dim : int
+            The dimension of the hidden layer.
+        """
         super().__init__()
         self.norm = nn.LayerNorm(hidden_dim)
         self.num_bias = nn.Parameter(Tensor(1, 1, hidden_dim))  # add bias
         nn_init.uniform_(self.num_bias, a=-1 / math.sqrt(hidden_dim), b=1 / math.sqrt(hidden_dim))
 
-    def forward(self, col_emb, x_ts) -> Tensor:
+    def forward(self, col_emb: torch.Tensor, x_ts: torch.Tensor) -> torch.Tensor:
         """
+        Performs the forward pass of the NumEmbedding module.
+
         Parameters
         ----------
-        col_emb : Any
-            numerical column embedding, (# numerical columns, emb_dim)
-        x_ts : Any
-            numerical features, (bs, emb_dim)
+        col_emb : torch.Tensor
+            The numerical column embeddings with shape (# numerical columns, emb_dim).
+        x_ts : torch.Tensor
+            The numerical features with shape (bs, emb_dim).
+
+        Returns
+        -------
+        torch.Tensor
+            The combined feature embeddings.
         """
         col_emb = col_emb.unsqueeze(0).expand((x_ts.shape[0], -1, -1))
         feat_emb = col_emb * x_ts.unsqueeze(-1).float() + self.num_bias
@@ -63,14 +108,16 @@ class FeatureTokenizer:
 
     def __init__(
         self,
-        disable_tokenizer_parallel=True,
+        disable_tokenizer_parallel: bool = True,
         **kwargs,
     ):
         """
+        The initialization method for feature tokenizer.
+        .
         Parameters
         ----------
         disable_tokenizer_parallel : bool, optional
-            true if use extractor for collator function in torch.DataLoader
+            Whether to disable tokenizer parallelism, by default True.
         """
         cache_dir = conf["cache_path"]
         os.makedirs(cache_dir, exist_ok=True)
@@ -81,22 +128,23 @@ class FeatureTokenizer:
         self.vocab_size = self.tokenizer.vocab_size
         self.pad_token_id = self.tokenizer.pad_token_id
 
-    def __call__(self, x, shuffle=False, keep_input_grad=False) -> Dict:
+    def __call__(self, x: pd.DataFrame, shuffle: bool = False, keep_input_grad: bool = False) -> Dict:
         """
+        Tokenizes the input DataFrame.
+
         Parameters
         ----------
-        x: pd.DataFrame
-            with column names and features.
-
-        shuffle: bool
-            if shuffle column order during the training.
+        x : pd.DataFrame
+            The input DataFrame with column names and features.
+        shuffle : bool, optional
+            Whether to shuffle column order during training, by default False.
+        keep_input_grad : bool, optional
+            Whether to keep input gradients, by default False.
 
         Returns
         -------
-        encoded_inputs: a dict with {
-                'x_num': tensor contains numerical features,
-                'num_col_input_ids': tensor contains numerical column tokenized ids,
-            }
+        Dict
+            A dictionary with tokenized inputs.
         """
         encoded_inputs = {"x_num": None, "num_col_input_ids": None}
         num_cols = x.columns.tolist() if not shuffle else np.random.shuffle(x.columns.tolist())
@@ -120,21 +168,24 @@ class FeatureTokenizer:
 
         return encoded_inputs
 
-    def forward(self, cols, x) -> Dict:
+    def forward(self, cols: List[str], x: torch.Tensor) -> Dict:
         """
+        Processes the input data and generates encoded inputs suitable for model encoding.
+
         Parameters
         ----------
         cols: List[str]
-            Contain all column names in order.
+            A list containing all column names in order.
 
         x: torch.Tensor
+            The tensor containing numerical features.
 
         Returns
         -------
-        encoded_inputs: a dict with {
-                'x_num': tensor contains numerical features,
-                'num_col_input_ids': tensor contains numerical column tokenized ids,
-            }
+        Dict
+            - 'x_num': Tensor containing numerical features.
+            - 'num_col_input_ids': Tensor containing tokenized IDs of numerical columns.
+            - 'num_att_mask': Attention mask for the numerical column tokens.
         """
         encoded_inputs = {
             "x_num": None,
@@ -156,18 +207,32 @@ class FeatureTokenizer:
 
 
 class FeatureProcessor(nn.Module):
-    """
-    Process inputs from feature extractor to map them to embeddings.
-    """
+    """Process inputs from feature extractor to map them to embeddings."""
 
     def __init__(
         self,
-        vocab_size=None,
-        hidden_dim=128,
-        hidden_dropout_prob=0,
-        pad_token_id=0,
-        device="cuda:0",
+        vocab_size: int = None,
+        hidden_dim: int = 128,
+        hidden_dropout_prob: float = 0,
+        pad_token_id: int = 0,
+        device: Union[str, torch.device] = "cuda:0",
     ):
+        """
+        The initialization method for feature processor.
+
+        Parameters
+        ----------
+        vocab_size : int, optional
+            The size of the vocabulary.
+        hidden_dim : int, optional
+            The dimension of the hidden layer, by default 128.
+        hidden_dropout_prob : float, optional
+            The dropout probability for the hidden layer, by default 0.
+        pad_token_id : int, optional
+            The index of the padding token, by default 0.
+        device : Union[str, torch.device], optional
+            The device to run the module on, by default "cuda:0".
+        """
         super().__init__()
         self.word_embedding = WordEmbedding(
             vocab_size=vocab_size,
@@ -179,7 +244,22 @@ class FeatureProcessor(nn.Module):
         self.align_layer = nn.Linear(hidden_dim, hidden_dim, bias=False)
         self.device = device
 
-    def _avg_embedding_by_mask(self, embs, att_mask=None):
+    def _avg_embedding_by_mask(self, embs: torch.Tensor, att_mask: torch.Tensor = None) -> torch.Tensor:
+        """
+        Averages the embeddings based on the attention mask.
+
+        Parameters
+        ----------
+        embs : torch.Tensor
+            The embeddings tensor.
+        att_mask : torch.Tensor, optional
+            The attention mask to apply on the embeddings. If None, the mean of the embeddings is returned, by default None.
+
+        Returns
+        -------
+        torch.Tensor
+            The resulting averaged embeddings.
+        """
         if att_mask is None:
             return embs.mean(1)
         else:
@@ -189,11 +269,28 @@ class FeatureProcessor(nn.Module):
 
     def forward(
         self,
-        x_num=None,
-        num_col_input_ids=None,
-        num_att_mask=None,
+        x_num: torch.Tensor = None,
+        num_col_input_ids: torch.Tensor = None,
+        num_att_mask: torch.Tensor = None,
         **kwargs,
-    ) -> Tensor:
+    ) -> torch.Tensor:
+        """
+        Performs the forward pass of the FeatureProcessor module.
+
+        Parameters
+        ----------
+        x_num : torch.Tensor, optional
+            The numerical features.
+        num_col_input_ids : torch.Tensor, optional
+            The input IDs for numerical columns.
+        num_att_mask : torch.Tensor, optional
+            The attention mask.
+
+        Returns
+        -------
+        torch.Tensor
+            The processed feature embeddings.
+        """
         x_num = x_num.to(self.device)
 
         num_col_emb = self.word_embedding(num_col_input_ids.to(self.device))
@@ -209,22 +306,58 @@ class FeatureProcessor(nn.Module):
 
 
 class CLSToken(nn.Module):
-    """add a learnable cls token embedding at the end of each sequence."""
+    """Add a learnable cls token embedding at the end of each sequence."""
 
-    def __init__(self, hidden_dim):
+    def __init__(self, hidden_dim: int):
+        """
+        The initialization method for CLSToken.
+
+        Parameters
+        ----------
+        hidden_dim : int
+            The dimension of the hidden layer.
+        """
         super().__init__()
         self.weight = nn.Parameter(Tensor(hidden_dim))
         nn_init.uniform_(self.weight, a=-1 / math.sqrt(hidden_dim), b=1 / math.sqrt(hidden_dim))
         self.hidden_dim = hidden_dim
 
-    def expand(self, *leading_dimensions):
+    def expand(self, *leading_dimensions) -> torch.Tensor:
+        """
+        Expands the CLS token embedding to match the leading dimensions of the input.
+
+        Parameters
+        ----------
+        leading_dimensions : tuple
+            A variable number of integer arguments representing the leading dimensions to which the CLS token embedding will be expanded.
+
+        Returns
+        -------
+        torch.Tensor
+            Expanded CLS token embedding.
+        """
         new_dims = (1,) * (len(leading_dimensions) - 1)
         # cls token (128,) -> view(*new_dims, -1) -> (1, 128)
         # (1, 128) -> expand(*leading_dimensions, -1) -> (64, 1, 128)
         # here expand means "shared", the cls token embedding remains the same for each sample
         return self.weight.view(*new_dims, -1).expand(*leading_dimensions, -1)
 
-    def forward(self, embedding, attention_mask=None, **kwargs) -> Tensor:
+    def forward(self, embedding: torch.Tensor, attention_mask: torch.Tensor = None, **kwargs) -> torch.Tensor:
+        """
+        Performs a forward pass by adding a learnable CLS token to the embedding.
+
+        Parameters
+        ----------
+        embedding : torch.Tensor
+            The input embedding tensor.
+        attention_mask : torch.Tensor, optional
+            The attention mask for the input tensor, by default None.
+
+        Returns
+        -------
+        torch.Tensor
+            Output embedding with the CLS token added.
+        """
         # embedding shape: (64, 11, 128), where 11 is the largest sequence length after tokenizing
         # after concat, learnable cls token [self.weight] is added to each semantic embedding
         # embedding shape: (64, d+1, 128)
