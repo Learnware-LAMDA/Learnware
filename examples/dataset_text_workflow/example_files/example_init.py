@@ -19,7 +19,7 @@ class Model(BaseModel):
         input_dim = 768
         classifier_head = RobertaClassificationHead(num_classes=num_classes, input_dim=input_dim)
         self.model = XLMR_BASE_ENCODER.get_model(head=classifier_head).to(self.device)
-        self.model.load_state_dict(torch.load(os.path.join(dir_path, "model.pth"), map_location=torch.device('cpu')))
+        self.model.load_state_dict(torch.load(os.path.join(dir_path, "model.pth"), map_location=torch.device("cpu")))
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         pass
