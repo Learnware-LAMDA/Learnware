@@ -24,6 +24,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         os.makedirs(hetero_folder_path, exist_ok=True)
         self.market_mapping_path = os.path.join(hetero_folder_path, "model.bin")
         self.hetero_specs_path = os.path.join(hetero_folder_path, "hetero_specifications")
+        self.training_args = {"cache_dir": hetero_folder_path}
         os.makedirs(self.hetero_specs_path, exist_ok=True)
 
         if os.path.exists(self.market_mapping_path):
@@ -51,7 +52,8 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         self.auto_update = auto_update
         self.auto_update_limit = auto_update_limit
         self.count_down = auto_update_limit
-        self.training_args = training_args
+        if hasattr(self, 'training_args'):
+            self.training_args.update(training_args)
 
     def add_learnware(
         self, zip_path: str, semantic_spec: dict, check_status: int, learnware_id: str = None

@@ -59,6 +59,7 @@ class HeteroMap(nn.Module):
         activation="relu",
         device="cuda:0",
         checkpoint=None,
+        cache_dir=None,
         **kwargs,
     ):
         super(HeteroMap, self).__init__()
@@ -73,11 +74,12 @@ class HeteroMap(nn.Module):
             "ffn_dim": ffn_dim,
             "projection_dim": projection_dim,
             "activation": activation,
+            "cache_dir": cache_dir
         }
         self.model_args.update(kwargs)
 
         if feature_tokenizer is None:
-            feature_tokenizer = FeatureTokenizer(**kwargs)
+            feature_tokenizer = FeatureTokenizer(cache_dir=cache_dir, **kwargs)
 
         self.feature_tokenizer = feature_tokenizer
 
@@ -163,7 +165,6 @@ class HeteroMap(nn.Module):
         loss = self._self_supervised_contrastive_loss(feat_x_multiview)
         return loss
 
-    # def hetero_mapping(self, rkme_spec: RKMETableSpecification, features: dict) -> HeteroMapTableSpecification:
     def hetero_mapping(self, rkme_spec: RKMETableSpecification, features: dict) -> HeteroMapTableSpecification:
         hetero_spec = HeteroMapTableSpecification()
         data = rkme_spec.get_z()
