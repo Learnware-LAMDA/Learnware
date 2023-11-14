@@ -252,6 +252,6 @@ def test_search(load_market=True):
 
 
 if __name__ == "__main__":
-    # prepare_data()
-    # prepare_model()
+    prepare_data()
+    prepare_model()
     test_search(load_market=False)
