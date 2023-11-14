@@ -21,7 +21,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         os.makedirs(hetero_folder_path, exist_ok=True)
         self.market_mapping_path = os.path.join(hetero_folder_path, "model.bin")
         self.hetero_specs_path = os.path.join(hetero_folder_path, "hetero_specifications")
-        self.training_args = {"cache_dir": hetero_folder_path}
+        self.training_args = {}
         os.makedirs(self.hetero_specs_path, exist_ok=True)
 
         if os.path.exists(self.market_mapping_path):
@@ -42,7 +42,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                     self._update_learnware_by_ids(self.get_learnware_ids(check_status=BaseChecker.USABLE_LEARWARE))
         else:
             logger.warning(f"No market mapping to reload!")
-            self.market_mapping = HeteroMap(cache_dir=hetero_folder_path)
+            self.market_mapping = HeteroMap()
 
     def reset(self, market_id, rebuild=False, auto_update=False, auto_update_limit=100, **training_args):
         super(HeteroMapTableOrganizer, self).reset(market_id, rebuild)

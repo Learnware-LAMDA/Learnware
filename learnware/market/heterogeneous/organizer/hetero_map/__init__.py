@@ -59,7 +59,6 @@ class HeteroMap(nn.Module):
         activation="relu",
         device="cuda:0",
         checkpoint=None,
-        cache_dir=None,
         **kwargs,
     ):
         super(HeteroMap, self).__init__()
@@ -74,12 +73,11 @@ class HeteroMap(nn.Module):
             "ffn_dim": ffn_dim,
             "projection_dim": projection_dim,
             "activation": activation,
-            "cache_dir": cache_dir
         }
         self.model_args.update(kwargs)
 
         if feature_tokenizer is None:
-            feature_tokenizer = FeatureTokenizer(cache_dir=cache_dir, **kwargs)
+            feature_tokenizer = FeatureTokenizer(**kwargs)
 
         self.feature_tokenizer = feature_tokenizer
 
@@ -139,10 +137,7 @@ class HeteroMap(nn.Module):
             the directory path to save.
         """
         # save model weight state dict
-        model_info = {
-            "model_state_dict": self.state_dict(),
-            "model_args": self.model_args
-        }
+        model_info = {"model_state_dict": self.state_dict(), "model_args": self.model_args}
         torch.save(model_info, checkpoint)
 
     def forward(self, x, y=None):

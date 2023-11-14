@@ -63,11 +63,13 @@ LEARNWARE_FOLDER_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "learnwares")
 
 DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
 STDOUT_PATH = os.path.join(ROOT_DIRPATH, "stdout")
+CACHE_PATH = os.path.join(ROOT_DIRPATH, "cache")
 
 # TODO: Delete them later
 os.makedirs(ROOT_DIRPATH, exist_ok=True)
 os.makedirs(DATABASE_PATH, exist_ok=True)
 os.makedirs(STDOUT_PATH, exist_ok=True)
+os.makedirs(CACHE_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {
@@ -123,6 +125,7 @@ _DEFAULT_CONFIG = {
     "root_path": ROOT_DIRPATH,
     "package_path": PACKAGE_DIRPATH,
     "stdout_path": STDOUT_PATH,
+    "cache_path": CACHE_PATH,
     "logging_level": logging.INFO,
     "logging_outfile": None,
     "semantic_specs": semantic_config,
