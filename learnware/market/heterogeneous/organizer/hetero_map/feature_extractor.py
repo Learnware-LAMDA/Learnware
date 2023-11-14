@@ -65,12 +65,13 @@ class FeatureTokenizer:
     def __init__(
         self,
         disable_tokenizer_parallel=True,
+        cache_dir=None,
         **kwargs,
     ):
         """args:
         disable_tokenizer_parallel: true if use extractor for collator function in torch.DataLoader
         """
-        self.tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased")
+        self.tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased", cache_dir=cache_dir)
         self.tokenizer.__dict__["model_max_length"] = 512
         if disable_tokenizer_parallel:  # disable tokenizer parallel
             os.environ["TOKENIZERS_PARALLELISM"] = "false"
@@ -96,9 +97,7 @@ class FeatureTokenizer:
         """
         encoded_inputs = {
             "x_num": None,
-            "num_col_input_ids": None,
-            "x_cat_input_ids": None,
-            "x_bin_input_ids": None,
+            "num_col_input_ids": None
         }
         num_cols = x.columns.tolist() if not shuffle else np.random.shuffle(x.columns.tolist())
         x_num = x[num_cols].fillna(0)

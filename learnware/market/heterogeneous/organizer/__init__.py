@@ -45,7 +45,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                     self._update_learnware_by_ids(self.get_learnware_ids(check_status=BaseChecker.USABLE_LEARWARE))
         else:
             logger.warning(f"No market mapping to reload!")
-            self.market_mapping = HeteroMap()
+            self.market_mapping = HeteroMap(cache_dir=hetero_folder_path)
 
     def reset(self, market_id=None, auto_update=False, auto_update_limit=100, **training_args):
         self.market_id = market_id
