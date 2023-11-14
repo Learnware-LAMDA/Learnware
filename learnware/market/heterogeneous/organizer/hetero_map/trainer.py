@@ -1,8 +1,7 @@
-import json_get_parameter_names
 import math
 import os
 import time
-from typings import Any, Callable, List, Dict
+from typing import Any, Callable, Dict, List
 
 import numpy as np
 import pandas as pd
@@ -11,8 +10,8 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm.autonotebook import trange
 
-from .feature_extractor import FeatureTokenizer
 from .....logger import get_module_logger
+from .feature_extractor import FeatureTokenizer
 
 logger = get_module_logger("hetero_mapping_trainer")
 
@@ -139,7 +138,7 @@ class Trainer:
 
     def _create_optimizer(self):
         """Creates an optimizer for training the model."""
-        
+
         if self.optimizer is None:
             decay_parameters = self._get_parameter_names(self.model, [nn.LayerNorm])
             decay_parameters = [name for name in decay_parameters if "bias" not in name]

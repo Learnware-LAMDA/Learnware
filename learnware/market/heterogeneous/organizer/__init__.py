@@ -1,11 +1,12 @@
 import os
-import pandas as pd
 from collections import defaultdict
 from typing import List, Tuple, Union
 
+import pandas as pd
+
 from ....learnware import Learnware
 from ....logger import get_module_logger
-from ....specification import RKMETableSpecification, HeteroMapTableSpecification
+from ....specification import HeteroMapTableSpecification, RKMETableSpecification
 from ...base import BaseChecker, BaseUserInfo
 from ...easy import EasyOrganizer
 from .hetero_map import HeteroMap, Trainer
@@ -76,7 +77,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
     def add_learnware(
         self, zip_path: str, semantic_spec: dict, check_status: int, learnware_id: str = None
     ) -> Tuple[str, int]:
-        """Add a learnware into the heterogeneous learnware market. 
+        """Add a learnware into the heterogeneous learnware market.
            Initiates an update of the market mapping if `auto_update` is True and the number of learnwares supporting training reaches `auto_update_limit`.
 
         Parameters
@@ -148,7 +149,9 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 pass
         return flag
 
-    def update_learnware(self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None) -> bool:
+    def update_learnware(
+        self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None
+    ) -> bool:
         """Update learnware with zip_path, semantic_specification and check_status.
            If the learnware supports heterogeneous market training, its HeteroMapTableSpecification is also updated.
 

@@ -1,13 +1,14 @@
+from typing import Callable, List, Optional, Union
+
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
-from typing import List, Optional
 
 from .....specification import HeteroMapTableSpecification, RKMETableSpecification
-from .feature_extractor import FeatureTokenizer, FeatureProcessor, CLSToken
-from .trainer import TransTabCollatorForCL, Trainer
+from .feature_extractor import CLSToken, FeatureProcessor, FeatureTokenizer
+from .trainer import Trainer, TransTabCollatorForCL
 
 
 class HeteroMap(nn.Module):
@@ -39,12 +40,12 @@ class HeteroMap(nn.Module):
         temperature: int = 10,
         base_temperature: int = 10,
         activation: Union[str, Callable] = "relu",
-        device: Union[str, torch.device] = "cuda:0", 
+        device: Union[str, torch.device] = "cuda:0",
         **kwargs,
     ):
         """
         The initialization method for hetero map.
-        
+
         Parameters
         ----------
         feature_tokenizer : FeatureTokenizer, optional
@@ -154,7 +155,7 @@ class HeteroMap(nn.Module):
         torch.save(model_info, checkpoint)
 
     def forward(self, x: dict):
-        """Processes the input data 'x', performs positive sampling, and computes contrastive loss. 
+        """Processes the input data 'x', performs positive sampling, and computes contrastive loss.
 
         Parameters
         ----------
@@ -338,8 +339,8 @@ class HeteroMap(nn.Module):
 
 
 class TransformerLayer(nn.Module):
-    """A custom Transformer layer implemented as a PyTorch module. 
-    """
+    """A custom Transformer layer implemented as a PyTorch module."""
+
     __config__ = ["batch_first", "norm_first"]
 
     def __init__(
@@ -491,12 +492,13 @@ class TransformerLayer(nn.Module):
             return F.leaky_relu
         raise RuntimeError("activation should be relu/gelu/selu/leakyrelu, not {}".format(activation))
 
-    def forward(self, 
-                src: torch.Tensor, 
-                src_mask: torch.Tensor = None, 
-                src_key_padding_mask: torch.Tensor = None, 
-                is_causal: torch.Tensor = None, 
-                **kwargs
+    def forward(
+        self,
+        src: torch.Tensor,
+        src_mask: torch.Tensor = None,
+        src_key_padding_mask: torch.Tensor = None,
+        is_causal: torch.Tensor = None,
+        **kwargs,
     ) -> torch.Tensor:
         """Pass the input through the encoder layer.
 
@@ -510,7 +512,7 @@ class TransformerLayer(nn.Module):
             The mask for the src keys per batch, by default None
         is_causal : torch.Tensor, optional
             A flag indicating whether the layer should be causal, by default None
-        
+
         Returns
         -------
         torch.Tensor
@@ -533,8 +535,8 @@ class TransformerLayer(nn.Module):
 
 
 class TransformerMultiLayer(nn.Module):
-    """A custom multi-layer Transformer module.
-    """
+    """A custom multi-layer Transformer module."""
+
     def __init__(
         self,
         hidden_dim: int = 128,
@@ -546,7 +548,7 @@ class TransformerMultiLayer(nn.Module):
     ):
         """
         The initialization method for align transformer multilayer.
-        
+
         Parameters
         ----------
         hidden_dim : int, optional

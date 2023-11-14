@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import List, Tuple
 
 from ...learnware import Learnware
 from ...logger import get_module_logger

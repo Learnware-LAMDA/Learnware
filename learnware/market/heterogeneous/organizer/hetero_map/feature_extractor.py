@@ -1,8 +1,9 @@
-import os
 import math
-from typing import Dict, Callable
+import os
+from typing import Callable, Dict, List, Union
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn.init as nn_init
 from torch import Tensor, nn
@@ -12,8 +13,7 @@ from .....config import C as conf
 
 
 class WordEmbedding(nn.Module):
-    """Encodes tokens drawn from column names into word embeddings.
-    """
+    """Encodes tokens drawn from column names into word embeddings."""
 
     def __init__(
         self,
