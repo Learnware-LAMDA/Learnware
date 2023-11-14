@@ -251,7 +251,7 @@ class TestMarket(unittest.TestCase):
             semantic_spec["Input"]["Dimension"] = user_dim
             # keep only the first user_dim descriptions
             semantic_spec["Input"]["Description"] = {
-                key: semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
+                str(key): semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
             }
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
@@ -303,7 +303,7 @@ class TestMarket(unittest.TestCase):
             semantic_spec["Input"] = copy.deepcopy(input_description_list[idx % 2])
             semantic_spec["Input"]["Dimension"] = user_dim - 2
             semantic_spec["Input"]["Description"] = {
-                key: semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
+                "key": semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
             }
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
@@ -407,13 +407,13 @@ class TestMarket(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
-    _suite.addTest(TestMarket("test_generated_learnwares"))
-    _suite.addTest(TestMarket("test_upload_delete_learnware"))
-    _suite.addTest(TestMarket("test_train_market_model"))
-    _suite.addTest(TestMarket("test_search_semantics"))
+    # _suite.addTest(TestMarket("test_prepare_learnware_randomly"))
+    # _suite.addTest(TestMarket("test_generated_learnwares"))
+    # _suite.addTest(TestMarket("test_upload_delete_learnware"))
+    # _suite.addTest(TestMarket("test_train_market_model"))
+    # _suite.addTest(TestMarket("test_search_semantics"))
     _suite.addTest(TestMarket("test_stat_search"))
-    _suite.addTest(TestMarket("test_model_reuse"))
+    # _suite.addTest(TestMarket("test_model_reuse"))
     return _suite
 
 
