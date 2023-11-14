@@ -72,7 +72,7 @@ class FeatureTokenizer:
         disable_tokenizer_parallel : bool, optional
             true if use extractor for collator function in torch.DataLoader
         """
-        cache_dir = conf["cache_path"]
+        cache_dir = conf.cache_path
         os.makedirs(cache_dir, exist_ok=True)
         self.tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased", cache_dir=cache_dir)
         self.tokenizer.__dict__["model_max_length"] = 512

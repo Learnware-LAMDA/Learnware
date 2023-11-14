@@ -1,14 +1,13 @@
-import os
 import numpy as np
 import pandas as pd
-from typing import List, Optional
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
+from typing import List, Optional
 
 from .....specification import HeteroMapTableSpecification, RKMETableSpecification
-from .feature_extractor import *
-from .trainer import Trainer, TransTabCollatorForCL
+from .feature_extractor import FeatureTokenizer, FeatureProcessor, CLSToken
+from .trainer import TransTabCollatorForCL, Trainer
 
 
 class HeteroMap(nn.Module):
