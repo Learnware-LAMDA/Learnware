@@ -37,20 +37,20 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             logger.info(f"Reload market mapping from checkpoint {self.market_mapping_path}")
             self.market_mapping = HeteroMap.load(checkpoint=self.market_mapping_path)
             if not rebuild:
-                if os.path.exists(self.hetero_specs_path):
-                    for hetero_json_path in os.listdir(self.hetero_specs_path):
-                        if not hetero_json_path.endswith(".json"):
-                            continue
-                        try:
-                            idx = hetero_json_path.split(".")[0]
+                usable_ids = self.get_learnware_ids(check_status=BaseChecker.USABLE_LEARWARE)
+                hetero_ids = self._get_hetero_learnware_ids(usable_ids)
+                for hetero_id in hetero_ids:
+                    try:
+                        hetero_spec_path = os.path.join(self.hetero_specs_path, f"{hetero_id}.json")
+                        if os.path.exists(hetero_spec_path):
                             hetero_spec = HeteroMapTableSpecification()
-                            hetero_spec.load(os.path.join(self.hetero_specs_path, hetero_json_path))
-                            self.learnware_list[idx].update_stat_spec(hetero_spec.type, hetero_spec)
-                        except Exception as err:
-                            logger.warning(f"Learnware in {hetero_json_path} hetero spec loaded failed! due to {err}.")
-                else:
-                    logger.info("No HeteroMapTableSpecification to reload. Use loaded market mapping to regenerate.")
-                    self._update_learnware_by_ids(self.get_learnware_ids(check_status=BaseChecker.USABLE_LEARWARE))
+                            hetero_spec.load(hetero_spec_path)
+                            self.learnware_list[hetero_id].update_stat_spec(hetero_spec.type, hetero_spec)
+                        else:
+                            self._update_learnware_by_ids(hetero_id)
+                        logger.info(f"Reload HeteroMapTableSpecification for {hetero_id} succeed!")
+                    except Exception as err:
+                        logger.error(f"Learnware {hetero_id} hetero spec loaded failed! due to {err}.")
         else:
             logger.warning(f"No market mapping to reload!")
             self.market_mapping = HeteroMap()
