@@ -36,13 +36,15 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             if not rebuild:
                 if os.path.exists(self.hetero_specs_path):
                     for hetero_json_path in os.listdir(self.hetero_specs_path):
+                        if not hetero_json_path.endswith(".json"):
+                            continue
                         try:
                             idx = hetero_json_path.split(".")[0]
                             hetero_spec = HeteroMapTableSpecification()
-                            hetero_spec.load(os.path.join(self.hetero_specs_path, f"{idx}.json"))
+                            hetero_spec.load(os.path.join(self.hetero_specs_path, hetero_json_path))
                             self.learnware_list[idx].update_stat_spec(hetero_spec.type, hetero_spec)
-                        except:
-                            logger.warning(f"Learnware {idx} hetero spec loaded failed!")
+                        except Exception as err:
+                            logger.warning(f"Learnware in {hetero_json_path} hetero spec loaded failed! due to {err}.")
                 else:
                     logger.info("No HeteroMapTableSpecification to reload. Use loaded market mapping to regenerate.")
                     self._update_learnware_by_ids(self.get_learnware_ids(check_status=BaseChecker.USABLE_LEARWARE))
@@ -240,8 +242,8 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 semantic_spec, rkme = spec.get_semantic_spec(), spec.get_stat_spec().get("RKMETableSpecification", None)
                 if isinstance(rkme, RKMETableSpecification) and isinstance(semantic_spec["Input"], dict):
                     ret.append(idx)
-            except:
-                continue
+            except Exception:
+                pass
         return ret
 
     def generate_hetero_map_spec(self, user_info: BaseUserInfo) -> HeteroMapTableSpecification:

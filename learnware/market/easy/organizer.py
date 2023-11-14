@@ -374,13 +374,8 @@ class EasyOrganizer(BaseOrganizer):
         return [self.learnware_list[idx] for idx in learnware_ids]
 
     def reload_learnware(self, learnware_id: str):
-        current_learnware = self.learnware_list.get(learnware_id)
-
-        if current_learnware is None:
-            # add learnware
+        if learnware_id not in self.learnware_list:
             self.count += 1
-        else:
-            pass
 
         target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (learnware_id))
         target_folder_dir = os.path.join(self.learnware_folder_pool_path, learnware_id)

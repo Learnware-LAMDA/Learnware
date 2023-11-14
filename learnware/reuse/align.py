@@ -18,7 +18,6 @@ class AlignLearnware(Learnware):
             specification=learnware.get_specification(),
             learnware_dirpath=learnware.get_dirpath(),
         )
-        self.learnware = learnware
 
     def align(self):
         """Align the learnware with specification or data"""

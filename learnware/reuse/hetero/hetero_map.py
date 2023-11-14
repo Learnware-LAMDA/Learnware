@@ -63,7 +63,7 @@ class HeteroMapAlignLearnware(AlignLearnware):
             Training data labels.
         """
         self.feature_align_learnware = FeatureAlignLearnware(
-            learnware=self.learnware, cuda_idx=self.cuda_idx, **self.align_arguments
+            learnware=self, cuda_idx=self.cuda_idx, **self.align_arguments
         )
         self.feature_align_learnware.align(user_rkme)
 

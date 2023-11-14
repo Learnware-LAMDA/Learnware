@@ -119,7 +119,7 @@ class FeatureTokenizer:
         disable_tokenizer_parallel : bool, optional
             Whether to disable tokenizer parallelism, by default True.
         """
-        cache_dir = conf["cache_path"]
+        cache_dir = conf.cache_path
         os.makedirs(cache_dir, exist_ok=True)
         self.tokenizer = BertTokenizerFast.from_pretrained("bert-base-uncased", cache_dir=cache_dir)
         self.tokenizer.__dict__["model_max_length"] = 512

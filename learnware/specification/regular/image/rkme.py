@@ -18,7 +18,8 @@ from tqdm import tqdm
 
 from . import cnn_gp
 from ..base import RegularStatSpecification
-from ..table.rkme import rkme_solve_qp, choose_device, setup_seed
+from ..table.rkme import rkme_solve_qp
+from ....utils import choose_device, setup_seed
 
 
 class RKMEImageSpecification(RegularStatSpecification):
