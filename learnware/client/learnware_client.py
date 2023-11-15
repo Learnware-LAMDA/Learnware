@@ -199,9 +199,6 @@ class LearnwareClient:
                 if semantic_specification is None:
                     semantic_specification = {}
 
-                semantic_specification.pop("Input", None)
-                semantic_specification.pop("Output", None)
-
                 if stat_spec is None:
                     files = None
                 else:
