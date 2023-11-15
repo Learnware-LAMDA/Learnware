@@ -274,9 +274,7 @@ class HeteroMap(nn.Module):
         if isinstance(x, pd.DataFrame):
             inputs = self.feature_tokenizer(x)
         elif isinstance(x, torch.Tensor):
-            logger.info(f"extract features, input device:{x.device}")
             inputs = self.feature_tokenizer.forward(cols, x)
-            logger.info(f"extract features, output device:{inputs['x_num'].device}")
         else:
             raise ValueError(f"feature_tokenizer takes inputs with dict or pd.DataFrame, find {type(x)}.")
 
