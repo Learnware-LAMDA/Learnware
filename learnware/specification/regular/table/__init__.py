@@ -1,9 +1,9 @@
-from ....utils import is_torch_avaliable
+from ....utils import is_torch_available
 from ....logger import get_module_logger
 
 logger = get_module_logger("regular_table_spec")
 
-if not is_torch_avaliable(verbose=False):
+if not is_torch_available(verbose=False):
     RKMETableSpecification = None
     RKMEStatSpecification = None
     logger.warning("RKMETableSpecification is skipped because torch is not installed!")

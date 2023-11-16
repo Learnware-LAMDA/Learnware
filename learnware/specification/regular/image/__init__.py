@@ -1,23 +1,23 @@
-from .utils import is_torch_optimizer_avaliable, is_torch_vision_avaliable
-from ....utils import is_torch_avaliable
+from .utils import is_torch_optimizer_available, is_torchvision_available
+from ....utils import is_torch_available
 from ....logger import get_module_logger
 
 
 logger = get_module_logger("regular_image_spec")
 
 if (
-    not is_torch_vision_avaliable(verbose=False)
-    or not is_torch_optimizer_avaliable(verbose=False)
-    or not is_torch_avaliable(verbose=False)
+    not is_torchvision_available(verbose=False)
+    or not is_torch_optimizer_available(verbose=False)
+    or not is_torch_available(verbose=False)
 ):
     RKMEImageSpecification = None
     uninstall_packages = [
         value
         for flag, value in zip(
             [
-                is_torch_vision_avaliable(verbose=False),
-                is_torch_optimizer_avaliable(verbose=False),
-                is_torch_avaliable(verbose=False),
+                is_torchvision_available(verbose=False),
+                is_torch_optimizer_available(verbose=False),
+                is_torch_available(verbose=False),
             ],
             ["torchvision", "torch-optimizer", "torch"],
         )

@@ -1,5 +1,6 @@
 import random
 import numpy as np
+from .import_utils import is_torch_available
 
 
 def setup_seed(seed):
@@ -48,7 +49,8 @@ def choose_device(cuda_idx=-1):
 
 class CudaManager:
     def __init__(self):
-        pass
+        if is_torch_available(verbose=False):
+            pass
 
     def get_specification_cuda_idx(self):
         pass

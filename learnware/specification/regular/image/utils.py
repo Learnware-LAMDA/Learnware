@@ -3,7 +3,7 @@ from ....logger import get_module_logger
 logger = get_module_logger("regular_image_spec_utils")
 
 
-def is_torch_optimizer_avaliable(verbose=False):
+def is_torch_optimizer_available(verbose=False):
     try:
         import torch_optimizer
     except ModuleNotFoundError as err:
@@ -13,7 +13,7 @@ def is_torch_optimizer_avaliable(verbose=False):
     return True
 
 
-def is_torch_vision_avaliable(verbose=False):
+def is_torchvision_available(verbose=False):
     try:
         import torchvision
     except ModuleNotFoundError as err:
