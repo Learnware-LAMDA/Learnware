@@ -44,3 +44,17 @@ def choose_device(cuda_idx=-1):
         else:
             device = torch.device("cuda:0")
     return device
+
+
+class CudaManager:
+    def __init__(self):
+        pass
+
+    def get_specification_cuda_idx(self):
+        pass
+
+    def get_cpu_idx(self):
+        pass
+
+    def get_random_cuda_idx(self):
+        pass
