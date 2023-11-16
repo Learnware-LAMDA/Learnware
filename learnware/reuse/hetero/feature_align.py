@@ -7,6 +7,7 @@ from tqdm import trange
 import torch.nn.functional as F
 
 from ..align import AlignLearnware
+from ..utils import fill_data_with_mean
 from ...utils import choose_device
 from ...logger import get_module_logger
 from ...learnware import Learnware
@@ -82,42 +83,12 @@ class FeatureAlignLearnware(AlignLearnware):
             Predicted output from the learnware model after alignment.
         """
         assert self.align_model is not None, "FeatureAlignLearnware must be aligned before making predictions."
-        user_data = self._fill_data(user_data)
+        user_data = fill_data_with_mean(user_data)
         transformed_user_data = (
             self.align_model(torch.tensor(user_data, device=self.device).float()).detach().cpu().numpy()
         )
         y_pred = super(FeatureAlignLearnware, self).predict(transformed_user_data)
         return y_pred
-
-    def _fill_data(self, X: np.ndarray):
-        """
-        Fill missing data (NaN, Inf) in the input array with the mean of the column.
-
-        Parameters
-        ----------
-        X : np.ndarray
-            Input data array that may contain missing values.
-
-        Returns
-        -------
-        np.ndarray
-            Data array with missing values filled.
-
-        Raises
-        ------
-        ValueError
-            If a column in X contains only exceptional values (NaN, Inf).
-        """
-        X[np.isinf(X) | np.isneginf(X) | np.isposinf(X) | np.isneginf(X)] = np.nan
-        if np.any(np.isnan(X)):
-            for col in range(X.shape[1]):
-                is_nan = np.isnan(X[:, col])
-                if np.any(is_nan):
-                    if np.all(is_nan):
-                        raise ValueError(f"All values in column {col} are exceptional, e.g., NaN and Inf.")
-                    col_mean = np.nanmean(X[:, col])
-                    X[:, col] = np.where(is_nan, col_mean, X[:, col])
-        return X
 
 
 class FeatureAlignModel(nn.Module):

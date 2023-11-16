@@ -4,6 +4,7 @@ from typing import List
 from sklearn.linear_model import RidgeCV, LogisticRegressionCV
 
 from .base import BaseReuser
+from .utils import fill_data_with_mean
 from ..learnware import Learnware
 
 
@@ -48,7 +49,7 @@ class FeatureAugmentReuser(BaseReuser):
         """
         assert self.augment_reuser is not None, "FeatureAugmentReuser is not trained by labeled data yet."
 
-        user_data = self._fill_data(user_data)
+        user_data = fill_data_with_mean(user_data)
         user_data_aug = self._get_augment_data(user_data)
         y_pred_aug = self.augment_reuser.predict(user_data_aug)
 
@@ -65,7 +66,7 @@ class FeatureAugmentReuser(BaseReuser):
         y_train : np.ndarray
             Training data labels.
         """
-        x_train = self._fill_data(x_train)
+        x_train = fill_data_with_mean(x_train)
         x_train_aug = self._get_augment_data(x_train)
 
         if self.mode == "regression":
@@ -76,36 +77,6 @@ class FeatureAugmentReuser(BaseReuser):
         else:
             self.augment_reuser = LogisticRegressionCV(cv=5, max_iter=1000, random_state=0, multi_class="auto")
             self.augment_reuser.fit(x_train_aug, y_train)
-
-    def _fill_data(self, X: np.ndarray) -> np.ndarray:
-        """
-        Fill missing data (NaN, Inf) in the input array with the mean of the column.
-
-        Parameters
-        ----------
-        X : np.ndarray
-            Input data array that may contain missing values.
-
-        Returns
-        -------
-        np.ndarray
-            Data array with missing values filled.
-
-        Raises
-        ------
-        ValueError
-            If a column in X contains only exceptional values (NaN, Inf).
-        """
-        X[np.isinf(X) | np.isneginf(X) | np.isposinf(X) | np.isneginf(X)] = np.nan
-        if np.any(np.isnan(X)):
-            for col in range(X.shape[1]):
-                is_nan = np.isnan(X[:, col])
-                if np.any(is_nan):
-                    if np.all(is_nan):
-                        raise ValueError(f"All values in column {col} are exceptional, e.g., NaN and Inf.")
-                    col_mean = np.nanmean(X[:, col])
-                    X[:, col] = np.where(is_nan, col_mean, X[:, col])
-        return X
 
     def _get_augment_data(self, X: np.ndarray) -> np.ndarray:
         """Get the augmented data with model output.
