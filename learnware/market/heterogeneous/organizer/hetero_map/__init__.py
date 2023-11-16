@@ -5,7 +5,6 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
-from loguru import logger
 
 from .....specification import HeteroMapTableSpecification, RKMETableSpecification
 from .feature_extractor import CLSToken, FeatureProcessor, FeatureTokenizer
@@ -126,7 +125,7 @@ class HeteroMap(nn.Module):
         self.num_partition = num_partition
         self.overlap_ratio = overlap_ratio
         self.to(device)
-    
+
     def to(self, device: Union[str, torch.device]):
         """Moves the model and all its submodules to the specified device
 
@@ -141,7 +140,7 @@ class HeteroMap(nn.Module):
             The instance of HeteroMap after moving to the specified device.
         """
         super(HeteroMap, self).to(device)
-        if hasattr(self, 'feature_processor'):
+        if hasattr(self, "feature_processor"):
             self.feature_processor.device = device
         self.device = device
         return self
