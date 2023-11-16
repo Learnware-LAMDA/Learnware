@@ -111,7 +111,6 @@ if __name__ == "__main__":
                 "torchvision>=0.15.1",
                 "torch-optimizer>=0.3.0",
                 "lightgbm>=3.3.0",
-                "torchvision>=0.15.1",
                 "sentence_transformers>=2.2.2",
             ],
         },
