@@ -569,7 +569,7 @@ class EasyStatSearcher(BaseSearcher):
             )
         elif search_method == "greedy":
             score_cutoff = sorted_dist_list[0] * 0.05 if \
-                len(sorted_dist_list) > 0 and self.stat_spec_type == "RKMEImageSpecification" else None
+                len(sorted_dist_list) > 0 and self.stat_spec_type == "RKMEImageSpecification" else 0.001
             mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
                 learnware_list, user_rkme, max_search_num, score_cutoff=score_cutoff
             )
