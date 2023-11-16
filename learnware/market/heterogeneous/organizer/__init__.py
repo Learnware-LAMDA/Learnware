@@ -206,6 +206,9 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             str: id of target learware
             List[str]: A list of ids of target learnwares
         """
+        if isinstance(ids, str):
+            ids = [ids]
+
         for idx in ids:
             try:
                 spec = self.learnware_list[idx].get_specification()
@@ -218,7 +221,8 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 hetero_spec.save(save_path)
 
             except Exception as err:
-                logger.warning(f"Learnware {idx} generate HeteroMapTableSpecification failed! Due to {err}")
+                traceback.print_exc()
+                logger.warning(f"Learnware {idx} generate HeteroMapTableSpecification failed!")
 
     def _get_hetero_learnware_ids(self, ids: Union[str, List[str]]) -> List[str]:
         """Get learnware ids that supports heterogeneous market training and search.

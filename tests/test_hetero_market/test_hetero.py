@@ -75,7 +75,7 @@ class TestMarket(unittest.TestCase):
 
             example_learnware_idx = i % 2
             input_dim = input_shape_list[example_learnware_idx]
-            example_learnware_name = "example_learnwares/example_learnware_%d" % (example_learnware_idx)
+            learnware_example_dir = "example_learnwares"
 
             X, y = make_regression(n_samples=5000, n_informative=15, n_features=input_dim, noise=0.1, random_state=42)
 
@@ -89,16 +89,16 @@ class TestMarket(unittest.TestCase):
 
             init_file = os.path.join(dir_path, "__init__.py")
             copyfile(
-                os.path.join(curr_root, example_learnware_name, "__init__.py"), init_file
+                os.path.join(curr_root, learnware_example_dir, f"model{example_learnware_idx}.py"), init_file
             )  # cp example_init.py init_file
 
             yaml_file = os.path.join(dir_path, "learnware.yaml")
             copyfile(
-                os.path.join(curr_root, example_learnware_name, "learnware.yaml"), yaml_file
+                os.path.join(curr_root, learnware_example_dir, "learnware.yaml"), yaml_file
             )  # cp example.yaml yaml_file
 
             env_file = os.path.join(dir_path, "requirements.txt")
-            copyfile(os.path.join(curr_root, example_learnware_name, "requirements.txt"), env_file)
+            copyfile(os.path.join(curr_root, learnware_example_dir, "requirements.txt"), env_file)
 
             zip_file = dir_path + ".zip"
             # zip -q -r -j zip_file dir_path
