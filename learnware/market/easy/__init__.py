@@ -11,5 +11,5 @@ if not is_torch_avaliable(verbose=False):
     EasyStatChecker = None
     logger.warning("EasySeacher and EasyChecker are skipped because 'torch' is not installed!")
 else:
-    from .searcher import EasySearcher
+    from .searcher import EasySearcher, EasyStatSearcher, EasyFuzzSemanticSearcher, EasyExactSemanticSearcher
     from .checker import EasySemanticChecker, EasyStatChecker

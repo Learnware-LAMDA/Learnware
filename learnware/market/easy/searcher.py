@@ -38,7 +38,6 @@ class EasyExactSemanticSearcher(BaseSearcher):
                 v1 = v1.lower()
                 if v1 not in name2 and v1 not in description2:
                     return False
-                pass
             else:
                 if len(v2) == 0:
                     # user input contains some key that is not in database
@@ -54,9 +53,6 @@ class EasyExactSemanticSearcher(BaseSearcher):
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
                         return False
-                    pass
-                pass
-            pass
 
         return True
 
@@ -435,7 +431,6 @@ class EasyStatSearcher(BaseSearcher):
             ):
                 continue
 
-            # TODO: must we check dim for Text and Image specification?
             rkme_dim = str(list(rkme.get_z().shape)[1:])
             if rkme_dim == user_rkme_dim:
                 filtered_learnware_list.append(learnware)
@@ -598,10 +593,10 @@ class EasyStatSearcher(BaseSearcher):
 
 
 class EasySearcher(BaseSearcher):
-    def __init__(self, organizer: EasyOrganizer = None):
-        super(EasySearcher, self).__init__(organizer)
+    def __init__(self, organizer: EasyOrganizer):
         self.semantic_searcher = EasyFuzzSemanticSearcher(organizer)
         self.stat_searcher = EasyStatSearcher(organizer)
+        super(EasySearcher, self).__init__(organizer)
 
     def reset(self, organizer):
         self.learnware_organizer = organizer

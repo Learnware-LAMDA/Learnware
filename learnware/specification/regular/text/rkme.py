@@ -2,6 +2,7 @@ import os
 import langdetect
 import numpy as np
 from sentence_transformers import SentenceTransformer
+
 from ..table import RKMETableSpecification
 from ....logger import get_module_logger
 

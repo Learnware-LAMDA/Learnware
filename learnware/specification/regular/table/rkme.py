@@ -13,13 +13,14 @@ from typing import Tuple, Any, List, Union, Dict
 import scipy
 from sklearn.cluster import MiniBatchKMeans
 
-from ..base import RegularStatsSpecification
+from ..base import RegularStatSpecification
 from ....logger import get_module_logger
+from ....utils import setup_seed, choose_device
 
 logger = get_module_logger("rkme")
 
 
-class RKMETableSpecification(RegularStatsSpecification):
+class RKMETableSpecification(RegularStatSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification"""
 
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
@@ -459,46 +460,6 @@ class RKMEStatSpecification(RKMETableSpecification):
     def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
         super(RKMEStatSpecification, self).__init__(gamma=gamma, cuda_idx=cuda_idx)
         super(RKMETableSpecification, self).__init__(type=RKMETableSpecification.__name__)
-
-
-def setup_seed(seed):
-    """Fix a random seed for addressing reproducibility issues.
-
-    Parameters
-    ----------
-    seed : int
-            Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
-    """
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.backends.cudnn.deterministic = True
-
-
-def choose_device(cuda_idx=-1):
-    """Let users choose compuational device between CPU or GPU.
-
-    Parameters
-    ----------
-    cuda_idx : int, optional
-            GPU index, by default -1 which stands for using CPU instead.
-
-    Returns
-    -------
-    torch.device
-            A torch.device object
-    """
-    cuda_idx = int(cuda_idx)
-    if cuda_idx == -1 or not torch.cuda.is_available():
-        device = torch.device("cpu")
-    else:
-        device_count = torch.cuda.device_count()
-        if cuda_idx >= 0 and cuda_idx < device_count:
-            device = torch.device(f"cuda:{cuda_idx}")
-        else:
-            device = torch.device("cuda:0")
-    return device
 
 
 def torch_rbf_kernel(x1, x2, gamma) -> torch.Tensor:

@@ -199,9 +199,6 @@ class LearnwareClient:
                 if semantic_specification is None:
                     semantic_specification = {}
 
-                semantic_specification.pop("Input", None)
-                semantic_specification.pop("Output", None)
-
                 if stat_spec is None:
                     files = None
                 else:
@@ -265,11 +262,7 @@ class LearnwareClient:
         semantic_specification["Input"] = input_description
         semantic_specification["Output"] = output_description
 
-        if self._check_semantic_specification(semantic_specification):
-            return semantic_specification
-        else:
-            logger.error("The parameters passed in create_semantic_specification() are illegal!")
-            return None
+        return semantic_specification
 
     def list_semantic_specification_values(self, key: SemanticSpecificationKey):
         url = f"{self.host}/engine/semantic_specification"

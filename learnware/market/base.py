@@ -42,31 +42,58 @@ class BaseUserInfo:
     def get_stat_info(self, name: str):
         return self.stat_info.get(name, None)
 
+    def update_stat_info(self, name: str, item: Any):
+        """Update stat_info by market
+
+        Parameters
+        ----------
+        name : str
+            Name of stat_info
+        item : Any
+            Statistical information calculated by market
+        """
+        self.stat_info[name] = item
+
 
 class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
 
     def __init__(
         self,
-        market_id: str = "default",
-        organizer: BaseOrganizer = None,
-        searcher: BaseSearcher = None,
+        organizer: BaseOrganizer,
+        searcher: BaseSearcher,
         checker_list: List[BaseChecker] = None,
-        rebuild=False,
+        **kwargs,
     ):
-        self.market_id = market_id
-        self.learnware_organizer = BaseOrganizer() if organizer is None else organizer
-        self.learnware_organizer.reset(market_id=market_id)
-        self.learnware_organizer.reload_market(rebuild=rebuild)
-        self.learnware_searcher = BaseSearcher() if searcher is None else searcher
-        self.learnware_searcher.reset(organizer=self.learnware_organizer)
+        self.learnware_organizer = organizer
+        self.learnware_searcher = searcher
+        checker_list = [] if checker_list is None else checker_list
+        self.learnware_checker = {checker.__class__.__name__: checker for checker in checker_list}
 
-        if checker_list is None:
-            self.learnware_checker = {"BaseChecker": BaseChecker()}
-        else:
-            self.learnware_checker = {checker.__class__.__name__: checker for checker in checker_list}
-        for name, checker in self.learnware_checker.items():
+        for checker in self.learnware_checker.values():
             checker.reset(organizer=self.learnware_organizer)
+
+    @property
+    def market_id(self):
+        return self.learnware_organizer.market_id
+
+    def reset(self, organizer_kwargs=None, searcher_kwargs=None, checker_kwargs=None, **kwargs):
+        if organizer_kwargs is not None:
+            self.learnware_organizer.reset(**organizer_kwargs)
+
+        if searcher_kwargs is not None:
+            self.learnware_searcher.reset(**searcher_kwargs)
+
+        if checker_kwargs is not None:
+            if len(set(checker_kwargs) & set(self.learnware_checker)):
+                for name, checker in self.learnware_checker.items():
+                    checker.reset(**checker_kwargs.get(name, {}))
+            else:
+                for checker in self.learnware_checker.values():
+                    checker.reset(**checker_kwargs)
+
+        for _k, _v in kwargs.items():
+            setattr(self, _k, _v)
 
     def reload_market(self, **kwargs) -> bool:
         self.learnware_organizer.reload_market(**kwargs)
@@ -242,11 +269,12 @@ class LearnwareMarket:
 
 
 class BaseOrganizer:
-    def __init__(self, market_id=None):
-        self.reset(market_id=market_id)
+    def __init__(self, market_id, **kwargs):
+        self.reset(market_id=market_id, **kwargs)
 
-    def reset(self, market_id=None, **kwargs):
+    def reset(self, market_id, rebuild=False, **kwargs):
         self.market_id = market_id
+        self.reload_market(rebuild=rebuild, **kwargs)
 
     def reload_market(self, rebuild=False, **kwargs) -> bool:
         """Reload the learnware organizer when server restared.
@@ -416,10 +444,10 @@ class BaseOrganizer:
 
 
 class BaseSearcher:
-    def __init__(self, organizer: BaseOrganizer = None):
-        self.learnware_organizer = organizer
+    def __init__(self, organizer: BaseOrganizer, **kwargs):
+        self.reset(organizer=organizer, **kwargs)
 
-    def reset(self, organizer):
+    def reset(self, organizer: BaseOrganizer, **kwargs):
         self.learnware_organizer = organizer
 
     def __call__(self, user_info: BaseUserInfo, check_status: int = None):
@@ -441,11 +469,8 @@ class BaseChecker:
     NONUSABLE_LEARNWARE = 0
     USABLE_LEARWARE = 1
 
-    def __init__(self, organizer: BaseOrganizer = None):
-        self.learnware_organizer = organizer
-
-    def reset(self, organizer):
-        self.learnware_organizer = organizer
+    def reset(self, **kwargs):
+        pass
 
     def __call__(self, learnware: Learnware) -> Tuple[int, str]:
         """Check the utility of a learnware
@@ -468,3 +493,13 @@ class BaseChecker:
         """
 
         raise NotImplementedError("'__call__' method is not implemented in BaseChecker")
+
+
+class OrganizerRelatedChecker(BaseChecker):
+    """Here this is the interface for checker who is related to the organizer"""
+
+    def __init__(self, organizer: BaseOrganizer, **kwargs):
+        self.reset(organizer=organizer, **kwargs)
+
+    def reset(self, organizer: BaseOrganizer, **kwargs):
+        self.learnware_organizer = organizer

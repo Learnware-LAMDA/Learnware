@@ -19,8 +19,6 @@ class Learnware(DeclarativeBase):
     folder_path = Column(Text, nullable=False)
     use_flag = Column(Text, nullable=False)
 
-    pass
-
 
 class DatabaseOperations(object):
     def __init__(self, url: str, database_name: str):
@@ -28,12 +26,9 @@ class DatabaseOperations(object):
             url = os.path.join(url, f"{database_name}.db")
         else:
             url = f"{url}/{database_name}"
-            pass
 
         self.url = url
         self.create_database_if_not_exists(url)
-
-        pass
 
     def create_database_if_not_exists(self, url):
         database_exists = True
@@ -44,12 +39,10 @@ class DatabaseOperations(object):
             path = url[start + 4 :]
             if os.path.exists(path):
                 database_exists = True
-                pass
             else:
                 database_exists = False
                 os.makedirs(os.path.dirname(path), exist_ok=True)
-                pass
-            pass
+
         elif self.url.startswith("postgresql"):
             # it is postgresql
             dbname_start = url.rfind("/")
@@ -63,37 +56,27 @@ class DatabaseOperations(object):
 
                 for row in result.fetchall():
                     db_list.add(row[0].lower())
-                    pass
 
                 if dbname.lower() not in db_list:
                     database_exists = False
                     conn.execution_options(isolation_level="AUTOCOMMIT").execute(
                         text("CREATE DATABASE {0};".format(dbname))
                     )
-                    pass
                 else:
                     database_exists = True
-                    pass
-                pass
             engine.dispose()
-            pass
         else:
             raise Exception(f"Unsupported database url: {self.url}")
-            pass
 
         self.engine = create_engine(url, future=True)
 
         if not database_exists:
             DeclarativeBase.metadata.create_all(self.engine)
-            pass
-        pass
 
     def clear_learnware_table(self):
         with self.engine.connect() as conn:
             conn.execute(text("DELETE FROM tb_learnware;"))
             conn.commit()
-            pass
-        pass
 
     def add_learnware(self, id: str, semantic_spec: dict, zip_path, folder_path, use_flag: str):
         with self.engine.connect() as conn:
@@ -114,15 +97,11 @@ class DatabaseOperations(object):
                 ),
             )
             conn.commit()
-            pass
-        pass
 
     def delete_learnware(self, id: str):
         with self.engine.connect() as conn:
             conn.execute(text("DELETE FROM tb_learnware WHERE id=:id;"), dict(id=id))
             conn.commit()
-            pass
-        pass
 
     def update_learnware_semantic_specification(self, id: str, semantic_spec: dict):
         with self.engine.connect() as conn:
@@ -132,8 +111,6 @@ class DatabaseOperations(object):
                 dict(id=id, semantic_spec=semantic_spec_str),
             )
             conn.commit()
-            pass
-        pass
 
     def update_learnware_use_flag(self, id: str, use_flag: str):
         with self.engine.connect() as conn:
@@ -142,8 +119,6 @@ class DatabaseOperations(object):
                 dict(id=id, use_flag=use_flag),
             )
             conn.commit()
-            pass
-        pass
 
     def get_learnware_semantic_specification(self, id: str):
         with self.engine.connect() as conn:
@@ -153,8 +128,6 @@ class DatabaseOperations(object):
                 return None
             else:
                 return json.loads(row[0])
-            pass
-        pass
 
     def get_learnware_use_flag(self, id: str):
         with self.engine.connect() as conn:
@@ -164,8 +137,6 @@ class DatabaseOperations(object):
                 return None
             else:
                 return int(row[0])
-            pass
-        pass
 
     def get_learnware_info(self, id: str):
         with self.engine.connect() as conn:
@@ -187,8 +158,6 @@ class DatabaseOperations(object):
                     "folder_path": folder_path,
                     "use_flag": use_flag,
                 }
-            pass
-        pass
 
     def load_market(self):
         with self.engine.connect() as conn:
@@ -205,12 +174,10 @@ class DatabaseOperations(object):
                 semantic_spec_dict = json.loads(semantic_spec)
                 try:
                     new_learnware = get_learnware_from_dirpath(
-                        id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
+                        id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path, ignore_error=False
                     )
-                    assert new_learnware is not None, "learnware must not be None"
-                    logger.info(f"Load learnware: {id}")
+                    logger.info(f"Load learnware {id} succeed!")
                 except Exception as err:
-                    logger.error(f"Load learnware {id} failed due to {err}!")
                     continue
 
                 learnware_list[id] = new_learnware
@@ -218,8 +185,5 @@ class DatabaseOperations(object):
                 folder_list[id] = folder_path
                 use_flags[id] = int(use_flag)
                 max_count = max(max_count, int(id))
-            pass
-        return learnware_list, zip_list, folder_list, use_flags, max_count + 1
-        pass
 
-    pass
+        return learnware_list, zip_list, folder_list, use_flags, max_count + 1

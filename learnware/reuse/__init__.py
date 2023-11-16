@@ -1,3 +1,6 @@
+from .base import BaseReuser
+from .align import AlignLearnware
+
 from ..logger import get_module_logger
 from ..utils import is_torch_avaliable
 from .utils import is_geatpy_avaliable, is_lightgbm_avaliable
@@ -12,9 +15,16 @@ else:
 
 if not is_torch_avaliable(verbose=False):
     AveragingReuser = None
-    logger.warning("AveragingReuser is skipped due to 'torch' is not installed!")
+    FeatureAugmentReuser = None
+    HeteroMapAlignLearnware = None
+    FeatureAlignLearnware = None
+    logger.warning(
+        "[AveragingReuser, FeatureAugmentReuser, HeteroMapAlignLearnware, FeatureAlignLearnware] is skipped due to 'torch' is not installed!"
+    )
 else:
     from .averaging import AveragingReuser
+    from .feature_augment import FeatureAugmentReuser
+    from .hetero import HeteroMapAlignLearnware, FeatureAlignLearnware
 
 if not is_lightgbm_avaliable(verbose=False) or not is_torch_avaliable(verbose=False):
     JobSelectorReuser = None

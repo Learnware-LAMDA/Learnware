@@ -2,16 +2,14 @@ import torch
 import numpy as np
 
 from typing import List, Union
-from qpsolvers import solve_qp
 from lightgbm import LGBMClassifier, early_stopping
 from sklearn.metrics import accuracy_score
-
 
 from .base import BaseReuser
 from ..market.utils import parse_specification_type
 from ..learnware import Learnware
 from ..specification import RKMETableSpecification, RKMETextSpecification
-from ..specification import generate_rkme_spec, rkme_solve_qp
+from ..specification import generate_rkme_table_spec, rkme_solve_qp
 from ..logger import get_module_logger
 
 logger = get_module_logger("job_selector_reuse")
@@ -39,7 +37,7 @@ class JobSelectorReuser(BaseReuser):
 
         Parameters
         ----------
-        user_data : np.ndarray
+        user_data : Union[np.ndarray, List[str]]
             User's unlabeled raw data.
 
         Returns
@@ -168,7 +166,7 @@ class JobSelectorReuser(BaseReuser):
     def _calculate_rkme_spec_mixture_weight(
         self, user_data: np.ndarray, task_rkme_list: List[RKMETableSpecification], task_rkme_matrix: np.ndarray
     ) -> List[float]:
-        """_summary_
+        """Calculate mixture weight for the learnware_list based on user's data
 
         Parameters
         ----------
@@ -180,7 +178,7 @@ class JobSelectorReuser(BaseReuser):
             Inner product matrix calculated from task_rkme_list.
         """
         task_num = len(task_rkme_list)
-        user_rkme_spec = generate_rkme_spec(X=user_data, reduce=False)
+        user_rkme_spec = generate_rkme_table_spec(X=user_data, reduce=False)
         K = task_rkme_matrix
         v = np.array([user_rkme_spec.inner_prod(task_rkme) for task_rkme in task_rkme_list])
 

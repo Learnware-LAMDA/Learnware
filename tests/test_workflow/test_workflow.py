@@ -12,8 +12,8 @@ from shutil import copyfile, rmtree
 
 import learnware
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.specification import RKMETableSpecification, generate_rkme_spec
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
+from learnware.specification import RKMETableSpecification, generate_rkme_table_spec
+from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,7 +57,7 @@ class TestWorkflow(unittest.TestCase):
 
             joblib.dump(clf, os.path.join(dir_path, "svm.pkl"))
 
-            spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+            spec = generate_rkme_table_spec(X=data_X, gamma=0.1, cuda_idx=0)
             spec.save(os.path.join(dir_path, "svm.json"))
 
             init_file = os.path.join(dir_path, "__init__.py")
@@ -200,7 +200,7 @@ class TestWorkflow(unittest.TestCase):
         X, y = load_digits(return_X_y=True)
         train_X, data_X, train_y, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
 
-        stat_spec = generate_rkme_spec(X=data_X, gamma=0.1, cuda_idx=0)
+        stat_spec = generate_rkme_table_spec(X=data_X, gamma=0.1, cuda_idx=0)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": stat_spec})
 
         _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)
@@ -219,9 +219,15 @@ class TestWorkflow(unittest.TestCase):
         reuse_ensemble.fit(train_X[-200:], train_y[-200:])
         ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
 
+        # Use feature augment reuser to reuse the searched learnwares to make prediction
+        reuse_feature_augment = FeatureAugmentReuser(learnware_list=mixture_learnware_list, mode="classification")
+        reuse_feature_augment.fit(train_X[-200:], train_y[-200:])
+        feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
+
         print("Job Selector Acc:", np.sum(np.argmax(job_selector_predict_y, axis=1) == data_y) / len(data_y))
         print("Averaging Reuser Acc:", np.sum(np.argmax(ensemble_predict_y, axis=1) == data_y) / len(data_y))
         print("Ensemble Pruning Reuser Acc:", np.sum(ensemble_pruning_predict_y == data_y) / len(data_y))
+        print("Feature Augment Reuser Acc:", np.sum(feature_augment_predict_y == data_y) / len(data_y))
 
 
 def suite():

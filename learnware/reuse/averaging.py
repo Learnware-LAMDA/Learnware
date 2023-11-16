@@ -1,10 +1,10 @@
 import torch
 import numpy as np
-from typing import List
+from typing import List, Union
 from scipy.special import softmax
 
 
-from learnware.learnware import Learnware
+from ..learnware import Learnware
 from .base import BaseReuser
 from ..logger import get_module_logger
 
@@ -20,7 +20,7 @@ class AveragingReuser(BaseReuser):
         Parameters
         ----------
         learnware_list : List[Learnware]
-            The learnware list
+            The list contains learnwares.
         mode : str
             - "mean": average the output of all learnwares for regression task (learnware output is a real number)
             - "vote_by_label": vote by labels for classification task, learnware output belongs to the set {0, 1, ..., class_num}

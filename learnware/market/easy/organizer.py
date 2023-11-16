@@ -17,12 +17,12 @@ logger = get_module_logger("easy_organizer")
 
 class EasyOrganizer(BaseOrganizer):
     def reload_market(self, rebuild=False) -> bool:
-        """Reload the learnware organizer when server restared.
+        """Reload the learnware organizer when server restarted.
 
         Returns
         -------
         bool
-            A flag indicating whether the market is reload successfully.
+            A flag indicating whether the market is reloaded successfully.
         """
         self.market_store_path = os.path.join(conf.market_root_path, self.market_id)
         self.learnware_pool_path = os.path.join(self.market_store_path, "learnware_pool")
@@ -41,8 +41,8 @@ class EasyOrganizer(BaseOrganizer):
             try:
                 self.dbops.clear_learnware_table()
                 rmtree(self.learnware_pool_path)
-            except:
-                pass
+            except Exception as err:
+                logger.error(f"Clear current database failed due to {err}!!")
 
         os.makedirs(self.learnware_pool_path, exist_ok=True)
         os.makedirs(self.learnware_zip_pool_path, exist_ok=True)
@@ -97,6 +97,7 @@ class EasyOrganizer(BaseOrganizer):
                 id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
         except:
+            logger.warning("New learnware is not properly added!")
             try:
                 os.remove(target_zip_dir)
                 rmtree(target_folder_dir)
@@ -145,7 +146,7 @@ class EasyOrganizer(BaseOrganizer):
         zip_dir = self.learnware_zip_list[id]
         if os.path.exists(zip_dir):
             os.remove(zip_dir)
-            pass
+
         folder_dir = self.learnware_folder_list[id]
         rmtree(folder_dir, ignore_errors=True)
         self.learnware_list.pop(id)
@@ -233,7 +234,7 @@ class EasyOrganizer(BaseOrganizer):
         ----------
         ids : Union[str, List[str]]
             Give a id or a list of ids
-            str: id of targer learware
+            str: id of target learware
             List[str]: A list of ids of target learnwares
 
         Returns
@@ -373,13 +374,8 @@ class EasyOrganizer(BaseOrganizer):
         return [self.learnware_list[idx] for idx in learnware_ids]
 
     def reload_learnware(self, learnware_id: str):
-        current_learnware = self.learnware_list.get(learnware_id)
-
-        if current_learnware is None:
-            # add learnware
+        if learnware_id not in self.learnware_list:
             self.count += 1
-        else:
-            pass
 
         target_zip_dir = os.path.join(self.learnware_zip_pool_path, "%s.zip" % (learnware_id))
         target_folder_dir = os.path.join(self.learnware_folder_pool_path, learnware_id)
@@ -390,7 +386,6 @@ class EasyOrganizer(BaseOrganizer):
             id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
         )
         self.use_flags[learnware_id] = self.dbops.get_learnware_use_flag(learnware_id)
-        pass
 
     def get_learnware_info_from_storage(self, learnware_id: str) -> Dict:
         """return learnware zip path and semantic_specification from storage

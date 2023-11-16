@@ -4,7 +4,7 @@ import numpy as np
 import geatpy as ea
 from typing import List
 
-from learnware.learnware import Learnware
+from ..learnware import Learnware
 from .base import BaseReuser
 from ..logger import get_module_logger
 
@@ -24,7 +24,7 @@ class EnsemblePruningReuser(BaseReuser):
         Parameters
         ----------
         learnware_list : List[Learnware]
-            The learnware list
+            The list contains learnwares
         mode : str
             - "regression" for regression task (learnware output is a real number)
             - "classification" for classification task (learnware output is a logitis vector or belongs to the set {0, 1, ..., class_num})
