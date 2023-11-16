@@ -174,12 +174,10 @@ class DatabaseOperations(object):
                 semantic_spec_dict = json.loads(semantic_spec)
                 try:
                     new_learnware = get_learnware_from_dirpath(
-                        id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path
+                        id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path, ignore_error=False
                     )
-                    assert new_learnware is not None, "learnware must not be None"
-                    logger.info(f"Load learnware: {id}")
+                    logger.info(f"Load learnware {id} succeed!")
                 except Exception as err:
-                    logger.error(f"Load learnware {id} failed due to {err}!")
                     continue
 
                 learnware_list[id] = new_learnware

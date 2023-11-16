@@ -6,12 +6,14 @@ from typing import List, Tuple, Union
 
 import pandas as pd
 
+from .hetero_map import HeteroMap, Trainer
+from ..utils import is_hetero
+from ...base import BaseChecker, BaseUserInfo
+from ...easy import EasyOrganizer
 from ....learnware import Learnware
 from ....logger import get_module_logger
 from ....specification import HeteroMapTableSpecification, RKMETableSpecification
-from ...base import BaseChecker, BaseUserInfo
-from ...easy import EasyOrganizer
-from .hetero_map import HeteroMap, Trainer
+
 
 logger = get_module_logger("hetero_map_table_organizer")
 
@@ -40,17 +42,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 usable_ids = self.get_learnware_ids(check_status=BaseChecker.USABLE_LEARWARE)
                 hetero_ids = self._get_hetero_learnware_ids(usable_ids)
                 for hetero_id in hetero_ids:
-                    try:
-                        hetero_spec_path = os.path.join(self.hetero_specs_path, f"{hetero_id}.json")
-                        if os.path.exists(hetero_spec_path):
-                            hetero_spec = HeteroMapTableSpecification()
-                            hetero_spec.load(hetero_spec_path)
-                            self.learnware_list[hetero_id].update_stat_spec(hetero_spec.type, hetero_spec)
-                        else:
-                            self._update_learnware_by_ids(hetero_id)
-                        logger.info(f"Reload HeteroMapTableSpecification for {hetero_id} succeed!")
-                    except Exception as err:
-                        logger.error(f"Learnware {hetero_id} hetero spec loaded failed! due to {err}.")
+                    self._reload_learnware_hetero_spec(hetero_id)
         else:
             logger.warning(f"No market mapping to reload!")
             self.market_mapping = HeteroMap()
@@ -104,7 +96,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         )
 
         if learnwere_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(learnware_id)):
-            self._update_learnware_by_ids(learnware_id)
+            self._update_learware_hetero_sepc(learnware_id)
 
             if self.auto_update:
                 self.count_down -= 1
@@ -121,7 +113,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                         f"Market mapping train completed. Now update HeteroMapTableSpecification for {training_learnware_ids}"
                     )
                     self.market_mapping = updated_market_mapping
-                    self._update_learnware_by_ids(training_learnware_ids)
+                    self._update_learware_hetero_sepc(training_learnware_ids)
 
                     self.count_down = self.auto_update_limit
 
@@ -175,8 +167,21 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         """
         final_status = super(HeteroMapTableOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
         if final_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(id)):
-            self._update_learnware_by_ids(id)
+            self._update_learware_hetero_sepc(id)
         return final_status
+
+    def _reload_learnware_hetero_spec(self, learnware_id):
+        try:
+            hetero_spec_path = os.path.join(self.hetero_specs_path, f"{learnware_id}.json")
+            if os.path.exists(hetero_spec_path):
+                hetero_spec = HeteroMapTableSpecification()
+                hetero_spec.load(hetero_spec_path)
+                self.learnware_list[learnware_id].update_stat_spec(hetero_spec.type, hetero_spec)
+            else:
+                self._update_learware_hetero_sepc(learnware_id)
+            logger.info(f"Reload HeteroMapTableSpecification for hetero spec {learnware_id} succeed!")
+        except Exception as err:
+            logger.error(f"Reload HeteroMapTableSpecification for hetero spec {learnware_id} failed! due to {err}.")
 
     def reload_learnware(self, learnware_id: str):
         """Reload learnware into heterogeneous learnware market.
@@ -188,16 +193,10 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             Learnware to be reloaded
         """
         super(HeteroMapTableOrganizer, self).reload_learnware(learnware_id)
-        try:
-            hetero_spec_path = os.path.join(self.hetero_specs_path, f"{learnware_id}.json")
-            if os.path.exists(hetero_spec_path):
-                hetero_spec = HeteroMapTableSpecification()
-                hetero_spec.load(hetero_spec_path)
-                self.learnware_list[learnware_id].update_stat_spec(hetero_spec.type, hetero_spec)
-        except:
-            logger.warning(f"Learnware {learnware_id} hetero spec loaded failed!")
+        if len(self._get_hetero_learnware_ids(learnware_id)):
+            self._reload_learnware_hetero_spec(learnware_id)
 
-    def _update_learnware_by_ids(self, ids: Union[str, List[str]]):
+    def _update_learware_hetero_sepc(self, ids: Union[str, List[str]]):
         """Update learnware by ids, attempting to generate HeteroMapTableSpecification for them.
 
         Parameters
@@ -207,7 +206,6 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             str: id of target learware
             List[str]: A list of ids of target learnwares
         """
-        ids = self._get_hetero_learnware_ids(ids)
         for idx in ids:
             try:
                 spec = self.learnware_list[idx].get_specification()
@@ -220,7 +218,6 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 hetero_spec.save(save_path)
 
             except Exception as err:
-                traceback.print_exc()
                 logger.warning(f"Learnware {idx} generate HeteroMapTableSpecification failed! Due to {err}")
 
     def _get_hetero_learnware_ids(self, ids: Union[str, List[str]]) -> List[str]:
@@ -243,13 +240,9 @@ class HeteroMapTableOrganizer(EasyOrganizer):
 
         ret = []
         for idx in ids:
-            try:
-                spec = self.learnware_list[idx].get_specification()
-                semantic_spec, rkme = spec.get_semantic_spec(), spec.get_stat_spec().get("RKMETableSpecification", None)
-                if isinstance(rkme, RKMETableSpecification) and isinstance(semantic_spec["Input"], dict):
-                    ret.append(idx)
-            except Exception:
-                pass
+            spec = self.learnware_list[idx].get_specification()
+            if is_hetero(stat_specs=spec.get_stat_spec(), semantic_spec=spec.get_semantic_spec()):
+                ret.append(idx)
         return ret
 
     def generate_hetero_map_spec(self, user_info: BaseUserInfo) -> HeteroMapTableSpecification:
