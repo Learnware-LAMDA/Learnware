@@ -69,6 +69,7 @@ REQUIRED = [
     "transformers>=4.34.1",
     "portalocker>=2.0.0",
     "qpsolvers[clarabel]>=4.0.1",
+    "geatpy>=2.7.0;python_version<='3.11'",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -104,6 +105,14 @@ if __name__ == "__main__":
                 "flake8",
                 "black==23.1.0",
                 "pre-commit",
+            ],
+            "full": [
+                "torch>=1.11.0",
+                "torchvision>=0.15.1",
+                "torch-optimizer>=0.3.0",
+                "lightgbm>=3.3.0",
+                "torchvision>=0.15.1",
+                "sentence_transformers>=2.2.2",
             ],
         },
         classifiers=[
