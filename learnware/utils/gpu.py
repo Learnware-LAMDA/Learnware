@@ -47,7 +47,7 @@ def choose_device(cuda_idx=-1):
     return device
 
 
-def allocate_cuda_idx(self):
+def allocate_cuda_idx():
     if is_torch_available(verbose=False):
         import torch
 

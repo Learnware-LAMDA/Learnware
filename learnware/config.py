@@ -119,6 +119,7 @@ semantic_config = {
 _DEFAULT_CONFIG = {
     "root_path": ROOT_DIRPATH,
     "package_path": PACKAGE_DIRPATH,
+    "database_path": DATABASE_PATH,
     "stdout_path": STDOUT_PATH,
     "cache_path": CACHE_PATH,
     "logging_level": logging.INFO,
