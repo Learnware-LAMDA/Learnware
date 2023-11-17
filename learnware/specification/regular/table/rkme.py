@@ -444,7 +444,7 @@ class RKMETableSpecification(RegularStatSpecification):
             rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"]))
             rkme_load["beta"] = torch.from_numpy(np.array(rkme_load["beta"]))
 
-            for d in self.__dir__():
+            for d in self.__dict__():
                 if d in rkme_load.keys():
                     setattr(self, d, rkme_load[d])
             return True

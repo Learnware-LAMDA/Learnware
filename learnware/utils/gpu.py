@@ -47,37 +47,14 @@ def choose_device(cuda_idx=-1):
     return device
 
 
-class CudaManager:
-    def __init__(self):
-        if is_torch_available(verbose=False):
-            import torch
+def allocate_cuda_idx(self):
+    if is_torch_available(verbose=False):
+        import torch
 
-            self.cuda_avalable = torch.cuda.is_available()
-            self.cuda_count = torch.cuda.device_count() if self.cuda_avalable else 0
-        else:
-            self.cuda_avalable = False
-            self.cuda_count = 0
+        cuda_count = torch.cuda.device_count() if torch.cuda.is_available() else 0
+    else:
+        cuda_count = 0
 
-        self.cur_cuda_idx = 0
-        self.stat_spec_cuda = {}
-
-    def reset(self):
-        self.cur_cuda_idx = 0
-        self.stat_spec_cuda = {}
-
-    def allocate_cuda(self):
-        if not self.cuda_avalable:
-            return -1
-
-        ret_cuda_idx = self.cur_cuda_idx
-        self.cur_cuda_idx = (self.cur_cuda_idx + 1) % self.cuda_count
-        return ret_cuda_idx
-
-    def allocate_stat_spec_cuda(self, stat_spec):
-        if stat_spec.type not in self.stat_spec_cuda:
-            self.stat_spec_cuda[stat_spec.type] = self.allocate_cuda()
-
-        return self.stat_spec_cuda[stat_spec.type]
-
-
-cuda_manager = CudaManager()
+    if cuda_count == 0:
+        return -1
+    return np.random.randint(0, cuda_count)

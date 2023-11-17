@@ -40,7 +40,6 @@ class RKMEImageSpecification(RegularStatSpecification):
         self.beta = None
         self.cuda_idx = cuda_idx
         self.device = choose_device(cuda_idx=cuda_idx)
-        self.cache = False
 
         self.n_models = kwargs["n_models"] if "n_models" in kwargs else 16
         self.model_config = (
@@ -371,7 +370,7 @@ class RKMEImageSpecification(RegularStatSpecification):
             rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"], dtype="float32"))
             rkme_load["beta"] = torch.from_numpy(np.array(rkme_load["beta"], dtype="float64"))
 
-            for d in self.__dir__():
+            for d in self.__dict__():
                 if d in rkme_load.keys():
                     setattr(self, d, rkme_load[d])
 

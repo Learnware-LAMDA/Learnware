@@ -10,13 +10,13 @@ import numpy as np
 from .base import SystemStatSpecification
 from ..regular import RKMETableSpecification
 from ..regular.table.rkme import torch_rbf_kernel
-from ...utils import choose_device, setup_seed
+from ...utils import choose_device, allocate_cuda_idx
 
 
 class HeteroMapTableSpecification(SystemStatSpecification):
     """Heterogeneous Map-Table Specification"""
 
-    def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
+    def __init__(self, gamma: float = 0.1, cuda_idx: int = None):
         """Initializing HeteroMapTableSpecification parameters.
 
         Parameters
@@ -31,10 +31,9 @@ class HeteroMapTableSpecification(SystemStatSpecification):
         self.embedding = None
         self.weight = None
         self.gamma = gamma
-        self.cuda_idx = cuda_idx
+        self.cuda_idx = allocate_cuda_idx() if cuda_idx is None else cuda_idx
         torch.cuda.empty_cache()
         self.device = choose_device(cuda_idx=cuda_idx)
-        setup_seed(0)
         super(HeteroMapTableSpecification, self).__init__(type=self.__class__.__name__)
 
     def get_z(self) -> np.ndarray:
@@ -125,11 +124,10 @@ class HeteroMapTableSpecification(SystemStatSpecification):
             with codecs.open(load_path, "r", encoding="utf-8") as fin:
                 obj_text = fin.read()
             embedding_load = json.loads(obj_text)
-            embedding_load["device"] = choose_device(embedding_load["cuda_idx"])
-            embedding_load["z"] = torch.from_numpy(np.array(embedding_load["z"]))
+            embedding_load["device"] = choose_device(["cuda_idx"])
+            embedding_load["z"] = torch.from_numpy(np.arraembedding_loady(embedding_load["z"]))
             embedding_load["beta"] = torch.from_numpy(np.array(embedding_load["beta"]))
-
-            for d in self.__dir__():
+            for d in self.__dict__():
                 if d in embedding_load.keys():
                     setattr(self, d, embedding_load[d])
             return True
@@ -153,8 +151,5 @@ class HeteroMapTableSpecification(SystemStatSpecification):
             embedding_to_save["beta"] = embedding_to_save["beta"].detach().cpu().numpy()
         embedding_to_save["beta"] = embedding_to_save["beta"].tolist()
         embedding_to_save["device"] = "gpu" if embedding_to_save["cuda_idx"] != -1 else "cpu"
-        json.dump(
-            embedding_to_save,
-            codecs.open(save_path, "w", encoding="utf-8"),
-            separators=(",", ":"),
-        )
+        with codecs.open(save_path, "w", encoding="utf-8") as fout:
+            json.dump(embedding_to_save, fout, separators=(",", ":"))

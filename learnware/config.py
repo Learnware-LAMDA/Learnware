@@ -65,11 +65,6 @@ DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
 STDOUT_PATH = os.path.join(ROOT_DIRPATH, "stdout")
 CACHE_PATH = os.path.join(ROOT_DIRPATH, "cache")
 
-# TODO: Delete them later
-os.makedirs(ROOT_DIRPATH, exist_ok=True)
-os.makedirs(DATABASE_PATH, exist_ok=True)
-os.makedirs(STDOUT_PATH, exist_ok=True)
-os.makedirs(CACHE_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {
@@ -140,6 +135,7 @@ _DEFAULT_CONFIG = {
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
     "backend_host": "http://www.lamda.nju.edu.cn/learnware/api",
+    "random_seed": 0,
 }
 
 C = Config(_DEFAULT_CONFIG)
