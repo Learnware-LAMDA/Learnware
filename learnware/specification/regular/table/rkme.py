@@ -15,7 +15,7 @@ from sklearn.cluster import MiniBatchKMeans
 
 from ..base import RegularStatSpecification
 from ....logger import get_module_logger
-from ....utils import setup_seed, choose_device
+from ....utils import allocate_cuda_idx, choose_device
 
 logger = get_module_logger("rkme")
 
@@ -23,7 +23,7 @@ logger = get_module_logger("rkme")
 class RKMETableSpecification(RegularStatSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification"""
 
-    def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
+    def __init__(self, gamma: float = 0.1, cuda_idx: int = None):
         """Initializing RKME parameters.
 
         Parameters
@@ -31,16 +31,15 @@ class RKMETableSpecification(RegularStatSpecification):
         gamma : float
             Bandwidth in gaussian kernel, by default 0.1.
         cuda_idx : int
-            A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
+            A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used. None indicates automatically choose device
         """
         self.z = None
         self.beta = None
         self.gamma = gamma
         self.num_points = 0
-        self.cuda_idx = cuda_idx
+        self._cuda_idx = allocate_cuda_idx() if cuda_idx is None else cuda_idx
         torch.cuda.empty_cache()
-        self.device = choose_device(cuda_idx=cuda_idx)
-        setup_seed(0)
+        self._device = choose_device(cuda_idx=self._cuda_idx)
         super(RKMETableSpecification, self).__init__(type=self.__class__.__name__)
 
     def get_beta(self) -> np.ndarray:
@@ -110,8 +109,8 @@ class RKMETableSpecification(RegularStatSpecification):
         if not reduce:
             self.z = X.reshape(X_shape)
             self.beta = 1 / self.num_points * np.ones(self.num_points)
-            self.z = torch.from_numpy(self.z).double().to(self.device)
-            self.beta = torch.from_numpy(self.beta).double().to(self.device)
+            self.z = torch.from_numpy(self.z).double().to(self._device)
+            self.beta = torch.from_numpy(self.beta).double().to(self._device)
             return
 
         # Initialize Z by clustering, utiliing kmeans to speed up the process.
@@ -155,20 +154,20 @@ class RKMETableSpecification(RegularStatSpecification):
         Z = self.z
         if not torch.is_tensor(Z):
             Z = torch.from_numpy(Z)
-        Z = Z.to(self.device).double()
+        Z = Z.to(self._device).double()
 
         if not torch.is_tensor(X):
             X = torch.from_numpy(X)
-        X = X.to(self.device).double()
-        K = torch_rbf_kernel(Z, Z, gamma=self.gamma).to(self.device)
-        C = torch_rbf_kernel(Z, X, gamma=self.gamma).to(self.device)
+        X = X.to(self._device).double()
+        K = torch_rbf_kernel(Z, Z, gamma=self.gamma).to(self._device)
+        C = torch_rbf_kernel(Z, X, gamma=self.gamma).to(self._device)
         C = torch.sum(C, dim=1) / X.shape[0]
 
         if nonnegative_beta:
             beta, _ = rkme_solve_qp(K, C)
-            beta = beta.to(self.device)
+            beta = beta.to(self._device)
         else:
-            beta = torch.linalg.inv(K + torch.eye(K.shape[0]).to(self.device) * 1e-5) @ C
+            beta = torch.linalg.inv(K + torch.eye(K.shape[0]).to(self._device) * 1e-5) @ C
 
         self.beta = beta
 
@@ -194,15 +193,15 @@ class RKMETableSpecification(RegularStatSpecification):
 
         if not torch.is_tensor(Z):
             Z = torch.from_numpy(Z)
-        Z = Z.to(self.device).double()
+        Z = Z.to(self._device).double()
 
         if not torch.is_tensor(beta):
             beta = torch.from_numpy(beta)
-        beta = beta.to(self.device).double()
+        beta = beta.to(self._device).double()
 
         if not torch.is_tensor(X):
             X = torch.from_numpy(X)
-        X = X.to(self.device).double()
+        X = X.to(self._device).double()
 
         grad_Z = torch.zeros_like(Z)
         for i in range(0, Z.shape[0], batch_size):
@@ -246,15 +245,15 @@ class RKMETableSpecification(RegularStatSpecification):
 
         if not torch.is_tensor(Z):
             Z = torch.from_numpy(Z)
-        Z = Z.to(self.device).double()
+        Z = Z.to(self._device).double()
 
         if not torch.is_tensor(beta):
             beta = torch.from_numpy(beta)
-        beta = beta.to(self.device).double()
+        beta = beta.to(self._device).double()
 
         if not torch.is_tensor(X):
             X = torch.from_numpy(X)
-        X = X.to(self.device).double()
+        X = X.to(self._device).double()
 
         grad_Z = torch.zeros_like(Z)
 
@@ -283,11 +282,11 @@ class RKMETableSpecification(RegularStatSpecification):
         float
             The inner product between RKME specification and X
         """
-        beta = self.beta.reshape(1, -1).double().to(self.device)
-        Z = self.z.double().to(self.device)
+        beta = self.beta.reshape(1, -1).double().to(self._device)
+        Z = self.z.double().to(self._device)
         if not torch.is_tensor(X):
             X = torch.from_numpy(X)
-        X = X.to(self.device).double()
+        X = X.to(self._device).double()
 
         v = torch_rbf_kernel(Z, X, self.gamma) * beta.T
         v = torch.sum(v, axis=0)
@@ -337,10 +336,10 @@ class RKMETableSpecification(RegularStatSpecification):
         float
             The inner product between two RKME specifications.
         """
-        beta_1 = self.beta.reshape(1, -1).double().to(self.device)
-        beta_2 = Phi2.beta.reshape(1, -1).double().to(self.device)
-        Z1 = self.z.double().reshape(self.z.shape[0], -1).to(self.device)
-        Z2 = Phi2.z.double().reshape(Phi2.z.shape[0], -1).to(self.device)
+        beta_1 = self.beta.reshape(1, -1).double().to(self._device)
+        beta_2 = Phi2.beta.reshape(1, -1).double().to(self._device)
+        Z1 = self.z.double().reshape(self.z.shape[0], -1).to(self._device)
+        Z2 = Phi2.z.double().reshape(Phi2.z.shape[0], -1).to(self._device)
         v = torch.sum(torch_rbf_kernel(Z1, Z2, self.gamma) * (beta_1.T @ beta_2))
 
         return float(v)
@@ -382,11 +381,11 @@ class RKMETableSpecification(RegularStatSpecification):
         self.z = self.z.reshape(self.z.shape[0], -1)
 
         Nstart = 100 * T
-        Xstart = self._sampling_candidates(Nstart).to(self.device)
+        Xstart = self._sampling_candidates(Nstart).to(self._device)
         D = self.z[0].shape[0]
-        S = torch.zeros((T, D)).to(self.device)
-        fsX = torch.from_numpy(self._inner_prod_with_X(Xstart)).to(self.device)
-        fsS = torch.zeros(Nstart).to(self.device)
+        S = torch.zeros((T, D)).to(self._device)
+        fsX = torch.from_numpy(self._inner_prod_with_X(Xstart)).to(self._device)
+        fsS = torch.zeros(Nstart).to(self._device)
         for i in range(T):
             if i > 0:
                 fsS = torch.sum(torch_rbf_kernel(S[:i, :], Xstart, self.gamma), axis=0)
@@ -410,14 +409,13 @@ class RKMETableSpecification(RegularStatSpecification):
             The specified saving path.
         """
         save_path = filepath
-        rkme_to_save = copy.deepcopy(self.__dict__)
+        rkme_to_save = self.get_states()
         if torch.is_tensor(rkme_to_save["z"]):
             rkme_to_save["z"] = rkme_to_save["z"].detach().cpu().numpy()
         rkme_to_save["z"] = rkme_to_save["z"].tolist()
         if torch.is_tensor(rkme_to_save["beta"]):
             rkme_to_save["beta"] = rkme_to_save["beta"].detach().cpu().numpy()
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
-        rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
         with codecs.open(save_path, "w", encoding="utf-8") as fout:
             json.dump(rkme_to_save, fout, separators=(",", ":"))
 
@@ -440,11 +438,10 @@ class RKMETableSpecification(RegularStatSpecification):
             with codecs.open(load_path, "r", encoding="utf-8") as fin:
                 obj_text = fin.read()
             rkme_load = json.loads(obj_text)
-            rkme_load["device"] = choose_device(rkme_load["cuda_idx"])
             rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"]))
             rkme_load["beta"] = torch.from_numpy(np.array(rkme_load["beta"]))
 
-            for d in self.__dict__():
+            for d in self.get_states():
                 if d in rkme_load.keys():
                     setattr(self, d, rkme_load[d])
             return True

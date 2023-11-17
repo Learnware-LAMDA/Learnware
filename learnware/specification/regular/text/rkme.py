@@ -12,7 +12,7 @@ logger = get_module_logger("RKMETextSpecification", "INFO")
 class RKMETextSpecification(RKMETableSpecification):
     """Reduced Kernel Mean Embedding (RKME) Specification for Text"""
 
-    def __init__(self, gamma: float = 0.1, cuda_idx: int = -1):
+    def __init__(self, gamma: float = 0.1, cuda_idx: int = None):
         RKMETableSpecification.__init__(self, gamma, cuda_idx)
         self.language = []
 
