@@ -406,6 +406,8 @@ class LearnwareClient:
 
             assert LearnwareClient._check_stat_specification(learnware), "Stat specification check failed!"
 
+        logger.info("The learnware has passed the test.")
+
     def cleanup(self):
         for tempdir in self.tempdir_list:
             tempdir.cleanup()
