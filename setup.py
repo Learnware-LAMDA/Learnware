@@ -69,7 +69,7 @@ REQUIRED = [
     "transformers>=4.34.1",
     "portalocker>=2.0.0",
     "qpsolvers[clarabel]>=4.0.1",
-    "geatpy>=2.7.0;python_version<='3.11'",
+    "geatpy>=2.7.0;python_version<'3.11'",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
