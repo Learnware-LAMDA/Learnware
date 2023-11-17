@@ -36,6 +36,10 @@ class HeteroMapTableSpecification(SystemStatSpecification):
         self._device = choose_device(cuda_idx=self._cuda_idx)
         super(HeteroMapTableSpecification, self).__init__(type=self.__class__.__name__)
 
+    @property
+    def device(self):
+        return self._device
+
     def get_z(self) -> np.ndarray:
         """Move z(RKME reduced set points) back to memory accessible to the CPU.
 

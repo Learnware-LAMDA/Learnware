@@ -42,6 +42,10 @@ class RKMETableSpecification(RegularStatSpecification):
         self._device = choose_device(cuda_idx=self._cuda_idx)
         super(RKMETableSpecification, self).__init__(type=self.__class__.__name__)
 
+    @property
+    def device(self):
+        return self._device
+
     def get_beta(self) -> np.ndarray:
         """Move beta(RKME weights) back to memory accessible to the CPU.
 

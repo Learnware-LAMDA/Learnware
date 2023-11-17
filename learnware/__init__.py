@@ -24,7 +24,7 @@ def init(**kwargs):
     C.reset()
     C.update(**{k: v for k, v in kwargs.items() if k in C})
 
-    logger.info(f"init learnware market with {kwargs}")
+    logger.info(f"init the learnware package with arguments {kwargs}")
 
     ## random seed
     deterministic = kwargs.get("deterministic", True)

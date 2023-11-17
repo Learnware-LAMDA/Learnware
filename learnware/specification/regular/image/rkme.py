@@ -50,6 +50,10 @@ class RKMEImageSpecification(RegularStatSpecification):
 
         super(RKMEImageSpecification, self).__init__(type=self.__class__.__name__)
 
+    @property
+    def device(self):
+        return self._device
+
     def _generate_models(self, n_models: int, channel: int = 3, fixed_seed=None):
         model_class = functools.partial(_ConvNet_wide, channel=channel, **self.model_config)
 
