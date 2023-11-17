@@ -37,16 +37,12 @@ class TestLearnwareLoad(unittest.TestCase):
 
     def test_load_multi_learnware_by_id(self):
         learnware_list = self.client.load_learnware(learnware_id=self.learnware_ids, runnable_option="docker")
-        docker_container = learnware_list[0].get_model().docker_container
-
         reuser = AveragingReuser(learnware_list, mode="vote_by_label")
         input_array = np.random.random(size=(20, 13))
         print(reuser.predict(input_array))
 
         for learnware in learnware_list:
             print(learnware.id, learnware.predict(input_array))
-
-        learnware_list[0].get_model()._destroy_docker_container(docker_container)
 
     def test_load_single_learnware_by_id_pip(self):
         learnware_id = "00000147"
