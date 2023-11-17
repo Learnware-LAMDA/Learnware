@@ -29,8 +29,6 @@ class FeatureAlignLearnware(AlignLearnware):
         Additional arguments for the feature alignment trainer.
     cuda_idx : int
         Index of the CUDA device to be used for computations.
-    device : torch.device
-        The device (CPU or CUDA) on which computations will be performed.
     """
 
     def __init__(self, learnware: Learnware, cuda_idx=None, **align_arguments):

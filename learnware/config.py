@@ -57,10 +57,6 @@ class Config:
 ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), ".learnware")
 PACKAGE_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
-LEARNWARE_POOL_PATH = os.path.join(ROOT_DIRPATH, "learnware_pool")
-LEARNWARE_ZIP_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "zips")
-LEARNWARE_FOLDER_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "learnwares")
-
 DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
 STDOUT_PATH = os.path.join(ROOT_DIRPATH, "stdout")
 CACHE_PATH = os.path.join(ROOT_DIRPATH, "cache")
@@ -126,9 +122,6 @@ _DEFAULT_CONFIG = {
     "logging_outfile": None,
     "semantic_specs": semantic_config,
     "market_root_path": ROOT_DIRPATH,
-    "learnware_pool_path": LEARNWARE_POOL_PATH,
-    "learnware_zip_pool_path": LEARNWARE_ZIP_POOL_PATH,
-    "learnware_folder_pool_path": LEARNWARE_FOLDER_POOL_PATH,
     "learnware_folder_config": {
         "yaml_file": "learnware.yaml",
         "module_file": "__init__.py",

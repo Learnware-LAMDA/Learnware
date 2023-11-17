@@ -38,9 +38,6 @@ def init(**kwargs):
         os.makedirs(C.database_path, exist_ok=True)
         os.makedirs(C.stdout_path, exist_ok=True)
         os.makedirs(C.cache_path, exist_ok=True)
-        os.makedirs(C.learnware_pool_path, exist_ok=True)
-        os.makedirs(C.learnware_zip_pool_path, exist_ok=True)
-        os.makedirs(C.learnware_folder_pool_path, exist_ok=True)
 
     ## ignore tensorflow warning
     tf_loglevel = kwargs.get("tf_loglevel", "2")
