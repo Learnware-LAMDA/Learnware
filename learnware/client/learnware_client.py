@@ -402,11 +402,11 @@ class LearnwareClient:
             )
 
             if learnware is None:
-                raise Exception("The learnware has passed the check.")
+                raise Exception("The learnware is not valid.")
 
             assert LearnwareClient._check_stat_specification(learnware), "Stat specification check failed!"
 
-        logger.info("The learnware passed the test.")
+        logger.info("The learnware has passed the test.")
 
     def cleanup(self):
         for tempdir in self.tempdir_list:
