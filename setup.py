@@ -107,7 +107,7 @@ if __name__ == "__main__":
                 "pre-commit",
             ],
             "full": [
-                "torch>=1.11.0",
+                "torch>=2.0.0",
                 "torchvision>=0.15.1",
                 "torch-optimizer>=0.3.0",
                 "lightgbm>=3.3.0",

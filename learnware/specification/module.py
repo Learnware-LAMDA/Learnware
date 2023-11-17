@@ -61,14 +61,6 @@ def generate_rkme_table_spec(
     if reduced_set_size * X[0].size > max_reduced_set_size:
         reduced_set_size = max(20, max_reduced_set_size // X[0].size)
 
-    # Check cuda_idx
-    if not torch.cuda.is_available() or cuda_idx == -1:
-        cuda_idx = -1
-    else:
-        num_cuda_devices = torch.cuda.device_count()
-        if cuda_idx is None or not (cuda_idx >= 0 and cuda_idx < num_cuda_devices):
-            cuda_idx = 0
-
     # Generate rkme spec
     rkme_spec = RKMETableSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
@@ -124,14 +116,6 @@ def generate_rkme_image_spec(
         A RKMEImageSpecification object
     """
 
-    # Check cuda_idx
-    if not torch.cuda.is_available() or cuda_idx == -1:
-        cuda_idx = -1
-    else:
-        num_cuda_devices = torch.cuda.device_count()
-        if cuda_idx is None or not (0 <= cuda_idx < num_cuda_devices):
-            cuda_idx = 0
-
     # Generate rkme spec
     rkme_image_spec = RKMEImageSpecification(cuda_idx=cuda_idx)
     rkme_image_spec.generate_stat_spec_from_data(
@@ -182,15 +166,7 @@ def generate_rkme_text_spec(
     # Check input type
     if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
         raise TypeError("Input data must be a list of strings.")
-
-    # Check cuda_idx
-    if not torch.cuda.is_available() or cuda_idx == -1:
-        cuda_idx = -1
-    else:
-        num_cuda_devices = torch.cuda.device_count()
-        if cuda_idx is None or not (cuda_idx >= 0 and cuda_idx < num_cuda_devices):
-            cuda_idx = 0
-
+    
     # Generate rkme text spec
     rkme_text_spec = RKMETextSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_text_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)

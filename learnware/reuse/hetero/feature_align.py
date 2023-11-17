@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 from ..align import AlignLearnware
 from ..utils import fill_data_with_mean
-from ...utils import choose_device
+from ...utils import choose_device, allocate_cuda_idx
 from ...logger import get_module_logger
 from ...learnware import Learnware
 from ...specification import RKMETableSpecification
@@ -33,7 +33,7 @@ class FeatureAlignLearnware(AlignLearnware):
         The device (CPU or CUDA) on which computations will be performed.
     """
 
-    def __init__(self, learnware: Learnware = None, cuda_idx=0, **align_arguments):
+    def __init__(self, learnware: Learnware, cuda_idx=None, **align_arguments):
         """
         Initialize the FeatureAlignLearnware with a learnware model, mode, CUDA device index, and alignment arguments.
 
@@ -48,8 +48,8 @@ class FeatureAlignLearnware(AlignLearnware):
         """
         super(FeatureAlignLearnware, self).__init__(learnware)
         self.align_arguments = align_arguments
-        self.cuda_idx = cuda_idx
-        self.device = choose_device(cuda_idx=cuda_idx)
+        self.cuda_idx = allocate_cuda_idx() if cuda_idx is None else cuda_idx
+        self.device = choose_device(cuda_idx=self.cuda_idx)
         self.align_model = None
 
     def align(self, user_rkme: RKMETableSpecification):
@@ -222,7 +222,7 @@ class FeatureAlignTrainer:
         dropout_ratio: float = 0,
         use_bn: bool = False,
         const: float = 1e1,
-        cuda_idx: int = 0,
+        cuda_idx: int = None,
     ):
         """
         Initialize the FeatureAlignTrainer with the specified parameters.
@@ -241,7 +241,8 @@ class FeatureAlignTrainer:
         self.network_type = network_type
         self.optimizer_type = optimizer_type
         self.const = const
-        self.device = choose_device(cuda_idx=cuda_idx)
+        self.cuda_idx = allocate_cuda_idx() if cuda_idx is None else cuda_idx
+        self.device = choose_device(cuda_idx=self.cuda_idx)
         self.train()
 
     def gaussian_kernel(self, x1: torch.Tensor, x2: torch.Tensor):
