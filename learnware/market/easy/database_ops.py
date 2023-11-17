@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy import Column, Integer, Text, DateTime, String
 import os
 import json
+import traceback
 from ...learnware import get_learnware_from_dirpath
 from ...logger import get_module_logger
 
@@ -178,6 +179,8 @@ class DatabaseOperations(object):
                     )
                     logger.info(f"Load learnware {id} succeed!")
                 except Exception as err:
+                    traceback.print_exc()
+                    logger.info(f"Load learnware {id} failed due to {err}!")
                     continue
 
                 learnware_list[id] = new_learnware
