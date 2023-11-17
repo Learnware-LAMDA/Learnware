@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import yaml
 import tempfile
@@ -95,43 +96,50 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
         exist_packages: list of exist packages
         nonexist_packages: list of non-exist packages
     """
-    test_yaml = {
+
+    def _process_dependency(dependency):
+        modified_dependency = re.sub(r"=+", "=", dependency)
+        match = re.search(r"([^=]*=[^=]*)=", modified_dependency)
+        return match.group(1) if match else modified_dependency
+
+    def _dry_run(test_yaml):
+        with tempfile.TemporaryDirectory(prefix="conda_filter_") as tempdir:
+            test_yaml_file = os.path.join(tempdir, "environment.yaml")
+            with open(test_yaml_file, "w") as fout:
+                yaml.safe_dump(test_yaml, fout)
+
+            command = f"conda env create --name env_test --file {test_yaml_file} --dry-run --json"
+            result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            stdout = result.stdout.strip()
+            last_bracket = stdout.rfind("\n{")
+            if last_bracket != -1:
+                stdout = stdout[last_bracket:]
+            return json.loads(stdout).get("bad_deps", [])
+
+    org_yaml = {
         "channels": ["defaults"],
         "dependencies": packages,
     }
+    bad_deps = _dry_run(org_yaml)
+    if len(bad_deps) == 0:
+        return packages, []
 
-    with tempfile.TemporaryDirectory(prefix="conda_filter_") as tempdir:
-        test_yaml_file = os.path.join(tempdir, "environment.yaml")
-        with open(test_yaml_file, "w") as fout:
-            yaml.safe_dump(test_yaml, fout)
-
-        command = f"conda env create --name env_test --file {test_yaml_file} --dry-run --json"
-        result = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout = result.stdout.strip()
-        last_bracket = stdout.rfind("\n{")
-        if last_bracket != -1:
-            stdout = stdout[last_bracket:]
-        print(stdout)
-        output = json.loads(stdout).get("bad_deps", [])
-
-        if len(output) > 0:
-            exist_packages = []
-            nonexist_packages = []
-            error_packages = set([package.replace("=", "") for package in output])
-
-            for package in packages:
-                if package.replace("=", "") in error_packages:
-                    nonexist_packages.append(package)
-                else:
-                    exist_packages.append(package)
-            logger.info(f"Filtered out {len(nonexist_packages)} non-exist conda dependencies.")
-
-            if not any(package.startswith("python=") for package in exist_packages):
-                exist_packages = ["python=3.8"] + exist_packages
-
-            return exist_packages, nonexist_packages
+    exist_packages = []
+    nonexist_packages = []
+    bad_deps = set([package.replace("=", "") for package in bad_deps])
+    for package in packages:
+        if package.replace("=", "") in bad_deps:
+            if package.startswith("python="):
+                exist_packages.append(_process_dependency(package))
+            else:
+                nonexist_packages.append(package)
         else:
-            return packages, []
+            exist_packages.append(package)
+    logger.info(f"Filtered out {len(nonexist_packages)} non-exist conda dependencies.")
+
+    if not any(package.startswith("python=") for package in exist_packages):
+        exist_packages = ["python=3.8"] + exist_packages
+    return exist_packages, nonexist_packages
 
 
 def read_conda_packages_from_dict(env_desc: dict) -> Tuple[List[str], List[str]]:
