@@ -5,6 +5,7 @@ from sentence_transformers import SentenceTransformer
 
 from ..table import RKMETableSpecification
 from ....logger import get_module_logger
+from ....config import C
 
 logger = get_module_logger("RKMETextSpecification", "INFO")
 
@@ -71,9 +72,18 @@ class RKMETextSpecification(RKMETableSpecification):
 
     @staticmethod
     def get_sentence_embedding(X):
+        from ....client import LearnwareClient
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
-        model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-        X = model.encode(X)
+        cache_dir = C["cache_path"]
+        try:
+            model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", cache_folder=cache_dir)
+            X = model.encode(X)
+        except:
+            client = LearnwareClient()
+            zip_path = os.path.join(cache_dir, "MiniLM.zip")
+            if not os.path.exists(zip_path):
+                client.download_learnware("00000662", zip_path)
+            miniLM_learnware = client.load_learnware(zip_path)
+            X = miniLM_learnware.predict(X)
         X = np.array(X)
-        # X /= np.sqrt(np.sum(X ** 2, axis=1)).reshape((-1, 1))
         return X
