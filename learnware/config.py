@@ -1,18 +1,12 @@
 import os
 import copy
 import logging
-import json
 
 
 class Config:
     def __init__(self, default_conf):
         self.__dict__["_default_config"] = copy.deepcopy(default_conf)  # avoiding conflictions with __getattr__
         self.reset()
-
-        config_file = os.path.join(self.root_path, "config.json")
-        if os.path.exists(config_file):
-            with open(config_file, "r") as f:
-                self.__dict__["_config"].update(json.load(f))
 
     def __getitem__(self, key):
         return self.__dict__["_config"][key]
@@ -57,19 +51,10 @@ class Config:
 ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), ".learnware")
 PACKAGE_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
-LEARNWARE_POOL_PATH = os.path.join(ROOT_DIRPATH, "learnware_pool")
-LEARNWARE_ZIP_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "zips")
-LEARNWARE_FOLDER_POOL_PATH = os.path.join(LEARNWARE_POOL_PATH, "learnwares")
-
 DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
 STDOUT_PATH = os.path.join(ROOT_DIRPATH, "stdout")
 CACHE_PATH = os.path.join(ROOT_DIRPATH, "cache")
 
-# TODO: Delete them later
-os.makedirs(ROOT_DIRPATH, exist_ok=True)
-os.makedirs(DATABASE_PATH, exist_ok=True)
-os.makedirs(STDOUT_PATH, exist_ok=True)
-os.makedirs(CACHE_PATH, exist_ok=True)
 
 semantic_config = {
     "Data": {
@@ -124,15 +109,13 @@ semantic_config = {
 _DEFAULT_CONFIG = {
     "root_path": ROOT_DIRPATH,
     "package_path": PACKAGE_DIRPATH,
+    "database_path": DATABASE_PATH,
     "stdout_path": STDOUT_PATH,
     "cache_path": CACHE_PATH,
     "logging_level": logging.INFO,
     "logging_outfile": None,
     "semantic_specs": semantic_config,
     "market_root_path": ROOT_DIRPATH,
-    "learnware_pool_path": LEARNWARE_POOL_PATH,
-    "learnware_zip_pool_path": LEARNWARE_ZIP_POOL_PATH,
-    "learnware_folder_pool_path": LEARNWARE_FOLDER_POOL_PATH,
     "learnware_folder_config": {
         "yaml_file": "learnware.yaml",
         "module_file": "__init__.py",
@@ -140,6 +123,7 @@ _DEFAULT_CONFIG = {
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
     "backend_host": "http://www.lamda.nju.edu.cn/learnware/api",
+    "random_seed": 0,
 }
 
 C = Config(_DEFAULT_CONFIG)

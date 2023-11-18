@@ -31,10 +31,6 @@ user_semantic = {
 
 
 class TestWorkflow(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        np.random.seed(2023)
-        learnware.init()
 
     def _init_learnware_market(self):
         """initialize learnware market"""

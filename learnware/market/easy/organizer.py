@@ -33,7 +33,6 @@ class EasyOrganizer(BaseOrganizer):
         self.learnware_folder_list = {}
         self.use_flags = {}
         self.count = 0
-        self.semantic_spec_list = conf.semantic_specs
         self.dbops = DatabaseOperations(conf.database_url, "market_" + self.market_id)
 
         if rebuild:

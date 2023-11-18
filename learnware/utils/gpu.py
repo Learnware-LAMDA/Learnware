@@ -1,10 +1,9 @@
 import random
 import numpy as np
+from .import_utils import is_torch_available
 
 
 def setup_seed(seed):
-    import torch
-
     """Fix a random seed for addressing reproducibility issues.
 
     Parameters
@@ -12,11 +11,13 @@ def setup_seed(seed):
     seed : int
             Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
     """
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
-    torch.backends.cudnn.deterministic = True
+    if is_torch_available(verbose=False):
+        import torch
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
 
 
 def choose_device(cuda_idx=-1):
@@ -46,15 +47,14 @@ def choose_device(cuda_idx=-1):
     return device
 
 
-class CudaManager:
-    def __init__(self):
-        pass
+def allocate_cuda_idx():
+    if is_torch_available(verbose=False):
+        import torch
 
-    def get_specification_cuda_idx(self):
-        pass
+        cuda_count = torch.cuda.device_count() if torch.cuda.is_available() else 0
+    else:
+        cuda_count = 0
 
-    def get_cpu_idx(self):
-        pass
-
-    def get_random_cuda_idx(self):
-        pass
+    if cuda_count == 0:
+        return -1
+    return np.random.randint(0, cuda_count)

@@ -3,6 +3,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy import Column, Integer, Text, DateTime, String
 import os
 import json
+import traceback
 from ...learnware import get_learnware_from_dirpath
 from ...logger import get_module_logger
 
@@ -171,19 +172,21 @@ class DatabaseOperations(object):
 
             for id, semantic_spec, zip_path, folder_path, use_flag in cursor:
                 id = id.strip()
-                semantic_spec_dict = json.loads(semantic_spec)
                 try:
+                    semantic_spec_dict = json.loads(semantic_spec)
                     new_learnware = get_learnware_from_dirpath(
                         id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path, ignore_error=False
                     )
                     logger.info(f"Load learnware {id} succeed!")
                 except Exception as err:
+                    traceback.print_exc()
+                    logger.info(f"Load learnware {id} failed due to {err}!")
                     continue
 
                 learnware_list[id] = new_learnware
                 zip_list[id] = zip_path
                 folder_list[id] = folder_path
                 use_flags[id] = int(use_flag)
-                max_count = max(max_count, int(id))
+                max_count += 1
 
-        return learnware_list, zip_list, folder_list, use_flags, max_count + 1
+        return learnware_list, zip_list, folder_list, use_flags, max_count

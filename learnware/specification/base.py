@@ -19,6 +19,9 @@ class BaseStatSpecification:
         """Construct statistical specification"""
         raise NotImplementedError("generate_stat_spec_from_data is not implemented")
 
+    def get_states(self):
+        return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
+
     def save(self, filepath: str):
         """Save the statistical specification into file in filepath
 

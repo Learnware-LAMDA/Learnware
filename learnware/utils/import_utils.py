@@ -3,7 +3,7 @@ from ..logger import get_module_logger
 logger = get_module_logger("import_utils")
 
 
-def is_torch_avaliable(verbose=False):
+def is_torch_available(verbose=False):
     try:
         import torch
     except ModuleNotFoundError as err:

@@ -4,7 +4,7 @@ from ..logger import get_module_logger
 logger = get_module_logger("reuse_utils")
 
 
-def is_geatpy_avaliable(verbose=False):
+def is_geatpy_available(verbose=False):
     try:
         import geatpy
     except ModuleNotFoundError as err:
@@ -16,7 +16,7 @@ def is_geatpy_avaliable(verbose=False):
     return True
 
 
-def is_lightgbm_avaliable(verbose=False):
+def is_lightgbm_available(verbose=False):
     try:
         import lightgbm
     except ModuleNotFoundError as err:

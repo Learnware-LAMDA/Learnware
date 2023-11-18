@@ -19,28 +19,27 @@ from tqdm import tqdm
 from . import cnn_gp
 from ..base import RegularStatSpecification
 from ..table.rkme import rkme_solve_qp
-from ....utils import choose_device, setup_seed
+from ....utils import choose_device, allocate_cuda_idx
 
 
 class RKMEImageSpecification(RegularStatSpecification):
     # INNER_PRODUCT_COUNT = 0
     IMAGE_WIDTH = 32
 
-    def __init__(self, cuda_idx: int = -1, **kwargs):
+    def __init__(self, cuda_idx: int = None, **kwargs):
         """Initializing RKME Image specification's parameters.
 
         Parameters
         ----------
         cuda_idx : int
-            A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used.
+            A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used. None indicates automatically choose device
         """
         self.RKME_IMAGE_VERSION = 1  # Please maintain backward compatibility.
 
         self.z = None
         self.beta = None
-        self.cuda_idx = cuda_idx
-        self.device = choose_device(cuda_idx=cuda_idx)
-        self.cache = False
+        self._cuda_idx = allocate_cuda_idx() if cuda_idx is None else cuda_idx
+        self._device = choose_device(cuda_idx=self._cuda_idx)
 
         self.n_models = kwargs["n_models"] if "n_models" in kwargs else 16
         self.model_config = (
@@ -49,8 +48,11 @@ class RKMEImageSpecification(RegularStatSpecification):
             else kwargs["model_config"]
         )
 
-        setup_seed(0)
         super(RKMEImageSpecification, self).__init__(type=self.__class__.__name__)
+
+    @property
+    def device(self):
+        return self._device
 
     def _generate_models(self, n_models: int, channel: int = 3, fixed_seed=None):
         model_class = functools.partial(_ConvNet_wide, channel=channel, **self.model_config)
@@ -58,7 +60,7 @@ class RKMEImageSpecification(RegularStatSpecification):
         def __builder(i):
             if fixed_seed is not None:
                 torch.manual_seed(fixed_seed[i])
-            return model_class().to(self.device)
+            return model_class().to(self._device)
 
         return (__builder(m) for m in range(n_models))
 
@@ -113,7 +115,7 @@ class RKMEImageSpecification(RegularStatSpecification):
 
         if not torch.is_tensor(X):
             X = torch.from_numpy(X)
-        X = X.to(self.device).float()
+        X = X.to(self._device).float()
 
         X[torch.isinf(X) | torch.isneginf(X) | torch.isposinf(X) | torch.isneginf(X)] = torch.nan
         if torch.any(torch.isnan(X)):
@@ -141,12 +143,12 @@ class RKMEImageSpecification(RegularStatSpecification):
 
         if not reduce:
             self.beta = 1 / num_points * np.ones(num_points)
-            self.z = torch.to(self.device)
-            self.beta = torch.from_numpy(self.beta).to(self.device)
+            self.z = torch.to(self._device)
+            self.beta = torch.from_numpy(self.beta).to(self._device)
             return
 
         random_models = list(self._generate_models(n_models=self.n_models, channel=X.shape[1]))
-        self.z = torch.zeros(Z_shape).to(self.device).float().normal_(0, 1)
+        self.z = torch.zeros(Z_shape).to(self._device).float().normal_(0, 1)
         with torch.no_grad():
             x_features = self._generate_random_feature(X_train, random_models=random_models)
         self._update_beta(x_features, nonnegative_beta, random_models=random_models)
@@ -167,21 +169,21 @@ class RKMEImageSpecification(RegularStatSpecification):
         Z = self.z
         if not torch.is_tensor(Z):
             Z = torch.from_numpy(Z)
-        Z = Z.to(self.device)
+        Z = Z.to(self._device)
 
         if not torch.is_tensor(x_features):
             x_features = torch.from_numpy(x_features)
-        x_features = x_features.to(self.device)
+        x_features = x_features.to(self._device)
 
         z_features = self._generate_random_feature(Z, random_models=random_models)
-        K = self._calc_nngp_from_feature(z_features, z_features).to(self.device)
-        C = self._calc_nngp_from_feature(z_features, x_features).to(self.device)
+        K = self._calc_nngp_from_feature(z_features, z_features).to(self._device)
+        C = self._calc_nngp_from_feature(z_features, x_features).to(self._device)
         C = torch.sum(C, dim=1) / x_features.shape[0]
 
         if nonnegative_beta:
-            beta = rkme_solve_qp(K.double(), C.double())[0].to(self.device)
+            beta = rkme_solve_qp(K.double(), C.double())[0].to(self._device)
         else:
-            beta = torch.linalg.inv(K + torch.eye(K.shape[0]).to(self.device) * 1e-5) @ C
+            beta = torch.linalg.inv(K + torch.eye(K.shape[0]).to(self._device) * 1e-5) @ C
 
         self.beta = beta
 
@@ -191,15 +193,15 @@ class RKMEImageSpecification(RegularStatSpecification):
 
         if not torch.is_tensor(Z):
             Z = torch.from_numpy(Z)
-        Z = Z.to(self.device).float()
+        Z = Z.to(self._device).float()
 
         if not torch.is_tensor(beta):
             beta = torch.from_numpy(beta)
-        beta = beta.to(self.device)
+        beta = beta.to(self._device)
 
         if not torch.is_tensor(x_features):
             x_features = torch.from_numpy(x_features)
-        x_features = x_features.to(self.device).float()
+        x_features = x_features.to(self._device).float()
 
         with torch.no_grad():
             beta = beta.unsqueeze(0)
@@ -247,12 +249,12 @@ class RKMEImageSpecification(RegularStatSpecification):
                 Y_features_list.append(curr_features)
 
         X_features = torch.cat(X_features_list, 1)
-        X_features = X_features / torch.sqrt(torch.asarray(X_features.shape[1], device=self.device))
+        X_features = X_features / torch.sqrt(torch.asarray(X_features.shape[1], device=self._device))
         if data_Y is None:
             return X_features
         else:
             Y_features = torch.cat(Y_features_list, 1)
-            Y_features = Y_features / torch.sqrt(torch.asarray(Y_features.shape[1], device=self.device))
+            Y_features = Y_features / torch.sqrt(torch.asarray(Y_features.shape[1], device=self._device))
             return X_features, Y_features
 
     def inner_prod(self, Phi2: RKMEImageSpecification) -> float:
@@ -272,13 +274,13 @@ class RKMEImageSpecification(RegularStatSpecification):
         return v
 
     def _inner_prod_nngp(self, Phi2: RKMEImageSpecification) -> float:
-        beta_1 = self.beta.reshape(1, -1).detach().to(self.device)
-        beta_2 = Phi2.beta.reshape(1, -1).detach().to(self.device)
+        beta_1 = self.beta.reshape(1, -1).detach().to(self._device)
+        beta_2 = Phi2.beta.reshape(1, -1).detach().to(self._device)
 
-        Z1 = self.z.to(self.device)
-        Z2 = Phi2.z.to(self.device)
+        Z1 = self.z.to(self._device)
+        Z2 = Phi2.z.to(self._device)
 
-        kernel_fn = _build_ConvNet_NNGP(channel=Z1.shape[1], **self.model_config).to(self.device)
+        kernel_fn = _build_ConvNet_NNGP(channel=Z1.shape[1], **self.model_config).to(self._device)
         if id(self) == id(Phi2):
             K_zz = kernel_fn(Z1)
         else:
@@ -336,14 +338,13 @@ class RKMEImageSpecification(RegularStatSpecification):
             The specified saving path.
         """
         save_path = filepath
-        rkme_to_save = copy.deepcopy(self.__dict__)
+        rkme_to_save = self.get_states()
         if torch.is_tensor(rkme_to_save["z"]):
             rkme_to_save["z"] = rkme_to_save["z"].detach().cpu().numpy()
         rkme_to_save["z"] = rkme_to_save["z"].tolist()
         if torch.is_tensor(rkme_to_save["beta"]):
             rkme_to_save["beta"] = rkme_to_save["beta"].detach().cpu().numpy()
         rkme_to_save["beta"] = rkme_to_save["beta"].tolist()
-        rkme_to_save["device"] = "gpu" if rkme_to_save["cuda_idx"] != -1 else "cpu"
 
         with codecs.open(save_path, "w", encoding="utf-8") as fout:
             json.dump(rkme_to_save, fout, separators=(",", ":"))
@@ -367,16 +368,15 @@ class RKMEImageSpecification(RegularStatSpecification):
             with codecs.open(load_path, "r", encoding="utf-8") as fin:
                 obj_text = fin.read()
             rkme_load = json.loads(obj_text)
-            rkme_load["device"] = choose_device(rkme_load["cuda_idx"])
             rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"], dtype="float32"))
             rkme_load["beta"] = torch.from_numpy(np.array(rkme_load["beta"], dtype="float64"))
 
-            for d in self.__dir__():
+            for d in self.get_states():
                 if d in rkme_load.keys():
                     setattr(self, d, rkme_load[d])
 
-            self.beta = self.beta.to(self.device)
-            self.z = self.z.to(self.device)
+            self.beta = self.beta.to(self._device)
+            self.z = self.z.to(self._device)
 
             return True
         else:

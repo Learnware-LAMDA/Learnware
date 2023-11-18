@@ -1,10 +1,10 @@
 import os
 import zipfile
 
-from .import_utils import is_torch_avaliable
+from .import_utils import is_torch_available
 from .module import get_module_by_module_path
 from .file import read_yaml_to_dict, save_dict_to_yaml
-from .gpu import setup_seed, choose_device
+from .gpu import setup_seed, choose_device, allocate_cuda_idx
 
 
 def zip_learnware_folder(path: str, output_name: str):

@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
+from .....utils import allocate_cuda_idx, choose_device
 from .....specification import HeteroMapTableSpecification, RKMETableSpecification
 from .feature_extractor import CLSToken, FeatureProcessor, FeatureTokenizer
 from .trainer import Trainer, TransTabCollatorForCL
@@ -40,7 +41,7 @@ class HeteroMap(nn.Module):
         temperature: int = 10,
         base_temperature: int = 10,
         activation: Union[str, Callable] = "relu",
-        device: Union[str, torch.device] = "cpu",
+        cuda_idx: int = None,
         **kwargs,
     ):
         """
@@ -72,13 +73,15 @@ class HeteroMap(nn.Module):
             Base temperature paramete, by default 10
         activation : Union[str, Callable], optional
             Activation function for transformer layer, by default "relu"
-        device : Union[str, torch.device], optional
-            Device to run the model on, by default "cpu"
+        cuda_idx : int, optional
+            A flag indicating whether use CUDA during RKME computation. -1 indicates CUDA not used. None indicates automatically choose device, by default None
         kwargs:
             Additional arguments to be passed to the feature tokenizer
         """
         super(HeteroMap, self).__init__()
 
+        cuda_idx = allocate_cuda_idx() if cuda_idx is None else cuda_idx
+        device = choose_device(cuda_idx)
         self.model_args = {
             "num_partition": num_partition,
             "overlap_ratio": overlap_ratio,
