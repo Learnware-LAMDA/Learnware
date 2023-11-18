@@ -21,7 +21,7 @@ def is_hetero(stat_specs: dict, semantic_spec: dict) -> bool:
         table_input_shape = table_stat_spec.get_z().shape[1]
 
         semantic_task_type = semantic_spec["Task"]["Values"]
-        if len(semantic_task_type) == 0 or semantic_task_type not in [["Classification"], ["Regression"]]:
+        if len(semantic_task_type) > 0 and semantic_task_type not in [["Classification"], ["Regression"]]:
             logger.warning("User doesn't provide correct task type, it must be either Classification or Regression.")
             return False
 
