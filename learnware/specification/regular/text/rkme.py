@@ -72,18 +72,30 @@ class RKMETextSpecification(RKMETableSpecification):
 
     @staticmethod
     def get_sentence_embedding(X):
-        from ....client import LearnwareClient
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
-        cache_dir = C["cache_path"]
-        try:
-            model = SentenceTransformer("sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", cache_folder=cache_dir)
-            X = model.encode(X)
-        except:
+        cache_dir = C.cache_path
+        zip_path = os.path.join(cache_dir, "MiniLM.zip")
+
+        def _get_from_client(zip_path, X):
+            from ....client import LearnwareClient
+
             client = LearnwareClient()
-            zip_path = os.path.join(cache_dir, "MiniLM.zip")
             if not os.path.exists(zip_path):
+                logger.info("Download the necessary feature extractor from Beimingwu system.")
                 client.download_learnware("00000662", zip_path)
             miniLM_learnware = client.load_learnware(zip_path)
-            X = miniLM_learnware.predict(X)
-        X = np.array(X)
+            return np.array(miniLM_learnware.predict(X))
+
+        logger.info("Load the necessary feature extractor for RKMETextSpecification.")
+        if os.path.exists(zip_path):
+            X = _get_from_client(zip_path, X)
+        else:
+            try:
+                model = SentenceTransformer(
+                    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", cache_folder=cache_dir
+                )
+                X = np.array(model.encode(X))
+            except:
+                X = _get_from_client(zip_path, X)
+
         return X
