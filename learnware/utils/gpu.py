@@ -4,8 +4,6 @@ from .import_utils import is_torch_available
 
 
 def setup_seed(seed):
-    import torch
-
     """Fix a random seed for addressing reproducibility issues.
 
     Parameters
@@ -13,11 +11,13 @@ def setup_seed(seed):
     seed : int
             Random seed for torch, torch.cuda, numpy, random and cudnn libraries.
     """
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     random.seed(seed)
-    torch.backends.cudnn.deterministic = True
+    if is_torch_available(verbose=False):
+        import torch
+        torch.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
 
 
 def choose_device(cuda_idx=-1):
