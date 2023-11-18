@@ -1,6 +1,7 @@
 __version__ = "0.1.2.99"
 
 import os
+import json
 from .logger import get_module_logger
 from .utils import is_torch_available, setup_seed
 
@@ -22,6 +23,12 @@ def init(**kwargs):
     from .config import C
 
     C.reset()
+    
+    config_file = os.path.join(C.root_path, "config.json")
+    
+    if os.path.exists(config_file):
+        with open(config_file, "r") as f:
+            C.update(json.load(f))        
     C.update(**{k: v for k, v in kwargs.items() if k in C})
 
     logger.info(f"init the learnware package with arguments {kwargs}")
