@@ -187,7 +187,7 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
 
 class EasyStatSearcher(BaseSearcher):
     def _convert_dist_to_score(
-        self, dist_list: List[float], dist_ratio: float = 0.7, min_score: float = 0.92, improve_score: float = 0.7
+        self, dist_list: List[float], dist_ratio: float = 0.1, min_score: float = 0.92, improve_score: float = 0.7
     ) -> List[float]:
         """Convert mmd dist list into min_max score list
 
