@@ -9,11 +9,7 @@ from learnware.client import LearnwareClient
 class TestCheckLearnware(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUpClass()
-        email = "liujd@lamda.nju.edu.cn"
-        token = "f7e647146a314c6e8b4e2e1079c4bca4"
-
         self.client = LearnwareClient()
-        self.client.login(email, token)
 
     def test_check_learnware_pip(self):
         learnware_id = "00000154"

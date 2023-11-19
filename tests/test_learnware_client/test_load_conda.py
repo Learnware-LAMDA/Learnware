@@ -13,11 +13,7 @@ from learnware.reuse import AveragingReuser
 class TestLearnwareLoad(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUpClass()
-        email = "liujd@lamda.nju.edu.cn"
-        token = "f7e647146a314c6e8b4e2e1079c4bca4"
-
         self.client = LearnwareClient()
-        self.client.login(email, token)
 
         root = os.path.dirname(__file__)
         self.learnware_ids = ["00000084", "00000154", "00000155"]

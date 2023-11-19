@@ -1,4 +1,5 @@
 import os
+import json
 import unittest
 import tempfile
 
@@ -9,9 +10,20 @@ from learnware.specification import Specification
 class TestAllLearnware(unittest.TestCase):
     def setUp(self):
         unittest.TestCase.setUpClass()
-        email = "liujd@lamda.nju.edu.cn"
-        token = "f7e647146a314c6e8b4e2e1079c4bca4"
+        dir_path = os.path.dirname(__file__)
+        config_path = os.path.join(dir_path, "config.json")
+        if not os.path.exists(config_path):
+            data = {"email": None, "token": None}
+            with open(config_path, "w") as file:
+                json.dump(data, file)
 
+        with open(config_path, "r") as file:
+            data = json.load(file)
+            email = data["email"]
+            token = data["token"]
+
+        if email is None or token is None:
+            raise ValueError("Please set email and token in config.json.")
         self.client = LearnwareClient()
         self.client.login(email, token)
 
