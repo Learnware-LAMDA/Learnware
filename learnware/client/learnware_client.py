@@ -287,8 +287,8 @@ class LearnwareClient:
             learnware id or learnware id list
         runnable_option : str
             the option for instantiating learnwares
-            - "normal": instantiate learnware without installing environment
-            - "conda_env": instantiate learnware with installing conda virtual environment
+            - None: instantiate learnware without installing environment
+            - "conda": instantiate learnware with installing conda virtual environment
             - "docker": instantiate learnware with creating docker container
 
         Returns
@@ -296,10 +296,8 @@ class LearnwareClient:
         Learnware
             The contructed learnware object or object list
         """
-        if runnable_option is not None and runnable_option not in ["normal", "conda_env", "docker"]:
-            raise logger.warning(
-                f"runnable_option must be one of ['normal', 'conda_env', 'docker'], but got {runnable_option}"
-            )
+        if runnable_option is not None and runnable_option not in ["conda", "docker"]:
+            raise logger.warning(f"runnable_option must be one of ['conda', 'docker'], but got {runnable_option}")
 
         if learnware_path is None and learnware_id is None:
             raise ValueError("Requires one of learnware_path or learnware_id")
@@ -357,10 +355,7 @@ class LearnwareClient:
                 learnware_list.append(learnware_obj)
 
         if runnable_option is not None:
-            if runnable_option == "normal":
-                for i in range(len(learnware_list)):
-                    learnware_list[i].instantiate_model()
-            elif runnable_option == "conda_env":
+            if runnable_option == "conda":
                 with LearnwaresContainer(learnware_list, cleanup=False, mode="conda") as env_container:
                     learnware_list = env_container.get_learnwares_with_container()
             elif runnable_option == "docker":

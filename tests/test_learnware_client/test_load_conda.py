@@ -28,8 +28,7 @@ class TestLearnwareLoad(unittest.TestCase):
             self.client.download_learnware(learnware_id, zip_path)
 
         learnware_list = [
-            self.client.load_learnware(learnware_path=zippath, runnable_option="conda_env")
-            for zippath in self.zip_paths
+            self.client.load_learnware(learnware_path=zippath, runnable_option="conda") for zippath in self.zip_paths
         ]
         reuser = AveragingReuser(learnware_list, mode="vote_by_label")
         input_array = np.random.random(size=(20, 13))
@@ -42,7 +41,7 @@ class TestLearnwareLoad(unittest.TestCase):
         for learnware_id, zip_path in zip(self.learnware_ids, self.zip_paths):
             self.client.download_learnware(learnware_id, zip_path)
 
-        learnware_list = self.client.load_learnware(learnware_path=self.zip_paths, runnable_option="conda_env")
+        learnware_list = self.client.load_learnware(learnware_path=self.zip_paths, runnable_option="conda")
         reuser = AveragingReuser(learnware_list, mode="vote_by_label")
         input_array = np.random.random(size=(20, 13))
         print(reuser.predict(input_array))
@@ -52,7 +51,7 @@ class TestLearnwareLoad(unittest.TestCase):
 
     def test_load_single_learnware_by_id(self):
         learnware_list = [
-            self.client.load_learnware(learnware_id=idx, runnable_option="conda_env") for idx in self.learnware_ids
+            self.client.load_learnware(learnware_id=idx, runnable_option="conda") for idx in self.learnware_ids
         ]
         reuser = AveragingReuser(learnware_list, mode="vote_by_label")
         input_array = np.random.random(size=(20, 13))
@@ -62,7 +61,7 @@ class TestLearnwareLoad(unittest.TestCase):
             print(learnware.id, learnware.predict(input_array))
 
     def test_load_multi_learnware_by_id(self):
-        learnware_list = self.client.load_learnware(learnware_id=self.learnware_ids, runnable_option="conda_env")
+        learnware_list = self.client.load_learnware(learnware_id=self.learnware_ids, runnable_option="conda")
         reuser = AveragingReuser(learnware_list, mode="vote_by_label")
         input_array = np.random.random(size=(20, 13))
         print(reuser.predict(input_array))
@@ -72,13 +71,13 @@ class TestLearnwareLoad(unittest.TestCase):
 
     def test_load_single_learnware_by_id_pip(self):
         learnware_id = "00000147"
-        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="conda_env")
+        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="conda")
         input_array = np.random.random(size=(20, 23))
         print(learnware.predict(input_array))
 
     def test_load_single_learnware_by_id_conda(self):
         learnware_id = "00000148"
-        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="conda_env")
+        learnware = self.client.load_learnware(learnware_id=learnware_id, runnable_option="conda")
         input_array = np.random.random(size=(20, 204))
         print(learnware.predict(input_array))
 
