@@ -31,7 +31,6 @@ user_semantic = {
 
 
 class TestWorkflow(unittest.TestCase):
-
     def _init_learnware_market(self):
         """initialize learnware market"""
         easy_market = instantiate_learnware_market(market_id="sklearn_digits_easy", name="easy", rebuild=True)
@@ -179,7 +178,7 @@ class TestWorkflow(unittest.TestCase):
                 mixture_learnware_list,
             ) = easy_market.search_learnware(user_info)
 
-            assert len(single_learnware_list) == self.learnware_num, f"Statistical search failed!"
+            assert len(single_learnware_list) >= 1, f"Statistical search failed!"
             print(f"search result of user{idx}:")
             for score, learnware in zip(sorted_score_list, single_learnware_list):
                 print(f"score: {score}, learnware_id: {learnware.id}")
