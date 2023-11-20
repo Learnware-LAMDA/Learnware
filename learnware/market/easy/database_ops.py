@@ -60,6 +60,7 @@ class DatabaseOperations(object):
 
                 if dbname.lower() not in db_list:
                     database_exists = False
+                    conn.commit()
                     conn.execution_options(isolation_level="AUTOCOMMIT").execute(
                         text("CREATE DATABASE {0};".format(dbname))
                     )
