@@ -8,4 +8,4 @@ if not is_torch_available(verbose=False):
     HeteroMapTableSpecification = None
     logger.warning("HeteroMapTableSpecification is skipped because torch is not installed!")
 else:
-    from .rkme import HeteroMapTableSpecification
+    from .hetero_table import HeteroMapTableSpecification
