@@ -586,6 +586,12 @@ class EasyStatSearcher(BaseSearcher):
             weight_list = []
             mixture_learnware_list = []
 
+        # Special Transform for ImageSpecification
+        if self.stat_spec_type == "RKEMImageSpecification":
+            sorted_dist_list = [np.exp(-d / 0.00005) for d in sorted_dist_list]
+            if mixture_dist is not None:
+                mixture_dist = np.exp(-mixture_dist / 0.00005)
+
         if mixture_dist is None:
             sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
             mixture_score = None
