@@ -94,6 +94,7 @@ class RKMETableSpecification(RegularStatSpecification):
         """
         alpha = None
         self.num_points = X.shape[0]
+        K = max(1, self.num_points * 2 // 3) if K >= self.num_points else K
         X_shape = X.shape
         Z_shape = tuple([K] + list(X_shape)[1:])
         X = X.reshape(self.num_points, -1)
