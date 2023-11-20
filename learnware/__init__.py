@@ -52,7 +52,9 @@ def init(**kwargs):
 
 
 if not is_torch_available(verbose=False):
-    logger.warning("The functionality of learnware is limited due to 'torch' is not installed!")
+    logger.warning(
+        "The ability of learnware is limited due to 'torch' is not installed! Only the core framework is available now."
+    )
 
 # default init package
 init()
