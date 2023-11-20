@@ -107,8 +107,9 @@ if __name__ == "__main__":
                 "pre-commit",
             ],
             "full": [
-                "torch>=2.0.0",
-                "torchvision>=0.15.1",
+                # The default full requirements for learnware package
+                "torch==2.1.0",
+                "torchvision==0.16.0",
                 "torch-optimizer>=0.3.0",
                 "lightgbm>=3.3.0",
                 "sentence_transformers>=2.2.2",
