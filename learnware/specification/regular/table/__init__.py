@@ -6,6 +6,9 @@ logger = get_module_logger("regular_table_spec")
 if not is_torch_available(verbose=False):
     RKMETableSpecification = None
     RKMEStatSpecification = None
-    logger.warning("RKMETableSpecification is skipped because torch is not installed!")
+    rkme_solve_qp = None
+    logger.warning(
+        "RKMETableSpecification, RKMEStatSpecification and rkme_solve_qp are skipped because torch is not installed!"
+    )
 else:
     from .rkme import RKMETableSpecification, RKMEStatSpecification, rkme_solve_qp
