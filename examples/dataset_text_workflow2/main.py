@@ -206,6 +206,10 @@ def test_search(load_market=True):
             acc = eval_prediction(pred_y, user_label)
             acc_list.append(acc)
             logger.info("search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
+        mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
+        print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
+        if not mixture_learnware_list:
+            mixture_learnware_list = [single_learnware_list[0]]
 
         # test reuse (job selector)
         reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
