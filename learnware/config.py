@@ -55,13 +55,12 @@ class SystemType(Enum):
 
 def get_platform():
     import platform
-
-    sys_platform = platform.platform().lower()
-    if "windows" in sys_platform:
-        return SystemType.WINDOWS
-    elif "macos" in sys_platform:
+    os_name = platform.system().lower()
+    if "macos" in os_name or "darwin" in os_name:
         return SystemType.MACOS
-    elif "linux" in sys_platform:
+    elif "windows" in os_name:
+        return SystemType.WINDOWS
+    elif "linux" in os_name:
         return SystemType.LINUX
     raise SystemError("Learnware only support MACOS/Linux/Windows")
 

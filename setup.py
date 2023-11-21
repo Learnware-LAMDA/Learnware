@@ -29,23 +29,6 @@ VERSION = get_version("learnware/__init__.py")
 if os.path.exists("MANIFEST"):
     os.remove("MANIFEST")
 
-class SystemType(Enum):
-    LINUX = 0
-    MACOS = 1
-    WINDOWS = 2
-
-def get_platform():
-    import platform
-
-    sys_platform = platform.platform().lower()
-    if "windows" in sys_platform:
-        return SystemType.WINDOWS
-    elif "macos" in sys_platform:
-        return SystemType.MACOS
-    elif "linux" in sys_platform:
-        return SystemType.LINUX
-    raise SystemError("Learnware only support MACOS/Linux/Windows")
-
 
 # What packages are required for this module to be executed?
 # `estimator` may depend on other packages. In order to reduce dependencies, it is not written here.
@@ -92,14 +75,11 @@ FULL_REQUIRED = [
     "torch==2.0.1",
     "torchvision==0.15.2",
     "torch-optimizer>=0.3.0",
+    "lightgbm>=3.3.0",
     "sentence_transformers==2.2.2",
     "fast_pytorch_kmeans==0.2.0.1",
 ]
 
-# In MACOS, the lightgbm package should be installed with brew.
-if get_platform() != SystemType.MACOS:
-    FULL_REQUIRED += ["lightgbm>=3.3.0"]
-    
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
