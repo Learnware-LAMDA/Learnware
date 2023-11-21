@@ -2,7 +2,7 @@ from .base import BaseReuser
 from .align import AlignLearnware
 
 from ..logger import get_module_logger
-from ..utils import is_torch_available
+from ..utils import is_torch_available, get_platform, SystemType
 from .utils import is_geatpy_available, is_lightgbm_available
 
 logger = get_module_logger("reuse")
