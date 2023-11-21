@@ -611,7 +611,7 @@ class EasyStatSearcher(BaseSearcher):
             sorted_score_list, single_learnware_list
         )
         if len(single_learnware_list) == 1 and sorted_score_list[0] < 0.6:
-            ratio = 0.6 / sorted_score_list[0]
+            ratio = 100 if abs(sorted_score_list[0]) < 1e-5 else 0.6 / sorted_score_list[0]
             sorted_score_list[0] = 0.6
             mixture_score = min(1, mixture_score * ratio) if mixture_score is not None else None
         logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
