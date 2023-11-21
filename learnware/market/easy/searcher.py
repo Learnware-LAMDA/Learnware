@@ -572,19 +572,18 @@ class EasyStatSearcher(BaseSearcher):
 
         sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
         processed_learnware_list = single_learnware_list[: max_search_num * max_search_num]
-        if search_method == "auto":
+        if sorted_dist_list[0] > 0 and search_method == "auto":
             mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
                 processed_learnware_list, user_rkme, max_search_num
             )
-        elif search_method == "greedy":
+        elif sorted_dist_list[0] > 0 and search_method == "greedy":
             mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
                 processed_learnware_list, user_rkme, max_search_num
             )
         else:
-            logger.warning("f{search_method} not supported!")
-            mixture_dist = None
-            weight_list = []
-            mixture_learnware_list = []
+            if search_method not in ["auto", "greedy"]:
+                logger.warning(f"{search_method} not supported!")
+            mixture_dist, weight_list, mixture_learnware_list = None, [], []
 
         # Special Transform for ImageSpecification
         if self.stat_spec_type == "RKMEImageSpecification":
