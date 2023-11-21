@@ -176,6 +176,8 @@ class M5DatasetWorkflow:
 
             mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
             print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
+            if not mixture_learnware_list:
+                mixture_learnware_list = [single_learnware_list[0]]
 
             reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list, use_herding=False)
             job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)

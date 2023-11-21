@@ -1,14 +1,16 @@
-from torchtext.datasets import SST2
+import os
+
+import pandas as pd
 
 
-def get_sst2(data_root="./data"):
-    train_datapipe = SST2(root="./data", split="train")
+def get_data(data_root="./data"):
+    dtrain = pd.read_csv(os.path.join(data_root, "train.csv"))
+    dtest = pd.read_csv(os.path.join(data_root, "test.csv"))
 
-    X_train = [x[0] for x in train_datapipe]
-    y_train = [x[1] for x in train_datapipe]
-
-    dev_datapipe = SST2(root="./data", split="dev")
-
-    X_test = [x[0] for x in dev_datapipe]
-    y_test = [x[1] for x in dev_datapipe]
-    return X_train, y_train, X_test, y_test
+    # returned X(DataFrame), y(Series)
+    return (
+        dtrain[["discourse_text", "discourse_type"]],
+        dtrain["discourse_effectiveness"],
+        dtest[["discourse_text", "discourse_type"]],
+        dtest["discourse_effectiveness"],
+    )

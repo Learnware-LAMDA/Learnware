@@ -1,3 +1,4 @@
-torch==2.0.1
-torchdata
-torchtext
+numpy
+pickle
+lightgbm
+scikit-learn

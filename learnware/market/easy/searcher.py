@@ -599,7 +599,7 @@ class EasyStatSearcher(BaseSearcher):
             merge_score_list = self._convert_dist_to_score(sorted_dist_list + [mixture_dist])
             sorted_score_list = merge_score_list[:-1]
             mixture_score = merge_score_list[-1]
-            if int(mixture_score * 100) == int(sorted_score_list[0] * 100):
+            if len(mixture_learnware_list) == 1 or int(mixture_score * 100) == int(sorted_score_list[0] * 100):
                 mixture_score = None
                 mixture_learnware_list = []
         logger.info(

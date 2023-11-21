@@ -89,10 +89,11 @@ DEV_REQUIRED = [
 
 FULL_REQUIRED = [
     # The default full requirements for learnware package
-    "torch==2.1.0",
-    "torchvision==0.16.0",
+    "torch==2.0.1",
+    "torchvision==0.15.2",
     "torch-optimizer>=0.3.0",
-    "sentence_transformers>=2.2.2",
+    "sentence_transformers==2.2.2",
+    "fast_pytorch_kmeans==0.2.0.1",
 ]
 
 # In MACOS, the lightgbm package should be installed with brew.
