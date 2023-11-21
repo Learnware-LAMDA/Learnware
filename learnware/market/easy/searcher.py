@@ -572,19 +572,22 @@ class EasyStatSearcher(BaseSearcher):
 
         sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
         processed_learnware_list = single_learnware_list[: max_search_num * max_search_num]
-        if search_method == "auto":
+        if sorted_dist_list[0] > 0 and search_method == "auto":
             mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
                 processed_learnware_list, user_rkme, max_search_num
             )
-        elif search_method == "greedy":
+        elif sorted_dist_list[0] > 0 and search_method == "greedy":
             mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_greedy(
                 processed_learnware_list, user_rkme, max_search_num
             )
         else:
-            logger.warning("f{search_method} not supported!")
-            mixture_dist = None
-            weight_list = []
-            mixture_learnware_list = []
+            if search_method not in ["auto", "greedy"]:
+                logger.warning(f"{search_method} not supported!")
+            mixture_dist, weight_list, mixture_learnware_list = None, [], []
+
+        # Check the length of mixture learnware list
+        if len(mixture_learnware_list) == 1:
+            mixture_dist, weight_list, mixture_learnware_list = None, [], []
 
         # Special Transform for ImageSpecification
         if self.stat_spec_type == "RKMEImageSpecification":
@@ -599,7 +602,7 @@ class EasyStatSearcher(BaseSearcher):
             merge_score_list = self._convert_dist_to_score(sorted_dist_list + [mixture_dist])
             sorted_score_list = merge_score_list[:-1]
             mixture_score = merge_score_list[-1]
-            if len(mixture_learnware_list) == 1 or int(mixture_score * 100) == int(sorted_score_list[0] * 100):
+            if int(mixture_score * 100) == int(sorted_score_list[0] * 100):
                 mixture_score = None
                 mixture_learnware_list = []
         logger.info(
@@ -611,7 +614,7 @@ class EasyStatSearcher(BaseSearcher):
             sorted_score_list, single_learnware_list
         )
         if len(single_learnware_list) == 1 and sorted_score_list[0] < 0.6:
-            ratio = 0.6 / sorted_score_list[0]
+            ratio = 100 if abs(sorted_score_list[0]) < 1e-5 else 0.6 / sorted_score_list[0]
             sorted_score_list[0] = 0.6
             mixture_score = min(1, mixture_score * ratio) if mixture_score is not None else None
         logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
