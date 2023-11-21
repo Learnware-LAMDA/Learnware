@@ -70,6 +70,7 @@ REQUIRED = [
     "portalocker>=2.0.0",
     "qpsolvers[clarabel]>=4.0.1",
     "geatpy>=2.7.0;python_version<'3.11'",
+    "fast_pytorch_kmeans>=0.2.0.1",
 ]
 
 here = os.path.abspath(os.path.dirname(__file__))
