@@ -1,7 +1,7 @@
 import os
 import copy
 import logging
-
+from enum import Enum
 
 class Config:
     def __init__(self, default_conf):
@@ -48,7 +48,28 @@ class Config:
         self.__dict__["_config"].update(*args, **kwargs)
 
 
-ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), ".learnware")
+class SystemType(Enum):
+    LINUX = 0
+    MACOS = 1
+    WINDOWS = 2
+
+def get_platform():
+    import platform
+
+    sys_platform = platform.platform().lower()
+    if "windows" in sys_platform:
+        return SystemType.WINDOWS
+    elif "macos" in sys_platform:
+        return SystemType.MACOS
+    elif "linux" in sys_platform:
+        return SystemType.LINUX
+    raise SystemError("Learnware only support MACOS/Linux/Windows")
+
+if get_platform() == SystemType.MACOS:
+    ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), "Library", "Learnware")
+else:
+    ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), ".learnware")
+
 PACKAGE_DIRPATH = os.path.dirname(os.path.abspath(__file__))
 
 DATABASE_PATH = os.path.join(ROOT_DIRPATH, "database")
