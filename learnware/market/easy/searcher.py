@@ -585,6 +585,10 @@ class EasyStatSearcher(BaseSearcher):
                 logger.warning(f"{search_method} not supported!")
             mixture_dist, weight_list, mixture_learnware_list = None, [], []
 
+        # Check the length of mixture learnware list
+        if len(mixture_learnware_list) == 1:
+            mixture_dist, weight_list, mixture_learnware_list = None, [], []
+
         # Special Transform for ImageSpecification
         if self.stat_spec_type == "RKMEImageSpecification":
             sorted_dist_list = [1 - np.exp(-d / 0.00005) for d in sorted_dist_list]
@@ -598,7 +602,7 @@ class EasyStatSearcher(BaseSearcher):
             merge_score_list = self._convert_dist_to_score(sorted_dist_list + [mixture_dist])
             sorted_score_list = merge_score_list[:-1]
             mixture_score = merge_score_list[-1]
-            if len(mixture_learnware_list) == 1 or int(mixture_score * 100) == int(sorted_score_list[0] * 100):
+            if int(mixture_score * 100) == int(sorted_score_list[0] * 100):
                 mixture_score = None
                 mixture_learnware_list = []
         logger.info(
