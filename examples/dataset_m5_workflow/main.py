@@ -89,7 +89,6 @@ class M5DatasetWorkflow:
 
         m5 = DataLoader()
         idx_list = m5.get_idx_list()
-        algo_list = ["lgb"]  # algo_list = ["ridge", "lgb"]
 
         curr_root = os.path.dirname(os.path.abspath(__file__))
         curr_root = os.path.join(curr_root, "learnware_pool")
