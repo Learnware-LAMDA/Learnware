@@ -376,7 +376,8 @@ class LearnwareClient:
         from ..market import CondaChecker
 
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
-        return stat_checker(learnware)[0] != BaseChecker.INVALID_LEARNWARE
+        check_status, message = stat_checker(learnware)
+        return check_status != BaseChecker.INVALID_LEARNWARE, message
 
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
@@ -399,7 +400,8 @@ class LearnwareClient:
             if learnware is None:
                 raise Exception("The learnware is not valid.")
 
-            assert LearnwareClient._check_stat_specification(learnware), "Stat specification check failed!"
+            check_status, message = LearnwareClient._check_stat_specification(learnware)
+            assert check_status is True, message
 
         logger.info("The learnware has passed the test.")
 

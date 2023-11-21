@@ -1,4 +1,5 @@
 import traceback
+from typing import Tuple
 from .base import BaseChecker
 from ..learnware import Learnware
 from ..client.container import LearnwaresContainer
@@ -12,14 +13,14 @@ class CondaChecker(BaseChecker):
         self.inner_checker = inner_checker
         super(CondaChecker, self).__init__(**kwargs)
 
-    def __call__(self, learnware: Learnware) -> int:
+    def __call__(self, learnware: Learnware) -> Tuple[int, str]:
         try:
             with LearnwaresContainer(learnware, ignore_error=False) as env_container:
                 learnwares = env_container.get_learnwares_with_container()
                 check_status, message = self.inner_checker(learnwares[0])
         except Exception as e:
             traceback.print_exc()
-            message = f"Conda Checker failed due to installed learnware failed and {e}"
+            message = f"Conda Checker failed due to installed learnware failed or {e}"
             logger.warning(message)
             message += "\n" + traceback.format_exc()
             return BaseChecker.INVALID_LEARNWARE, message
