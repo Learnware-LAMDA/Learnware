@@ -2,7 +2,7 @@ from .base import BaseReuser
 from .align import AlignLearnware
 
 from ..logger import get_module_logger
-from ..utils import is_torch_available
+from ..utils import is_torch_available, get_platform, SystemType
 from .utils import is_geatpy_available, is_lightgbm_available
 
 logger = get_module_logger("reuse")
@@ -40,5 +40,7 @@ if not is_lightgbm_available(verbose=False) or not is_torch_available(verbose=Fa
         if flag is False
     ]
     logger.warning(f"JobSelectorReuser is skipped due to {uninstall_packages} is not installed!")
+    if get_platform() == SystemType.MACOS:
+        logger.warning("For macOS, JobSelectorReuser may cause segmentfault error because the lightgbm is not installed corretly, please use brew to reinstall lightgbm!")
 else:
     from .job_selector import JobSelectorReuser
