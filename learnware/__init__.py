@@ -8,7 +8,7 @@ from .utils import is_torch_available, setup_seed
 logger = get_module_logger("Initialization")
 
 
-def init(**kwargs):
+def init(verbose=True, **kwargs):
     """Init learnware package
 
     Parameters
@@ -24,14 +24,16 @@ def init(**kwargs):
 
     C.reset()
 
-    config_file = os.path.join(C.root_path, "config.json")
-
-    if os.path.exists(config_file):
-        with open(config_file, "r") as f:
-            C.update(**dict(json.load(f)))
+    if verbose:
+        logger.info(f"init the learnware package with arguments {kwargs}")
     C.update(**{k: v for k, v in kwargs.items() if k in C})
 
-    logger.info(f"init the learnware package with arguments {kwargs}")
+    config_file = os.path.join(C.root_path, "config.json")
+    if os.path.exists(config_file):
+        if verbose:
+            logger.info(f"init the learnware package with config file {config_file}")
+        with open(config_file, "r") as fin_config:
+            C.update(**dict(json.load(fin_config)))
 
     ## random seed
     deterministic = kwargs.get("deterministic", True)
@@ -57,4 +59,4 @@ if not is_torch_available(verbose=False):
     )
 
 # default init package
-init()
+init(verbose=False)
