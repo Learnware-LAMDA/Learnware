@@ -40,7 +40,5 @@ if not is_lightgbm_available(verbose=False) or not is_torch_available(verbose=Fa
         if flag is False
     ]
     logger.warning(f"JobSelectorReuser is skipped due to {uninstall_packages} is not installed!")
-    if get_platform() == SystemType.MACOS:
-        logger.warning("For macOS, JobSelectorReuser may cause segmentfault error because the lightgbm is not installed corretly, please use brew to reinstall lightgbm!")
 else:
     from .job_selector import JobSelectorReuser
