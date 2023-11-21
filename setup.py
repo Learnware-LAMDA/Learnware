@@ -1,6 +1,6 @@
 import os
 from setuptools import find_packages, setup
-
+from enum import Enum
 
 def read(rel_path: str) -> str:
     here = os.path.abspath(os.path.dirname(__file__))
@@ -29,22 +29,21 @@ VERSION = get_version("learnware/__init__.py")
 if os.path.exists("MANIFEST"):
     os.remove("MANIFEST")
 
-
-MACOS = 0
-WINDOWS = 1
-LINUX = 2
-
+class SystemType(Enum):
+    LINUX = 0
+    MACOS = 1
+    WINDOWS = 2
 
 def get_platform():
     import platform
 
     sys_platform = platform.platform().lower()
     if "windows" in sys_platform:
-        return WINDOWS
+        return SystemType.WINDOWS
     elif "macos" in sys_platform:
-        return MACOS
+        return SystemType.MACOS
     elif "linux" in sys_platform:
-        return LINUX
+        return SystemType.LINUX
     raise SystemError("Learnware only support MACOS/Linux/Windows")
 
 
@@ -72,6 +71,34 @@ REQUIRED = [
     "geatpy>=2.7.0;python_version<'3.11'",
 ]
 
+DEV_REQUIRED = [
+    # For documentations
+    "sphinx",
+    "sphinx_rtd_theme",
+    # CI dependencies
+    "pytest>=3",
+    "wheel",
+    "setuptools",
+    "pylint",
+    # For static analysis
+    "mypy<0.981",
+    "flake8",
+    "black==23.1.0",
+    "pre-commit",
+]
+
+FULL_REQUIRED = [
+    # The default full requirements for learnware package
+    "torch==2.1.0",
+    "torchvision==0.16.0",
+    "torch-optimizer>=0.3.0",
+    "sentence_transformers>=2.2.2",
+]
+
+# In MACOS, the lightgbm package should be installed with brew.
+if get_platform() != SystemType.MACOS:
+    FULL_REQUIRED += ["lightgbm>=3.3.0"]
+    
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
@@ -91,29 +118,8 @@ if __name__ == "__main__":
         python_requires=REQUIRES_PYTHON,
         install_requires=REQUIRED,
         extras_require={
-            "dev": [
-                # For documentations
-                "sphinx",
-                "sphinx_rtd_theme",
-                # CI dependencies
-                "pytest>=3",
-                "wheel",
-                "setuptools",
-                "pylint",
-                # For static analysis
-                "mypy<0.981",
-                "flake8",
-                "black==23.1.0",
-                "pre-commit",
-            ],
-            "full": [
-                # The default full requirements for learnware package
-                "torch==2.1.0",
-                "torchvision==0.16.0",
-                "torch-optimizer>=0.3.0",
-                "lightgbm>=3.3.0",
-                "sentence_transformers>=2.2.2",
-            ],
+            "dev": DEV_REQUIRED,
+            "full":  FULL_REQUIRED,
         },
         classifiers=[
             "Intended Audience :: Science/Research",
