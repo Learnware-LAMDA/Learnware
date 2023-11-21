@@ -5,7 +5,7 @@ from .import_utils import is_torch_available
 from .module import get_module_by_module_path
 from .file import read_yaml_to_dict, save_dict_to_yaml
 from .gpu import setup_seed, choose_device, allocate_cuda_idx
-
+from ..config import get_platform, SystemType
 
 def zip_learnware_folder(path: str, output_name: str):
     with zipfile.ZipFile(output_name, "w") as zip_ref:
