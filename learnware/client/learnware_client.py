@@ -243,22 +243,28 @@ class LearnwareClient:
 
     def create_semantic_specification(
         self,
-        name,
-        description,
-        data_type,
-        task_type,
-        library_type,
-        scenarios,
+        name=None,
+        description=None,
+        data_type=None,
+        task_type=None,
+        library_type=None,
+        scenarios=None,
         input_description=None,
         output_description=None,
     ):
         semantic_specification = dict()
-        semantic_specification["Data"] = {"Type": "Class", "Values": [data_type]}
-        semantic_specification["Task"] = {"Type": "Class", "Values": [task_type]}
-        semantic_specification["Library"] = {"Type": "Class", "Values": [library_type]}
-        semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios}
-        semantic_specification["Name"] = {"Type": "String", "Values": name}
-        semantic_specification["Description"] = {"Type": "String", "Values": description}
+        semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
+        semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
+        semantic_specification["Library"] = {
+            "Type": "Class",
+            "Values": [library_type] if library_type is not None else [],
+        }
+        semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios if scenarios is not None else []}
+        semantic_specification["Name"] = {"Type": "String", "Values": name if name is not None else ""}
+        semantic_specification["Description"] = {
+            "Type": "String",
+            "Values": description if description is not None else "",
+        }
         semantic_specification["Input"] = input_description
         semantic_specification["Output"] = output_description
 
