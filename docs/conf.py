@@ -1,4 +1,5 @@
 import pkg_resources
+import sphinx_rtd_theme
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -90,9 +91,7 @@ todo_include_todos = True
 # a list of builtin themes.
 #
 html_theme = "sphinx_rtd_theme"
-
-html_logo = "_static/img/logo/logo1.png"
-
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_options = {
     "logo_only": True,
     "collapse_navigation": False,
@@ -100,6 +99,17 @@ html_theme_options = {
     "navigation_depth": 4,
 }
 
+html_logo = "_static/img/logo/logo1.png"
+
+
+# These folders are copied to the documentation's HTML output
+html_static_path = ['_static']
+
+# These paths are either relative to html_static_path
+# or fully qualified paths (eg. https://...)
+html_css_files = [
+    'css/custom_style.css',
+]
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
