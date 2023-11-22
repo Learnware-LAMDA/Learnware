@@ -335,7 +335,7 @@ class LearnwareClient:
                     semantic_specification = json.load(fin)
 
             return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
-
+        
         learnware_list = []
         if learnware_path is not None:
             zip_paths = [learnware_path] if isinstance(learnware_path, str) else learnware_path
@@ -362,10 +362,8 @@ class LearnwareClient:
                 with LearnwaresContainer(learnware_list, cleanup=False, mode="docker") as env_container:
                     learnware_list = env_container.get_learnwares_with_container()
 
-        if len(learnware_list) == 1:
-            return learnware_list[0]
-        else:
-            return learnware_list
+        single_flag = isinstance(learnware_path, str) if learnware_path is not None else isinstance(learnware_id, str)
+        return learnware_list[0] if single_flag else learnware_list
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
