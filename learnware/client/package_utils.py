@@ -78,7 +78,7 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
             continue
         try:
             package_name = parse_pip_requirement(package)
-            if package_name != "learnware":
+            if package_name is not None and package_name != "learnware":
                 try_to_run(args=["pip", "index", "versions", package_name], timeout=5)
                 exist_packages.append(package)
                 continue
