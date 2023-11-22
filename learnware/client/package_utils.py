@@ -47,7 +47,7 @@ def parse_pip_requirement(line: str):
     return package_str
 
 
-def read_pip_packages_from_requirements(requirements_file: str) -> List[str]:
+def read_pip_packages_from_requirements(requirements_file: str) -> Tuple[List[str], List[str]]:
     """Read requiremnts.txt and parse it to list"""
 
     packages = []
@@ -74,6 +74,8 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
     exist_packages = []
     nonexist_packages = []
     for package in packages:
+        if package is None:
+            continue
         try:
             package_name = parse_pip_requirement(package)
             if package_name != "learnware":

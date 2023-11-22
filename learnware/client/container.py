@@ -7,7 +7,7 @@ import tempfile
 import shortuuid
 from concurrent.futures import ThreadPoolExecutor
 
-from typing import List, Union
+from typing import List, Union, Optional
 from .utils import system_execute, install_environment, remove_enviroment
 from ..config import C
 from ..learnware import Learnware
@@ -77,7 +77,7 @@ class ModelContainer(BaseModel):
 
 
 class ModelCondaContainer(ModelContainer):
-    def __init__(self, model_config: dict, learnware_dirpath: str, conda_env: str = None, build: bool = True):
+    def __init__(self, model_config: dict, learnware_dirpath: str, conda_env: Optional[str] = None, build: bool = True):
         self.conda_env = f"learnware_{shortuuid.uuid()}" if conda_env is None else conda_env
         super(ModelCondaContainer, self).__init__(model_config, learnware_dirpath, build)
 
@@ -567,7 +567,7 @@ class LearnwaresContainer:
             return
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
-        with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
+        with ThreadPoolExecutor(max_workers=(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._destroy_model_container, model_list, [self.ignore_error] * len(model_list))
 
         self.learnware_containers = None
