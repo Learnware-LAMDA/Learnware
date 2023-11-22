@@ -4,19 +4,9 @@ Learnware Client
 
 
 Introduction
-==================== 
-
-``Learnware Client`` is a python api that provides a convenient interface for interacting with the official market. You can easily use the client to upload, download and search learnwares.
-
-
-Installation
 ====================
 
-``Learnware Client`` is contained in the ``learnware`` package. You can install it using pip:
-
-.. code-block:: bash
-
-    pip install learnware
+``Learnware Client`` is a python api that provides a convenient interface for interacting with the official market. You can easily use the client to upload, download and search learnwares.
 
 
 Prepare access token
@@ -25,7 +15,7 @@ Prepare access token
 Before using the ``Learnware Client``, you'll need to obtain a token from the `official website <https://www.lamda.nju.edu.cn/learnware/>`_. Just login to the website and click "client token" tab in the user center.
 
 
-Use Client
+How to Use Client
 ============================
 
 

@@ -1,13 +1,12 @@
-.. _performance:
+.. _exp:
 ================================
 Experiments and Examples
 ================================
 
 This chapter will introduce related experiments to illustrate the search and reuse performance of our learnware system.
 
-
 Environment
-================
+====================
 For all experiments, we used a single linux server. Details on the specifications are listed in the table below. All processors were used for training and evaluating.
 
 ====================  ====================  ===============================
@@ -17,9 +16,8 @@ Ubuntu 20.04.4 LTS    Nvidia Tesla V100S    Intel(R) Xeon(R) Gold 6240R
 ====================  ====================  ===============================
 
 
-
-Experiments
-================
+Table: homo+hetero
+====================
 
 Datasets
 ------------------
@@ -54,6 +52,15 @@ PFS                     1.955 +/- 2.866    2.175 +/- 2.847                    1.
 M5                      2.066 +/- 0.424    2.116 +/- 0.472                    2.512 +/- 0.573
 CIFAR10                 0.619 +/- 0.138    0.585 +/- 0.056                    0.715 +/- 0.075
 ====================  ==================== ================================= =================================
+
+
+
+Text Experiment
+====================
+
+
+Image Experiment
+====================
 
 
 Get Start Examples

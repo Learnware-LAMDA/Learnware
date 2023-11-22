@@ -1,3 +1,4 @@
+.. _intro:
 ================
 Introduction
 ================
@@ -53,6 +54,7 @@ The learnware paradigm introduces the concept of a well-performed, trained machi
 Developers or owners of trained machine learning models can submit their models to a learnware market. If accepted, the market assigns a specification to the model and accommodates it. The learnware market could host thousands or millions of well-performed models from different developers, for various tasks, using diverse data, and optimizing different objectives.
 
 Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their model. This process is more efficient and less expensive than building a model from scratch.
+
 
 Benefits of the Learnware Paradigm
 ==============================================

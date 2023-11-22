@@ -3,6 +3,9 @@
 Specification
 ================================
 
+Concepts & Types
+======================================
+
 The search of helpful learnwares can be divided into two stages: statistical specification and semantic specification.
 
 Statistical Specification
@@ -65,3 +68,21 @@ Semantic Specification
 ---------------------------
 
 The semantic specification describes the characteristics of user's task and the market will identify potentially helpful leaarnwares whose models solve tasks similar to your requirements. The detail semantic specification is in `Indentification Learnwares <../workflow/identify.html>`_.
+
+
+Regular Specification
+======================================
+
+
+Table Specification
+--------------------------
+
+Image Specification
+--------------------------
+
+Text Specification
+--------------------------
+
+
+System Specification
+======================================

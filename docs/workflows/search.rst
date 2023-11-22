@@ -1,9 +1,12 @@
 ============================================================
-Helpful Learnwares Identification
+Learnwares Search
 ============================================================
 
 When a user comes with her requirements, the market should identify helpful learnwares and recommend them to the user.
 The search of helpful learnwares is based on the user information, and can be divided into two stages: semantic specification search and statistical specification search.
+
+Homo Search
+======================
 
 User information
 -------------------------------
@@ -104,3 +107,6 @@ We first filter by the dimension of RKME specifications; only those with the sam
 The single_learnware_list is calculated using the distances between two RKMEs. The greater the distance from the user's RKME, the lower the score is. 
 
 The mixture_learnware_list is calculated in a greedy way. Each time we choose a learnware to make their mixture closer to the user's RKME. Specifically, each time we go through all the left learnwares to find the one whose combination with chosen learnwares could minimize the distance between their mixture's RKME and the user's RKME. The mixture weight is calculated by minimizing the RKME distance, which is solved by quadratic programming. If the distance become larger or the number of chosen learnwares reaches a threshold, the process will end and the chosen learnware and weight list will return.
+
+Hetero Search
+======================
