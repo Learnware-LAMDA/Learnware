@@ -163,7 +163,9 @@ class DatabaseOperations(object):
 
     def load_market(self):
         with self.engine.connect() as conn:
-            cursor = conn.execute(text("SELECT id, semantic_spec, zip_path, folder_path, use_flag FROM tb_learnware;"))
+            cursor = conn.execute(
+                text("SELECT id, semantic_spec, zip_path, folder_path, use_flag FROM tb_learnware ORDER BY id DESC;")
+            )
 
             learnware_list = {}
             zip_list = {}
