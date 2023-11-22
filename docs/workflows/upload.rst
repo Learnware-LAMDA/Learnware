@@ -149,6 +149,9 @@ We recommend using ``environment.yaml`` as it can help minimize conflicts betwee
     This may involve manually opening the file and removing any unnecessary packages.
 
 
+Check Learnware
+====================
+
 Upload Learnware 
 ==================
 

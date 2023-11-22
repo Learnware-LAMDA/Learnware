@@ -1,4 +1,4 @@
-.. _code_standard:
+.. _dev:
 
 =============
 Code Standard
