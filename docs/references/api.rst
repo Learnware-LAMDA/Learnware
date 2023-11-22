@@ -3,10 +3,7 @@
 API Reference
 ================================
 
-
-
 Here you can find all ``learnware`` interfaces.
-
 
 Market
 ====================
@@ -14,32 +11,24 @@ Market
 .. autoclass:: learnware.market.LearnwareMarket
     :members:
 
-.. autoclass:: learnware.market.EasyMarket
-    :members:
-
-.. autoclass:: learnware.market.AnchoredMarket
-    :members:
-
-.. autoclass:: learnware.market.EvolvedMarket
-    :members:
-
 .. autoclass:: learnware.market.BaseUserInfo
     :members:
     
-Learnware
+Learnware & Reuser
 ====================
 
 .. autoclass:: learnware.learnware.Learnware
     :members:
 
-.. autoclass:: learnware.learnware.BaseReuser
+.. autoclass:: learnware.reuse.BaseReuser
     :members:
 
-.. autoclass:: learnware.learnware.JobSelectorReuser
+.. autoclass:: learnware.reuse.JobSelectorReuser
     :members:
 
-.. autoclass:: learnware.learnware.AveragingReuser
+.. autoclass:: learnware.reuse.AveragingReuser
     :members:
+
     
 Specification
 ====================
@@ -53,10 +42,14 @@ Specification
 .. autoclass:: learnware.specification.RKMETableSpecification
     :members:
 
+.. autoclass:: learnware.specification.RKMEImageSpecification
+    :members:
+
+.. autoclass:: learnware.specification.RKMETextSpecification
+    :members:
+
 Model
 ====================
 
 .. autoclass:: learnware.model.BaseModel
     :members:
-
-

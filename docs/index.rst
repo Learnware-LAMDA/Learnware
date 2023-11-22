@@ -32,10 +32,10 @@ Document Structure
    :maxdepth: 3
    :caption: WORKFLOWS:
 
-   Learnware Preparation and Uploading <workflow/upload.rst>
-   Learnware Search <workflow/search.rst>
-   Learnware Reuse <workflow/reuse.rst>
-   Learnware Client <workflow/client.rst>
+   Learnware Preparation and Uploading <workflows/upload.rst>
+   Learnware Search <workflows/search.rst>
+   Learnware Reuse <workflows/reuse.rst>
+   Learnware Client <workflows/client.rst>
 
 .. toctree::
    :maxdepth: 3
@@ -50,8 +50,8 @@ Document Structure
    :maxdepth: 3
    :caption: ADVANCED TOPICS:
 
-   Anchor Learnware <advanced/Anchor Learnware.rst>
-   Specification Evolvement <advanced/Specification evolvement.rst>
+   Anchor Learnware <advanced/anchor.rst>
+   Specification Evolvement <advanced/evolve.rst>
 
 .. toctree::
    :maxdepth: 3

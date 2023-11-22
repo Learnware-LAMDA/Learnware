@@ -84,7 +84,7 @@ includes the following four components:
             
                 pip install -r requirements.txt.
 
-We've also detailed the format of the learnware zipfile in :ref:`Learnware Preparation<workflow/submit:Prepare Learnware>`.
+We've also detailed the format of the learnware zipfile in :ref:`Learnware Preparation<workflows/upload:Prepare Learnware>`.
 
 
 Learnware Market Workflow
