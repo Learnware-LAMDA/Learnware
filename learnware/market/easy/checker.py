@@ -137,7 +137,11 @@ class EasyStatChecker(BaseChecker):
                 logger.warning(message)
                 return self.INVALID_LEARNWARE, message
 
-            if semantic_spec["Task"]["Values"][0] in ["Classification", "Regression", "Feature Extraction"]:
+            if learnware_model.output_shape is not None or semantic_spec["Task"]["Values"][0] in [
+                "Classification",
+                "Regression",
+                "Feature Extraction",
+            ]:
                 # Check output type
                 if isinstance(outputs, torch.Tensor):
                     outputs = outputs.detach().cpu().numpy()
@@ -159,8 +163,8 @@ class EasyStatChecker(BaseChecker):
                 if semantic_spec["Task"]["Values"][0] in [
                     "Classification",
                     "Regression",
-                ] and learnware_model.output_shape != int(semantic_spec["Output"]["Dimension"]):
-                    message = f"The learnware [{learnware.id}] output dimension mismatch!, where pred_shape={outputs[0].shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
+                ] and learnware_model.output_shape[0] != int(semantic_spec["Output"]["Dimension"]):
+                    message = f"The learnware [{learnware.id}] output dimension mismatch!, where model_shape={learnware_model.output_shape}, semantic_shape={(int(semantic_spec['Output']['Dimension']), )}"
                     logger.warning(message)
                     return self.INVALID_LEARNWARE, message
 
