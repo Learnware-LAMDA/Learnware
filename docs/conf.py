@@ -1,5 +1,5 @@
 import pkg_resources
-import sphinx_rtd_theme
+import sphinx_book_theme
 
 # Configuration file for the Sphinx documentation builder.
 #
@@ -90,12 +90,10 @@ todo_include_todos = True
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+html_theme = "sphinx_book_theme"
+html_theme_path = [sphinx_book_theme.get_html_theme_path()]
 html_theme_options = {
-    "logo_only": True,
     "collapse_navigation": False,
-    "display_version": False,
     "navigation_depth": 4,
 }
 
@@ -110,21 +108,6 @@ html_static_path = ['_static']
 html_css_files = [
     'css/custom_style.css',
 ]
-
-# Custom sidebar templates, must be a dictionary that maps document names
-# to template names.
-#
-# This is required for the alabaster theme
-# refs: http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
-html_sidebars = {
-    "**": [
-        "about.html",
-        "navigation.html",
-        "relations.html",  # needs 'show_related': True theme option to display
-        "searchbox.html",
-    ]
-}
-
 
 # -- Options for HTMLHelp output ------------------------------------------
 
