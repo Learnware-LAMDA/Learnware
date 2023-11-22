@@ -123,7 +123,6 @@ class ModelCondaContainer(ModelContainer):
 
         input_shape = output_results["metadata"]["input_shape"]
         output_shape = output_results["metadata"]["output_shape"]
-        logger.info(f"input_shape: {input_shape}, output_shape: {output_shape}")
         self.reset(input_shape=input_shape, output_shape=output_shape)
 
     def _run_model_with_script(self, method, **kargs):
