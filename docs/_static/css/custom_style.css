@@ -1,3 +1,20 @@
-.wy-nav-content {
-    max-width: none;
+.bd-main {
+    flex-grow: 1;
+    flex-direction: column;
+    display: flex;
+    min-width: 0;
+}
+
+.bd-main .bd-content {
+    justify-content: left;
+}
+
+.bd-main .bd-content .bd-article-container {
+    max-width: calc(100% - var(--pst-sidebar-secondary));
+}
+
+.bd-sidebar-primary div#rtd-footer-container {
+    bottom: -1rem;
+    margin: -1rem;
+    position: fixed;
 }
