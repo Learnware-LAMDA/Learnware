@@ -567,7 +567,7 @@ class LearnwaresContainer:
             return
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
-        with ThreadPoolExecutor(max_workers=(os.cpu_count() // 2, 1)) as executor:
+        with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
             executor.map(self._destroy_model_container, model_list, [self.ignore_error] * len(model_list))
 
         self.learnware_containers = None
