@@ -92,7 +92,7 @@ class LearnwareClient:
 
     @require_login
     def upload_learnware(self, learnware_zip_path, semantic_specification):
-        assert self._check_semantic_specification(semantic_specification), "Semantic specification check failed!"
+        assert self._check_semantic_specification(semantic_specification)[0], "Semantic specification check failed!"
         file_hash = compute_file_hash(learnware_zip_path)
         url_upload = f"{self.host}/user/chunked_upload"
 
@@ -369,7 +369,8 @@ class LearnwareClient:
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
-        return EasySemanticChecker.check_semantic_spec(semantic_spec)[0] != BaseChecker.INVALID_LEARNWARE
+        check_status, message = EasySemanticChecker.check_semantic_spec(semantic_spec)
+        return check_status != BaseChecker.INVALID_LEARNWARE, message
 
     @staticmethod
     def _check_stat_specification(learnware):
@@ -385,9 +386,8 @@ class LearnwareClient:
             get_semantic_specification() if semantic_specification is None else semantic_specification
         )
 
-        assert LearnwareClient._check_semantic_specification(
-            semantic_specification
-        ), "Semantic specification check failed!"
+        check_status, message = LearnwareClient._check_semantic_specification(semantic_specification)
+        assert check_status, f"Semantic specification check failed due to {message}!"
 
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(learnware_zip_path, mode="r") as z_file:
