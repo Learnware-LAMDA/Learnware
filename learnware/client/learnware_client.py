@@ -9,7 +9,7 @@ import requests
 import tempfile
 from enum import Enum
 from tqdm import tqdm
-from typing import Union, List
+from typing import Union, List, Optional
 
 from ..config import C
 from .. import learnware
@@ -273,9 +273,9 @@ class LearnwareClient:
 
     def load_learnware(
         self,
-        learnware_path: Union[str, List[str]] = None,
-        learnware_id: Union[str, List[str]] = None,
-        runnable_option: str = None,
+        learnware_path: Optional[Union[str, List[str]]] = None,
+        learnware_id: Optional[Union[str, List[str]]] = None,
+        runnable_option: Optional[str] = None,
     ):
         """Load learnware by learnware zip file or learnware id (zip file has higher priority)
 
@@ -297,7 +297,7 @@ class LearnwareClient:
             The contructed learnware object or object list
         """
         if runnable_option is not None and runnable_option not in ["conda", "docker"]:
-            raise logger.warning(f"runnable_option must be one of ['conda', 'docker'], but got {runnable_option}")
+            raise ValueError(f"runnable_option must be one of ['conda', 'docker'], but got {runnable_option}")
 
         if learnware_path is None and learnware_id is None:
             raise ValueError("Requires one of learnware_path or learnware_id")
