@@ -32,6 +32,20 @@ class TestCheckLearnware(unittest.TestCase):
             self.client.download_learnware(learnware_id, self.zip_path)
             LearnwareClient.check_learnware(self.zip_path)
 
+    def test_check_learnware_image(self):
+        learnware_id = "00000677"
+        with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
+            self.zip_path = os.path.join(tempdir, "test.zip")
+            self.client.download_learnware(learnware_id, self.zip_path)
+            LearnwareClient.check_learnware(self.zip_path)
+
+    def test_check_learnware_text(self):
+        learnware_id = "00000662"
+        with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
+            self.zip_path = os.path.join(tempdir, "test.zip")
+            self.client.download_learnware(learnware_id, self.zip_path)
+            LearnwareClient.check_learnware(self.zip_path)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -571,6 +571,9 @@ class EasyStatSearcher(BaseSearcher):
         logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
         sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
+        if len(single_learnware_list) == 0:
+            return [], [], None, []
+
         processed_learnware_list = single_learnware_list[: max_search_num * max_search_num]
         if sorted_dist_list[0] > 0 and search_method == "auto":
             mixture_dist, weight_list, mixture_learnware_list = self._search_by_rkme_spec_mixture_auto(
