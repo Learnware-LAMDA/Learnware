@@ -14,7 +14,7 @@ if not is_torch_available(verbose=False):
     JobSelectorReuser = None
     EnsemblePruningReuser = None
     logger.error(
-        "[AveragingReuser, FeatureAugmentReuser, HeteroMapAlignLearnware, FeatureAlignLearnware, JobSelectorReuser, EnsemblePruningReuser] are skipped due to 'torch' is not installed!"
+        "[AveragingReuser, FeatureAugmentReuser, HeteroMapAlignLearnware, FeatureAlignLearnware, JobSelectorReuser, EnsemblePruningReuser] are not available due to 'torch' is not installed!"
     )
 else:
     from .averaging import AveragingReuser

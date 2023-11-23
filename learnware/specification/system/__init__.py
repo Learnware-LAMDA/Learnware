@@ -6,6 +6,6 @@ logger = get_module_logger("system_spec")
 
 if not is_torch_available(verbose=False):
     HeteroMapTableSpecification = None
-    logger.error("HeteroMapTableSpecification is skipped because torch is not installed!")
+    logger.error("HeteroMapTableSpecification is not available because torch is not installed!")
 else:
     from .hetero_table import HeteroMapTableSpecification
