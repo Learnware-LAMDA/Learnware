@@ -1,5 +1,3 @@
-from .utils import is_fast_pytorch_kmeans_available
-
 from ....utils import is_torch_available
 from ....logger import get_module_logger
 

@@ -9,7 +9,6 @@ import numpy as np
 from qpsolvers import solve_qp, Problem, solve_problem
 from collections import Counter
 from typing import Any, Union
-from fast_pytorch_kmeans import KMeans
 
 from ..base import RegularStatSpecification
 from ....logger import get_module_logger
@@ -143,6 +142,12 @@ class RKMETableSpecification(RegularStatSpecification):
             X = torch.from_numpy(X)
             
         X = X.to(self._device)
+        
+        try:
+            from fast_pytorch_kmeans import KMeans
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(f"RKMETableSpecification is not available because 'fast_pytorch_kmeans' is not installed! Please install it manually." )
+
         kmeans = KMeans(n_clusters=K, mode='euclidean', max_iter=100, verbose=0)
         kmeans.fit(X)
         self.z = kmeans.centroids.double()

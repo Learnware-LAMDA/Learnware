@@ -10,7 +10,6 @@ from typing import Any
 
 import numpy as np
 import torch
-import torch_optimizer
 from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
@@ -128,7 +127,7 @@ class RKMEImageSpecification(RegularStatSpecification):
         try:
             from torchvision.transforms import Resize
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"RKMEImageSpecification is not available because 'torchvision' is not installed!")
+            raise ModuleNotFoundError(f"RKMEImageSpecification is not available because 'torchvision' is not installed! Please install it manually." )
             
         if X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH:
             X = Resize((RKMEImageSpecification.IMAGE_WIDTH, RKMEImageSpecification.IMAGE_WIDTH), antialias=None)(X)
@@ -155,7 +154,12 @@ class RKMEImageSpecification(RegularStatSpecification):
         with torch.no_grad():
             x_features = self._generate_random_feature(X_train, random_models=random_models)
         self._update_beta(x_features, nonnegative_beta, random_models=random_models)
-
+        
+        try:
+            import torch_optimizer
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually.")
+        
         optimizer = torch_optimizer.AdaBelief([{"params": [self.z]}], lr=step_size, eps=1e-16)
 
         for _ in tqdm(range(steps)) if verbose else range(steps):

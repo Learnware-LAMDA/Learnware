@@ -1,4 +1,3 @@
-from .utils import is_torch_optimizer_available, is_torchvision_available
 from ....utils import is_torch_available
 from ....logger import get_module_logger
 
