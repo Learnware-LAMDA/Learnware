@@ -1,4 +1,4 @@
-__version__ = "0.2.0.3"
+__version__ = "0.2.0.4"
 
 import os
 import json
@@ -55,7 +55,7 @@ def init(verbose=True, **kwargs):
 
 if not is_torch_available(verbose=False):
     logger.warning(
-        "The ability of learnware is limited due to 'torch' is not installed! Only the core framework is available now."
+        "The learnware package's capabilities are restricted because 'torch' is not installed. Only the core framework is available now."
     )
 
 # default init package
