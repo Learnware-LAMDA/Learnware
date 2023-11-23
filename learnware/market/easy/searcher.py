@@ -6,7 +6,7 @@ from typing import Tuple, List, Union
 
 from .organizer import EasyOrganizer
 from ..utils import parse_specification_type
-from ..base import BaseUserInfo, BaseSearcher
+from ..base import BaseUserInfo, BaseSearcher, SearchResults
 from ...learnware import Learnware
 from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification, rkme_solve_qp
 from ...logger import get_module_logger

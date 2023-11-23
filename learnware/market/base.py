@@ -3,12 +3,12 @@ from __future__ import annotations
 import traceback
 import zipfile
 import tempfile
-from typing import Tuple, Any, List, Union, Dict
+from typing import Tuple, Any, List, Union, Dict, Optional
 from dataclasses import dataclass
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..logger import get_module_logger
 
-logger = get_module_logger("market_base", "INFO")
+logger = get_module_logger("market_base")
 
 
 class BaseUserInfo:
@@ -55,18 +55,25 @@ class BaseUserInfo:
         """
         self.stat_info[name] = item
 
+
 @dataclass
 class SearchItem:
     score: float
-    learnware_list: List[Learnware]
+    learnwares: Union[Learnware, List[Learnware]]
 
 class SearchResults:
-    def __init__(self):
-        self.search_results: Dict[str, List[SearchItem]] = {}
+    def __init__(self, single_results: Optional[List[SearchItem]] = None, multiple_results: Optional[List[SearchItem]] = None):
+        self.single_results: List[SearchItem] = [] if single_results is None else single_results
+        self.multiple_results: List[SearchItem] = [] if multiple_results is None else multiple_results
 
-    def get_types(self):
-        return list(self.search_results.keys())
+    def get_single_results(self):
+        return self.single_results
+
+    def get_multiple_results(self):
+        return self.multiple_results
     
+    def update_single_results(self, score_list: List[float], learnware_list:List[Learnware]):
+         
     def update(self, type, score_list: List[float], learnware_lists: List[List[Learnware]]):
         search_terms = [SearchItem(score, learnware_list) for score, learnware_list in zip(score_list, learnware_lists)]
         search_terms = sorted(search_terms, key=lambda x:x.score)
