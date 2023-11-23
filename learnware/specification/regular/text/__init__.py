@@ -6,24 +6,8 @@ from ....logger import get_module_logger
 
 logger = get_module_logger("regular_text_spec")
 
-if (
-    not is_sentence_transformers_available(verbose=False)
-    or not is_torch_available(verbose=False)
-    or not is_fast_pytorch_kmeans_available(verbose=False)
-):
+if not is_torch_available(verbose=False):
     RKMETextSpecification = None
-    uninstall_packages = [
-        value
-        for flag, value in zip(
-            [
-                is_sentence_transformers_available(verbose=False),
-                is_torch_available(verbose=False),
-                is_fast_pytorch_kmeans_available(verbose=False),
-            ],
-            ["sentence_transformers", "torch", "fast_pytorch_kmeans"],
-        )
-        if flag is False
-    ]
-    logger.warning(f"RKMETextSpecification is skipped because {uninstall_packages} is not installed!")
+    logger.warning(f"RKMETextSpecification is skipped because 'torch' is not installed!")
 else:
     from .rkme import RKMETextSpecification

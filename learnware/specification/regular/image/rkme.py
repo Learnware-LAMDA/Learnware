@@ -13,7 +13,6 @@ import torch
 import torch_optimizer
 from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
-from torchvision.transforms import Resize
 from tqdm import tqdm
 
 from . import cnn_gp
@@ -126,7 +125,11 @@ class RKMEImageSpecification(RegularStatSpecification):
                         raise ValueError(f"All values in image {i} are exceptional, e.g., NaN and Inf.")
                     img_mean = torch.nanmean(img)
                     X[i] = torch.where(is_nan, img_mean, img)
-
+        try:
+            from torchvision.transforms import Resize
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(f"RKMEImageSpecification is not available because 'torchvision' is not installed!")
+            
         if X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH:
             X = Resize((RKMEImageSpecification.IMAGE_WIDTH, RKMEImageSpecification.IMAGE_WIDTH), antialias=None)(X)
 
