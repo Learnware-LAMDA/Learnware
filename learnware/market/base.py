@@ -3,7 +3,8 @@ from __future__ import annotations
 import traceback
 import zipfile
 import tempfile
-from typing import Tuple, Any, List, Union
+from typing import Tuple, Any, List, Union, Dict
+from dataclasses import dataclass
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..logger import get_module_logger
 
@@ -53,6 +54,26 @@ class BaseUserInfo:
             Statistical information calculated by market
         """
         self.stat_info[name] = item
+
+@dataclass
+class SearchItem:
+    score: float
+    learnware_list: List[Learnware]
+
+class SearchResults:
+    def __init__(self):
+        self.search_results: Dict[str, List[SearchItem]] = {}
+
+    def get_types(self):
+        return list(self.search_results.keys())
+    
+    def update(self, type, score_list: List[float], learnware_lists: List[List[Learnware]]):
+        search_terms = [SearchItem(score, learnware_list) for score, learnware_list in zip(score_list, learnware_lists)]
+        search_terms = sorted(search_terms, key=lambda x:x.score)
+        self.search_results[type] = search_terms
+        
+    def get(self, type, default=None):
+        return  self.search_results.get(type, default)
 
 
 class LearnwareMarket:
@@ -150,7 +171,7 @@ class LearnwareMarket:
 
     def search_learnware(
         self, user_info: BaseUserInfo, check_status: int = None, **kwargs
-    ) -> Tuple[Any, List[Learnware]]:
+    ) -> SearchResults:
         """Search learnwares based on user_info from learnwares with check_status
 
         Parameters
@@ -163,7 +184,7 @@ class LearnwareMarket:
 
         Returns
         -------
-        Tuple[Any, List[Learnware]]
+        SearchResults
             Search results
         """
         return self.learnware_searcher(user_info, check_status, **kwargs)
@@ -450,7 +471,7 @@ class BaseSearcher:
     def reset(self, organizer: BaseOrganizer, **kwargs):
         self.learnware_organizer = organizer
 
-    def __call__(self, user_info: BaseUserInfo, check_status: int = None):
+    def __call__(self, user_info: BaseUserInfo, check_status: int = None) -> SearchResults:
         """Search learnwares based on user_info from learnwares with check_status
 
         Parameters
