@@ -59,28 +59,32 @@ class BaseUserInfo:
 @dataclass
 class SearchItem:
     score: float
-    learnwares: Union[Learnware, List[Learnware]]
+    learnwares: Union[List[Learnware] ,Learnware]
 
 class SearchResults:
     def __init__(self, single_results: Optional[List[SearchItem]] = None, multiple_results: Optional[List[SearchItem]] = None):
-        self.single_results: List[SearchItem] = [] if single_results is None else single_results
-        self.multiple_results: List[SearchItem] = [] if multiple_results is None else multiple_results
+        self.search_mapping: Dict[str, List[SearchItem]] = {
+            "single": [] if single_results is None else single_results,
+            "multiple": [] if multiple_results is None else multiple_results,
+        }
 
-    def get_single_results(self):
-        return self.single_results
-
-    def get_multiple_results(self):
-        return self.multiple_results
+    def get_results(self, name):
+        if name in self.search_mapping:
+            return self.search_mapping[name]
+        else:
+            raise KeyError(f"name '{name}' is not supported for search results")
     
-    def update_single_results(self, score_list: List[float], learnware_list:List[Learnware]):
-         
-    def update(self, type, score_list: List[float], learnware_lists: List[List[Learnware]]):
-        search_terms = [SearchItem(score, learnware_list) for score, learnware_list in zip(score_list, learnware_lists)]
-        search_terms = sorted(search_terms, key=lambda x:x.score)
-        self.search_results[type] = search_terms
-        
-    def get(self, type, default=None):
-        return  self.search_results.get(type, default)
+    def update_results(self, name, search_result: List[SearchItem]):
+        if name in self.search_mapping:
+            self.search_mapping[name] =  search_result
+        else:
+            raise KeyError(f"name '{name}' is not supported for search results")
+    
+    def sort(self, name=None, ascending: bool=True):
+        assert name is None or name in self.search_mapping, f"name '{name}' is not supported for search results"
+        for key, search_result in self.search_mapping.items():
+            if name is None or name == key:
+                self.search_mapping[key] = sorted(search_result, key=lambda x:x.score, reverse=(not ascending))
 
 
 class LearnwareMarket:
