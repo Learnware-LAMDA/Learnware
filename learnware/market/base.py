@@ -58,8 +58,8 @@ class BaseUserInfo:
 
 @dataclass
 class SearchItem:
-    score: float
     learnwares: Union[List[Learnware] ,Learnware]
+    score: float = 1.0
 
 class SearchResults:
     def __init__(self, single_results: Optional[List[SearchItem]] = None, multiple_results: Optional[List[SearchItem]] = None):
@@ -80,10 +80,11 @@ class SearchResults:
         else:
             raise KeyError(f"name '{name}' is not supported for search results")
     
-    def sort(self, name=None, ascending: bool=True):
+    def sort(self, name=None, ascending: bool=False):
         assert name is None or name in self.search_mapping, f"name '{name}' is not supported for search results"
         for key, search_result in self.search_mapping.items():
             if name is None or name == key:
+                #search_result = [x for x in search_result]
                 self.search_mapping[key] = sorted(search_result, key=lambda x:x.score, reverse=(not ascending))
 
 

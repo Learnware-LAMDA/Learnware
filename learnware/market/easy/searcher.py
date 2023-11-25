@@ -2,11 +2,11 @@ import math
 import torch
 import numpy as np
 from rapidfuzz import fuzz
-from typing import Tuple, List, Union
+from typing import Tuple, List, Union, Optional
 
 from .organizer import EasyOrganizer
 from ..utils import parse_specification_type
-from ..base import BaseUserInfo, BaseSearcher, SearchResults
+from ..base import BaseUserInfo, BaseSearcher, SearchResults, SearchItem
 from ...learnware import Learnware
 from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification, rkme_solve_qp
 from ...logger import get_module_logger
@@ -57,7 +57,7 @@ class EasyExactSemanticSearcher(BaseSearcher):
 
         return True
 
-    def __call__(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> List[Learnware]:
+    def __call__(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> SearchResults:
         match_learnwares = []
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
@@ -65,8 +65,7 @@ class EasyExactSemanticSearcher(BaseSearcher):
             if self._match_semantic_spec(user_semantic_spec, learnware_semantic_spec):
                 match_learnwares.append(learnware)
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
-        return match_learnwares
-
+        return SearchResults(single_results=[SearchItem(learnwares=_learnware) for _learnware in match_learnwares])
 
 class EasyFuzzSemanticSearcher(BaseSearcher):
     def _match_semantic_spec_tag(self, semantic_spec1, semantic_spec2) -> bool:
@@ -111,7 +110,7 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
 
     def __call__(
         self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_num: int = 50000, min_score: float = 75.0
-    ) -> List[Learnware]:
+    ) -> SearchResults:
         """Search learnware by fuzzy matching of semantic spec
 
         Parameters
@@ -182,7 +181,7 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
                 final_result = matched_learnware_tag
 
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(final_result), len(learnware_list)))
-        return final_result
+        return SearchResults(single_results=[SearchItem(learnwares=_learnware) for _learnware in final_result])
 
 
 class EasyStatSearcher(BaseSearcher):
@@ -328,7 +327,7 @@ class EasyStatSearcher(BaseSearcher):
         user_rkme: RKMETableSpecification,
         max_search_num: int,
         weight_cutoff: float = 0.98,
-    ) -> Tuple[float, List[float], List[Learnware]]:
+    ) -> Tuple[Optional[float], List[float], List[Learnware]]:
         """Select learnwares based on a total mixture ratio, then recalculate their mixture weights
 
         Parameters
@@ -351,7 +350,7 @@ class EasyStatSearcher(BaseSearcher):
         """
         learnware_num = len(learnware_list)
         if learnware_num == 0:
-            return [], []
+            return None, [], []
         if learnware_num < max_search_num:
             logger.warning("Available Learnware num less than search_num!")
             max_search_num = learnware_num
@@ -370,7 +369,7 @@ class EasyStatSearcher(BaseSearcher):
 
         if len(mixture_list) <= 1:
             mixture_list = [learnware_list[sort_by_weight_idx_list[0]]]
-            mixture_weight = [1]
+            mixture_weight = [1.0]
             mmd_dist = user_rkme.dist(mixture_list[0].specification.get_stat_spec_by_name(self.stat_spec_type))
         else:
             if len(mixture_list) > max_search_num:
@@ -455,7 +454,7 @@ class EasyStatSearcher(BaseSearcher):
         user_rkme: RKMETableSpecification,
         max_search_num: int,
         decay_rate: float = 0.95,
-    ) -> Tuple[float, List[float], List[Learnware]]:
+    ) -> Tuple[Optional[float], List[float], List[Learnware]]:
         """Greedily match learnwares such that their mixture become closer and closer to user's rkme
 
         Parameters
@@ -484,7 +483,7 @@ class EasyStatSearcher(BaseSearcher):
             max_search_num = learnware_num
 
         flag_list = [0 for _ in range(learnware_num)]
-        mixture_list, weight_list, mmd_dist = [], None, None
+        mixture_list, weight_list, mmd_dist = [], [], None
         intermediate_K, intermediate_C = np.zeros((1, 1)), np.zeros((1, 1))
 
         for k in range(max_search_num):
@@ -543,10 +542,10 @@ class EasyStatSearcher(BaseSearcher):
             the second is the list of Learnware
             both lists are sorted by mmd dist
         """
-        RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
+        rkme_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
         mmd_dist_list = []
-        for RKME in RKME_list:
-            mmd_dist = RKME.dist(user_rkme)
+        for rkme in rkme_list:
+            mmd_dist = rkme.dist(user_rkme)
             mmd_dist_list.append(mmd_dist)
 
         sorted_idx_list = sorted(range(len(learnware_list)), key=lambda k: mmd_dist_list[k])
@@ -561,7 +560,7 @@ class EasyStatSearcher(BaseSearcher):
         user_info: BaseUserInfo,
         max_search_num: int = 5,
         search_method: str = "greedy",
-    ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
+    ) -> SearchResults:
         self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info)
         if self.stat_spec_type is None:
             raise KeyError("No supported stat specification is given in the user info")
@@ -572,7 +571,7 @@ class EasyStatSearcher(BaseSearcher):
 
         sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
         if len(single_learnware_list) == 0:
-            return [], [], None, []
+            return SearchResults()
 
         processed_learnware_list = single_learnware_list[: max_search_num * max_search_num]
         if sorted_dist_list[0] > 0 and search_method == "auto":
@@ -622,7 +621,18 @@ class EasyStatSearcher(BaseSearcher):
             mixture_score = min(1, mixture_score * ratio) if mixture_score is not None else None
         logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
 
-        return sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list
+        search_results = SearchResults()
+        
+        search_results.update_results(
+            name="single",
+            search_result=[SearchItem(learnwares=_learnware, score=_score) for _score, _learnware in zip(sorted_score_list, single_learnware_list)]
+        )
+        if mixture_score is not None and len(mixture_learnware_list) > 0:
+            search_results.update_results(
+                name="multiple",
+                search_result=[SearchItem(learnwares=mixture_learnware_list, score=mixture_score)]           
+            )
+        return search_results
 
 
 class EasySearcher(BaseSearcher):
@@ -638,7 +648,7 @@ class EasySearcher(BaseSearcher):
 
     def __call__(
         self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy"
-    ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
+    ) -> SearchResults:
         """Search learnwares based on user_info from learnwares with check_status
 
         Parameters
@@ -660,12 +670,13 @@ class EasySearcher(BaseSearcher):
             the fourth is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
-        learnware_list = self.semantic_searcher(learnware_list, user_info)
+        semantic_search_result = self.semantic_searcher(learnware_list, user_info)
 
+        learnware_list = semantic_search_result.get_results(name="single")
         if len(learnware_list) == 0:
-            return [], [], 0.0, []
+            return SearchResults()
 
         if parse_specification_type(stat_specs=user_info.stat_info) is not None:
             return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
-            return None, learnware_list, 0.0, None
+            return semantic_search_result
