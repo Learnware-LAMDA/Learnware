@@ -6,7 +6,7 @@ from typing import Tuple, List, Union, Optional
 
 from .organizer import EasyOrganizer
 from ..utils import parse_specification_type
-from ..base import BaseUserInfo, BaseSearcher, SearchResults, SearchItem
+from ..base import BaseUserInfo, BaseSearcher, SearchResults, SingleSearchItem, MultipleSearchItem
 from ...learnware import Learnware
 from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification, rkme_solve_qp
 from ...logger import get_module_logger
@@ -65,7 +65,7 @@ class EasyExactSemanticSearcher(BaseSearcher):
             if self._match_semantic_spec(user_semantic_spec, learnware_semantic_spec):
                 match_learnwares.append(learnware)
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
-        return SearchResults(single_results=[SearchItem(learnwares=_learnware) for _learnware in match_learnwares])
+        return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in match_learnwares])
 
 class EasyFuzzSemanticSearcher(BaseSearcher):
     def _match_semantic_spec_tag(self, semantic_spec1, semantic_spec2) -> bool:
@@ -181,7 +181,7 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
                 final_result = matched_learnware_tag
 
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(final_result), len(learnware_list)))
-        return SearchResults(single_results=[SearchItem(learnwares=_learnware) for _learnware in final_result])
+        return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in final_result])
 
 
 class EasyStatSearcher(BaseSearcher):
@@ -623,14 +623,12 @@ class EasyStatSearcher(BaseSearcher):
 
         search_results = SearchResults()
         
-        search_results.update_results(
-            name="single",
-            search_result=[SearchItem(learnwares=_learnware, score=_score) for _score, _learnware in zip(sorted_score_list, single_learnware_list)]
+        search_results.update_single_results(
+            [SingleSearchItem(learnware=_learnware, score=_score) for _score, _learnware in zip(sorted_score_list, single_learnware_list)]
         )
         if mixture_score is not None and len(mixture_learnware_list) > 0:
-            search_results.update_results(
-                name="multiple",
-                search_result=[SearchItem(learnwares=mixture_learnware_list, score=mixture_score)]           
+            search_results.update_multiple_results(
+                [MultipleSearchItem(learnwares=mixture_learnware_list, score=mixture_score)]           
             )
         return search_results
 
@@ -672,7 +670,7 @@ class EasySearcher(BaseSearcher):
         learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
         semantic_search_result = self.semantic_searcher(learnware_list, user_info)
 
-        learnware_list = semantic_search_result.get_results(name="single")
+        learnware_list = [search_item.learnware for search_item in semantic_search_result.get_single_results()]
         if len(learnware_list) == 0:
             return SearchResults()
 

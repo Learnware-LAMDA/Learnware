@@ -40,7 +40,7 @@ class HeteroSearcher(EasySearcher):
         learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
         semantic_search_result = self.semantic_searcher(learnware_list, user_info)
 
-        learnware_list = semantic_search_result.get_results(name="single")
+        learnware_list = [search_item.learnware for search_item in semantic_search_result.get_single_results()]
         if len(learnware_list) == 0:
             return SearchResults()
 

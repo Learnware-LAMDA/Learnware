@@ -57,36 +57,31 @@ class BaseUserInfo:
 
 
 @dataclass
-class SearchItem:
-    learnwares: Union[List[Learnware] ,Learnware]
-    score: float = 1.0
+class SingleSearchItem:
+    learnware: Learnware
+    score: Optional[float] = None
 
+@dataclass
+class MultipleSearchItem:
+    learnwares: List[Learnware]
+    score: float
+    
 class SearchResults:
-    def __init__(self, single_results: Optional[List[SearchItem]] = None, multiple_results: Optional[List[SearchItem]] = None):
-        self.search_mapping: Dict[str, List[SearchItem]] = {
-            "single": [] if single_results is None else single_results,
-            "multiple": [] if multiple_results is None else multiple_results,
-        }
-
-    def get_results(self, name):
-        if name in self.search_mapping:
-            return self.search_mapping[name]
-        else:
-            raise KeyError(f"name '{name}' is not supported for search results")
+    def __init__(self, single_results: Optional[List[SingleSearchItem]] = None, multiple_results: Optional[List[MultipleSearchItem]] = None):
+        self.update_single_results([] if single_results is None else single_results)
+        self.update_multiple_results([] if multiple_results is None else multiple_results)
+        
+    def get_single_results(self) -> List[SingleSearchItem]:
+        return self.single_results
     
-    def update_results(self, name, search_result: List[SearchItem]):
-        if name in self.search_mapping:
-            self.search_mapping[name] =  search_result
-        else:
-            raise KeyError(f"name '{name}' is not supported for search results")
+    def get_multiple_results(self) -> List[MultipleSearchItem]:
+        return self.multiple_results
     
-    def sort(self, name=None, ascending: bool=False):
-        assert name is None or name in self.search_mapping, f"name '{name}' is not supported for search results"
-        for key, search_result in self.search_mapping.items():
-            if name is None or name == key:
-                #search_result = [x for x in search_result]
-                self.search_mapping[key] = sorted(search_result, key=lambda x:x.score, reverse=(not ascending))
-
+    def update_single_results(self, single_results: List[SingleSearchItem]):
+        self.single_results = single_results
+    
+    def update_multiple_results(self, multiple_results: List[MultipleSearchItem]):
+        self.multiple_results = multiple_results
 
 class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""

@@ -199,26 +199,28 @@ class TestMarket(unittest.TestCase):
         semantic_spec["Name"]["Values"] = f"learnware_{learnware_num - 1}"
 
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
-        _, single_learnware_list, _, _ = hetero_market.search_learnware(user_info)
+        search_result = hetero_market.search_learnware(user_info)
+        single_result = search_result.get_single_results()
 
         print("User info:", user_info.get_semantic_spec())
         print(f"Search result:")
-        assert len(single_learnware_list) == 1, f"Exact semantic search failed!"
-        for learnware in single_learnware_list:
-            semantic_spec1 = learnware.get_specification().get_semantic_spec()
-            print("Choose learnware:", learnware.id, semantic_spec1)
+        assert len(single_result) == 1, f"Exact semantic search failed!"
+        for search_item in single_result:
+            semantic_spec1 = search_item.learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", search_item.learnware.id, semantic_spec1)
             assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
 
         semantic_spec["Name"]["Values"] = "laernwaer"
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
-        _, single_learnware_list, _, _ = hetero_market.search_learnware(user_info)
+        search_result = hetero_market.search_learnware(user_info)
+        single_result = search_result.get_single_results()
 
         print("User info:", user_info.get_semantic_spec())
         print(f"Search result:")
-        assert len(single_learnware_list) == self.learnware_num, f"Fuzzy semantic search failed!"
-        for learnware in single_learnware_list:
-            semantic_spec1 = learnware.get_specification().get_semantic_spec()
-            print("Choose learnware:", learnware.id, semantic_spec1)
+        assert len(single_result) == self.learnware_num, f"Fuzzy semantic search failed!"
+        for search_item in single_result:
+            semantic_spec1 = search_item.learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", search_item.learnware.id, semantic_spec1)
 
     def test_stat_search(self, learnware_num=5):
         hetero_market = self.test_train_market_model(learnware_num)
