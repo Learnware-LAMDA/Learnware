@@ -8,6 +8,6 @@ logger = get_module_logger("market_anchor")
 
 if not is_torch_available(verbose=False):
     AnchoredSearcher = None
-    logger.warning("AnchoredSearcher is skipped because 'torch' is not installed!")
+    logger.error("AnchoredSearcher is not available because 'torch' is not installed!")
 else:
     from .searcher import AnchoredSearcher

@@ -2,7 +2,6 @@ import torch
 import numpy as np
 
 from typing import List, Union
-from lightgbm import LGBMClassifier, early_stopping
 from sklearn.metrics import accuracy_score
 
 from .base import BaseReuser
@@ -196,7 +195,7 @@ class JobSelectorReuser(BaseReuser):
         val_x: np.ndarray,
         val_y: np.ndarray,
         num_class: int,
-    ) -> LGBMClassifier:
+    ):
         """Train a LGBMClassifier as job selector using the herding data as training instances.
 
         Parameters
@@ -221,6 +220,11 @@ class JobSelectorReuser(BaseReuser):
         LGBMClassifier
             The job selector model.
         """
+        try:
+            from lightgbm import LGBMClassifier, early_stopping
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(f"JobSelectorReuser is not available because 'lightgbm' is not installed! Please install it manually.")
+           
         score_best = -1
         learning_rate = [0.01]
         max_depth = [66]

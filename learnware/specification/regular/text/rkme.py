@@ -1,7 +1,6 @@
 import os
 import langdetect
 import numpy as np
-from sentence_transformers import SentenceTransformer
 
 from ..table import RKMETableSpecification
 from ....logger import get_module_logger
@@ -87,6 +86,12 @@ class RKMETextSpecification(RKMETableSpecification):
             return np.array(miniLM_learnware.predict(X))
 
         logger.info("Load the necessary feature extractor for RKMETextSpecification.")
+        
+        try:
+            from sentence_transformers import SentenceTransformer
+        except ModuleNotFoundError:
+            raise ModuleNotFoundError(f"RKMETextSpecification is not available because 'sentence_transformers' is not installed! Please install it manually.")
+           
         if os.path.exists(zip_path):
             X = _get_from_client(zip_path, X)
         else:
