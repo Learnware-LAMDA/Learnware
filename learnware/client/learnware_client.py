@@ -139,6 +139,33 @@ class LearnwareClient:
 
         return result["data"]["learnware_id"]
 
+    @require_login
+    def update_learnware(self, learnware_id, semantic_specification, learnware_zip_path=None):
+        assert self._check_semantic_specification(semantic_specification)[0], "Semantic specification check failed!"
+
+        url_update = f"{self.host}/user/update_learnware"
+        payload = {"learnware_id": learnware_id, "semantic_specification": json.dumps(semantic_specification)}
+
+        if learnware_zip_path is None:
+            response = requests.post(
+                url_update,
+                files={"learnware_file": None},
+                data=payload,
+                headers=self.headers,
+            )
+        else:
+            response = requests.post(
+                url_update,
+                files={"learnware_file": open(learnware_zip_path, "rb")},
+                data=payload,
+                headers=self.headers,
+            )
+
+        result = response.json()
+
+        if result["code"] != 0:
+            raise Exception("update failed: " + json.dumps(result))
+
     def download_learnware(self, learnware_id, save_path):
         url = f"{self.host}/engine/download_learnware"
 
