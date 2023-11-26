@@ -1,5 +1,6 @@
 import os
 import json
+import zipfile
 import unittest
 import tempfile
 
@@ -48,8 +49,11 @@ class TestAllLearnware(unittest.TestCase):
             for idx in learnware_ids:
                 zip_path = os.path.join(tempdir, f"test_{idx}.zip")
                 self.client.download_learnware(idx, zip_path)
+                with zipfile.ZipFile(zip_path, "r") as zip_file:
+                    with zip_file.open("semantic_specification.json") as json_file:
+                        semantic_spec = json.load(json_file)
                 try:
-                    LearnwareClient.check_learnware(zip_path)
+                    LearnwareClient.check_learnware(zip_path, semantic_spec)
                     print(f"check learnware {idx} succeed")
                 except:
                     failed_ids.append(idx)
