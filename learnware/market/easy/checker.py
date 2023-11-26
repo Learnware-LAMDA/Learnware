@@ -110,6 +110,11 @@ class EasyStatChecker(BaseChecker):
 
             if spec_type == "RKMETableSpecification":
                 stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
+                if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
+                    raise ValueError(
+                        f"For RKMETableSpecification, input_shape should be tuple of int, but got {input_shape}"
+                    )
+
                 if stat_spec.get_z().shape[1:] != input_shape:
                     message = f"The learnware [{learnware.id}] input dimension mismatch with stat specification."
                     logger.warning(message)
@@ -118,6 +123,10 @@ class EasyStatChecker(BaseChecker):
             elif spec_type == "RKMETextSpecification":
                 inputs = EasyStatChecker._generate_random_text_list(10)
             elif spec_type == "RKMEImageSpecification":
+                if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
+                    raise ValueError(
+                        f"For RKMEImageSpecification, input_shape should be tuple of int, but got {input_shape}"
+                    )
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
             else:
                 raise ValueError(f"not supported spec type for spec_type = {spec_type}")
