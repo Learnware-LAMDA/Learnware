@@ -139,6 +139,33 @@ class LearnwareClient:
 
         return result["data"]["learnware_id"]
 
+    @require_login
+    def update_learnware(self, learnware_id, semantic_specification, learnware_zip_path=None):
+        assert self._check_semantic_specification(semantic_specification)[0], "Semantic specification check failed!"
+
+        url_update = f"{self.host}/user/update_learnware"
+        payload = {"learnware_id": learnware_id, "semantic_specification": json.dumps(semantic_specification)}
+
+        if learnware_zip_path is None:
+            response = requests.post(
+                url_update,
+                files={"learnware_file": None},
+                data=payload,
+                headers=self.headers,
+            )
+        else:
+            response = requests.post(
+                url_update,
+                files={"learnware_file": open(learnware_zip_path, "rb")},
+                data=payload,
+                headers=self.headers,
+            )
+
+        result = response.json()
+
+        if result["code"] != 0:
+            raise Exception("update failed: " + json.dumps(result))
+
     def download_learnware(self, learnware_id, save_path):
         url = f"{self.host}/engine/download_learnware"
 
@@ -265,8 +292,8 @@ class LearnwareClient:
             "Type": "String",
             "Values": description if description is not None else "",
         }
-        semantic_specification["Input"] = input_description
-        semantic_specification["Output"] = output_description
+        semantic_specification["Input"] = {} if input_description is None else input_description
+        semantic_specification["Output"] = {} if output_description is None else output_description
 
         return semantic_specification
 
@@ -341,7 +368,7 @@ class LearnwareClient:
                     semantic_specification = json.load(fin)
 
             return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
-        
+
         learnware_list = []
         if learnware_path is not None:
             zip_paths = [learnware_path] if isinstance(learnware_path, str) else learnware_path
