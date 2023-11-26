@@ -47,6 +47,10 @@ class EasySemanticChecker(BaseChecker):
             if semantic_spec["Task"]["Values"][0] in ["Classification", "Regression"]:
                 assert semantic_spec["Output"] is not None, "Lack of output semantics"
                 dim = semantic_spec["Output"]["Dimension"]
+                assert (
+                    dim > 1 or semantic_spec["Task"]["Values"][0] == "Regression"
+                ), "Classification task must have dimension > 1"
+
                 for k, v in semantic_spec["Output"]["Description"].items():
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
