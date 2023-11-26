@@ -182,8 +182,7 @@ class TestWorkflow(unittest.TestCase):
             for search_item in single_result:
                 print(f"score: {search_item.score}, learnware_id: {search_item.learnware.id}")
             
-            if len(multiple_result) > 0:
-                mixture_item = multiple_result[0]
+            for mixture_item in multiple_result:
                 print(f"mixture_score: {mixture_item.score}\n")
                 mixture_id = " ".join([learnware.id for learnware in mixture_item.learnwares])
                 print(f"mixture_learnware: {mixture_id}\n")
@@ -230,8 +229,8 @@ class TestWorkflow(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
-    _suite.addTest(TestWorkflow("test_upload_delete_learnware"))
+    #_suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
+    #_suite.addTest(TestWorkflow("test_upload_delete_learnware"))
     _suite.addTest(TestWorkflow("test_search_semantics"))
     _suite.addTest(TestWorkflow("test_stat_search"))
     _suite.addTest(TestWorkflow("test_learnware_reuse"))

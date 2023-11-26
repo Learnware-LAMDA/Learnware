@@ -13,7 +13,7 @@ from learnware.learnware import Learnware
 import time
 
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.market import database_ops
+from learnware.market.easy import database_ops
 from learnware.learnware import Learnware
 import learnware.specification as specification
 from learnware.logger import get_module_logger
@@ -168,15 +168,14 @@ def test_search(gamma=0.1, load_market=True):
         user_stat_spec.generate_stat_spec_from_data(X=user_data, resize=False)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_stat_spec})
         logger.info("Searching Market for user: %d" % i)
-        sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = image_market.search_learnware(
-            user_info
-        )
+        search_result = image_market.search_learnware(user_info)
+        single_result = search_result.get_single_results()
         acc_list = []
-        for idx, (score, learnware) in enumerate(zip(sorted_score_list[:5], single_learnware_list[:5])):
-            pred_y = learnware.predict(user_data)
+        for idx, single_item in enumerate(single_result[:5]):
+            pred_y = single_item.learnware.predict(user_data)
             acc = eval_prediction(pred_y, user_label)
             acc_list.append(acc)
-            logger.info("Search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, score, learnware.id, acc))
+            logger.info("Search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, single_item.score, single_item.learnware.id, acc))
 
         # test reuse (job selector)
         # reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
@@ -186,6 +185,7 @@ def test_search(gamma=0.1, load_market=True):
         # print(f"mixture reuse loss: {reuse_score}")
 
         # test reuse (ensemble)
+        single_learnware_list = [single_item.learnware for single_item in single_result]
         reuse_ensemble = AveragingReuser(learnware_list=single_learnware_list[:3], mode="vote_by_prob")
         ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
         ensemble_score = eval_prediction(ensemble_predict_y, user_label)
