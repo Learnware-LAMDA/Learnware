@@ -18,6 +18,7 @@ from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker
 from ..logger import get_module_logger
 from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
+from ..market import BaseUserInfo
 from ..tests import get_semantic_specification
 
 CHUNK_SIZE = 1024 * 1024
@@ -177,10 +178,10 @@ class LearnwareClient:
         return learnware_list
 
     @require_login
-    def search_learnware(self, specification: Specification, page_size=10, page_index=0):
+    def search_learnware(self, user_info: BaseUserInfo, page_size=10, page_index=0):
         url = f"{self.host}/engine/search_learnware"
 
-        stat_spec = specification.get_stat_spec()
+        stat_spec = user_info.stat_info
         if len(stat_spec) > 1:
             raise Exception("statistical specification must have only one key.")
 
@@ -195,10 +196,7 @@ class LearnwareClient:
                 stat_spec.save(ftemp.name)
 
             with open(ftemp.name, "r") as fin:
-                semantic_specification = specification.get_semantic_spec()
-                if semantic_specification is None:
-                    semantic_specification = {}
-
+                semantic_specification = user_info.get_semantic_spec()
                 if stat_spec is None:
                     files = None
                 else:
@@ -208,7 +206,7 @@ class LearnwareClient:
                     url,
                     files=files,
                     data={
-                        "semantic_specification": json.dumps(specification.get_semantic_spec()),
+                        "semantic_specification": json.dumps(semantic_specification),
                         "limit": page_size,
                         "page": page_index,
                     },
@@ -222,13 +220,25 @@ class LearnwareClient:
 
                 for learnware in result["data"]["learnware_list_single"]:
                     returns.append(
-                        {
+                        {   
+                            "type": "single",
                             "learnware_id": learnware["learnware_id"],
                             "semantic_specification": learnware["semantic_specification"],
                             "matching": learnware["matching"],
                         }
                     )
-
+                if len(result["data"]["learnware_list_multi"]) > 0:
+                    multiple_learnware = {
+                        "type": "multiple",
+                        "learnware_ids": [],
+                        "semantic_specifications": [],
+                        "matching": result["data"]["learnware_list_multi"][0]["matching"]
+                    }
+                    for learnware in result["data"]["learnware_list_multi"]:
+                        multiple_learnware["learnware_ids"].append(learnware["learnware_id"])
+                        multiple_learnware["semantic_specifications"].append(learnware["semantic_specification"])
+                        
+                    returns.append(multiple_learnware)
         return returns
 
     @require_login
