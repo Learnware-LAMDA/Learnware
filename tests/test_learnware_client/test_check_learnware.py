@@ -14,7 +14,7 @@ class TestCheckLearnware(unittest.TestCase):
         self.client = LearnwareClient()
 
     def test_check_learnware_pip(self):
-        learnware_id = "00000154"
+        learnware_id = "00000208"
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             self.zip_path = os.path.join(tempdir, "test.zip")
             self.client.download_learnware(learnware_id, self.zip_path)
