@@ -199,31 +199,34 @@ class TextDatasetWorkflow:
             user_stat_spec.generate_stat_spec_from_data(X=user_data)
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETextSpecification": user_stat_spec})
             logger.info("Searching Market for user: %d" % (i))
-            sorted_score_list, single_learnware_list, mixture_score, mixture_learnware_list = text_market.search_learnware(
-                user_info
-            )
-
+            
+            search_result = text_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
+            multiple_result = search_result.get_multiple_results()
+            
             print(f"search result of user{i}:")
             print(
-                f"single model num: {len(sorted_score_list)}, max_score: {sorted_score_list[0]}, min_score: {sorted_score_list[-1]}"
+                f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}"
             )
 
-            l = len(sorted_score_list)
+            l = len(single_result)
             acc_list = []
             for idx in range(l):
-                learnware = single_learnware_list[idx]
-                score = sorted_score_list[idx]
+                learnware = single_result[idx].learnware
+                score = single_result[idx].score
                 pred_y = learnware.predict(user_data)
                 acc = eval_prediction(pred_y, user_label)
                 acc_list.append(acc)
             print(
-                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, acc: {acc_list[0]}"
+                f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, acc: {acc_list[0]}"
             )
             
-            mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-            print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
-            if not mixture_learnware_list:
-                mixture_learnware_list = [single_learnware_list[0]]
+            if len(multiple_result) > 0:
+                mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
+                print(f"mixture_score: {multiple_result[0].score}, mixture_learnware: {mixture_id}")
+                mixture_learnware_list = multiple_result[0].learnwares
+            else:
+                mixture_learnware_list = [single_result[0].learnware]
 
             # test reuse (job selector)
             reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)

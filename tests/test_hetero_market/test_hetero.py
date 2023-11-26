@@ -199,26 +199,28 @@ class TestMarket(unittest.TestCase):
         semantic_spec["Name"]["Values"] = f"learnware_{learnware_num - 1}"
 
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
-        _, single_learnware_list, _, _ = hetero_market.search_learnware(user_info)
+        search_result = hetero_market.search_learnware(user_info)
+        single_result = search_result.get_single_results()
 
         print("User info:", user_info.get_semantic_spec())
         print(f"Search result:")
-        assert len(single_learnware_list) == 1, f"Exact semantic search failed!"
-        for learnware in single_learnware_list:
-            semantic_spec1 = learnware.get_specification().get_semantic_spec()
-            print("Choose learnware:", learnware.id, semantic_spec1)
+        assert len(single_result) == 1, f"Exact semantic search failed!"
+        for search_item in single_result:
+            semantic_spec1 = search_item.learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", search_item.learnware.id, semantic_spec1)
             assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
 
         semantic_spec["Name"]["Values"] = "laernwaer"
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
-        _, single_learnware_list, _, _ = hetero_market.search_learnware(user_info)
+        search_result = hetero_market.search_learnware(user_info)
+        single_result = search_result.get_single_results()
 
         print("User info:", user_info.get_semantic_spec())
         print(f"Search result:")
-        assert len(single_learnware_list) == self.learnware_num, f"Fuzzy semantic search failed!"
-        for learnware in single_learnware_list:
-            semantic_spec1 = learnware.get_specification().get_semantic_spec()
-            print("Choose learnware:", learnware.id, semantic_spec1)
+        assert len(single_result) == self.learnware_num, f"Fuzzy semantic search failed!"
+        for search_item in single_result:
+            semantic_spec1 = search_item.learnware.get_specification().get_semantic_spec()
+            print("Choose learnware:", search_item.learnware.id, semantic_spec1)
 
     def test_stat_search(self, learnware_num=5):
         hetero_market = self.test_train_market_model(learnware_num)
@@ -256,49 +258,40 @@ class TestMarket(unittest.TestCase):
             semantic_spec["Input"]["Description"] = {
                 str(key): semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
             }
-
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
-            (
-                sorted_score_list,
-                single_learnware_list,
-                mixture_score,
-                mixture_learnware_list,
-            ) = hetero_market.search_learnware(user_info)
-
+            
+            search_result = hetero_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
+            multiple_result = search_result.get_multiple_results()
+            
             print(f"search result of user{idx}:")
-            for score, learnware in zip(sorted_score_list, single_learnware_list):
-                print(f"score: {score}, learnware_id: {learnware.id}")
-            print(
-                f"mixture_score: {mixture_score}, mixture_learnware_ids: {[item.id for item in mixture_learnware_list]}"
-            )
+            for single_item in single_result:
+                print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
+                
+            for multiple_item in multiple_result:
+                print(
+                    f"mixture_score: {multiple_item.score}, mixture_learnware_ids: {[item.id for item in multiple_item.learnwares]}"
+                )
 
             # inproper key "Task" in semantic_spec, use homo search and print invalid semantic_spec
             print(">> test for key 'Task' has empty 'Values':")
             semantic_spec["Task"] = {"Values": ["Segmentation"], "Type": "Class"}
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
-            (
-                sorted_score_list,
-                single_learnware_list,
-                mixture_score,
-                mixture_learnware_list,
-            ) = hetero_market.search_learnware(user_info)
+            search_result = hetero_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
 
-            assert len(single_learnware_list) == 0, f"Statistical search failed!"
+            assert len(single_result) == 0, f"Statistical search failed!"
 
             # delete key "Task" in semantic_spec, use homo search and print WARNING INFO with "User doesn't provide correct task type"
             print(">> delele key 'Task' test:")
             semantic_spec.pop("Task")
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
-            (
-                sorted_score_list,
-                single_learnware_list,
-                mixture_score,
-                mixture_learnware_list,
-            ) = hetero_market.search_learnware(user_info)
+            search_result = hetero_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
 
-            assert len(single_learnware_list) == 0, f"Statistical search failed!"
+            assert len(single_result) == 0, f"Statistical search failed!"
 
             # modify semantic info with mismatch dim, use homo search and print "User data feature dimensions mismatch with semantic specification."
             print(">> mismatch dim test")
@@ -310,14 +303,10 @@ class TestMarket(unittest.TestCase):
             }
 
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
-            (
-                sorted_score_list,
-                single_learnware_list,
-                mixture_score,
-                mixture_learnware_list,
-            ) = hetero_market.search_learnware(user_info)
+            search_result = hetero_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
 
-            assert len(single_learnware_list) == 0, f"Statistical search failed!"
+            assert len(single_result) == 0, f"Statistical search failed!"
 
         rmtree(test_folder)  # rm -r test_folder
 
@@ -338,21 +327,19 @@ class TestMarket(unittest.TestCase):
             user_spec = RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "stat.json"))
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
-            (
-                sorted_score_list,
-                single_learnware_list,
-                mixture_score,
-                mixture_learnware_list,
-            ) = hetero_market.search_learnware(user_info)
+            search_result = hetero_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
+            multiple_result = search_result.get_multiple_results()
 
-            target_spec_num = 3 if idx % 2 == 0 else 2
-            assert len(single_learnware_list) >= 1, f"Statistical search failed!"
+            assert len(single_result) >= 1, f"Statistical search failed!"
             print(f"search result of user{idx}:")
-            for score, learnware in zip(sorted_score_list, single_learnware_list):
-                print(f"score: {score}, learnware_id: {learnware.id}")
-            print(f"mixture_score: {mixture_score}\n")
-            mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-            print(f"mixture_learnware: {mixture_id}\n")
+            for single_item in single_result:
+                print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
+            
+            for multiple_item in multiple_result:
+                print(f"mixture_score: {multiple_item.score}\n")
+                mixture_id = " ".join([learnware.id for learnware in multiple_item.learnwares])
+                print(f"mixture_learnware: {mixture_id}\n")
 
         rmtree(test_folder)  # rm -r test_folder
 
@@ -370,26 +357,24 @@ class TestMarket(unittest.TestCase):
 
         # learnware market search
         hetero_market = self.test_train_market_model(learnware_num)
-        (
-            sorted_score_list,
-            single_learnware_list,
-            mixture_score,
-            mixture_learnware_list,
-        ) = hetero_market.search_learnware(user_info)
-
+        search_result = hetero_market.search_learnware(user_info)
+        single_result = search_result.get_single_results()
+        multiple_result = search_result.get_multiple_results()
         # print search results
-        for score, learnware in zip(sorted_score_list, single_learnware_list):
-            print(f"score: {score}, learnware_id: {learnware.id}")
-        print(f"mixture_score: {mixture_score}, mixture_learnware_ids: {[item.id for item in mixture_learnware_list]}")
+        for single_item in single_result:
+            print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
+        
+        for multiple_item in multiple_result:
+            print(f"mixture_score: {multiple_item.score}, mixture_learnware_ids: {[item.id for item in multiple_item.learnwares]}")
 
         # single model reuse
-        hetero_learnware = HeteroMapAlignLearnware(single_learnware_list[0], mode="regression")
+        hetero_learnware = HeteroMapAlignLearnware(single_result[0].learnware, mode="regression")
         hetero_learnware.align(user_spec, X[:100], y[:100])
         single_predict_y = hetero_learnware.predict(X)
 
         # multi model reuse
         hetero_learnware_list = []
-        for learnware in mixture_learnware_list:
+        for learnware in multiple_result[0].learnwares:
             hetero_learnware = HeteroMapAlignLearnware(learnware, mode="regression")
             hetero_learnware.align(user_spec, X[:100], y[:100])
             hetero_learnware_list.append(hetero_learnware)

@@ -152,29 +152,28 @@ class PFSDatasetWorkflow:
             user_spec.save(user_spec_path)
 
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
-            (
-                sorted_score_list,
-                single_learnware_list,
-                mixture_score,
-                mixture_learnware_list,
-            ) = easy_market.search_learnware(user_info)
-
+            search_result = easy_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
+            multiple_result = search_result.get_multiple_results()
+            
             print(f"search result of user{idx}:")
             print(
-                f"single model num: {len(sorted_score_list)}, max_score: {sorted_score_list[0]}, min_score: {sorted_score_list[-1]}"
+                f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}"
             )
             loss_list = []
-            for score, learnware in zip(sorted_score_list, single_learnware_list):
-                pred_y = learnware.predict(test_x)
+            for single_item in single_result:
+                pred_y = single_item.learnware.predict(test_x)
                 loss_list.append(pfs.score(test_y, pred_y))
             print(
-                f"Top1-score: {sorted_score_list[0]}, learnware_id: {single_learnware_list[0].id}, loss: {loss_list[0]}, random: {np.mean(loss_list)}"
+                f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, loss: {loss_list[0]}, random: {np.mean(loss_list)}"
             )
 
-            mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-            print(f"mixture_score: {mixture_score}, mixture_learnware: {mixture_id}")
-            if not mixture_learnware_list:
-                mixture_learnware_list = [single_learnware_list[0]]
+            if len(multiple_result) > 0:
+                mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
+                print(f"mixture_score: {multiple_result[0].score}, mixture_learnware: {mixture_id}")
+                mixture_learnware_list = multiple_result[0].learnwares
+            else:
+                mixture_learnware_list = [single_result[0].learnware]
 
             reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list, use_herding=False)
             job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)

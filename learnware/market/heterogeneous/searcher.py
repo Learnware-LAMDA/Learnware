@@ -2,7 +2,7 @@ import traceback
 from typing import Tuple, List
 
 from .utils import is_hetero
-from ..base import BaseUserInfo
+from ..base import BaseUserInfo, SearchResults
 from ..easy import EasySearcher
 from ..utils import parse_specification_type
 from ...learnware import Learnware
@@ -15,7 +15,7 @@ logger = get_module_logger("hetero_searcher")
 class HeteroSearcher(EasySearcher):
     def __call__(
         self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy"
-    ) -> Tuple[List[float], List[Learnware], float, List[Learnware]]:
+    ) -> SearchResults:
         """Search learnwares based on user_info from learnwares with check_status.
            Employs heterogeneous learnware search if specific requirements are met, otherwise resorts to homogeneous search methods.
 
@@ -38,10 +38,11 @@ class HeteroSearcher(EasySearcher):
             the fourth is the list of Learnware (mixture), the size is search_num
         """
         learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
-        learnware_list = self.semantic_searcher(learnware_list, user_info)
+        semantic_search_result = self.semantic_searcher(learnware_list, user_info)
 
+        learnware_list = [search_item.learnware for search_item in semantic_search_result.get_single_results()]
         if len(learnware_list) == 0:
-            return [], [], 0.0, []
+            return SearchResults()
 
         if parse_specification_type(stat_specs=user_info.stat_info) is not None:
             if is_hetero(stat_specs=user_info.stat_info, semantic_spec=user_info.semantic_spec):
@@ -49,4 +50,4 @@ class HeteroSearcher(EasySearcher):
                 user_info.update_stat_info(user_hetero_spec.type, user_hetero_spec)
             return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
         else:
-            return None, learnware_list, 0.0, None
+            return semantic_search_result

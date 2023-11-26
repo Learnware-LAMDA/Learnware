@@ -3,11 +3,12 @@ from __future__ import annotations
 import traceback
 import zipfile
 import tempfile
-from typing import Tuple, Any, List, Union
+from typing import Tuple, Any, List, Union, Dict, Optional
+from dataclasses import dataclass
 from ..learnware import Learnware, get_learnware_from_dirpath
 from ..logger import get_module_logger
 
-logger = get_module_logger("market_base", "INFO")
+logger = get_module_logger("market_base")
 
 
 class BaseUserInfo:
@@ -42,6 +43,9 @@ class BaseUserInfo:
     def get_stat_info(self, name: str):
         return self.stat_info.get(name, None)
 
+    def update_semantic_spec(self, semantic_spec: dict):
+        self.semantic_spec = semantic_spec
+        
     def update_stat_info(self, name: str, item: Any):
         """Update stat_info by market
 
@@ -54,6 +58,33 @@ class BaseUserInfo:
         """
         self.stat_info[name] = item
 
+
+@dataclass
+class SingleSearchItem:
+    learnware: Learnware
+    score: Optional[float] = None
+
+@dataclass
+class MultipleSearchItem:
+    learnwares: List[Learnware]
+    score: float
+    
+class SearchResults:
+    def __init__(self, single_results: Optional[List[SingleSearchItem]] = None, multiple_results: Optional[List[MultipleSearchItem]] = None):
+        self.update_single_results([] if single_results is None else single_results)
+        self.update_multiple_results([] if multiple_results is None else multiple_results)
+        
+    def get_single_results(self) -> List[SingleSearchItem]:
+        return self.single_results
+    
+    def get_multiple_results(self) -> List[MultipleSearchItem]:
+        return self.multiple_results
+    
+    def update_single_results(self, single_results: List[SingleSearchItem]):
+        self.single_results = single_results
+    
+    def update_multiple_results(self, multiple_results: List[MultipleSearchItem]):
+        self.multiple_results = multiple_results
 
 class LearnwareMarket:
     """Base interface for market, it provide the interface of search/add/detele/update learnwares"""
@@ -150,7 +181,7 @@ class LearnwareMarket:
 
     def search_learnware(
         self, user_info: BaseUserInfo, check_status: int = None, **kwargs
-    ) -> Tuple[Any, List[Learnware]]:
+    ) -> SearchResults:
         """Search learnwares based on user_info from learnwares with check_status
 
         Parameters
@@ -163,7 +194,7 @@ class LearnwareMarket:
 
         Returns
         -------
-        Tuple[Any, List[Learnware]]
+        SearchResults
             Search results
         """
         return self.learnware_searcher(user_info, check_status, **kwargs)
@@ -450,7 +481,7 @@ class BaseSearcher:
     def reset(self, organizer: BaseOrganizer, **kwargs):
         self.learnware_organizer = organizer
 
-    def __call__(self, user_info: BaseUserInfo, check_status: int = None):
+    def __call__(self, user_info: BaseUserInfo, check_status: int = None) -> SearchResults:
         """Search learnwares based on user_info from learnwares with check_status
 
         Parameters

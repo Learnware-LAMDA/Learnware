@@ -6,6 +6,7 @@ import tempfile
 
 from learnware.client import LearnwareClient
 from learnware.specification import Specification
+from learnware.market import BaseUserInfo
 
 
 class TestAllLearnware(unittest.TestCase):
@@ -30,16 +31,9 @@ class TestAllLearnware(unittest.TestCase):
 
     def test_all_learnware(self):
         max_learnware_num = 1000
-        semantic_spec = dict()
-        semantic_spec["Data"] = {"Type": "Class", "Values": []}
-        semantic_spec["Task"] = {"Type": "Class", "Values": []}
-        semantic_spec["Library"] = {"Type": "Class", "Values": []}
-        semantic_spec["Scenario"] = {"Type": "Tag", "Values": []}
-        semantic_spec["Name"] = {"Type": "String", "Values": ""}
-        semantic_spec["Description"] = {"Type": "String", "Values": ""}
-
-        specification = Specification(semantic_spec=semantic_spec)
-        result = self.client.search_learnware(specification, page_size=max_learnware_num)
+        semantic_spec = self.client.create_semantic_specification()
+        user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={})
+        result = self.client.search_learnware(user_info, page_size=max_learnware_num)
         print(f"result size: {len(result)}")
         print(f"key in result: {[key for key in result[0]]}")
 

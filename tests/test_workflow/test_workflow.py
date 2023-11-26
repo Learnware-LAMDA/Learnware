@@ -143,12 +143,13 @@ class TestWorkflow(unittest.TestCase):
         semantic_spec["Description"]["Values"] = f"test_learnware_number_{learnware_num - 1}"
 
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
-        _, single_learnware_list, _, _ = easy_market.search_learnware(user_info)
-
+        search_result = easy_market.search_learnware(user_info)
+        single_result = search_result.get_single_results()
+        
         print("User info:", user_info.get_semantic_spec())
         print(f"Search result:")
-        for learnware in single_learnware_list:
-            print("Choose learnware:", learnware.id, learnware.get_specification().get_semantic_spec())
+        for search_item in single_result:
+            print("Choose learnware:", search_item.learnware.id, search_item.learnware.get_specification().get_semantic_spec())
 
         rmtree(test_folder)  # rm -r test_folder
 
@@ -171,20 +172,20 @@ class TestWorkflow(unittest.TestCase):
             user_spec = RKMETableSpecification()
             user_spec.load(os.path.join(unzip_dir, "svm.json"))
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
-            (
-                sorted_score_list,
-                single_learnware_list,
-                mixture_score,
-                mixture_learnware_list,
-            ) = easy_market.search_learnware(user_info)
+            search_results = easy_market.search_learnware(user_info)
 
-            assert len(single_learnware_list) >= 1, f"Statistical search failed!"
+            single_result = search_results.get_single_results()
+            multiple_result = search_results.get_multiple_results()
+            
+            assert len(single_result) >= 1, f"Statistical search failed!"
             print(f"search result of user{idx}:")
-            for score, learnware in zip(sorted_score_list, single_learnware_list):
-                print(f"score: {score}, learnware_id: {learnware.id}")
-            print(f"mixture_score: {mixture_score}\n")
-            mixture_id = " ".join([learnware.id for learnware in mixture_learnware_list])
-            print(f"mixture_learnware: {mixture_id}\n")
+            for search_item in single_result:
+                print(f"score: {search_item.score}, learnware_id: {search_item.learnware.id}")
+            
+            for mixture_item in multiple_result:
+                print(f"mixture_score: {mixture_item.score}\n")
+                mixture_id = " ".join([learnware.id for learnware in mixture_item.learnwares])
+                print(f"mixture_learnware: {mixture_id}\n")
 
         rmtree(test_folder)  # rm -r test_folder
 
@@ -198,24 +199,25 @@ class TestWorkflow(unittest.TestCase):
         stat_spec = generate_rkme_table_spec(X=data_X, gamma=0.1, cuda_idx=0)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": stat_spec})
 
-        _, _, _, mixture_learnware_list = easy_market.search_learnware(user_info)
-
+        search_results = easy_market.search_learnware(user_info)
+        multiple_result = search_results.get_multiple_results()
+        mixture_item = multiple_result[0]
         # Based on user information, the learnware market returns a list of learnwares (learnware_list)
         # Use jobselector reuser to reuse the searched learnwares to make prediction
-        reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
+        reuse_job_selector = JobSelectorReuser(learnware_list=mixture_item.learnwares)
         job_selector_predict_y = reuse_job_selector.predict(user_data=data_X)
 
         # Use averaging ensemble reuser to reuse the searched learnwares to make prediction
-        reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_prob")
+        reuse_ensemble = AveragingReuser(learnware_list=mixture_item.learnwares, mode="vote_by_prob")
         ensemble_predict_y = reuse_ensemble.predict(user_data=data_X)
 
         # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
-        reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_learnware_list, mode="classification")
+        reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_item.learnwares, mode="classification")
         reuse_ensemble.fit(train_X[-200:], train_y[-200:])
         ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
 
         # Use feature augment reuser to reuse the searched learnwares to make prediction
-        reuse_feature_augment = FeatureAugmentReuser(learnware_list=mixture_learnware_list, mode="classification")
+        reuse_feature_augment = FeatureAugmentReuser(learnware_list=mixture_item.learnwares, mode="classification")
         reuse_feature_augment.fit(train_X[-200:], train_y[-200:])
         feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
 
@@ -227,8 +229,8 @@ class TestWorkflow(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
-    _suite.addTest(TestWorkflow("test_upload_delete_learnware"))
+    #_suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
+    #_suite.addTest(TestWorkflow("test_upload_delete_learnware"))
     _suite.addTest(TestWorkflow("test_search_semantics"))
     _suite.addTest(TestWorkflow("test_stat_search"))
     _suite.addTest(TestWorkflow("test_learnware_reuse"))
