@@ -43,6 +43,9 @@ class BaseUserInfo:
     def get_stat_info(self, name: str):
         return self.stat_info.get(name, None)
 
+    def update_semantic_spec(self, semantic_spec: dict):
+        self.semantic_spec = semantic_spec
+        
     def update_stat_info(self, name: str, item: Any):
         """Update stat_info by market
 
