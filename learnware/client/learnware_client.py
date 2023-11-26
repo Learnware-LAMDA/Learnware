@@ -265,8 +265,8 @@ class LearnwareClient:
             "Type": "String",
             "Values": description if description is not None else "",
         }
-        semantic_specification["Input"] = input_description
-        semantic_specification["Output"] = output_description
+        semantic_specification["Input"] = {} if input_description is None else input_description
+        semantic_specification["Output"] = {} if output_description is None else output_description
 
         return semantic_specification
 
@@ -341,7 +341,7 @@ class LearnwareClient:
                     semantic_specification = json.load(fin)
 
             return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
-        
+
         learnware_list = []
         if learnware_path is not None:
             zip_paths = [learnware_path] if isinstance(learnware_path, str) else learnware_path
