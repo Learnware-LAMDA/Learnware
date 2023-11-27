@@ -80,6 +80,14 @@ Table Specification
 Image Specification
 --------------------------
 
+Image data lives in a higher dimensional space than other data types. Unlike lower dimensional spaces, metrics defined based on Euclidean distances (or similar distances) will fail in higher dimensional spaces. This means that measuring the similarity between image samples becomes difficult.
+
+To address these issues, we use the Neural Tangent Kernel (NTK) based on Convolutional Neural Networks (CNN) to measure the similarity of image samples.  As we all know, CNN has greatly advanced the field of computer vision and is still a mainstream deep learning technique.
+
+Specifically, in the process of constructing the specification, we approximate the Neural Network Gaussian Process (NNGP) kernel with neural networks of finite width; in the process of calculating the similarity of the specification, we use an approximation algorithm to compute the NNGP kernel directly. 
+
+In the calculation of NTK, the NNGP kernel serves as the dominant term and can be used as a good approximation of NTK. The use of NNGP approximation instead of NTK improves the construction and search efficiency of Image Specificatin.
+
 Text Specification
 --------------------------
 
