@@ -45,11 +45,9 @@ class EasyExactSemanticSearcher(BaseSearcher):
                     return False
 
                 if semantic_spec1[key]["Type"] == "Class":
-                    if isinstance(v1, list):
-                        v1 = v1[0]
                     if isinstance(v2, list):
                         v2 = v2[0]
-                    if v1 != v2:
+                    if v2 not in v1:
                         return False
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
@@ -66,6 +64,7 @@ class EasyExactSemanticSearcher(BaseSearcher):
                 match_learnwares.append(learnware)
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
         return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in match_learnwares])
+
 
 class EasyFuzzSemanticSearcher(BaseSearcher):
     def _match_semantic_spec_tag(self, semantic_spec1, semantic_spec2) -> bool:
@@ -97,11 +96,9 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
                     return False
 
                 if semantic_spec1[key]["Type"] == "Class":
-                    if isinstance(v1, list):
-                        v1 = v1[0]
                     if isinstance(v2, list):
                         v2 = v2[0]
-                    if v1 != v2:
+                    if v2 not in v1:
                         return False
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
@@ -622,13 +619,16 @@ class EasyStatSearcher(BaseSearcher):
         logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
 
         search_results = SearchResults()
-        
+
         search_results.update_single_results(
-            [SingleSearchItem(learnware=_learnware, score=_score) for _score, _learnware in zip(sorted_score_list, single_learnware_list)]
+            [
+                SingleSearchItem(learnware=_learnware, score=_score)
+                for _score, _learnware in zip(sorted_score_list, single_learnware_list)
+            ]
         )
         if mixture_score is not None and len(mixture_learnware_list) > 0:
             search_results.update_multiple_results(
-                [MultipleSearchItem(learnwares=mixture_learnware_list, score=mixture_score)]           
+                [MultipleSearchItem(learnwares=mixture_learnware_list, score=mixture_score)]
             )
         return search_results
 
