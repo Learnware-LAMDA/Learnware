@@ -286,8 +286,8 @@ class LearnwareClient:
         data_type: Optional[str] = None,
         task_type: Optional[str] = None,
         library_type: Optional[str] = None,
-        scenarios: Optional[Union[str, List(str)]] = None,
-        license: Optional[Union[str, List(str)]] = None,
+        scenarios: Optional[Union[str, List[str]]] = None,
+        license: Optional[Union[str, List[str]]] = None,
         input_description: Optional[dict] = None,
         output_description: Optional[dict] = None,
     ):
