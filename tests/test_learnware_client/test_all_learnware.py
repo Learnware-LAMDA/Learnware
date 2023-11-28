@@ -3,32 +3,27 @@ import json
 import zipfile
 import unittest
 import tempfile
+import argparse
 
 from learnware.client import LearnwareClient
 from learnware.specification import generate_semantic_spec
 from learnware.market import BaseUserInfo
-
+from learnware.tests import parametrize
 
 class TestAllLearnware(unittest.TestCase):
-    def setUp(self):
-        unittest.TestCase.setUpClass()
-        dir_path = os.path.dirname(__file__)
-        config_path = os.path.join(dir_path, "config.json")
-        if not os.path.exists(config_path):
-            data = {"email": None, "token": None}
-            with open(config_path, "w") as file:
-                json.dump(data, file)
+    client = LearnwareClient()
+    
+    def __init__(self, method_name='runTest', email=None, token=None):
+        super(TestAllLearnware, self).__init__(method_name)
+        self.email = email
+        self.token = token
+        
+        if self.email is not None and self.token is not None:
+            self.client.login(self.email, self.token)
+        else:
+            print("Client doest not login, all tests will be ignored!")
 
-        with open(config_path, "r") as file:
-            data = json.load(file)
-            email = data["email"]
-            token = data["token"]
-
-        if email is None or token is None:
-            raise ValueError("Please set email and token in config.json.")
-        self.client = LearnwareClient()
-        self.client.login(email, token)
-
+    @unittest.skipIf(not client.is_login(), "Client doest not login!")
     def test_all_learnware(self):
         max_learnware_num = 1000
         semantic_spec = generate_semantic_spec()
@@ -57,4 +52,10 @@ class TestAllLearnware(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--email", type=str, required=False, help="The email to login learnware client")
+    parser.add_argument("--token", type=str, required=False, help="The token to login learnware client")
+    args = parser.parse_args()
+
+    runner = unittest.TextTestRunner()
+    runner.run(parametrize(TestAllLearnware, email=args.email, token=args.token))

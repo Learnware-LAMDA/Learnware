@@ -1,32 +1,26 @@
 import os
-import json
+import argparse
 import unittest
 import tempfile
 
 from learnware.client import LearnwareClient
 from learnware.specification import generate_semantic_spec
+from learnware.tests import parametrize
 
+class TestUpload(unittest.TestCase):
+    client = LearnwareClient()
+    
+    def __init__(self, method_name='runTest', email=None, token=None):
+        super(TestUpload, self).__init__(method_name)
+        self.email = email
+        self.token = token
+        
+        if self.email is not None and self.token is not None:
+            self.client.login(self.email, self.token)
+        else:
+            print("Client doest not login, all tests will be ignored!")
 
-class TestAllLearnware(unittest.TestCase):
-    def setUp(self):
-        unittest.TestCase.setUpClass()
-        dir_path = os.path.dirname(__file__)
-        config_path = os.path.join(dir_path, "config.json")
-        if not os.path.exists(config_path):
-            data = {"email": None, "token": None}
-            with open(config_path, "w") as file:
-                json.dump(data, file)
-
-        with open(config_path, "r") as file:
-            data = json.load(file)
-            email = data["email"]
-            token = data["token"]
-
-        if email is None or token is None:
-            raise ValueError("Please set email and token in config.json.")
-        self.client = LearnwareClient()
-        self.client.login(email, token)
-
+    @unittest.skipIf(not client.is_login(), "Client doest not login!")
     def test_upload(self):
         input_description = {
             "Dimension": 13,
@@ -67,4 +61,10 @@ class TestAllLearnware(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--email", type=str, required=False, help="The email to login learnware client")
+    parser.add_argument("--token", type=str, required=False, help="The token to login learnware client")
+    args = parser.parse_args()
+
+    runner = unittest.TextTestRunner()
+    runner.run(parametrize(TestUpload, email=args.email, token=args.token))

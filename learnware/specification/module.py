@@ -175,7 +175,7 @@ def generate_rkme_text_spec(
 
 def generate_stat_spec(
     type: str, X: Union[np.ndarray, pd.DataFrame, torch.Tensor, List[str]], *args, **kwargs
-) -> BaseStatSpecification:
+) -> Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]:
     """
         Interface for users to generate statistical specification.
         Return a StatSpecification object, use .save() method to save as npy file.

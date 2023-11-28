@@ -67,6 +67,7 @@ class LearnwareClient:
 
         self.chunk_size = 1024 * 1024
         self.tempdir_list = []
+        self.login_status = False
         atexit.register(self.cleanup)
 
     def login(self, email, token):
@@ -80,7 +81,11 @@ class LearnwareClient:
 
         token = result["data"]["token"]
         self.headers = {"Authorization": f"Bearer {token}"}
-
+        self.login_status = True
+    
+    def is_login(self):
+        return self.login_status
+    
     @require_login
     def logout(self):
         url = f"{self.host}/auth/logout"
