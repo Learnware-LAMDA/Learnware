@@ -16,7 +16,6 @@ from .. import learnware
 from .container import LearnwaresContainer
 from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker
 from ..logger import get_module_logger
-from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
 from ..market import BaseUserInfo
 from ..tests import get_semantic_specification
@@ -294,7 +293,7 @@ class LearnwareClient:
         semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
         semantic_specification["Library"] = {
             "Type": "Class",
-            "Values": [library_type] if library_type is not None else [],
+            "Values": [library_type] if library _type is not None else [],
         }
         semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios if scenarios is not None else []}
         semantic_specification["Name"] = {"Type": "String", "Values": name if name is not None else ""}
