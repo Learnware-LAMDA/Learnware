@@ -281,15 +281,15 @@ class LearnwareClient:
 
     def create_semantic_specification(
         self,
-        name: str = None,
-        description: str = None,
-        data_type: str = None,
-        task_type: str = None,
-        library_type: str = None,
-        scenarios: Union[str, List[str]] = None,
-        license: Union[str, List[str]] = None,
-        input_description: dict = None,
-        output_description: dict = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        data_type: Optional[str] = None,
+        task_type: Optional[str] = None,
+        library_type: Optional[str] = None,
+        scenarios: Optional[Union[str, List[str]]] = None,
+        license: Optional[Union[str, List[str]]] = None,
+        input_description: Optional[dict] = None,
+        output_description: Optional[dict] = None,
     ):
         semantic_specification = dict()
         semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
