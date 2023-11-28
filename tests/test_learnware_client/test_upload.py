@@ -4,6 +4,7 @@ import unittest
 import tempfile
 
 from learnware.client import LearnwareClient
+from learnware.specification import generate_semantic_spec
 
 
 class TestAllLearnware(unittest.TestCase):
@@ -37,7 +38,7 @@ class TestAllLearnware(unittest.TestCase):
                 "0": "the probability of being a cat",
             },
         }
-        semantic_spec = self.client.create_semantic_specification(
+        semantic_spec = generate_semantic_spec(
             name="learnware_example",
             description="Just a example for uploading a learnware",
             data_type="Table",

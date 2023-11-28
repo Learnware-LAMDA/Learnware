@@ -5,7 +5,7 @@ import unittest
 import tempfile
 
 from learnware.client import LearnwareClient
-from learnware.specification import Specification
+from learnware.specification import generate_semantic_spec
 from learnware.market import BaseUserInfo
 
 
@@ -31,7 +31,7 @@ class TestAllLearnware(unittest.TestCase):
 
     def test_all_learnware(self):
         max_learnware_num = 1000
-        semantic_spec = self.client.create_semantic_specification()
+        semantic_spec = generate_semantic_spec()
         user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={})
         result = self.client.search_learnware(user_info, page_size=max_learnware_num)
         print(f"result size: {len(result)}")

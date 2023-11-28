@@ -53,7 +53,6 @@ class SemanticSpecificationKey(Enum):
     DATA_TYPE = "Data"
     TASK_TYPE = "Task"
     LIBRARY_TYPE = "Library"
-    LICENSE = "License"
     SENARIOES = "Scenario"
 
 
@@ -247,7 +246,7 @@ class LearnwareClient:
 
                 for learnware in result["data"]["learnware_list_single"]:
                     returns.append(
-                        {
+                        {   
                             "type": "single",
                             "learnware_id": learnware["learnware_id"],
                             "semantic_specification": learnware["semantic_specification"],
@@ -259,12 +258,12 @@ class LearnwareClient:
                         "type": "multiple",
                         "learnware_ids": [],
                         "semantic_specifications": [],
-                        "matching": result["data"]["learnware_list_multi"][0]["matching"],
+                        "matching": result["data"]["learnware_list_multi"][0]["matching"]
                     }
                     for learnware in result["data"]["learnware_list_multi"]:
                         multiple_learnware["learnware_ids"].append(learnware["learnware_id"])
                         multiple_learnware["semantic_specifications"].append(learnware["semantic_specification"])
-
+                        
                     returns.append(multiple_learnware)
         return returns
 
@@ -277,41 +276,6 @@ class LearnwareClient:
 
         if result["code"] != 0:
             raise Exception("delete failed: " + json.dumps(result))
-
-    def create_semantic_specification(
-        self,
-        name: str = None,
-        description: str = None,
-        data_type: str = None,
-        task_type: str = None,
-        library_type: str = None,
-        scenarios: Union[str, List(str)] = None,
-        license: Union[str, List(str)] = None,
-        input_description: dict = None,
-        output_description: dict = None,
-    ):
-        semantic_specification = dict()
-        semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
-        semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
-        semantic_specification["Library"] = {
-            "Type": "Class",
-            "Values": [library_type] if library _type is not None else [],
-        }
-
-        license = [license] if isinstance(license, str) else license
-        semantic_specification["License"] = {"Type": "Class", "Values": license if license is not None else []}
-        scenarios = [scenarios] if isinstance(scenarios, str) else scenarios
-        semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios if scenarios is not None else []}
-
-        semantic_specification["Name"] = {"Type": "String", "Values": name if name is not None else ""}
-        semantic_specification["Description"] = {
-            "Type": "String",
-            "Values": description if description is not None else "",
-        }
-        semantic_specification["Input"] = {} if input_description is None else input_description
-        semantic_specification["Output"] = {} if output_description is None else output_description
-
-        return semantic_specification
 
     def list_semantic_specification_values(self, key: SemanticSpecificationKey):
         url = f"{self.host}/engine/semantic_specification"
