@@ -35,6 +35,7 @@ semantic_specs = [
         "Name": {"Values": "learnware_1", "Type": "String"},
         "Input": input_description,
         "Output": output_description,
+        "License": {"Values": ["MIT"], "Type": "Class"},
     }
 ]
 
@@ -47,6 +48,7 @@ user_semantic = {
     "Name": {"Values": "", "Type": "String"},
     "Input": input_description,
     "Output": output_description,
+    "License": {"Values": ["MIT"], "Type": "Class"},
 }
 
 
@@ -155,7 +157,7 @@ class PFSDatasetWorkflow:
             search_result = easy_market.search_learnware(user_info)
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
-            
+
             print(f"search result of user{idx}:")
             print(
                 f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}"
