@@ -90,12 +90,12 @@ todo_include_todos = True
 #
 html_theme = "sphinx_book_theme"
 html_theme_path = [sphinx_book_theme.get_html_theme_path()]
-#html_theme_options = {
-#    "logo_only": True,
+html_theme_options = {
+    "logo_only": True,
 #    "collapse_navigation": False,
 #    "display_version": False,
-#    "navigation_depth": 4,
-#}
+    "navigation_depth": 4,
+}
 html_logo = "_static/img/logo/logo1.png"
 
 

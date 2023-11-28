@@ -57,7 +57,7 @@ REQUIRED = [
 DEV_REQUIRED = [
     # For documentations
     "sphinx",
-    "sphinx_book_theme",
+    "sphinx_book_theme==0.3.3",
     # CI dependencies
     "pytest>=3",
     "wheel",
