@@ -1,7 +1,5 @@
 import os
 import json
-import string
-import random
 import torch
 import unittest
 import tempfile
