@@ -104,6 +104,48 @@ Remember to verify the learnware before uploading it, as shown in the following 
 
 After uploading the learnware successfully, you can see it in ``My Learnware``, the background will check it. Click on the learnware, which can be viewed in the ``Verify Status``. After the check passes, the Unverified tag of the learnware will disappear, and the uploaded learnware will appear in the system.
 
+Update Learnware
+-------------------------------
+
+The ``update_learnware`` method is used to update the metadata and content of an existing learnware on the server. You can upload a new semantic specification, or directly upload a new learnware.
+
+.. code-block:: python
+
+    # Replace with the actual learnware ID
+    learnware_id = "123456789"
+
+    # Create new semantic specification
+    semantic_spec = client.create_semantic_specification(
+        name="new learnware name",
+        description="new description",
+        data_type="Table",
+        task_type="Classification",
+        library_type="Scikit-learn",
+        scenarios=["Computer", "Internet"],
+        input_description=new_input_description,
+        output_description=new_output_description,
+    )
+
+    # Update metadata without changing the content
+    client.update_learnware(learnware_id, semantic_spec)
+
+    # Update metadata and content with a new ZIP file
+    updated_zip_path = "/path/to/updated_learnware.zip"
+    client.update_learnware(learnware_id, semantic_spec, learnware_zip_path=updated_zip_path)
+
+Delete Learnware
+-------------------------------
+
+The ``delete_learnware`` method is used to delete a learnware from the server.
+
+.. code-block:: python
+
+    # Replace with the actual learnware ID
+    learnware_id = "123456789"
+
+    # Delete the specified learnware
+    client.delete_learnware(learnware_id)
+
 
 Semantic Specification Search
 -------------------------------
