@@ -128,6 +128,25 @@ semantic_config = {
         "Values": None,
         "Type": "String",
     },
+    "License": {
+        "Values": [
+            "MIT",
+            "Apache-2.0",
+            "BSD-2-Clause",
+            "BSD-3-Clause",
+            "GPL-2.0",
+            "GPL-3.0",
+            "LGPL-2.1",
+            "LGPL-3.0",
+            "AGPL-3.0",
+            "ECL-2.0",
+            "AFL-3.0",
+            "CC-BY-4.0",
+            "CC-BY-SA-4.0",
+            "Others",
+        ],
+        "Type": "Class",
+    },
 }
 
 _DEFAULT_CONFIG = {

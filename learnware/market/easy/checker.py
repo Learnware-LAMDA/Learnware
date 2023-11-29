@@ -57,7 +57,7 @@ class EasySemanticChecker(BaseChecker):
 
             return EasySemanticChecker.NONUSABLE_LEARNWARE, "EasySemanticChecker Success"
 
-        except AssertionError as err:
+        except Exception as err:
             logger.warning(f"semantic_specification is not valid due to {err}!")
             return EasySemanticChecker.INVALID_LEARNWARE, traceback.format_exc()
 

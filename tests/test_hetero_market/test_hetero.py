@@ -35,6 +35,7 @@ user_semantic = {
     "Scenario": {"Values": ["Education"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "License": {"Values": ["MIT"], "Type": "Class"},
 }
 
 
@@ -259,15 +260,15 @@ class TestMarket(unittest.TestCase):
                 str(key): semantic_spec["Input"]["Description"][str(key)] for key in range(user_dim)
             }
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
-            
+
             search_result = hetero_market.search_learnware(user_info)
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
-            
+
             print(f"search result of user{idx}:")
             for single_item in single_result:
                 print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
-                
+
             for multiple_item in multiple_result:
                 print(
                     f"mixture_score: {multiple_item.score}, mixture_learnware_ids: {[item.id for item in multiple_item.learnwares]}"
@@ -335,7 +336,7 @@ class TestMarket(unittest.TestCase):
             print(f"search result of user{idx}:")
             for single_item in single_result:
                 print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
-            
+
             for multiple_item in multiple_result:
                 print(f"mixture_score: {multiple_item.score}\n")
                 mixture_id = " ".join([learnware.id for learnware in multiple_item.learnwares])
@@ -363,9 +364,11 @@ class TestMarket(unittest.TestCase):
         # print search results
         for single_item in single_result:
             print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
-        
+
         for multiple_item in multiple_result:
-            print(f"mixture_score: {multiple_item.score}, mixture_learnware_ids: {[item.id for item in multiple_item.learnwares]}")
+            print(
+                f"mixture_score: {multiple_item.score}, mixture_learnware_ids: {[item.id for item in multiple_item.learnwares]}"
+            )
 
         # single model reuse
         hetero_learnware = HeteroMapAlignLearnware(single_result[0].learnware, mode="regression")
