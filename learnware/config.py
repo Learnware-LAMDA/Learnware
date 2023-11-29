@@ -3,6 +3,7 @@ import copy
 import logging
 from enum import Enum
 
+
 class Config:
     def __init__(self, default_conf):
         self.__dict__["_default_config"] = copy.deepcopy(default_conf)  # avoiding conflictions with __getattr__
@@ -53,8 +54,10 @@ class SystemType(Enum):
     MACOS = 1
     WINDOWS = 2
 
+
 def get_platform():
     import platform
+
     os_name = platform.system().lower()
     if "macos" in os_name or "darwin" in os_name:
         return SystemType.MACOS
@@ -63,6 +66,7 @@ def get_platform():
     elif "linux" in os_name:
         return SystemType.LINUX
     raise SystemError("Learnware only support MACOS/Linux/Windows")
+
 
 if get_platform() == SystemType.MACOS:
     ROOT_DIRPATH = os.path.join(os.path.expanduser("~"), "Library", "Learnware")
@@ -142,7 +146,7 @@ _DEFAULT_CONFIG = {
     },
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
-    "backend_host": "http://www.lamda.nju.edu.cn/learnware/api",
+    "backend_host": "https://bmwu.cloud/api",
     "random_seed": 0,
 }
 
