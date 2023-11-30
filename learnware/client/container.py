@@ -561,7 +561,6 @@ class LearnwaresContainer:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        return # TODO
         if not self.cleanup:
             logger.warning(f"Notice, the learnware container env is not cleaned up!")
             self.learnware_containers = None

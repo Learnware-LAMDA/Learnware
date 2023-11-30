@@ -178,7 +178,7 @@ class LearnwareClient:
             headers=self.headers,
             stream=True,
         )
-        print(response)
+
         if response.status_code != 200:
             raise Exception("download failed: " + json.dumps(response.json()))
 
@@ -247,7 +247,7 @@ class LearnwareClient:
 
                 for learnware in result["data"]["learnware_list_single"]:
                     returns.append(
-                        {   
+                        {
                             "type": "single",
                             "learnware_id": learnware["learnware_id"],
                             "semantic_specification": learnware["semantic_specification"],
@@ -259,12 +259,12 @@ class LearnwareClient:
                         "type": "multiple",
                         "learnware_ids": [],
                         "semantic_specifications": [],
-                        "matching": result["data"]["learnware_list_multi"][0]["matching"]
+                        "matching": result["data"]["learnware_list_multi"][0]["matching"],
                     }
                     for learnware in result["data"]["learnware_list_multi"]:
                         multiple_learnware["learnware_ids"].append(learnware["learnware_id"])
                         multiple_learnware["semantic_specifications"].append(learnware["semantic_specification"])
-                        
+
                     returns.append(multiple_learnware)
         return returns
 
