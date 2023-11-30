@@ -3,7 +3,13 @@ from functools import reduce
 
 import numpy as np
 import torch
+import torchvision
 from torch.utils.data import TensorDataset
+
+torchvision.disable_beta_transforms_warning()
+from torchvision.transforms import transforms, v2
+
+
 
 
 def sample_by_labels(labels: torch.Tensor, weights, total_num):
@@ -25,8 +31,7 @@ def sample_by_labels(labels: torch.Tensor, weights, total_num):
 
 USER_WEIGHTS = [3, 3, 1, 1, 1, 1, 0, 0, 0, 0]
 UPLOADER_WEIGHTS = [4, 4, 1, 1, 0, 0, 0, 0, 0, 0]
-
-def split_dataset(data_x, data_y, size, split="uploader"):
+def split_dataset(labels, size, split="uploader", order=None):
     if split == "uploader":
         weights = np.asarray(UPLOADER_WEIGHTS)
     elif split == "user":
@@ -34,12 +39,29 @@ def split_dataset(data_x, data_y, size, split="uploader"):
     else:
         raise Exception(split)
 
-    order = list(range(len(weights)))
-    random.shuffle(order)
+    if order is None:
+        order = list(range(len(weights)))
+        random.shuffle(order)
 
-    selected_data_indexes = reduce(lambda x, y: x+y, sample_by_labels(data_y, weights[order], size))
+    selected_data_indexes = reduce(lambda x, y: x+y, sample_by_labels(labels, weights[order], size))
     selected_data_indexes = torch.stack(selected_data_indexes)
-    selected_X = data_x[selected_data_indexes].numpy()
-    selected_y = data_y[selected_data_indexes].numpy()
 
-    return TensorDataset(selected_X, selected_y), weights[order]
+    return selected_data_indexes, order
+
+def build_transform(size):
+    augment_transform = transforms.Compose([
+        transforms.Resize(size),
+        v2.AutoAugment(),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
+
+    regular_transform = transforms.Compose([
+        transforms.Resize(size),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
+
+    return augment_transform, regular_transform
