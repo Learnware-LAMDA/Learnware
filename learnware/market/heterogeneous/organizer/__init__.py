@@ -96,7 +96,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         )
 
         if learnwere_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(learnware_id)):
-            self._update_learware_hetero_sepc(learnware_id)
+            self._update_learware_hetero_spec(learnware_id)
 
             if self.auto_update:
                 self.count_down -= 1
@@ -113,7 +113,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                         f"Market mapping train completed. Now update HeteroMapTableSpecification for {training_learnware_ids}"
                     )
                     self.market_mapping = updated_market_mapping
-                    self._update_learware_hetero_sepc(training_learnware_ids)
+                    self._update_learware_hetero_spec(training_learnware_ids)
 
                     self.count_down = self.auto_update_limit
 
@@ -167,7 +167,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         """
         final_status = super(HeteroMapTableOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
         if final_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(id)):
-            self._update_learware_hetero_sepc(id)
+            self._update_learware_hetero_spec(id)
         return final_status
 
     def _reload_learnware_hetero_spec(self, learnware_id):
@@ -178,7 +178,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 hetero_spec.load(hetero_spec_path)
                 self.learnware_list[learnware_id].update_stat_spec(hetero_spec.type, hetero_spec)
             else:
-                self._update_learware_hetero_sepc(learnware_id)
+                self._update_learware_hetero_spec(learnware_id)
             logger.info(f"Reload HeteroMapTableSpecification for hetero spec {learnware_id} succeed!")
         except Exception as err:
             logger.error(f"Reload HeteroMapTableSpecification for hetero spec {learnware_id} failed! due to {err}.")
@@ -196,7 +196,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         if len(self._get_hetero_learnware_ids(learnware_id)):
             self._reload_learnware_hetero_spec(learnware_id)
 
-    def _update_learware_hetero_sepc(self, ids: Union[str, List[str]]):
+    def _update_learware_hetero_spec(self, ids: Union[str, List[str]]):
         """Update learnware by ids, attempting to generate HeteroMapTableSpecification for them.
 
         Parameters
