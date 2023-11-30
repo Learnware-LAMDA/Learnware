@@ -178,7 +178,7 @@ class LearnwareClient:
             headers=self.headers,
             stream=True,
         )
-
+        print(response)
         if response.status_code != 200:
             raise Exception("download failed: " + json.dumps(response.json()))
 
