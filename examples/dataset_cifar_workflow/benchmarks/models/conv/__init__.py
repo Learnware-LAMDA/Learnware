@@ -22,5 +22,8 @@ class Model(BaseModel):
     def predict(self, X: np.ndarray) -> np.ndarray:
         return self.model(torch.asarray(X, dtype=torch.float32, device=self.device))
 
+    def __call__(self, *args, **kwargs):
+        self.predict(*args, **kwargs)
+
     def finetune(self, X: np.ndarray, y: np.ndarray):
         raise NotImplementedError()

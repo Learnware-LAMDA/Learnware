@@ -13,7 +13,7 @@ augment_transform, regular_transform = build_transform((32, 32))
 cifar_train_set_augment = datasets.CIFAR10(root="cache", download=True,
                                      train=True, transform=augment_transform)
 cifar_train_set = datasets.CIFAR10(root="cache", download=True,
-                             train=True, transform=augment_transform)
+                             train=True, transform=regular_transform)
 cifar_test_set = datasets.CIFAR10(root="cache", download=True,
                             train=False, transform=regular_transform)
 
@@ -24,3 +24,8 @@ def uploader_data():
     return (Subset(cifar_train_set_augment, train_indices),
             Subset(cifar_test_set, valid_indices),
             Subset(cifar_train_set, train_indices))
+
+def user_data():
+    test_indices, order = split_dataset(torch.asarray(cifar_test_set.targets), 3000, split="user")
+
+    return Subset(cifar_test_set, test_indices)

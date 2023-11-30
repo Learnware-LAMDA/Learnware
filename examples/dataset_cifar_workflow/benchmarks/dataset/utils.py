@@ -4,12 +4,9 @@ from functools import reduce
 import numpy as np
 import torch
 import torchvision
-from torch.utils.data import TensorDataset
 
 torchvision.disable_beta_transforms_warning()
 from torchvision.transforms import transforms, v2
-
-
 
 
 def sample_by_labels(labels: torch.Tensor, weights, total_num):
@@ -51,17 +48,19 @@ def split_dataset(labels, size, split="uploader", order=None):
 def build_transform(size):
     augment_transform = transforms.Compose([
         transforms.Resize(size),
+        # transforms.RandomCrop(size, padding=4),
+        # transforms.RandomHorizontalFlip(),
         v2.AutoAugment(),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=(0.4914, 0.4822, 0.4465),
+                             std=(0.2023, 0.1994, 0.2010)),
     ])
 
     regular_transform = transforms.Compose([
         transforms.Resize(size),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=(0.4914, 0.4822, 0.4465),
+                             std=(0.2023, 0.1994, 0.2010)),
     ])
 
     return augment_transform, regular_transform
