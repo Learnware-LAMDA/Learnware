@@ -39,7 +39,7 @@ Document Structure
 
 .. toctree::
    :maxdepth: 3
-   :caption: CONCEPTS:
+   :caption: COMPONENTS:
 
    Market <components/market.rst>
    Learnware & Reuser <components/learnware.rst>
