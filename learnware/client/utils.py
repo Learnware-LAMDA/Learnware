@@ -22,6 +22,8 @@ def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stde
             errmsg = err.stderr.decode()
             logger.warning(f"System Execute Error: {errmsg}")
         raise err
+    
+    return com_process
 
 
 def remove_enviroment(conda_env):
@@ -74,7 +76,6 @@ def install_environment(learnware_dirpath, conda_env):
                     "-m",
                     "pip",
                     "install",
-                    "--user",
                     "-r",
                     f"{requirements_path_filter}",
                 ]
@@ -94,7 +95,6 @@ def install_environment(learnware_dirpath, conda_env):
             "-m",
             "pip",
             "install",
-            "--user",
             "learnware",
         ]
     )
