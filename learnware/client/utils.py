@@ -22,6 +22,8 @@ def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stde
             errmsg = err.stderr.decode()
             logger.warning(f"System Execute Error: {errmsg}")
         raise err
+    
+    return com_process
 
 
 def remove_enviroment(conda_env):

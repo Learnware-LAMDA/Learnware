@@ -6,6 +6,7 @@ import tempfile
 import subprocess
 from typing import List, Tuple
 from . import utils
+from concurrent.futures import ThreadPoolExecutor
 
 
 from ..logger import get_module_logger
@@ -13,38 +14,38 @@ from ..logger import get_module_logger
 logger = get_module_logger("package_utils")
 
 
-def try_to_run(args, timeout=5, retry=5):
-    sucess = False
+def try_to_run(args, timeout=10, retry=3):
     for i in range(retry):
         try:
-            utils.system_execute(args=args, timeout=timeout, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            sucess = True
-            break
+            result = utils.system_execute(args=args, timeout=timeout, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+            return result.stdout.decode()
         except subprocess.TimeoutExpired as e:
             pass
-
-    if not sucess:
-        raise subprocess.TimeoutExpired(args, timeout)
+        
+    raise subprocess.TimeoutExpired(args, timeout)
 
 
 def parse_pip_requirement(line: str):
-    """Parse pip requirement line to package name"""
+    """Parse pip requirement line to package name and version"""
 
     line = line.strip()
-
-    if len(line) == 0:
+    if len(line) == 0 or line[0] in ("#", "-"):
         return None
 
-    if line[0] in ("#", "-"):
-        return None
-
-    package_str = line
-    for split_ch in ("=", ">", "<", "!", "~", " "):
-        split_ch_index = package_str.find(split_ch)
+    package_name, package_version = line, line
+    for split_ch in ("=", ">", "<", "!", "~", " ", "="):
+        split_ch_index = package_name.find(split_ch)
         if split_ch_index != -1:
-            package_str = package_str[:split_ch_index]
+            package_name = package_name[:split_ch_index]
+        
+        split_ch_index = package_version.find(split_ch)
+        if split_ch_index != -1:
+            package_version = package_version[split_ch_index + 1:]
+    
+    if package_version == package_name:
+        package_version = ""
 
-    return package_str
+    return package_name, package_version
 
 
 def read_pip_packages_from_requirements(requirements_file: str) -> Tuple[List[str], List[str]]:
@@ -54,7 +55,7 @@ def read_pip_packages_from_requirements(requirements_file: str) -> Tuple[List[st
     lines = []
     with open(requirements_file, "r") as fin:
         for line in fin:
-            package_str = parse_pip_requirement(line)
+            package_str, package_version = parse_pip_requirement(line)
             packages.append(package_str)
             lines.append(line)
 
@@ -70,22 +71,34 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
         exist_packages: list of exist packages
         nonexist_packages: list of non-exist packages
     """
-
-    exist_packages = []
-    nonexist_packages = []
-    for package in packages:
-        if package is None:
-            continue
+    def _filter_nonexist_pip_package_worker(package):
+        # Return filtered package
         try:
-            package_name = parse_pip_requirement(package)
+            package_name, package_version = parse_pip_requirement(package)
             if package_name is not None and package_name != "learnware":
-                try_to_run(args=["pip", "index", "versions", package_name], timeout=5)
-                exist_packages.append(package)
-                continue
+                result = try_to_run(args=["pip", "index", "versions", package_name], timeout=10)
+                if len(package_version) and package_version not in result:
+                    return package_name
+                else:
+                    return package
         except Exception as e:
             logger.error(e)
-        nonexist_packages.append(package)
+            
+        return None
+    
+    exist_packages = []
+    nonexist_packages = []
+    packages = [package for package in packages if package is not None]
+    
+    with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 5, 1)) as executor:
+        results = executor.map(_filter_nonexist_pip_package_worker, packages)
 
+    for result, package in zip(list(results), packages):
+        if result is not None:
+            exist_packages.append(result)
+        else:
+            nonexist_packages.append(package)
+    
     return exist_packages, nonexist_packages
 
 
@@ -169,7 +182,6 @@ def read_conda_packages_from_dict(env_desc: dict) -> Tuple[List[str], List[str]]
         for package in conda_packages:
             if isinstance(package, dict) and "pip" in package:
                 pip_packages = package["pip"]
-                # pip_packages = [parse_pip_requirement(line) for line in pip_packages]
             elif isinstance(package, str):
                 conda_packages_.append(package)
 
