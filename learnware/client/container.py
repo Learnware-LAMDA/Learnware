@@ -337,7 +337,6 @@ class ModelDockerContainer(ModelContainer):
                                 "-m",
                                 "pip",
                                 "install",
-                                "--user",
                                 "-r",
                                 f"{requirements_path_filter}",
                             ]
@@ -367,7 +366,6 @@ class ModelDockerContainer(ModelContainer):
                         "-m",
                         "pip",
                         "install",
-                        "--user",
                         "learnware",
                     ]
                 )
@@ -555,14 +553,13 @@ class LearnwaresContainer:
 
         if sum(self.results) < len(self.learnware_list):
             logger.warning(
-                f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnware will be ignored"
+                f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnwares will be ignored"
             )
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.cleanup:
-            logger.warning(f"Notice, the learnware container env is not cleaned up!")
             self.learnware_containers = None
             self.results = None
             return

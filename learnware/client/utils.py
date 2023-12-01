@@ -76,7 +76,6 @@ def install_environment(learnware_dirpath, conda_env):
                     "-m",
                     "pip",
                     "install",
-                    "--user",
                     "-r",
                     f"{requirements_path_filter}",
                 ]
@@ -96,7 +95,6 @@ def install_environment(learnware_dirpath, conda_env):
             "-m",
             "pip",
             "install",
-            "--user",
             "learnware",
         ]
     )
