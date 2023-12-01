@@ -43,16 +43,19 @@ class ModelContainer(BaseModel):
         """We must set `input_shape` and `output_shape`"""
         if self.build:
             self.cleanup_flag = True
-            self._init_env()
             atexit.register(self.remove_env)
-
+            self._init_env()
         self._setup_env_and_metadata()
 
     def remove_env(self):
         if self.cleanup_flag is True:
-            self.cleanup_flag = False
             try:
+                self.cleanup_flag = False
                 self._remove_env()
+            except KeyboardInterrupt:
+                self.cleanup_flag = True
+                logger.warning("The KeyboardInterrupt is ignored when removing the container env!")
+                self.remove_env()
             except Exception as err:
                 self.cleanup_flag = True
                 raise err
