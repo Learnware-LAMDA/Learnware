@@ -6,7 +6,7 @@ Learnware Client
 Introduction
 ====================
 
-``Learnware Client`` is a python api that provides a convenient interface for interacting with the system. You can easily use the client to upload, download and search learnwares.
+``Learnware Client`` is a ``Python API`` that provides a convenient interface for interacting with the ``BeimingWu`` system. You can easily use the client to upload, download, delete, update, and search learnwares.
 
 
 Prepare access token
