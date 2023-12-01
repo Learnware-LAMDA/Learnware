@@ -70,18 +70,20 @@ Before uploading a learnware, you'll need to prepare the semantic specification 
         task_type="Classification",
         library_type="Scikit-learn",
         scenarios=["Business", "Financial"],
+        license=["Apache-2.0"],
         input_description=input_description,
         output_description=output_description,
     )
     
-Make sure that the parameter input for the semantic specification is within the range given by ``client.list_semantic_specification_values(key)`` :
+Ensure that the input parameters for the semantic specification fall within the specified ranges provided by ``client.list_semantic_specification_values(key)``:
 
-* data_type must in ``key=SemanticSpecificationKey.DATA_TYPE``;
-* task_type must in ``key=SemanticSpecificationKey.TASK_TYPE``;
-* library_type must in ``key=SemanticSpecificationKey.LIBRARY_TYPE``;
-* scenarios must be a subset of ``key=SemanticSpecificationKey.SENARIOES``;
-* When data_type is ``"Table"``, input description needs to be filled in;
-* When task_type is in ``["Classification", "Regression"]``, output description needs to be filled.
+* "data_type" must be within the range of ``key=SemanticSpecificationKey.DATA_TYPE``.
+* "task_type" must be within the range of ``key=SemanticSpecificationKey.TASK_TYPE``.
+* "library_type" must be within the range of ``key=SemanticSpecificationKey.LIBRARY_TYPE``.
+* "scenarios" must be a subset of ``key=SemanticSpecificationKey.SENARIOS``.
+* "license" must be a subset of ``key=SemanticSpecificationKey.LICENSE``.
+* When "data_type" is set to "Table", it is necessary to provide "input_description".
+* When "task_type" is either "Classification" or "Regression", it is necessary to provide "output_description".
 
 Finally, the semantic specification and the zip package path of the learnware were filled in to upload the learnware.
 
@@ -122,6 +124,7 @@ The ``update_learnware`` method is used to update the metadata and content of an
         task_type="Classification",
         library_type="Scikit-learn",
         scenarios=["Computer", "Internet"],
+        license=["CC-BY-4.0"],
         input_description=new_input_description,
         output_description=new_output_description,
     )
