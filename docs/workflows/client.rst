@@ -12,7 +12,7 @@ Introduction
 Prepare access token
 ====================
 
-Before using the ``Learnware Client``, you'll need to obtain a token from the `official website <https://www.lamda.nju.edu.cn/learnware/>`_. Just login to the website and click ``Client Token`` tab in the user center.
+Before using the ``Learnware Client``, you'll need to obtain a token from the `official website <https://bmwu.cloud/>`_. Just login to the website and click ``Client Token`` tab in the ``Personal Information``.
 
 
 How to Use Client
@@ -143,7 +143,7 @@ The ``delete_learnware`` method is used to delete a learnware from the server.
 
 .. code-block:: python
 
-    # Replace with the actual learnware ID
+    # Replace with the actual learnware ID to delete
     learnware_id = "123456789"
 
     # Delete the specified learnware
