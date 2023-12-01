@@ -553,7 +553,7 @@ class LearnwaresContainer:
 
         if sum(self.results) < len(self.learnware_list):
             logger.warning(
-                f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnwares will be ignored"
+                f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! These learnwares will be ignored"
             )
 
         return self
