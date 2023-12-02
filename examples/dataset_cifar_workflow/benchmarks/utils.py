@@ -1,3 +1,4 @@
+import json
 import os
 import zipfile
 from shutil import rmtree
@@ -22,10 +23,8 @@ def evaluate(model, evaluate_set: Dataset, device=None):
     if isinstance(model, nn.Module):
         model.eval()
         mapping = lambda m, x: m(x)
-    elif isinstance(model, Learnware):
+    else: # For predict interface
         mapping = lambda m, x: m.predict(x)
-    else:
-        raise Exception("not support model type", model)
 
     criterion = nn.CrossEntropyLoss(reduction="sum")
     total, correct, loss = 0, 0, 0.0
@@ -33,6 +32,8 @@ def evaluate(model, evaluate_set: Dataset, device=None):
     for i, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
         out = mapping(model, X)
+        if not torch.is_tensor(out):
+            out = torch.from_numpy(out).to(device)
         loss += criterion(out, y)
 
         _, predicted = torch.max(out.data, 1)
@@ -48,12 +49,12 @@ def evaluate(model, evaluate_set: Dataset, device=None):
     return loss, acc
 
 
-def build_learnware(name: str, market: LearnwareMarket, model_name="conv",
-                    out_classes=10, epochs=200, batch_size=2048, device=None):
+def build_learnware(name: str, market: LearnwareMarket, order, model_name="conv",
+                    out_classes=10, epochs=35, batch_size=128, device=None):
     device = choose_device(0) if device is None else device
 
     if name == "cifar10":
-        train_set, valid_set, spec_set = uploader_data()
+        train_set, valid_set, spec_set, order = uploader_data(order=order)
     else:
         raise Exception("Not support", name)
 
@@ -67,15 +68,12 @@ def build_learnware(name: str, market: LearnwareMarket, model_name="conv",
 
     model = ConvModel(channel=channel, im_size=image_size,
                       n_random_features=out_classes).to(device)
-    # if device.type == 'cuda':
-    #     model = nn.DataParallel(model)
-    #     model.benchmark = True
 
     model.train()
 
     # SGD optimizer with learning rate 1e-2
-    optimizer = optim.SGD(model.parameters(), lr=5e-2, momentum=0.9)
-    # Scheduler TODO: Use this
+    optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9)
+    # Scheduler
     # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
     # mean-squared error loss
     criterion = nn.CrossEntropyLoss()
@@ -86,6 +84,7 @@ def build_learnware(name: str, market: LearnwareMarket, model_name="conv",
     # Optimizing...
     for epoch in range(epochs):
         running_loss = []
+        model.train()
         for i, (X, y) in enumerate(dataloader):
             X, y = X.to(device=device), y.to(device=device)
             optimizer.zero_grad()
@@ -95,26 +94,27 @@ def build_learnware(name: str, market: LearnwareMarket, model_name="conv",
             optimizer.step()
             running_loss.append(loss.item())
 
-        valid_loss, valid_acc = evaluate(model, train_set, device=device)
+        valid_loss, valid_acc = evaluate(model, valid_set, device=device)
+        train_loss, train_acc = evaluate(model, train_set, device=device)
         if valid_loss < best_loss:
             best_loss = valid_loss
-            if isinstance(model, nn.DataParallel):
-                model_to_save = model.module
-            else:
-                model_to_save = model
-            torch.save(model_to_save.state_dict(), os.path.join(cache_dir, "model.pth"))
+
+            torch.save(model.state_dict(), os.path.join(cache_dir, "model.pth"))
             print("Epoch: {}, Valid Best Accuracy: {:.3f}% ({:.3f})".format(epoch+1, valid_acc, valid_loss))
+        if valid_acc > 99.0:
+            print("Early Stopping at 99% !")
+            break
 
         if (epoch + 1) % 5 == 0:
-            print('Epoch: {}, Train Average Loss: {:.3f}, Valid Average Loss: {:.3f}'.format(
-                epoch+1, np.mean(running_loss), valid_loss))
+            print('Epoch: {}, Train Average Loss: {:.3f}, Accuracy {:.3f}%, Valid Average Loss: {:.3f}'.format(
+                epoch+1, np.mean(running_loss), train_acc, valid_loss))
 
         # scheduler.step()
 
     # build specification
     loader = DataLoader(spec_set, batch_size=3000, shuffle=True)
     sampled_X, _ = next(iter(loader))
-    spec = generate_rkme_image_spec(sampled_X)
+    spec = generate_rkme_image_spec(sampled_X, whitening=False)
 
     # add to market
     model_dir = os.path.abspath(os.path.join(__file__, "..", "models"))
@@ -142,10 +142,11 @@ def build_learnware(name: str, market: LearnwareMarket, model_name="conv",
             with open(file_path, "rb") as file:
                 zip_obj.writestr(zip_info, file.read())
 
+    print(", ".join([str(o) for o in order]))
     market.add_learnware(zip_file, semantic_spec=LearnwareClient.create_semantic_specification(
         self=None,
         name="learnware",
-        description="For Cifar Dataset Workflow",
+        description=", ".join([str(o) for o in order]),
         data_type="Image",
         task_type="Classification",
         library_type="PyTorch",
@@ -156,23 +157,24 @@ def build_learnware(name: str, market: LearnwareMarket, model_name="conv",
     return model
 
 
-def build_specification(name: str, cache_id, sampled_size=3000):
-    cache_path = os.path.abspath(os.path.join(
-        os.path.dirname( __file__ ), '..', 'cache', "{}.json".format(cache_id)))
-
-    if name == "cifar10":
-        dataset = user_data()
-    else:
-        raise Exception("Not support", name)
+def build_specification(name: str, cache_id, order, sampled_size=3000):
+    cache_dir = os.path.abspath(os.path.join(
+        os.path.dirname( __file__ ), '..', 'cache', 'spec'))
+    os.makedirs(cache_dir, exist_ok=True)
+    cache_path = os.path.join(cache_dir, "spec_{}.json".format(cache_id))
 
     if os.path.exists(cache_path):
         spec = RKMEImageSpecification()
         spec.load(cache_path)
-        return spec, dataset
 
-    loader = DataLoader(dataset, batch_size=sampled_size, shuffle=True)
-    sampled_X, _ = next(iter(loader))
-    spec = generate_rkme_image_spec(sampled_X, steps=1)
+        test_dataset, spec_dataset, _, _ = user_data(indices=torch.asarray(spec.msg))
+    else:
+        test_dataset, spec_dataset, indices, _ = user_data(order=order)
+        loader = DataLoader(spec_dataset, batch_size=sampled_size, shuffle=True)
+        sampled_X, _ = next(iter(loader))
+        spec = generate_rkme_image_spec(sampled_X, whitening=False)
 
-    spec.save(cache_path)
-    return spec, dataset
+        spec.msg = indices.tolist()
+        spec.save(cache_path)
+
+    return spec, test_dataset

@@ -34,6 +34,9 @@ class RKMEImageSpecification(RegularStatSpecification):
         """
         self.RKME_IMAGE_VERSION = 1  # Please maintain backward compatibility.
 
+        # TODO: remove this
+        self.msg=None
+
         self.z = None
         self.beta = None
         self._cuda_idx = allocate_cuda_idx() if cuda_idx is None else cuda_idx
