@@ -245,6 +245,15 @@ class ModelDockerContainer(ModelContainer):
         else:
             logger.error("Type of docker_container is not docker.models.containers.Container.")
 
+    @staticmethod
+    def _change_path_to_container(path):
+        file_name = os.path.basename(path)
+        if "." in file_name:
+            file_dir = os.path.basename(os.path.dirname(path))
+            return f"/tmp/{file_dir}/{file_name}"
+        else:
+            return f"/tmp/{file_name}"
+    
     def _copy_file_to_container(self, local_path, container_path):
         directory_path = os.path.dirname(container_path)
         container_name = os.path.basename(container_path)
@@ -298,13 +307,15 @@ class ModelDockerContainer(ModelContainer):
                 yaml_path_filter: str = os.path.join(tempdir, "environment_filter.yaml")
                 logger.info(f"checking the avaliabe conda packages for {conda_env}")
                 filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
-                self._copy_file_to_container(yaml_path_filter, yaml_path_filter)
+                
+                yaml_path_filter_container = self._change_path_to_container(yaml_path_filter)
+                self._copy_file_to_container(yaml_path_filter, yaml_path_filter_container)
 
                 # create environment
                 logger.info(f"Create and update conda env [{conda_env}] according to .yaml file")
                 for i in range(run_cmd_times):
                     result = self.docker_container.exec_run(
-                        " ".join(["conda", "env", "create", "--name", f"{conda_env}", "--file", f"{yaml_path_filter}"])
+                        " ".join(["conda", "env", "create", "--name", f"{conda_env}", "--file", f"{yaml_path_filter_container}"])
                     )
                     if result.exit_code == 0:
                         success_flag = True
@@ -326,7 +337,9 @@ class ModelDockerContainer(ModelContainer):
                         break
                 logger.info(f"install pip requirements for conda env [{conda_env}] in docker.")
 
-                self._copy_file_to_container(requirements_path_filter, requirements_path_filter)
+                requirements_path_filter_container = self._change_path_to_container(requirements_path_filter)
+                self._copy_file_to_container(requirements_path_filter, requirements_path_filter_container)
+                
                 for i in range(run_cmd_times):
                     result = self.docker_container.exec_run(
                         " ".join(
@@ -341,7 +354,7 @@ class ModelDockerContainer(ModelContainer):
                                 "pip",
                                 "install",
                                 "-r",
-                                f"{requirements_path_filter}",
+                                f"{requirements_path_filter_container}",
                             ]
                         )
                     )
@@ -386,19 +399,21 @@ class ModelDockerContainer(ModelContainer):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
-            self.docker_model_script_path = os.path.join(tempdir, "run_model.py")
+            self.docker_model_script_path = self._change_path_to_container(os.path.join(tempdir, "run_model.py"))
 
+            output_path_container = self._change_path_to_container(output_path)
+            model_path_container = self._change_path_to_container(model_path)
+            learnware_dirpath_container = self._change_path_to_container(self.learnware_dirpath)
+            
             docker_model_config = self.model_config.copy()
-            docker_model_config["module_path"] = Learnware.get_model_module_abspath(
-                self.learnware_dirpath, docker_model_config["module_path"]
-            )
-            self._copy_file_to_container(self.learnware_dirpath, self.learnware_dirpath)
+            docker_model_config["module_path"] = learnware_dirpath_container + "/" + docker_model_config["module_path"]
+            self._copy_file_to_container(self.learnware_dirpath, learnware_dirpath_container)
 
             with open(model_path, "wb") as model_fp:
                 pickle.dump(docker_model_config, model_fp)
-
-            self._copy_file_to_container(model_path, model_path)
+            self._copy_file_to_container(model_path, model_path_container)
             self._copy_file_to_container(self.model_script, self.docker_model_script_path)
+            
             self.docker_container.exec_run(
                 " ".join(
                     [
@@ -410,13 +425,13 @@ class ModelDockerContainer(ModelContainer):
                         "python",
                         f"{self.docker_model_script_path}",
                         "--model-path",
-                        f"{model_path}",
+                        f"{model_path_container}",
                         "--output-path",
-                        f"{output_path}",
+                        f"{output_path_container}",
                     ]
                 )
             )
-            self._copy_file_from_container(output_path, output_path)
+            self._copy_file_from_container(output_path_container, output_path)
 
             with open(output_path, "rb") as output_fp:
                 output_results = pickle.load(output_fp)
@@ -439,19 +454,22 @@ class ModelDockerContainer(ModelContainer):
             input_path = os.path.join(tempdir, "input.pkl")
             output_path = os.path.join(tempdir, "output.pkl")
             model_path = os.path.join(tempdir, "model.pkl")
-
+            
+            input_path_container = self._change_path_to_container(input_path)
+            output_path_container = self._change_path_to_container(output_path)
+            model_path_container = self._change_path_to_container(model_path)
+            learnware_dirpath_container = self._change_path_to_container(self.learnware_dirpath)
+            
             docker_model_config = self.model_config.copy()
-            docker_model_config["module_path"] = Learnware.get_model_module_abspath(
-                self.learnware_dirpath, docker_model_config["module_path"]
-            )
+            docker_model_config["module_path"] = learnware_dirpath_container + "/" + docker_model_config["module_path"]
             with open(model_path, "wb") as model_fp:
                 pickle.dump(docker_model_config, model_fp)
 
             with open(input_path, "wb") as input_fp:
                 pickle.dump({"method": method, "kargs": kargs}, input_fp)
 
-            self._copy_file_to_container(model_path, model_path)
-            self._copy_file_to_container(input_path, input_path)
+            self._copy_file_to_container(model_path, model_path_container)
+            self._copy_file_to_container(input_path, input_path_container)
 
             self.docker_container.exec_run(
                 " ".join(
@@ -464,15 +482,15 @@ class ModelDockerContainer(ModelContainer):
                         "python",
                         f"{self.docker_model_script_path}",
                         "--model-path",
-                        f"{model_path}",
+                        f"{model_path_container}",
                         "--input-path",
-                        f"{input_path}",
+                        f"{input_path_container}",
                         "--output-path",
-                        f"{output_path}",
+                        f"{output_path_container}",
                     ]
                 )
             )
-            self._copy_file_from_container(output_path, output_path)
+            self._copy_file_from_container(output_path_container, output_path)
 
             with open(output_path, "rb") as output_fp:
                 output_results = pickle.load(output_fp)
