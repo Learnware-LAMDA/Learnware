@@ -8,7 +8,7 @@ class SVM(BaseModel):
     def __init__(self):
         super(SVM, self).__init__(input_shape=(64,), output_shape=(10,))
         dir_path = os.path.dirname(os.path.abspath(__file__))
-        self.model = joblib.load(os.path.join(dir_path, "svm.pkl"))
+        self.model = pickle.load(os.path.join(dir_path, "svm.pkl"))
 
     def fit(self, X: np.ndarray, y: np.ndarray):
         pass

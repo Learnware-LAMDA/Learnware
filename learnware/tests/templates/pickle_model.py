@@ -1,0 +1,31 @@
+import os
+import pickle
+import numpy as np
+from learnware.model.base import BaseModel
+
+class PickleLoadedModel(BaseModel):
+    
+    def __init__(
+        self,
+        input_shape,
+        output_shape,
+        pickle_filepath,
+        predict_method="predict",
+        fit_method="fit",
+        finetune_method="finetune",
+    ):
+        super(PickleLoadedModel, self).__init__(input_shape=input_shape, output_shape=output_shape)
+        with open(pickle_filepath, "rb") as fd:
+            self.model = pickle.load(fd)
+        self.predict_method = predict_method
+        self.fit_method = fit_method
+        self.finetune_method = finetune_method
+            
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        return getattr(self.model, self.predict_method)(X)
+    
+    def fit(self, X: np.ndarray, y: np.ndarray):
+        getattr(self.model, self.fit_method)(X, y)
+
+    def finetune(self, X: np.ndarray, y: np.ndarray):
+        getattr(self.model, self.finetune_method)(X, y)
