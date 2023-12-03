@@ -218,6 +218,7 @@ class ModelDockerContainer(ModelContainer):
             "tty": True,
             "command": "bash",
             "environment": {"http_proxy": http_proxy, "https_proxy": https_proxy},
+            "pids_limit": -1,
         }
         container = client.containers.run(**container_config)
         environment_cmd = [
@@ -249,6 +250,8 @@ class ModelDockerContainer(ModelContainer):
         )
         if result.exit_code != 0:
             logger.error(f"Install learnware package in docker failed!\n{result.output.decode('utf-8')}")
+        container.exec_run("conda clean --all")
+
         return container
 
     @staticmethod
@@ -347,6 +350,8 @@ class ModelDockerContainer(ModelContainer):
                 if result.exit_code == 0:
                     success_flag = True
                     break
+                else:
+                    self.docker_container.exec_run("conda clean --all")
             if not success_flag:
                 logger.error(f"Install environment dependencies in docker failed!\n{result.output.decode('utf-8')}")
 
