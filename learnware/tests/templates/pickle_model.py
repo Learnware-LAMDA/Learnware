@@ -15,6 +15,8 @@ class PickleLoadedModel(BaseModel):
         finetune_method="finetune",
     ):
         super(PickleLoadedModel, self).__init__(input_shape=input_shape, output_shape=output_shape)
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        self.pickle_filepath = os.path.join(pickle_filepath, dir_path)
         with open(pickle_filepath, "rb") as fd:
             self.model = pickle.load(fd)
         self.predict_method = predict_method

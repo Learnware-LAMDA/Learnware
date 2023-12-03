@@ -70,7 +70,8 @@ class LearnwareTemplate:
             if model_template == "pickle":
                 pickle_filepath = os.path.join(tempdir, model_config["kwargs"]["pickle_filepath"])
                 copyfile(kwargs["pickle_filepath"], pickle_filepath)
-                
+            
+            
 
     def generate_template_semantic_spec(self):
         pass

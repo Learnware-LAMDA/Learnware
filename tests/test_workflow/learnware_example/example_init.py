@@ -1,5 +1,5 @@
 import os
-import joblib
+import pickle
 import numpy as np
 from learnware.model import BaseModel
 
