@@ -27,6 +27,7 @@ user_semantic = {
     "Scenario": {"Values": ["Education"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "License": {"Values": ["MIT"], "Type": "Class"},
 }
 
 
@@ -145,11 +146,15 @@ class TestWorkflow(unittest.TestCase):
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
         search_result = easy_market.search_learnware(user_info)
         single_result = search_result.get_single_results()
-        
+
         print("User info:", user_info.get_semantic_spec())
         print(f"Search result:")
         for search_item in single_result:
-            print("Choose learnware:", search_item.learnware.id, search_item.learnware.get_specification().get_semantic_spec())
+            print(
+                "Choose learnware:",
+                search_item.learnware.id,
+                search_item.learnware.get_specification().get_semantic_spec(),
+            )
 
         rmtree(test_folder)  # rm -r test_folder
 
@@ -176,12 +181,12 @@ class TestWorkflow(unittest.TestCase):
 
             single_result = search_results.get_single_results()
             multiple_result = search_results.get_multiple_results()
-            
+
             assert len(single_result) >= 1, f"Statistical search failed!"
             print(f"search result of user{idx}:")
             for search_item in single_result:
                 print(f"score: {search_item.score}, learnware_id: {search_item.learnware.id}")
-            
+
             for mixture_item in multiple_result:
                 print(f"mixture_score: {mixture_item.score}\n")
                 mixture_id = " ".join([learnware.id for learnware in mixture_item.learnwares])
@@ -229,8 +234,8 @@ class TestWorkflow(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    #_suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
-    #_suite.addTest(TestWorkflow("test_upload_delete_learnware"))
+    # _suite.addTest(TestWorkflow("test_prepare_learnware_randomly"))
+    # _suite.addTest(TestWorkflow("test_upload_delete_learnware"))
     _suite.addTest(TestWorkflow("test_search_semantics"))
     _suite.addTest(TestWorkflow("test_stat_search"))
     _suite.addTest(TestWorkflow("test_learnware_reuse"))

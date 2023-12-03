@@ -165,7 +165,7 @@ _DEFAULT_CONFIG = {
     },
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,
-    "backend_host": "http://www.lamda.nju.edu.cn/learnware/api",
+    "backend_host": "https://bmwu.cloud/api",
     "random_seed": 0,
 }
 

@@ -23,7 +23,7 @@ class TestLearnwareLoad(unittest.TestCase):
     def setUp(self):
         self.client = LearnwareClient()
         root = os.path.dirname(__file__)
-        self.learnware_ids = ["00000084", "00000154", "00000155"]
+        self.learnware_ids = ["00000910", "00000899", "00000900"]
         self.zip_paths = [os.path.join(root, x) for x in ["1.zip", "2.zip", "3.zip"]]
 
     def _test_load_learnware_by_zippath(self, runnable_option):

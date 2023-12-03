@@ -43,16 +43,19 @@ class ModelContainer(BaseModel):
         """We must set `input_shape` and `output_shape`"""
         if self.build:
             self.cleanup_flag = True
-            self._init_env()
             atexit.register(self.remove_env)
-
+            self._init_env()
         self._setup_env_and_metadata()
 
     def remove_env(self):
         if self.cleanup_flag is True:
-            self.cleanup_flag = False
             try:
+                self.cleanup_flag = False
                 self._remove_env()
+            except KeyboardInterrupt:
+                self.cleanup_flag = True
+                logger.warning("The KeyboardInterrupt is ignored when removing the container env!")
+                self.remove_env()
             except Exception as err:
                 self.cleanup_flag = True
                 raise err
@@ -106,7 +109,7 @@ class ModelCondaContainer(ModelContainer):
                     "-n",
                     f"{self.conda_env}",
                     "--no-capture-output",
-                    "python3",
+                    "python",
                     f"{self.model_script}",
                     "--model-path",
                     f"{model_path}",
@@ -149,7 +152,7 @@ class ModelCondaContainer(ModelContainer):
                     "-n",
                     f"{self.conda_env}",
                     "--no-capture-output",
-                    "python3",
+                    "python",
                     f"{self.model_script}",
                     "--model-path",
                     f"{model_path}",
@@ -333,7 +336,7 @@ class ModelDockerContainer(ModelContainer):
                                 "-n",
                                 f"{conda_env}",
                                 "--no-capture-output",
-                                "python3",
+                                "python",
                                 "-m",
                                 "pip",
                                 "install",
@@ -362,7 +365,7 @@ class ModelDockerContainer(ModelContainer):
                         "-n",
                         f"{conda_env}",
                         "--no-capture-output",
-                        "python3",
+                        "python",
                         "-m",
                         "pip",
                         "install",
@@ -404,7 +407,7 @@ class ModelDockerContainer(ModelContainer):
                         "-n",
                         f"{self.conda_env}",
                         "--no-capture-output",
-                        "python3",
+                        "python",
                         f"{self.docker_model_script_path}",
                         "--model-path",
                         f"{model_path}",
@@ -458,7 +461,7 @@ class ModelDockerContainer(ModelContainer):
                         "-n",
                         f"{self.conda_env}",
                         "--no-capture-output",
-                        "python3",
+                        "python",
                         f"{self.docker_model_script_path}",
                         "--model-path",
                         f"{model_path}",
@@ -553,14 +556,13 @@ class LearnwaresContainer:
 
         if sum(self.results) < len(self.learnware_list):
             logger.warning(
-                f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! This learnware will be ignored"
+                f"{len(self.learnware_list) - sum(results)} of {len(self.learnware_list)} learnwares init failed! These learnwares will be ignored"
             )
 
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.cleanup:
-            logger.warning(f"Notice, the learnware container env is not cleaned up!")
             self.learnware_containers = None
             self.results = None
             return
