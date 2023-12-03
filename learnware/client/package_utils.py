@@ -30,7 +30,7 @@ def parse_pip_requirement(line: str):
 
     line = line.strip()
     if len(line) == 0 or line[0] in ("#", "-"):
-        return None
+        return None, None
 
     package_name, package_version = line, line
     for split_ch in ("=", ">", "<", "!", "~", " ", "="):
