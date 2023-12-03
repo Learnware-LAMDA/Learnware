@@ -243,7 +243,7 @@ class ModelDockerContainer(ModelContainer):
                     "-m",
                     "pip",
                     "install",
-                    "learnware[full]",
+                    "learnware",
                 ]
             )
         )
@@ -339,14 +339,10 @@ class ModelDockerContainer(ModelContainer):
                         "--conda-env",
                         f"{conda_env}",
                     ]
-                ),
-                stream=True
+                )
             )
-            for output in result.output:
-                print(output.decode("utf-8"))
-                
             if result.exit_code != 0:
-                logger.error(f"Install environment dependencies in docker failed!")
+                logger.error(f"Install environment dependencies in docker failed!\n{result.output.decode('utf-8')}")
             
         # run_cmd_times = 10
         # with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
