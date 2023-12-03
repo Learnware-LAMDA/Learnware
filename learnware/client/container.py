@@ -250,7 +250,6 @@ class ModelDockerContainer(ModelContainer):
         )
         if result.exit_code != 0:
             logger.error(f"Install learnware package in docker failed!\n{result.output.decode('utf-8')}")
-        container.exec_run("conda clean --all")
 
         return container
 
@@ -535,9 +534,16 @@ class LearnwaresContainer:
             ]
 
         model_list = [_learnware.get_model() for _learnware in self.learnware_containers]
-        with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
-            results = executor.map(self._initialize_model_container, model_list, [self.ignore_error] * len(model_list))
-        self.results = list(results)
+        if self.mode == "conda":
+            with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 2, 1)) as executor:
+                results = executor.map(
+                    self._initialize_model_container, model_list, [self.ignore_error] * len(model_list)
+                )
+            self.results = list(results)
+        else:
+            self.results = []
+            for model_item in model_list:
+                self.results.append(self._initialize_model_container(model_item, self.ignore_error))
 
         if sum(self.results) < len(self.learnware_list):
             logger.warning(
