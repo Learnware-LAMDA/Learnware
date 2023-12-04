@@ -95,8 +95,8 @@ class EasyStatChecker(BaseChecker):
             logger.warning(f"The learnware [{learnware.id}] is instantiated failed! Due to {e}.")
             return self.INVALID_LEARNWARE, traceback.format_exc()
         try:
-            learnware_model = learnware.get_model()
             # Check input shape
+            learnware_model = learnware.get_model()
             input_shape = learnware_model.input_shape
 
             if semantic_spec["Data"]["Values"][0] == "Table" and input_shape != (
@@ -106,14 +106,18 @@ class EasyStatChecker(BaseChecker):
                 logger.warning(message)
                 return self.INVALID_LEARNWARE, message
 
+            # Check statistical specification
             spec_type = parse_specification_type(learnware.get_specification().stat_spec)
             if spec_type is None:
                 message = f"No valid specification is found in stat spec {spec_type}"
                 logger.warning(message)
                 return self.INVALID_LEARNWARE, message
 
+            # Check if statistical specification is computable in dist()
+            stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
+            stat_spec.dist(stat_spec)
+
             if spec_type == "RKMETableSpecification":
-                stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
                 if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
                     raise ValueError(
                         f"For RKMETableSpecification, input_shape should be tuple of int, but got {input_shape}"
@@ -124,14 +128,17 @@ class EasyStatChecker(BaseChecker):
                     logger.warning(message)
                     return self.INVALID_LEARNWARE, message
                 inputs = np.random.randn(10, *input_shape)
+
             elif spec_type == "RKMETextSpecification":
                 inputs = EasyStatChecker._generate_random_text_list(10)
+
             elif spec_type == "RKMEImageSpecification":
                 if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
                     raise ValueError(
                         f"For RKMEImageSpecification, input_shape should be tuple of int, but got {input_shape}"
                     )
                 inputs = np.random.randint(0, 255, size=(10, *input_shape))
+
             else:
                 raise ValueError(f"not supported spec type for spec_type = {spec_type}")
 

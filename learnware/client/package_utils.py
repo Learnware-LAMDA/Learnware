@@ -21,7 +21,7 @@ def try_to_run(args, timeout=10, retry=3):
             return result.stdout.decode()
         except subprocess.TimeoutExpired as e:
             pass
-        
+
     raise subprocess.TimeoutExpired(args, timeout)
 
 
@@ -30,18 +30,18 @@ def parse_pip_requirement(line: str):
 
     line = line.strip()
     if len(line) == 0 or line[0] in ("#", "-"):
-        return None
+        return None, None
 
     package_name, package_version = line, line
     for split_ch in ("=", ">", "<", "!", "~", " ", "="):
         split_ch_index = package_name.find(split_ch)
         if split_ch_index != -1:
             package_name = package_name[:split_ch_index]
-        
+
         split_ch_index = package_version.find(split_ch)
         if split_ch_index != -1:
-            package_version = package_version[split_ch_index + 1:]
-    
+            package_version = package_version[split_ch_index + 1 :]
+
     if package_version == package_name:
         package_version = ""
 
@@ -71,6 +71,7 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
         exist_packages: list of exist packages
         nonexist_packages: list of non-exist packages
     """
+
     def _filter_nonexist_pip_package_worker(package):
         # Return filtered package
         try:
@@ -83,13 +84,13 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
                     return package
         except Exception as e:
             logger.error(e)
-            
+
         return None
-    
+
     exist_packages = []
     nonexist_packages = []
     packages = [package for package in packages if package is not None]
-    
+
     with ThreadPoolExecutor(max_workers=max(os.cpu_count() // 5, 1)) as executor:
         results = executor.map(_filter_nonexist_pip_package_worker, packages)
 
@@ -98,7 +99,7 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
             exist_packages.append(result)
         else:
             nonexist_packages.append(package)
-    
+
     return exist_packages, nonexist_packages
 
 
@@ -129,7 +130,14 @@ def filter_nonexist_conda_packages(packages: list) -> Tuple[List[str], List[str]
             last_bracket = stdout.rfind("\n{")
             if last_bracket != -1:
                 stdout = stdout[last_bracket:]
-            return json.loads(stdout).get("bad_deps", [])
+
+            stdout_json = json.loads(stdout)
+            if "error" in stdout_json:
+                if "bad_deps" in stdout_json:
+                    return stdout_json["bad_deps"]
+                elif "packages" in stdout_json:
+                    return stdout_json["packages"]
+            return []
 
     org_yaml = {
         "channels": ["defaults"],

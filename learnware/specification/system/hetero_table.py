@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import copy
 import json
 import torch
 import codecs
@@ -10,7 +9,10 @@ import numpy as np
 from .base import SystemStatSpecification
 from ..regular import RKMETableSpecification
 from ..regular.table.rkme import torch_rbf_kernel
+from ...logger import get_module_logger
 from ...utils import choose_device, allocate_cuda_idx
+
+logger = get_module_logger("hetero_map_table_spec")
 
 
 class HeteroMapTableSpecification(SystemStatSpecification):
@@ -135,9 +137,14 @@ class HeteroMapTableSpecification(SystemStatSpecification):
                 if d in embedding_load.keys():
                     setattr(self, d, embedding_load[d])
 
-            return True
-        else:
-            return False
+            if self.type == self.__class__.__name__:
+                return True
+            else:
+                logger.error(
+                    f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
+                )
+
+        return False
 
     def save(self, filepath: str) -> bool:
         """Save the computed HeteroMapTableSpecification to a specified path in JSON format.
