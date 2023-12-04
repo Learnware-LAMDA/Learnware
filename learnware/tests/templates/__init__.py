@@ -21,7 +21,7 @@ class PickleModelTemplate(ModelTemplate):
         self.class_name = "PickleLoadedModel"
         self.template_path = os.path.join(C.package_path, "tests", "templates", "pickle_model.py")
     
-class TestTemplates:
+class LearnwareTemplate:
     def __init__(self):
         self.model_templates = [
             PickleModelTemplate

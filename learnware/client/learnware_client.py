@@ -406,7 +406,7 @@ class LearnwareClient:
             task_type="Segmentation",
             scenarios="Financial",
             license="Apache-2.0",
-            ) if semantic_specification is None else semantic_specification
+        ) if semantic_specification is None else semantic_specification
         
         check_status, message = LearnwareClient._check_semantic_specification(semantic_specification)
         assert check_status, f"Semantic specification check failed due to {message}!"
