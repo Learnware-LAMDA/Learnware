@@ -10,7 +10,7 @@ token="$(date +%s)"
 mkdir -p "./log"
 echo "The output is redirected to log/${token}.log with token ${token}"
 
-export CUDA_VISIBLE_DEVICES=0
+export CUDA_VISIBLE_DEVICES=5.
 # shellcheck disable=SC2086
-nohup python -u main.py evaluate --market_id="momo" > "./log/${token}.log" 2>&1 &
+nohup python -u main.py evaluate_unlabeled --market_id="momo" > "./log/${token}.log" 2>&1 &
 echo "With PID = $!"

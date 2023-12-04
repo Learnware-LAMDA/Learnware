@@ -116,7 +116,7 @@ def build_learnware(name: str, market: LearnwareMarket, order, model_name="conv"
     # build specification
     loader = DataLoader(spec_set, batch_size=3000, shuffle=True)
     sampled_X, _ = next(iter(loader))
-    spec = generate_rkme_image_spec(sampled_X, whitening=False)
+    spec = generate_rkme_image_spec(sampled_X, whitening=False, cross_platform=False)
 
     # add to market
     model_dir = os.path.abspath(os.path.join(__file__, "..", "models"))
@@ -174,7 +174,7 @@ def build_specification(name: str, cache_id, order, sampled_size=3000):
         test_dataset, spec_dataset, indices, _ = user_data(order=order)
         loader = DataLoader(spec_dataset, batch_size=sampled_size, shuffle=True)
         sampled_X, _ = next(iter(loader))
-        spec = generate_rkme_image_spec(sampled_X, whitening=False)
+        spec = generate_rkme_image_spec(sampled_X, whitening=False, cross_platform=False)
 
         spec.msg = indices.tolist()
         spec.save(cache_path)
@@ -199,7 +199,7 @@ class Recorder:
 
         return str(tabulate(table, headers=["Case", "Accuracy", "Loss"], tablefmt='orgtbl'))
 
-    def accumulated(self):
+    def summary(self):
         table = []
 
         for name, values in self.data.items():

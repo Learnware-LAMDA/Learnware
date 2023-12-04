@@ -155,7 +155,13 @@ class RKMEImageSpecification(RegularStatSpecification):
 
         self._random_generator = RandomGenerator(0)
         # crucial
-        setup_seed(0)
+        torch.manual_seed(0)
+        torch.cuda.manual_seed_all(0)
+        torch.backends.cudnn.deterministic = True
+        if ("cross_platform" not in kwargs or kwargs["cross_platform"])
+            torch.cuda.set_rng_state(
+                new_state=torch.cuda.get_rng_state(self._device.index),
+                device="cpu")
 
         random_models = list(self._generate_models(n_models=self.n_models, channel=X.shape[1]))
         self.z = torch.zeros(Z_shape).to(self._device).float()
@@ -180,6 +186,12 @@ class RKMEImageSpecification(RegularStatSpecification):
                 x_features = self._generate_random_feature(X_train, random_models=random_models)
             self._update_z(x_features, optimizer, random_models=random_models)
             self._update_beta(x_features, nonnegative_beta, random_models=random_models)
+
+        # Recovering Random Number Generation Settings
+        if ("cross-platform" not in kwargs or kwargs["cross-platform"])
+            torch.cuda.set_rng_state(
+                new_state=torch.cuda.get_rng_state(self._device.index),
+                device="cuda")
 
     @torch.no_grad()
     def _update_beta(self, x_features: Any, nonnegative_beta: bool = True, random_models=None):

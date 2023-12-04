@@ -37,6 +37,7 @@ REQUIRED = [
     "pandas>=0.25.1",
     "scipy>=1.0.0",
     "tqdm>=4.65.0",
+    "tabulate",
     "scikit-learn>=0.22",
     "joblib>=1.2.0",
     "pyyaml>=6.0",
