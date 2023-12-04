@@ -29,10 +29,6 @@ class TestWorkflow(unittest.TestCase):
         "license": "MIT",
     }
     
-    @classmethod
-    def setUpClass(cls):
-       pass
-    
     def _init_learnware_market(self):
         """initialize learnware market"""
         easy_market = instantiate_learnware_market(market_id="sklearn_digits_easy", name="easy", rebuild=True)
@@ -62,7 +58,8 @@ class TestWorkflow(unittest.TestCase):
             LearnwareTemplate.generate_learnware_zipfile(
                 learnware_zippath=learnware_zippath,
                 model_template=PickleModelTemplate(pickle_filepath=pickle_filepath, model_kwargs={"input_shape":(64,), "output_shape": (10,), "predict_method": "predict_proba"}),
-                stat_spec_template=StatSpecTemplate(filepath=spec_filepath, type="RKMETableSpecification")
+                stat_spec_template=StatSpecTemplate(filepath=spec_filepath, type="RKMETableSpecification"),
+                requirements=["scikit-learn==0.22"],
             )
            
             self.zip_path_list.append(learnware_zippath)
