@@ -28,8 +28,6 @@ def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stde
 
 def remove_enviroment(conda_env):
     system_execute(args=["conda", "env", "remove", "-n", f"{conda_env}"])
-    logger.info(f"The learnware conda env [{conda_env}] is removed.")
-
 
 def install_environment(learnware_dirpath, conda_env):
     """Install environment of a learnware

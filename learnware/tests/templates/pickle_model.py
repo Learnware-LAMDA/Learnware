@@ -9,7 +9,7 @@ class PickleLoadedModel(BaseModel):
         self,
         input_shape,
         output_shape,
-        pickle_filepath,
+        pickle_filename,
         predict_method="predict",
         fit_method="fit",
         finetune_method="finetune",
