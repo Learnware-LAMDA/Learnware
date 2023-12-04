@@ -393,7 +393,7 @@ class TextDatasetWorkflow:
             mean_curve, std_curve = np.array(mean_curve), np.array(std_curve)
             plt.plot(mean_curve, **style, label=label)
             plt.fill_between(
-                range(min(len(n_labeled_list), len(repeated_list))),
+                range(len(mean_curve)),
                 mean_curve - 0.5 * std_curve,
                 mean_curve + 0.5 * std_curve,
                 color=style["color"],
