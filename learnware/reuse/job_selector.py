@@ -59,8 +59,11 @@ class JobSelectorReuser(BaseReuser):
         for idx in range(len(self.learnware_list)):
             data_idx_list = np.where(select_result == idx)[0]
             if len(data_idx_list) > 0:
-                # pred_y = self.learnware_list[idx].predict(raw_user_data[data_idx_list])
-                pred_y = self.learnware_list[idx].predict([raw_user_data[i] for i in data_idx_list])
+                if isinstance(raw_user_data, list):
+                    pred_y = self.learnware_list[idx].predict([raw_user_data[i] for i in data_idx_list])
+                else:
+                    pred_y = self.learnware_list[idx].predict(raw_user_data[data_idx_list])
+
                 if isinstance(pred_y, torch.Tensor):
                     pred_y = pred_y.detach().cpu().numpy()
                 # elif isinstance(pred_y, tf.Tensor):
@@ -89,6 +92,9 @@ class JobSelectorReuser(BaseReuser):
         user_data : np.ndarray
             User's raw data.
         """
+        if torch.is_tensor(user_data):
+            user_data = user_data.detach().cpu().numpy()
+
         if len(self.learnware_list) == 1:
             # user_data_num = user_data.shape[0]
             user_data_num = len(user_data)
