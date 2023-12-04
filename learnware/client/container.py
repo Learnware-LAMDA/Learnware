@@ -86,6 +86,7 @@ class ModelCondaContainer(ModelContainer):
 
     def _init_env(self):
         install_environment(self.learnware_dirpath, self.conda_env)
+        logger.info(f"Conda env {self.conda_env} is generated.")
 
     def _remove_env(self):
         remove_enviroment(self.conda_env)
@@ -222,6 +223,7 @@ class ModelDockerContainer(ModelContainer):
             "pids_limit": -1,
         }
         container = client.containers.run(**container_config)
+        logger.info(f"Docker container {container.id[:12]} is generated.")
         
         try:
             environment_cmd = [
@@ -263,13 +265,13 @@ class ModelDockerContainer(ModelContainer):
         if isinstance(docker_container, docker.models.containers.Container):
             client = docker.from_env()
             container_ids = [container.id for container in client.containers.list()]
-
+            
             if docker_container.id in container_ids:
                 docker_container.stop()
                 docker_container.remove()
-                logger.info(f"Docker container {docker_container.id} is stopped and removed.")
+                logger.info(f"Docker container {docker_container.id[:12]} is stopped and removed.")
             else:
-                logger.info(f"Docker container {docker_container.id} has already been removed.")
+                logger.info(f"Docker container {docker_container.id[:12]} has already been removed.")
         else:
             logger.error("Type of docker_container is not docker.models.containers.Container.")
 
