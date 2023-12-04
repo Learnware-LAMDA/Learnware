@@ -540,7 +540,7 @@ class EasyStatSearcher(BaseSearcher):
         rkme_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
         filtered_idx_list, mmd_dist_list = [], []
         for idx in range(len(rkme_list)):
-            mmd_dist = rkme_list[idx].dist(user_rkme)
+            mmd_dist = float(rkme_list[idx].dist(user_rkme))
             if np.isfinite(mmd_dist):
                 mmd_dist_list.append(mmd_dist)
                 filtered_idx_list.append(idx)
@@ -567,7 +567,7 @@ class EasyStatSearcher(BaseSearcher):
             raise KeyError("No supported stat specification is given in the user info")
 
         user_rkme = user_info.stat_info[self.stat_spec_type]
-        if not np.isfinite(user_rkme.dist(user_rkme)):
+        if not np.isfinite(float(user_rkme.dist(user_rkme))):
             raise ValueError("The distance between uploaded statistical specifications is not finite!")
 
         learnware_list = self._filter_by_rkme_spec_metadata(learnware_list, user_rkme)
