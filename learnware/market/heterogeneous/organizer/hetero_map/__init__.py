@@ -11,6 +11,8 @@ from .....specification import HeteroMapTableSpecification, RKMETableSpecificati
 from .feature_extractor import CLSToken, FeatureProcessor, FeatureTokenizer
 from .trainer import Trainer, TransTabCollatorForCL
 
+from loguru import logger
+
 
 class HeteroMap(nn.Module):
     """
@@ -127,6 +129,7 @@ class HeteroMap(nn.Module):
         self.base_temperature = base_temperature
         self.num_partition = num_partition
         self.overlap_ratio = overlap_ratio
+        self.max_process_size = 20480
         self.to(device)
 
     def to(self, device: Union[str, torch.device]):
@@ -306,6 +309,10 @@ class HeteroMap(nn.Module):
         """
         self.eval()
         output_feas_list = []
+
+        if eval_batch_size * x_test.shape[1] > self.max_process_size:
+            eval_batch_size = int(self.max_process_size / x_test.shape[1])
+
         for i in range(0, len(x_test), eval_batch_size):
             bs_x_test = x_test.iloc[i : i + eval_batch_size]
             with torch.no_grad():
