@@ -15,10 +15,11 @@ from ..config import C
 from .. import learnware
 from .container import LearnwaresContainer
 from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker
+from ..specification import generate_semantic_spec
 from ..logger import get_module_logger
 from ..learnware import get_learnware_from_dirpath
 from ..market import BaseUserInfo
-from ..tests import get_semantic_specification
+
 
 CHUNK_SIZE = 1024 * 1024
 logger = get_module_logger(module_name="LearnwareClient")
@@ -398,10 +399,15 @@ class LearnwareClient:
 
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
-        semantic_specification = (
-            get_semantic_specification() if semantic_specification is None else semantic_specification
-        )
-
+        semantic_specification = generate_semantic_spec(
+            name="test",
+            description="test",
+            data_type="Text",
+            task_type="Segmentation",
+            scenarios="Financial",
+            license="Apache-2.0",
+            ) if semantic_specification is None else semantic_specification
+        
         check_status, message = LearnwareClient._check_semantic_specification(semantic_specification)
         assert check_status, f"Semantic specification check failed due to {message}!"
 

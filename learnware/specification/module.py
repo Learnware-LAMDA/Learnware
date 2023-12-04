@@ -233,7 +233,10 @@ def generate_semantic_spec(
         "Type": "String",
         "Values": description if description is not None else "",
     }
-    semantic_specification["Input"] = {} if input_description is None else input_description
-    semantic_specification["Output"] = {} if output_description is None else output_description
+    if input_description is not None:
+        semantic_specification["Input"] = input_description
+    
+    if output_description is not None:
+        semantic_specification["Output"] = output_description
 
     return semantic_specification

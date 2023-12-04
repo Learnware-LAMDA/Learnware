@@ -9,7 +9,3 @@ def get_semantic_specification():
     semantic_specification["Description"] = {"Type": "String", "Values": "test"}
     return semantic_specification
 
-
-
-
-def get_requirements_file()

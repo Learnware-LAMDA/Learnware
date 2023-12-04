@@ -81,7 +81,3 @@ class TestTemplates:
                 copyfile(model_template.pickle_filepath, pickle_filepath)
                 
             convert_folder_to_zipfile(tempdir, learnware_zippath)
-
-
-    def generate_template_semantic_spec(self):
-        pass
