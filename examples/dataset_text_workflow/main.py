@@ -13,6 +13,11 @@ from learnware.logger import get_module_logger
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
 from utils import generate_uploader, generate_user, TextDataLoader, train, eval_prediction
+from learnware.client import LearnwareClient, SemanticSpecificationKey
+
+# Login to Beiming system
+client = LearnwareClient()
+
 
 logger = get_module_logger("text_test", level="INFO")
 origin_data_root = "./data/origin_data"
@@ -34,34 +39,36 @@ os.makedirs(uploader_save_root, exist_ok=True)
 os.makedirs(model_save_root, exist_ok=True)
 
 output_description = {
-    "Dimension": 1,
+    "Dimension": 3,
     "Description": {
-        "0": "classify as 0(ineffective), 1(effective), or 2(adequate).",
+        "0": "ineffective",
+        "1": "effective",
+        "2": "adequate",
     },
 }
-semantic_specs = [
-    {
-        "Data": {"Values": ["Text"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
-        "Scenario": {"Values": ["Education"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "learnware_1", "Type": "String"},
-        "Output": output_description,
-        "License": {"Values": ["MIT"], "Type": "Class"},
-    }
-]
+semantic_spec = client.create_semantic_specification(
+    name="learnware_example",
+    description="Just a example for text learnware",
+    data_type="Text",
+    task_type="Classification",
+    library_type="Scikit-learn",
+    scenarios=["Education"],
+    license="MIT",
+    input_description=None,
+    output_description=output_description,
+)
 
-user_semantic = {
-    "Data": {"Values": ["Text"], "Type": "Class"},
-    "Task": {"Values": ["Classification"], "Type": "Class"},
-    "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
-    "Scenario": {"Values": ["Education"], "Type": "Tag"},
-    "Description": {"Values": "", "Type": "String"},
-    "Name": {"Values": "", "Type": "String"},
-    "Output": output_description,
-    "License": {"Values": ["MIT"], "Type": "Class"},
-}
+user_semantic = client.create_semantic_specification(
+    # name="learnware_example",
+    description="Just a example for text learnware",
+    data_type="Text",
+    task_type="Classification",
+    library_type="Scikit-learn",
+    scenarios=["Education"],
+    license="MIT",
+    input_description=None,
+    output_description=output_description,
+)
 
 
 class TextDatasetWorkflow:
@@ -108,7 +115,6 @@ class TextDatasetWorkflow:
 
         with open(data_path, "rb") as f:
             X = pickle.load(f)
-        semantic_spec = semantic_specs[0]
 
         st = time.time()
 
@@ -167,24 +173,25 @@ class TextDatasetWorkflow:
                 tmp_dir,
                 "%s_%d" % (dataset, i),
             )
-            semantic_spec = semantic_specs[0]
             semantic_spec["Name"]["Values"] = "learnware_%d" % (i)
             semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (i)
             text_market.add_learnware(new_learnware_path, semantic_spec)
 
         logger.info("Total Item: %d" % (len(text_market)))
 
-    def test(self, regenerate_flag=False):
+
+    def test_unlabeled(self, regenerate_flag=False):
         self.prepare_market(regenerate_flag)
         text_market = instantiate_learnware_market(market_id="ae")
         print("Total Item: %d" % len(text_market))
 
         select_list = []
         avg_list = []
+        best_list = []
         improve_list = []
         job_selector_score_list = []
         ensemble_score_list = []
-        pruning_score_list = []
+        all_learnwares = text_market.get_learnwares()
         for i in range(n_users):
             user_data_path = os.path.join(user_save_root, "user_%d_X.pkl" % (i))
             user_label_path = os.path.join(user_save_root, "user_%d_y.pkl" % (i))
@@ -207,16 +214,23 @@ class TextDatasetWorkflow:
                 f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}"
             )
 
-            l = len(single_result)
             acc_list = []
-            for idx in range(l):
-                learnware = single_result[idx].learnware
-                score = single_result[idx].score
+            for idx in range(len(all_learnwares)):
+                learnware = all_learnwares[idx]
                 pred_y = learnware.predict(user_data)
                 acc = eval_prediction(pred_y, user_label)
                 acc_list.append(acc)
+            
+            learnware = single_result[0].learnware
+            pred_y = learnware.predict(user_data)
+            best_acc = eval_prediction(pred_y, user_label)
+            best_list.append(np.max(acc_list))
+            select_list.append(best_acc)
+            avg_list.append(np.mean(acc_list))
+            improve_list.append((best_acc - np.mean(acc_list)) / np.mean(acc_list))
+            print(f"market mean accuracy: {np.mean(acc_list)}, market best accuracy: {np.max(acc_list)}")
             print(
-                f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, acc: {acc_list[0]}"
+                f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, acc: {best_acc}"
             )
 
             if len(multiple_result) > 0:
@@ -234,39 +248,26 @@ class TextDatasetWorkflow:
             print(f"mixture reuse loss(job selector): {reuse_score}")
 
             # test reuse (ensemble)
-            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_label")
+            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_prob")
             ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
             ensemble_score = eval_prediction(ensemble_predict_y, user_label)
             ensemble_score_list.append(ensemble_score)
             print(f"mixture reuse accuracy (ensemble): {ensemble_score}")
 
-            # test reuse (ensemblePruning)
-            reuse_pruning = EnsemblePruningReuser(learnware_list=mixture_learnware_list)
-            pruning_predict_y = reuse_pruning.predict(user_data=user_data)
-            pruning_score = eval_prediction(pruning_predict_y, user_label)
-            pruning_score_list.append(pruning_score)
-            print(f"mixture reuse accuracy (ensemble Pruning): {pruning_score}\n")
-
-            select_list.append(acc_list[0])
-            avg_list.append(np.mean(acc_list))
-            improve_list.append((acc_list[0] - np.mean(acc_list)) / np.mean(acc_list))
-
+            print('\n')
+            
         logger.info(
-            "Accuracy of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f"
-            % (np.mean(select_list), np.std(select_list), np.mean(avg_list), np.std(avg_list))
+            "Accuracy of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f, Best performance: %.3f +/- %.3f"
+            % (1 - np.mean(select_list), np.std(select_list), 1 - np.mean(avg_list), np.std(avg_list), 1 - np.mean(best_list), np.std(best_list))
         )
         logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
         logger.info(
             "Average Job Selector Reuse Performance: %.3f +/- %.3f"
-            % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
+            % (1 - np.mean(job_selector_score_list), np.std(job_selector_score_list))
         )
         logger.info(
             "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
-            % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
-        )
-        logger.info(
-            "Selective Ensemble Reuse Performance: %.3f +/- %.3f"
-            % (np.mean(pruning_score_list), np.std(pruning_score_list))
+            % (1 - np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
 
 
