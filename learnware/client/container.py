@@ -89,6 +89,7 @@ class ModelCondaContainer(ModelContainer):
 
     def _remove_env(self):
         remove_enviroment(self.conda_env)
+        logger.info(f"Conda env {self.conda_env} is removed.")
 
     def _setup_env_and_metadata(self):
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
@@ -266,9 +267,9 @@ class ModelDockerContainer(ModelContainer):
             if docker_container.id in container_ids:
                 docker_container.stop()
                 docker_container.remove()
-                logger.info("Docker container is stopped and removed.")
+                logger.info(f"Docker container {docker_container.id} is stopped and removed.")
             else:
-                logger.info("Docker container has already been removed.")
+                logger.info(f"Docker container {docker_container.id} has already been removed.")
         else:
             logger.error("Type of docker_container is not docker.models.containers.Container.")
 
