@@ -1,18 +1,12 @@
 import os
 import unittest
-import argparse
 import numpy as np
 
-import learnware
-from learnware.learnware import get_learnware_from_dirpath
 from learnware.client import LearnwareClient
-from learnware.client.container import ModelCondaContainer, LearnwaresContainer
 from learnware.reuse import AveragingReuser
-from learnware.tests import parametrize
-
 
 class TestLearnwareLoad(unittest.TestCase):
-    def __init__(self, method_name='runTest', mode="conda"):
+    def __init__(self, method_name='runTest', mode="all"):
         super(TestLearnwareLoad, self).__init__(method_name)
         self.runnable_options = []
         if mode in {"all", "conda"}:
@@ -56,11 +50,12 @@ class TestLearnwareLoad(unittest.TestCase):
             self._test_load_learnware_by_id(runnable_option=runnable_option)
             
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", type=str, required=False, default="conda", help="The mode to load learnware, must be in ['all', 'conda', 'docker']")
-    args = parser.parse_args()
+def suite():
+    _suite = unittest.TestSuite()
+    _suite.addTest(TestLearnwareLoad("test_load_learnware_by_zippath", mode="all"))
+    _suite.addTest(TestLearnwareLoad("test_load_learnware_by_id", mode="all"))
+    return _suite
 
-    assert args.mode in {"all", "conda", "docker"}, f"The mode must be in ['all', 'conda', 'docker'], instead of '{args.mode}'"
+if __name__ == "__main__":
     runner = unittest.TextTestRunner()
-    runner.run(parametrize(TestLearnwareLoad, mode=args.mode))
+    runner.run(suite())

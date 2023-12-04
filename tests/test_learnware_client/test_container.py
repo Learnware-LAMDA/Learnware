@@ -1,12 +1,8 @@
-import os
 import unittest
-import argparse
 import numpy as np
 
-from learnware.learnware import get_learnware_from_dirpath
 from learnware.client import LearnwareClient
-from learnware.client.container import ModelCondaContainer, LearnwaresContainer
-from learnware.tests import parametrize
+from learnware.client.container import LearnwaresContainer
 
 class TestContainer(unittest.TestCase):
     def __init__(self, method_name='runTest', mode="all"):
@@ -44,11 +40,12 @@ class TestContainer(unittest.TestCase):
         for mode in self.modes:
             self._test_container_with_conda(mode=mode)
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", type=str, required=False, default="all", help="The mode to run container, must be in ['all', 'conda', 'docker']")
-    args = parser.parse_args()
+def suite():
+    _suite = unittest.TestSuite()
+    _suite.addTest(TestContainer("test_container_with_pip", mode="all"))
+    _suite.addTest(TestContainer("test_container_with_conda", mode="all"))
+    return _suite
 
-    assert args.mode in {"all", "conda", "docker"}, f"The mode must be in ['all', 'conda', 'docker'], instead of '{args.mode}'"
+if __name__ == "__main__":
     runner = unittest.TextTestRunner()
-    runner.run(parametrize(TestContainer, mode=args.mode))
+    runner.run(suite())

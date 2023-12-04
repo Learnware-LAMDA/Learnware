@@ -5,7 +5,6 @@ import tempfile
 
 from learnware.client import LearnwareClient
 from learnware.specification import generate_semantic_spec
-from learnware.tests import parametrize
 
 class TestUpload(unittest.TestCase):
     client = LearnwareClient()
@@ -60,11 +59,11 @@ class TestUpload(unittest.TestCase):
             assert learnware_id not in uploaded_ids
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--email", type=str, required=False, help="The email to login learnware client")
-    parser.add_argument("--token", type=str, required=False, help="The token to login learnware client")
-    args = parser.parse_args()
+def suite():
+    _suite = unittest.TestSuite()
+    _suite.addTest(TestUpload("test_upload", email=None, token=None))
+    return _suite
 
+if __name__ == "__main__":
     runner = unittest.TextTestRunner()
-    runner.run(parametrize(TestUpload, email=args.email, token=args.token))
+    runner.run(suite())
