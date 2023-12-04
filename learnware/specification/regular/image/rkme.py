@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import codecs
-import copy
 import functools
 import json
 import os
@@ -17,7 +16,10 @@ from tqdm import tqdm
 from . import cnn_gp
 from ..base import RegularStatSpecification
 from ..table.rkme import rkme_solve_qp
+from ....logger import get_module_logger
 from ....utils import choose_device, allocate_cuda_idx
+
+logger = get_module_logger("image_rkme")
 
 
 class RKMEImageSpecification(RegularStatSpecification):
@@ -127,8 +129,10 @@ class RKMEImageSpecification(RegularStatSpecification):
         try:
             from torchvision.transforms import Resize
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"RKMEImageSpecification is not available because 'torchvision' is not installed! Please install it manually." )
-            
+            raise ModuleNotFoundError(
+                f"RKMEImageSpecification is not available because 'torchvision' is not installed! Please install it manually."
+            )
+
         if X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH:
             X = Resize((RKMEImageSpecification.IMAGE_WIDTH, RKMEImageSpecification.IMAGE_WIDTH), antialias=True)(X)
 
@@ -154,12 +158,14 @@ class RKMEImageSpecification(RegularStatSpecification):
         with torch.no_grad():
             x_features = self._generate_random_feature(X_train, random_models=random_models)
         self._update_beta(x_features, nonnegative_beta, random_models=random_models)
-        
+
         try:
             import torch_optimizer
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually.")
-        
+            raise ModuleNotFoundError(
+                f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually."
+            )
+
         optimizer = torch_optimizer.AdaBelief([{"params": [self.z]}], lr=step_size, eps=1e-16)
 
         for _ in tqdm(range(steps)) if verbose else range(steps):
@@ -385,9 +391,13 @@ class RKMEImageSpecification(RegularStatSpecification):
             self.beta = self.beta.to(self._device)
             self.z = self.z.to(self._device)
 
-            return True
-        else:
-            return False
+            if self.type == self.__class__.__name__:
+                logger.error(
+                    f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
+                )
+                return True
+
+        return False
 
 
 def _get_zca_matrix(X, reg_coef=0.1):

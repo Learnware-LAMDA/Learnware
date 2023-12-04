@@ -140,15 +140,17 @@ class RKMETableSpecification(RegularStatSpecification):
         if isinstance(X, np.ndarray):
             X = X.astype("float32")
             X = torch.from_numpy(X)
-            
+
         X = X.to(self._device)
-        
+
         try:
             from fast_pytorch_kmeans import KMeans
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"RKMETableSpecification is not available because 'fast_pytorch_kmeans' is not installed! Please install it manually." )
+            raise ModuleNotFoundError(
+                f"RKMETableSpecification is not available because 'fast_pytorch_kmeans' is not installed! Please install it manually."
+            )
 
-        kmeans = KMeans(n_clusters=K, mode='euclidean', max_iter=100, verbose=0)
+        kmeans = KMeans(n_clusters=K, mode="euclidean", max_iter=100, verbose=0)
         kmeans.fit(X)
         self.z = kmeans.centroids.double()
 
@@ -455,9 +457,14 @@ class RKMETableSpecification(RegularStatSpecification):
             for d in self.get_states():
                 if d in rkme_load.keys():
                     setattr(self, d, rkme_load[d])
-            return True
-        else:
-            return False
+
+            if self.type == self.__class__.__name__:
+                logger.error(
+                    f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
+                )
+                return True
+
+        return False
 
 
 class RKMEStatSpecification(RKMETableSpecification):
