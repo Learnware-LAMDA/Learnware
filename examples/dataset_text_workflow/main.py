@@ -4,6 +4,7 @@ import pickle
 import time
 import zipfile
 from shutil import copyfile, rmtree
+import random
 
 import numpy as np
 
@@ -11,9 +12,10 @@ import learnware.specification as specification
 from get_data import get_data
 from learnware.logger import get_module_logger
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
+from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser
 from utils import generate_uploader, generate_user, TextDataLoader, train, eval_prediction
 from learnware.client import LearnwareClient, SemanticSpecificationKey
+import matplotlib.pyplot as plt
 
 # Login to Beiming system
 client = LearnwareClient()
@@ -28,6 +30,9 @@ dataset = "ae"  # argumentative essays
 n_uploaders = 7
 n_users = 7
 n_classes = 3
+n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
+repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
+
 data_root = os.path.join(origin_data_root, dataset)
 data_save_root = os.path.join(processed_data_root, dataset)
 user_save_root = os.path.join(data_save_root, "user")
@@ -40,11 +45,7 @@ os.makedirs(model_save_root, exist_ok=True)
 
 output_description = {
     "Dimension": 3,
-    "Description": {
-        "0": "ineffective",
-        "1": "effective",
-        "2": "adequate",
-    },
+    "Description": {"0": "ineffective", "1": "effective", "2": "adequate",},
 }
 semantic_spec = client.create_semantic_specification(
     name="learnware_example",
@@ -179,7 +180,6 @@ class TextDatasetWorkflow:
 
         logger.info("Total Item: %d" % (len(text_market)))
 
-
     def test_unlabeled(self, regenerate_flag=False):
         self.prepare_market(regenerate_flag)
         text_market = instantiate_learnware_market(market_id="ae")
@@ -220,7 +220,7 @@ class TextDatasetWorkflow:
                 pred_y = learnware.predict(user_data)
                 acc = eval_prediction(pred_y, user_label)
                 acc_list.append(acc)
-            
+
             learnware = single_result[0].learnware
             pred_y = learnware.predict(user_data)
             best_acc = eval_prediction(pred_y, user_label)
@@ -254,11 +254,18 @@ class TextDatasetWorkflow:
             ensemble_score_list.append(ensemble_score)
             print(f"mixture reuse accuracy (ensemble): {ensemble_score}")
 
-            print('\n')
-            
+            print("\n")
+
         logger.info(
             "Accuracy of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f, Best performance: %.3f +/- %.3f"
-            % (1 - np.mean(select_list), np.std(select_list), 1 - np.mean(avg_list), np.std(avg_list), 1 - np.mean(best_list), np.std(best_list))
+            % (
+                1 - np.mean(select_list),
+                np.std(select_list),
+                1 - np.mean(avg_list),
+                np.std(avg_list),
+                1 - np.mean(best_list),
+                np.std(best_list),
+            )
         )
         logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
         logger.info(
@@ -269,6 +276,136 @@ class TextDatasetWorkflow:
             "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
             % (1 - np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
+
+    def test_labeled(self, regenerate_flag=False, train_flag=True):
+        self.prepare_market(regenerate_flag)
+        text_market = instantiate_learnware_market(market_id="ae")
+        print("Total Item: %d" % len(text_market))
+
+        os.makedirs("./figs", exist_ok=True)
+        os.makedirs("./curves", exist_ok=True)
+
+
+        for i in range(n_users):
+            user_model_score_mat = []
+            pruning_score_mat = []
+            single_score_mat = []
+            if train_flag:
+                user_data_path = os.path.join(user_save_root, "user_%d_X.pkl" % (i))
+                user_label_path = os.path.join(user_save_root, "user_%d_y.pkl" % (i))
+                with open(user_data_path, "rb") as f:
+                    test_x = pickle.load(f)
+                with open(user_label_path, "rb") as f:
+                    test_y = pickle.load(f)
+                    test_y = np.array(test_y)
+
+                train_data_path = os.path.join(uploader_save_root, "uploader_%d_X.pkl" % (i))
+                train_label_path = os.path.join(uploader_save_root, "uploader_%d_y.pkl" % (i))
+                with open(train_data_path, "rb") as f:
+                    train_x = pickle.load(f)
+                with open(train_label_path, "rb") as f:
+                    train_y = pickle.load(f)
+                    train_y = np.array(train_y)
+
+                user_stat_spec = specification.RKMETextSpecification()
+                user_stat_spec.generate_stat_spec_from_data(X=test_x)
+                user_info = BaseUserInfo(
+                    semantic_spec=user_semantic, stat_info={"RKMETextSpecification": user_stat_spec}
+                )
+                logger.info(f"Searching Market for user_{i}")
+
+                search_result = text_market.search_learnware(user_info)
+                single_result = search_result.get_single_results()
+                multiple_result = search_result.get_multiple_results()
+
+                learnware = single_result[0].learnware
+                pred_y = learnware.predict(test_x)
+                best_acc = eval_prediction(pred_y, test_y)
+
+                print(f"search result of user_{i}:")
+                print(
+                    f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}, single model acc: {best_acc}"
+                )
+
+                if len(multiple_result) > 0:
+                    mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
+                    print(f"mixture_score: {multiple_result[0].score}, mixture_learnware: {mixture_id}")
+                    mixture_learnware_list = multiple_result[0].learnwares
+                else:
+                    mixture_learnware_list = [single_result[0].learnware]
+                print(len(train_x))
+                for n_label, repeated in zip(n_labeled_list, repeated_list):
+                    user_model_score_list, reuse_pruning_score_list = [], []
+                    if n_label > len(train_x):
+                        break
+                    for _ in range(repeated):
+                        # x_train, y_train = train_x[:n_label], train_y[:n_label]
+                        x_train, y_train = zip(*random.sample(list(zip(train_x, train_y)), k=n_label))
+                        x_train = list(x_train)
+                        y_train = np.array(list(y_train))
+
+                        modelv, modell = train(x_train, y_train, out_classes=n_classes)
+                        user_model_predict_y = modell.predict(modelv.transform(test_x))
+                        user_model_score = eval_prediction(user_model_predict_y, test_y)
+                        user_model_score_list.append(user_model_score)
+
+                        reuse_pruning = EnsemblePruningReuser(
+                            learnware_list=mixture_learnware_list, mode="classification"
+                        )
+                        reuse_pruning.fit(x_train, y_train)
+                        reuse_pruning_predict_y = reuse_pruning.predict(user_data=test_x)
+                        reuse_pruning_score = eval_prediction(reuse_pruning_predict_y, test_y)
+                        reuse_pruning_score_list.append(reuse_pruning_score)
+
+                    single_score_mat.append([best_acc] * repeated)
+                    user_model_score_mat.append(user_model_score_list)
+                    pruning_score_mat.append(reuse_pruning_score_list)
+                    print(n_label, np.mean(user_model_score_mat[-1]), np.mean(pruning_score_mat[-1]))
+
+                logger.info(f"Saving Curves for User_{i}")
+                user_curves_data = (single_score_mat, user_model_score_mat, pruning_score_mat)
+                # np.save("./curves/curve" + str(i), user_curves_data)
+                with open("./curves/curve" + str(i) + ".pkl", "wb") as f:
+                    pickle.dump(user_curves_data, f)
+
+            with open("./curves/curve" + str(i) + ".pkl", "rb") as f:
+                user_curves_data = pickle.load(f)
+            # user_curves_data = np.load("./curves/curve" + str(i) + ".npy")
+
+            self._plot_labeled_peformance_curves("user_" + str(i), user_curves_data)
+
+    def _plot_labeled_peformance_curves(self, name, user_curves_data):
+        plt.figure(figsize=(10, 6))
+        plt.xticks(range(len(n_labeled_list)), n_labeled_list)
+
+        styles = [
+            {"color": "orange", "linestyle": "--", "marker": "s"},
+            {"color": "navy", "linestyle": "-", "marker": "o"},
+            {"color": "magenta", "linestyle": "-.", "marker": "d"},
+        ]
+
+        labels = ["Single Learnware Reuse", "User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
+
+        single_mat, user_mat, pruning_mat = user_curves_data
+        print(single_mat, user_mat, pruning_mat)
+        for mat, style, label in zip([single_mat, user_mat, pruning_mat], styles, labels):
+            mean_curve, std_curve = [np.mean(lst) for lst in mat], [np.std(lst) for lst in mat]
+            mean_curve, std_curve = np.array(mean_curve), np.array(std_curve)
+            plt.plot(mean_curve, **style, label=label)
+            plt.fill_between(
+                range(min(len(n_labeled_list), len(repeated_list))),
+                mean_curve - 0.5 * std_curve,
+                mean_curve + 0.5 * std_curve,
+                color=style["color"],
+                alpha=0.2,
+            )
+
+        plt.xlabel("Labeled Data Size")
+        plt.ylabel("Accuracy")
+        plt.title(f"User{name} Text Limited Labeled Data")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(os.path.join("figs", f"User{name}_text_labeled_curves.png"), bbox_inches="tight", dpi=700)
 
 
 if __name__ == "__main__":

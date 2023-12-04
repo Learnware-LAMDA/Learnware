@@ -83,7 +83,7 @@ def train(X, y, out_classes):
     vectorizer = TfidfVectorizer(stop_words="english")
     X_tfidf = vectorizer.fit_transform(X)
 
-    lgbm = LGBMClassifier(boosting_type="dart", n_estimators=500, num_leaves=21)
+    lgbm = LGBMClassifier(boosting_type="dart", n_estimators=500, num_leaves=21, verbosity=-1)
     lgbm.fit(X_tfidf, y)
 
     return vectorizer, lgbm
