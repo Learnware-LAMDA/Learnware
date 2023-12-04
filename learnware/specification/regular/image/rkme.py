@@ -158,7 +158,7 @@ class RKMEImageSpecification(RegularStatSpecification):
         torch.manual_seed(0)
         torch.cuda.manual_seed_all(0)
         torch.backends.cudnn.deterministic = True
-        if ("cross_platform" not in kwargs or kwargs["cross_platform"])
+        if ("cross_platform" not in kwargs or kwargs["cross_platform"]):
             torch.cuda.set_rng_state(
                 new_state=torch.cuda.get_rng_state(self._device.index),
                 device="cpu")
@@ -188,7 +188,7 @@ class RKMEImageSpecification(RegularStatSpecification):
             self._update_beta(x_features, nonnegative_beta, random_models=random_models)
 
         # Recovering Random Number Generation Settings
-        if ("cross-platform" not in kwargs or kwargs["cross-platform"])
+        if ("cross_platform" not in kwargs or kwargs["cross_platform"]):
             torch.cuda.set_rng_state(
                 new_state=torch.cuda.get_rng_state(self._device.index),
                 device="cuda")
