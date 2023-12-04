@@ -13,10 +13,12 @@ import torch
 from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
 from tqdm import tqdm
+from numpy.random import RandomState
 
 from . import cnn_gp
 from ..base import RegularStatSpecification
 from ..table.rkme import rkme_solve_qp
+from .... import setup_seed
 from ....utils import choose_device, allocate_cuda_idx
 
 
@@ -48,6 +50,7 @@ class RKMEImageSpecification(RegularStatSpecification):
             if "model_config" not in kwargs
             else kwargs["model_config"]
         )
+        self._random_generator = None
 
         super(RKMEImageSpecification, self).__init__(type=self.__class__.__name__)
 
@@ -55,13 +58,11 @@ class RKMEImageSpecification(RegularStatSpecification):
     def device(self):
         return self._device
 
-    def _generate_models(self, n_models: int, channel: int = 3, fixed_seed=None):
+    def _generate_models(self, n_models: int, channel: int = 3):
         model_class = functools.partial(_ConvNet_wide, channel=channel, **self.model_config)
 
         def __builder(i):
-            if fixed_seed is not None:
-                torch.manual_seed(fixed_seed[i])
-            return model_class().to(self._device)
+            return model_class(random_generator=self._random_generator).to(self._device)
 
         return (__builder(m) for m in range(n_models))
 
@@ -152,8 +153,14 @@ class RKMEImageSpecification(RegularStatSpecification):
             self.beta = torch.from_numpy(self.beta).to(self._device)
             return
 
+        self._random_generator = RandomGenerator(0)
+        # crucial
+        setup_seed(0)
+
         random_models = list(self._generate_models(n_models=self.n_models, channel=X.shape[1]))
-        self.z = torch.zeros(Z_shape).to(self._device).float().normal_(0, 1)
+        self.z = torch.zeros(Z_shape).to(self._device).float()
+        self._random_generator.normal_(self.z, 0, 1)
+
         with torch.no_grad():
             x_features = self._generate_random_feature(X_train, random_models=random_models)
         self._update_beta(x_features, nonnegative_beta, random_models=random_models)
@@ -404,11 +411,21 @@ def _get_zca_matrix(X, reg_coef=0.1):
     return whitening_transform
 
 
+class RandomGenerator:
+
+    def __init__(self, seed=0):
+        self.state = RandomState(seed)
+
+    def normal_(self, tensor: torch.Tensor, mean=0.0, std=1.0):
+        data = self.state.normal(mean, std, size=tensor.shape)
+        with torch.no_grad():
+            tensor.copy_(torch.asarray(data, dtype=tensor.dtype))
+
 class _ConvNet_wide(nn.Module):
-    def __init__(self, channel, mu=None, sigma=None, k=2, net_width=128, net_depth=3, im_size=(32, 32)):
+    def __init__(self, channel, random_generator, mu=None, sigma=None, k=2, net_width=128, net_depth=3, im_size=(32, 32)):
         self.k = k
         super().__init__()
-        self.features, shape_feat = self._make_layers(channel, net_width, net_depth, im_size, mu, sigma)
+        self.features, shape_feat = self._make_layers(channel, net_width, net_depth, im_size, mu, sigma, random_generator)
         # self.aggregation = nn.AvgPool2d(kernel_size=shape_feat[1])
 
     def forward(self, x):
@@ -417,14 +434,14 @@ class _ConvNet_wide(nn.Module):
         # out = self.aggregation(out).reshape(out.size(0), -1)
         return out
 
-    def _make_layers(self, channel, net_width, net_depth, im_size, mu, sigma):
+    def _make_layers(self, channel, net_width, net_depth, im_size, mu, sigma, random_generator):
         k = self.k
 
         layers = []
         in_channels = channel
         shape_feat = [in_channels, im_size[0], im_size[1]]
         for d in range(net_depth):
-            layers += [_build_conv2d_gaussian(in_channels, int(k * net_width), 3, 1, mean=mu, std=sigma)]
+            layers += [_build_conv2d_gaussian(in_channels, int(k * net_width), random_generator, 3, 1, mean=mu, std=sigma)]
             shape_feat[0] = int(k * net_width)
 
             layers += [nn.ReLU(inplace=True)]
@@ -437,15 +454,15 @@ class _ConvNet_wide(nn.Module):
         return nn.Sequential(*layers), shape_feat
 
 
-def _build_conv2d_gaussian(in_channels, out_channels, kernel=3, padding=1, mean=None, std=None):
+def _build_conv2d_gaussian(in_channels, out_channels, random_generator: RandomGenerator, kernel=3, padding=1, mean=None, std=None):
     layer = nn.Conv2d(in_channels, out_channels, kernel, padding=padding)
     if mean is None:
         mean = 0
     if std is None:
         std = np.sqrt(2) / np.sqrt(layer.weight.shape[1] * layer.weight.shape[2] * layer.weight.shape[3])
     # print('Initializing Conv. Mean=%.2f, std=%.2f'%(mean, std))
-    torch.nn.init.normal_(layer.weight, mean, std)
-    torch.nn.init.normal_(layer.bias, 0, 0.1)
+    random_generator.normal_(layer.weight, mean, std)
+    random_generator.normal_(layer.bias, 0, 0.1)
     return layer
 
 
