@@ -9,15 +9,15 @@ class PickleLoadedModel(BaseModel):
         self,
         input_shape,
         output_shape,
-        pickle_filename,
         predict_method="predict",
         fit_method="fit",
         finetune_method="finetune",
+        pickle_filename="model.pkl",
     ):
         super(PickleLoadedModel, self).__init__(input_shape=input_shape, output_shape=output_shape)
         dir_path = os.path.dirname(os.path.abspath(__file__))
-        self.pickle_filepath = os.path.join(pickle_filename, dir_path)
-        with open(pickle_filename, "rb") as fd:
+        self.pickle_filepath = os.path.join(dir_path, pickle_filename)
+        with open(self.pickle_filepath, "rb") as fd:
             self.model = pickle.load(fd)
         self.predict_method = predict_method
         self.fit_method = fit_method

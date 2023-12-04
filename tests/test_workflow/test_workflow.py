@@ -1,37 +1,38 @@
-import sys
 import unittest
 import os
-import copy
-import joblib
+import logging
+import tempfile
+import pickle
 import zipfile
 import numpy as np
 from sklearn import svm
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
-from shutil import copyfile, rmtree
 
 import learnware
+learnware.init(logging_level=logging.WARNING)
+
 from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.specification import RKMETableSpecification, generate_rkme_table_spec
+from learnware.specification import RKMETableSpecification, generate_rkme_table_spec, generate_semantic_spec
 from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser
+from learnware.tests.templates import LearnwareTemplate, PickleModelTemplate, StatSpecTemplate
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
-user_semantic = {
-    "Data": {"Values": ["Table"], "Type": "Class"},
-    "Task": {
-        "Values": ["Classification"],
-        "Type": "Class",
-    },
-    "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
-    "Scenario": {"Values": ["Education"], "Type": "Tag"},
-    "Description": {"Values": "", "Type": "String"},
-    "Name": {"Values": "", "Type": "String"},
-    "License": {"Values": ["MIT"], "Type": "Class"},
-}
-
-
 class TestWorkflow(unittest.TestCase):
+    
+    universal_semantic_config = {
+        "data_type": "Table",
+        "task_type": "Classification",
+        "library_type": "Scikit-learn",
+        "scenarios": "Education",
+        "license": "MIT",
+    }
+    
+    @classmethod
+    def setUpClass(cls):
+       pass
+    
     def _init_learnware_market(self):
         """initialize learnware market"""
         easy_market = instantiate_learnware_market(market_id="sklearn_digits_easy", name="easy", rebuild=True)
@@ -42,45 +43,29 @@ class TestWorkflow(unittest.TestCase):
         X, y = load_digits(return_X_y=True)
 
         for i in range(learnware_num):
-            dir_path = os.path.join(curr_root, "learnware_pool", "svm_%d" % (i))
-            os.makedirs(dir_path, exist_ok=True)
-
+            learnware_pool_dirpath = os.path.join(curr_root, "learnware_pool")
+            os.makedirs(learnware_pool_dirpath, exist_ok=True)
+            learnware_zippath = os.path.join(learnware_pool_dirpath, "svm_%d.zip" % (i))
+            
             print("Preparing Learnware: %d" % (i))
-
             data_X, _, data_y, _ = train_test_split(X, y, test_size=0.3, shuffle=True)
             clf = svm.SVC(kernel="linear", probability=True)
             clf.fit(data_X, data_y)
-
-            joblib.dump(clf, os.path.join(dir_path, "svm.pkl"))
+            pickle_filepath = os.path.join(learnware_pool_dirpath, "model.pkl")
+            with open(pickle_filepath, "wb") as fout:
+                pickle.dump(clf, fout)
 
             spec = generate_rkme_table_spec(X=data_X, gamma=0.1, cuda_idx=0)
-            spec.save(os.path.join(dir_path, "svm.json"))
-
-            init_file = os.path.join(dir_path, "__init__.py")
-            copyfile(
-                os.path.join(curr_root, "learnware_example/example_init.py"), init_file
-            )  # cp example_init.py init_file
-
-            yaml_file = os.path.join(dir_path, "learnware.yaml")
-            copyfile(os.path.join(curr_root, "learnware_example/example.yaml"), yaml_file)  # cp example.yaml yaml_file
-
-            env_file = os.path.join(dir_path, "environment.yaml")
-            copyfile(os.path.join(curr_root, "learnware_example/environment.yaml"), env_file)
-
-            zip_file = dir_path + ".zip"
-            # zip -q -r -j zip_file dir_path
-            with zipfile.ZipFile(zip_file, "w") as zip_obj:
-                for foldername, subfolders, filenames in os.walk(dir_path):
-                    for filename in filenames:
-                        file_path = os.path.join(foldername, filename)
-                        zip_info = zipfile.ZipInfo(filename)
-                        zip_info.compress_type = zipfile.ZIP_STORED
-                        with open(file_path, "rb") as file:
-                            zip_obj.writestr(zip_info, file.read())
-
-            rmtree(dir_path)  # rm -r dir_path
-
-            self.zip_path_list.append(zip_file)
+            spec_filepath = os.path.join(learnware_pool_dirpath, "stat_spec.json")
+            spec.save(spec_filepath)
+            
+            LearnwareTemplate.generate_learnware_zipfile(
+                learnware_zippath=learnware_zippath,
+                model_template=PickleModelTemplate(pickle_filepath=pickle_filepath, model_kwargs={"input_shape":(64,), "output_shape": (10,), "predict_method": "predict_proba"}),
+                stat_spec_template=StatSpecTemplate(filepath=spec_filepath, type="RKMETableSpecification")
+            )
+           
+            self.zip_path_list.append(learnware_zippath)
 
     def test_upload_delete_learnware(self, learnware_num=5, delete=True):
         easy_market = self._init_learnware_market()
@@ -91,20 +76,22 @@ class TestWorkflow(unittest.TestCase):
         assert len(easy_market) == 0, f"The market should be empty!"
 
         for idx, zip_path in enumerate(self.zip_path_list):
-            semantic_spec = copy.deepcopy(user_semantic)
-            semantic_spec["Name"]["Values"] = "learnware_%d" % (idx)
-            semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (idx)
-            semantic_spec["Input"] = {
-                "Dimension": 64,
-                "Description": {
-                    f"{i}": f"The value in the grid {i // 8}{i % 8} of the image of hand-written digit."
-                    for i in range(64)
+            semantic_spec = generate_semantic_spec(
+                name=f"learnware_{idx}",
+                description=f"test_learnware_number_{idx}",
+                input_description={
+                    "Dimension": 64,
+                    "Description": {
+                        f"{i}": f"The value in the grid {i // 8}{i % 8} of the image of hand-written digit."
+                        for i in range(64)
+                    },
                 },
-            }
-            semantic_spec["Output"] = {
-                "Dimension": 10,
-                "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)},
-            }
+                output_description={
+                    "Dimension": 10,
+                    "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)},
+                },
+                **self.universal_semantic_config
+            )
             easy_market.add_learnware(zip_path, semantic_spec)
 
         print("Total Item:", len(easy_market))
@@ -129,70 +116,52 @@ class TestWorkflow(unittest.TestCase):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))
         assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
-        test_folder = os.path.join(curr_root, "test_semantics")
+        
+        with tempfile.TemporaryDirectory(prefix="learnware_test_workflow") as test_folder:
+            with zipfile.ZipFile(self.zip_path_list[0], "r") as zip_obj:
+                zip_obj.extractall(path=test_folder)
 
-        # unzip -o -q zip_path -d unzip_dir
-        if os.path.exists(test_folder):
-            rmtree(test_folder)
-        os.makedirs(test_folder, exist_ok=True)
-
-        with zipfile.ZipFile(self.zip_path_list[0], "r") as zip_obj:
-            zip_obj.extractall(path=test_folder)
-
-        semantic_spec = copy.deepcopy(user_semantic)
-        semantic_spec["Name"]["Values"] = f"learnware_{learnware_num - 1}"
-        semantic_spec["Description"]["Values"] = f"test_learnware_number_{learnware_num - 1}"
-
-        user_info = BaseUserInfo(semantic_spec=semantic_spec)
-        search_result = easy_market.search_learnware(user_info)
-        single_result = search_result.get_single_results()
-
-        print("User info:", user_info.get_semantic_spec())
-        print(f"Search result:")
-        for search_item in single_result:
-            print(
-                "Choose learnware:",
-                search_item.learnware.id,
-                search_item.learnware.get_specification().get_semantic_spec(),
+            semantic_spec = generate_semantic_spec(
+                name=f"learnware_{learnware_num - 1}",
+                description=f"test_learnware_number_{learnware_num - 1}",
+                **self.universal_semantic_config,
             )
+            
+            user_info = BaseUserInfo(semantic_spec=semantic_spec)
+            search_result = easy_market.search_learnware(user_info)
+            single_result = search_result.get_single_results()
 
-        rmtree(test_folder)  # rm -r test_folder
-
+            print(f"Search result:")
+            for search_item in single_result:
+                print("Choose learnware:",search_item.learnware.id)
+      
     def test_stat_search(self, learnware_num=5):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))
 
-        test_folder = os.path.join(curr_root, "test_stat")
+        with tempfile.TemporaryDirectory(prefix="learnware_test_workflow") as test_folder:
+            for idx, zip_path in enumerate(self.zip_path_list):
+                with zipfile.ZipFile(zip_path, "r") as zip_obj:
+                    zip_obj.extractall(path=test_folder)
 
-        for idx, zip_path in enumerate(self.zip_path_list):
-            unzip_dir = os.path.join(test_folder, f"{idx}")
+                user_spec = RKMETableSpecification()
+                user_spec.load(os.path.join(test_folder, "stat_spec.json"))
+                user_semantic = generate_semantic_spec(**self.universal_semantic_config)
+                user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
+                search_results = easy_market.search_learnware(user_info)
 
-            # unzip -o -q zip_path -d unzip_dir
-            if os.path.exists(unzip_dir):
-                rmtree(unzip_dir)
-            os.makedirs(unzip_dir, exist_ok=True)
-            with zipfile.ZipFile(zip_path, "r") as zip_obj:
-                zip_obj.extractall(path=unzip_dir)
+                single_result = search_results.get_single_results()
+                multiple_result = search_results.get_multiple_results()
 
-            user_spec = RKMETableSpecification()
-            user_spec.load(os.path.join(unzip_dir, "svm.json"))
-            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec})
-            search_results = easy_market.search_learnware(user_info)
+                assert len(single_result) >= 1, f"Statistical search failed!"
+                print(f"search result of user{idx}:")
+                for search_item in single_result:
+                    print(f"score: {search_item.score}, learnware_id: {search_item.learnware.id}")
 
-            single_result = search_results.get_single_results()
-            multiple_result = search_results.get_multiple_results()
-
-            assert len(single_result) >= 1, f"Statistical search failed!"
-            print(f"search result of user{idx}:")
-            for search_item in single_result:
-                print(f"score: {search_item.score}, learnware_id: {search_item.learnware.id}")
-
-            for mixture_item in multiple_result:
-                print(f"mixture_score: {mixture_item.score}\n")
-                mixture_id = " ".join([learnware.id for learnware in mixture_item.learnwares])
-                print(f"mixture_learnware: {mixture_id}\n")
-
-        rmtree(test_folder)  # rm -r test_folder
+                for mixture_item in multiple_result:
+                    print(f"mixture_score: {mixture_item.score}\n")
+                    mixture_id = " ".join([learnware.id for learnware in mixture_item.learnwares])
+                    print(f"mixture_learnware: {mixture_id}\n")
 
     def test_learnware_reuse(self, learnware_num=5):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
@@ -202,6 +171,7 @@ class TestWorkflow(unittest.TestCase):
         train_X, data_X, train_y, data_y = train_test_split(X, y, test_size=0.3, shuffle=True)
 
         stat_spec = generate_rkme_table_spec(X=data_X, gamma=0.1, cuda_idx=0)
+        user_semantic = generate_semantic_spec(**self.universal_semantic_config)
         user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETableSpecification": stat_spec})
 
         search_results = easy_market.search_learnware(user_info)
@@ -243,5 +213,5 @@ def suite():
 
 
 if __name__ == "__main__":
-    runner = unittest.TextTestRunner()
+    runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite())
