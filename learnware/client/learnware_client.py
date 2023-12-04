@@ -12,11 +12,9 @@ from tqdm import tqdm
 from typing import Union, List, Optional
 
 from ..config import C
-from .. import learnware
 from .container import LearnwaresContainer
-from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker
+from ..market import BaseChecker
 from ..logger import get_module_logger
-from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
 from ..market import BaseUserInfo
 from ..tests import get_semantic_specification
@@ -384,7 +382,7 @@ class LearnwareClient:
                 with open(os.path.join(tempdir, semantic_file), "r") as fin:
                     semantic_specification = json.load(fin)
 
-            return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
+            return get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
 
         learnware_list = []
         if learnware_path is not None:
@@ -417,12 +415,14 @@ class LearnwareClient:
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
+        from ..market import EasySemanticChecker
+        
         check_status, message = EasySemanticChecker.check_semantic_spec(semantic_spec)
         return check_status != BaseChecker.INVALID_LEARNWARE, message
 
     @staticmethod
     def _check_stat_specification(learnware):
-        from ..market import CondaChecker
+        from ..market import EasyStatChecker, CondaChecker
 
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
         check_status, message = stat_checker(learnware)
