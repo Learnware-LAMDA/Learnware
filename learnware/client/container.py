@@ -507,6 +507,14 @@ class LearnwaresContainer:
         self.cleanup = cleanup
         self.ignore_error = ignore_error
 
+    @staticmethod
+    def _destroy_docker_container(container):
+        try:
+            ModelDockerContainer._destroy_docker_container(container)
+        except KeyboardInterrupt:
+            logger.warning("The KeyboardInterrupt is ignored when removing the container env!")
+            LearnwaresContainer._destroy_docker_container(container)
+            
     def __enter__(self):
         if self.mode == "conda":
             self.learnware_containers = [
@@ -519,8 +527,8 @@ class LearnwaresContainer:
                 for _learnware in self.learnware_list
             ]
         else:
+            atexit.register(self._destroy_docker_container, self._docker_container)
             self._docker_container = ModelDockerContainer._generate_docker_container()
-            atexit.register(ModelDockerContainer._destroy_docker_container, self._docker_container)
             self.learnware_containers = [
                 Learnware(
                     _learnware.id,
