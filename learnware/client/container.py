@@ -58,7 +58,7 @@ class ModelContainer(BaseModel):
                 self.remove_env()
             except Exception as err:
                 self.cleanup_flag = True
-                raise err
+                logger.error(f"Failed to remove container env due to {err}!")
 
     def _setup_env_and_metadata(self):
         raise NotImplementedError("_setup_env_and_metadata method is not implemented!")
@@ -221,40 +221,44 @@ class ModelDockerContainer(ModelContainer):
             "pids_limit": -1,
         }
         container = client.containers.run(**container_config)
-        environment_cmd = [
-            "pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple",
-            "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/",
-            "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/",
-            "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/",
-            "conda config --set show_channel_urls yes",
-        ]
-        for _cmd in environment_cmd:
-            container.exec_run(_cmd)
+        
+        try:
+            environment_cmd = [
+                "pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple",
+                "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/",
+                "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/",
+                "conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch/",
+                "conda config --set show_channel_urls yes",
+            ]
+            for _cmd in environment_cmd:
+                container.exec_run(_cmd)
 
-        logger.info("Install learnware package in docker.")
-        result = container.exec_run(
-            " ".join(
-                [
-                    "conda",
-                    "run",
-                    "-n",
-                    "base",
-                    "--no-capture-output",
-                    "python",
-                    "-m",
-                    "pip",
-                    "install",
-                    "learnware",
-                ]
+            logger.info("Install learnware package in docker.")
+            result = container.exec_run(
+                " ".join(
+                    [
+                        "conda",
+                        "run",
+                        "-n",
+                        "base",
+                        "--no-capture-output",
+                        "python",
+                        "-m",
+                        "pip",
+                        "install",
+                        "learnware",
+                    ]
+                )
             )
-        )
-        if result.exit_code != 0:
-            logger.error(f"Install learnware package in docker failed!\n{result.output.decode('utf-8')}")
-
+            if result.exit_code != 0:
+                logger.error(f"Install learnware package in docker failed!\n{result.output.decode('utf-8')}")
+        except KeyboardInterrupt:
+            logger.error("The container docker generation and setup procedure is KeyboardInterrupted!")
+            return container
         return container
 
     @staticmethod
-    def _destroy_docker_container(docker_container):
+    def _destroy_docker_container(docker_container) -> None:
         if isinstance(docker_container, docker.models.containers.Container):
             client = docker.from_env()
             container_ids = [container.id for container in client.containers.list()]
@@ -507,13 +511,13 @@ class LearnwaresContainer:
         self.cleanup = cleanup
         self.ignore_error = ignore_error
 
-    @staticmethod
-    def _destroy_docker_container(container):
+    def _destroy_docker_container(self):
         try:
-            ModelDockerContainer._destroy_docker_container(container)
+            if self._docker_container is not None:
+                ModelDockerContainer._destroy_docker_container(self._docker_container)
         except KeyboardInterrupt:
             logger.warning("The KeyboardInterrupt is ignored when removing the container env!")
-            LearnwaresContainer._destroy_docker_container(container)
+            self._destroy_docker_container()
             
     def __enter__(self):
         if self.mode == "conda":
@@ -527,7 +531,8 @@ class LearnwaresContainer:
                 for _learnware in self.learnware_list
             ]
         else:
-            atexit.register(self._destroy_docker_container, self._docker_container)
+            self._docker_container = None
+            atexit.register(self._destroy_docker_container)
             self._docker_container = ModelDockerContainer._generate_docker_container()
             self.learnware_containers = [
                 Learnware(
