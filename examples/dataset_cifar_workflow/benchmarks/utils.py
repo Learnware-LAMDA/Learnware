@@ -1,7 +1,9 @@
 import json
 import os
 import zipfile
+from collections import defaultdict
 from shutil import rmtree
+from tabulate import tabulate
 
 import numpy as np
 import torch
@@ -46,7 +48,7 @@ def evaluate(model, evaluate_set: Dataset, device=None):
     if isinstance(model, nn.Module):
         model.train()
 
-    return loss, acc
+    return loss.item(), acc
 
 
 def build_learnware(name: str, market: LearnwareMarket, order, model_name="conv",
@@ -178,3 +180,33 @@ def build_specification(name: str, cache_id, order, sampled_size=3000):
         spec.save(cache_path)
 
     return spec, test_dataset
+
+
+class Recorder:
+
+    def __init__(self):
+        self.data = defaultdict(list)
+
+    def record(self, name, accuracy, loss):
+        self.data[name].append((accuracy, loss))
+
+    def latest(self):
+        table = []
+
+        for name, values in self.data.items():
+            value = values[-1]
+            table.append([name, "{:.3f}%".format(value[0]), "{:.3f}".format(value[1])])
+
+        return str(tabulate(table, headers=["Case", "Accuracy", "Loss"], tablefmt='orgtbl'))
+
+    def accumulated(self):
+        table = []
+
+        for name, values in self.data.items():
+            value_mean = [np.mean(v) for v in zip(*values)]
+            value_std = [np.std(v) for v in zip(*values)]
+            table.append([name,
+                          "{:.3f}% ± {:.3f}%".format(value_mean[0], value_std[0]),
+                          "{:.3f} ± {:.3f}" .format(value_mean[1], value_std[1])])
+
+        return str(tabulate(table, headers=["Case", "Accuracy", "Loss"], tablefmt='orgtbl'))

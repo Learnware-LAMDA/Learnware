@@ -335,7 +335,22 @@ class RKMEImageSpecification(RegularStatSpecification):
         return K_12
 
     def herding(self, T: int) -> np.ndarray:
-        raise NotImplementedError("The function herding hasn't been supported in Image RKME Specification.")
+        """Iteratively sample examples from an unknown distribution with the help of its RKME specification
+
+        Parameters
+        ----------
+        T : int
+            Total iteration number for sampling.
+
+        Returns
+        -------
+        np.ndarray
+            A collection of examples which approximate the unknown distribution.
+        """
+        indices = torch.multinomial(self.beta, T, replacement=True)
+        mock = self.z[indices] + torch.randn_like(self.z[indices]) * 0.01
+
+        return mock.numpy()
 
     def _sampling_candidates(self, N: int) -> np.ndarray:
         raise NotImplementedError()

@@ -6,7 +6,7 @@ from numpy import mean
 from torch.utils.data import DataLoader
 
 import learnware
-from benchmarks.utils import build_learnware, build_specification, evaluate
+from benchmarks.utils import build_learnware, build_specification, evaluate, Recorder
 from learnware.client import LearnwareClient
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.reuse import AveragingReuser
@@ -21,6 +21,7 @@ class CifarDatasetWorkflow:
     def prepare_learnware(self, market_size=50, market_id=None, rebuild=False):
         """initialize learnware market"""
         learnware.init()
+        assert not rebuild
 
         market_id = "dataset_cifar_workflow" if market_id is None else market_id
         orders = np.stack([np.random.permutation(10) for _ in range(market_size)])
@@ -46,6 +47,8 @@ class CifarDatasetWorkflow:
 
         top_1_acc_record, ensemble_acc_record, best_acc_record, mean_acc_record = [], [], [], []
         top_1_loss_record, ensemble_loss_record, best_loss_record, mean_loss_record = [], [], [], []
+
+        recorder = Recorder()
         for i, order in enumerate(orders):
             print("=" * 20 + "user {}".format(i) + "=" * 20)
             print("order:", order)
@@ -72,25 +75,39 @@ class CifarDatasetWorkflow:
                 acc_list.append(acc)
 
             best_acc_record.append(max(acc_list))
+            best_loss_record.append(min(loss_list))
+            print("Best Accuracy: {:.3f}% ({:.3f}%), Best Loss: {:.3f} ({:.3f})".format(
+                max(acc_list), mean(best_acc_record), min(loss_list), mean(best_loss_record)))
+            recorder.record("Best", accuracy=max(acc_list), loss=min(loss_list))
+
             mean_acc_record.append(mean(acc_list))
-            print("Best Accuracy: {:.3f}% ({:.3f}%), Avg Accuracy: {:.3f}% ({:.3f}%)".format(
-                max(acc_list), mean(best_acc_record), mean(acc_list), mean(mean_acc_record)))
+            mean_loss_record.append(mean(loss_list))
+            print("Avg Accuracy: {:.3f}% ({:.3f}%), Avg Loss: {:.3f} ({:.3f})".format(
+                mean(acc_list), mean(mean_acc_record), mean(loss_list), mean(mean_loss_record)))
+            recorder.record("Average", accuracy=mean(acc_list), loss=mean(loss_list))
 
             top_1_loss, top_1_acc  = evaluate(single_result[0].learnware, dataset)
             top_1_acc_record.append(top_1_acc)
+            top_1_loss_record.append(top_1_loss)
             print(
-                "Top-1\tAccuracy: {:.3f}% ({:.3f}%), Loss: {:.3f}".format(
-                    top_1_acc, mean(top_1_acc_record), loss_list[0])
+                "Top-1\tAccuracy: {:.3f}% ({:.3f}%), Loss: {:.3f}({:.3f})".format(
+                    top_1_acc, mean(top_1_acc_record), top_1_loss, mean(top_1_loss_record))
             )
+            recorder.record("Top-1", accuracy=top_1_acc, loss=top_1_loss)
 
-            # multiple_result[0].learnwares
-            reuse_ensemble = AveragingReuser(learnware_list=[item.learnware for item in single_result[:3]], mode="vote_by_prob")
+            reuse_ensemble = AveragingReuser(learnware_list=multiple_result[0].learnwares, mode="vote_by_prob")
+            # reuse_ensemble = AveragingReuser(learnware_list=[item.learnware for item in single_result[:3]], mode="vote_by_prob")
             ensemble_loss, ensemble_acc = evaluate(reuse_ensemble, dataset)
             ensemble_acc_record.append(ensemble_acc)
+            ensemble_loss_record.append(ensemble_loss)
             print(
-                "Averaging Reuse\tAccuracy: {:.3f} ({:.3f}%), Loss: {:.3f}".format(
-                    ensemble_acc, mean(ensemble_acc_record), ensemble_loss)
+                "Averaging Reuse\tAccuracy: {:.3f}% ({:.3f}%), Loss: {:.3f} ({:.3f})".format(
+                    ensemble_acc, mean(ensemble_acc_record), ensemble_loss, mean(ensemble_loss_record))
             )
+            recorder.record("Voting Reuse", accuracy=ensemble_acc, loss=ensemble_loss)
+
+            print(recorder.latest())
+            print(recorder.accumulated())
 
 
 if __name__ == "__main__":
