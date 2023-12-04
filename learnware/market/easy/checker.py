@@ -115,7 +115,11 @@ class EasyStatChecker(BaseChecker):
 
             # Check if statistical specification is computable in dist()
             stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
-            stat_spec.dist(stat_spec)
+            distance = float(stat_spec.dist(stat_spec))
+            if not np.isfinite(distance):
+                message = f"The distance between statistical specifications is not finite, where distance={distance}"
+                logger.warning(message)
+                return self.INVALID_LEARNWARE, message
 
             if spec_type == "RKMETableSpecification":
                 if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
