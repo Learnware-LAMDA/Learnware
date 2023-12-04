@@ -6,7 +6,7 @@ import json
 import codecs
 import scipy
 import numpy as np
-from qpsolvers import solve_qp, Problem, solve_problem
+from qpsolvers import Problem, solve_problem
 from collections import Counter
 from typing import Any, Union
 
@@ -458,11 +458,12 @@ class RKMETableSpecification(RegularStatSpecification):
                 if d in rkme_load.keys():
                     setattr(self, d, rkme_load[d])
 
-            if self.type != self.__class__.__name__:
+            if self.type == self.__class__.__name__:
+                return True
+            else:
                 logger.error(
                     f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
                 )
-                return True
 
         return False
 

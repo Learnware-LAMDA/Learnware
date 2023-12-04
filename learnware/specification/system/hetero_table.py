@@ -137,11 +137,12 @@ class HeteroMapTableSpecification(SystemStatSpecification):
                 if d in embedding_load.keys():
                     setattr(self, d, embedding_load[d])
 
-            if self.type != self.__class__.__name__:
+            if self.type == self.__class__.__name__:
+                return True
+            else:
                 logger.error(
                     f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
                 )
-                return True
 
         return False
 
