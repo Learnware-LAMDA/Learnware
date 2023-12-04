@@ -391,7 +391,7 @@ class RKMEImageSpecification(RegularStatSpecification):
             self.beta = self.beta.to(self._device)
             self.z = self.z.to(self._device)
 
-            if self.type == self.__class__.__name__:
+            if self.type != self.__class__.__name__:
                 logger.error(
                     f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
                 )

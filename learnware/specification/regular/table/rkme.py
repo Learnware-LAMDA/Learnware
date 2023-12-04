@@ -458,7 +458,7 @@ class RKMETableSpecification(RegularStatSpecification):
                 if d in rkme_load.keys():
                     setattr(self, d, rkme_load[d])
 
-            if self.type == self.__class__.__name__:
+            if self.type != self.__class__.__name__:
                 logger.error(
                     f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
                 )
