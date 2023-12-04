@@ -5,10 +5,10 @@ import copy
 import joblib
 import zipfile
 import numpy as np
+import multiprocessing
 from sklearn.linear_model import Ridge
 from sklearn.datasets import make_regression
 from shutil import copyfile, rmtree
-from multiprocessing import Pool
 from learnware.client import LearnwareClient
 from sklearn.metrics import mean_squared_error
 
@@ -121,7 +121,8 @@ class TestMarket(unittest.TestCase):
         dir_path = os.path.join(curr_root, "learnware_pool")
 
         # Execute multi-process checking using Pool
-        with Pool() as pool:
+        mp_context = multiprocessing.get_context("spawn")
+        with mp_context.Pool() as pool:
             results = pool.starmap(check_learnware, [(name, dir_path) for name in os.listdir(dir_path)])
 
         # Use an assert statement to ensure that all checks return True
