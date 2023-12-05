@@ -66,6 +66,7 @@ def main():
             "Scenario": {"Values": ["Business"], "Type": "Tag"},
             "Description": {"Values": "A sales-forecasting model from Walmart store", "Type": "String"},
             "Name": {"Values": name, "Type": "String"},
+            "License": {"Values": ["MIT"], "Type": "Class"},
         }
         res = session.post(
             submit_url,

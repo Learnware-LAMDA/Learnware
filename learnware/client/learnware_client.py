@@ -12,11 +12,9 @@ from tqdm import tqdm
 from typing import Union, List, Optional
 
 from ..config import C
-from .. import learnware
 from .container import LearnwaresContainer
-from ..market import BaseChecker, EasySemanticChecker, EasyStatChecker
+from ..market import BaseChecker
 from ..logger import get_module_logger
-from ..specification import Specification
 from ..learnware import get_learnware_from_dirpath
 from ..market import BaseUserInfo
 from ..tests import get_semantic_specification
@@ -54,6 +52,7 @@ class SemanticSpecificationKey(Enum):
     DATA_TYPE = "Data"
     TASK_TYPE = "Task"
     LIBRARY_TYPE = "Library"
+    LICENSE = "License"
     SENARIOES = "Scenario"
 
 
@@ -247,7 +246,7 @@ class LearnwareClient:
 
                 for learnware in result["data"]["learnware_list_single"]:
                     returns.append(
-                        {   
+                        {
                             "type": "single",
                             "learnware_id": learnware["learnware_id"],
                             "semantic_specification": learnware["semantic_specification"],
@@ -259,12 +258,12 @@ class LearnwareClient:
                         "type": "multiple",
                         "learnware_ids": [],
                         "semantic_specifications": [],
-                        "matching": result["data"]["learnware_list_multi"][0]["matching"]
+                        "matching": result["data"]["learnware_list_multi"][0]["matching"],
                     }
                     for learnware in result["data"]["learnware_list_multi"]:
                         multiple_learnware["learnware_ids"].append(learnware["learnware_id"])
                         multiple_learnware["semantic_specifications"].append(learnware["semantic_specification"])
-                        
+
                     returns.append(multiple_learnware)
         return returns
 
@@ -280,14 +279,15 @@ class LearnwareClient:
 
     def create_semantic_specification(
         self,
-        name=None,
-        description=None,
-        data_type=None,
-        task_type=None,
-        library_type=None,
-        scenarios=None,
-        input_description=None,
-        output_description=None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        data_type: Optional[str] = None,
+        task_type: Optional[str] = None,
+        library_type: Optional[str] = None,
+        scenarios: Optional[Union[str, List[str]]] = None,
+        license: Optional[Union[str, List[str]]] = None,
+        input_description: Optional[dict] = None,
+        output_description: Optional[dict] = None,
     ):
         semantic_specification = dict()
         semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
@@ -296,7 +296,12 @@ class LearnwareClient:
             "Type": "Class",
             "Values": [library_type] if library_type is not None else [],
         }
+
+        license = [license] if isinstance(license, str) else license
+        semantic_specification["License"] = {"Type": "Class", "Values": license if license is not None else []}
+        scenarios = [scenarios] if isinstance(scenarios, str) else scenarios
         semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios if scenarios is not None else []}
+
         semantic_specification["Name"] = {"Type": "String", "Values": name if name is not None else ""}
         semantic_specification["Description"] = {
             "Type": "String",
@@ -377,7 +382,7 @@ class LearnwareClient:
                 with open(os.path.join(tempdir, semantic_file), "r") as fin:
                     semantic_specification = json.load(fin)
 
-            return learnware.get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
+            return get_learnware_from_dirpath(learnware_id, semantic_specification, tempdir)
 
         learnware_list = []
         if learnware_path is not None:
@@ -410,12 +415,14 @@ class LearnwareClient:
 
     @staticmethod
     def _check_semantic_specification(semantic_spec):
+        from ..market import EasySemanticChecker
+        
         check_status, message = EasySemanticChecker.check_semantic_spec(semantic_spec)
         return check_status != BaseChecker.INVALID_LEARNWARE, message
 
     @staticmethod
     def _check_stat_specification(learnware):
-        from ..market import CondaChecker
+        from ..market import EasyStatChecker, CondaChecker
 
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
         check_status, message = stat_checker(learnware)

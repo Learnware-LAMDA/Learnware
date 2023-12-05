@@ -69,6 +69,7 @@ def main():
                 "Type": "String",
             },
             "Name": {"Values": name, "Type": "String"},
+            "License": {"Values": ["MIT"], "Type": "Class"},
         }
         res = session.post(
             submit_url,

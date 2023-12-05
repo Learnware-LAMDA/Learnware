@@ -45,11 +45,9 @@ class EasyExactSemanticSearcher(BaseSearcher):
                     return False
 
                 if semantic_spec1[key]["Type"] == "Class":
-                    if isinstance(v1, list):
-                        v1 = v1[0]
                     if isinstance(v2, list):
                         v2 = v2[0]
-                    if v1 != v2:
+                    if v2 not in v1:
                         return False
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
@@ -66,6 +64,7 @@ class EasyExactSemanticSearcher(BaseSearcher):
                 match_learnwares.append(learnware)
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
         return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in match_learnwares])
+
 
 class EasyFuzzSemanticSearcher(BaseSearcher):
     def _match_semantic_spec_tag(self, semantic_spec1, semantic_spec2) -> bool:
@@ -85,23 +84,19 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
         """
         for key in semantic_spec1.keys():
             v1 = semantic_spec1[key].get("Values", "")
-            v2 = semantic_spec2[key].get("Values", "")
-
-            if len(v1) == 0:
-                # user input is empty, no need to search
+            if key not in semantic_spec2 or len(v1) == 0:
                 continue
 
-            if key not in "Name":
+            v2 = semantic_spec2[key].get("Values", "")
+            if key not in ("Name", "Description"):
                 if len(v2) == 0:
                     # user input contains some key that is not in database
                     return False
 
                 if semantic_spec1[key]["Type"] == "Class":
-                    if isinstance(v1, list):
-                        v1 = v1[0]
                     if isinstance(v2, list):
                         v2 = v2[0]
-                    if v1 != v2:
+                    if v2 not in v1:
                         return False
                 elif semantic_spec1[key]["Type"] == "Tag":
                     if not (set(v1) & set(v2)):
@@ -543,14 +538,20 @@ class EasyStatSearcher(BaseSearcher):
             both lists are sorted by mmd dist
         """
         rkme_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
-        mmd_dist_list = []
-        for rkme in rkme_list:
-            mmd_dist = rkme.dist(user_rkme)
-            mmd_dist_list.append(mmd_dist)
+        filtered_idx_list, mmd_dist_list = [], []
+        for idx in range(len(rkme_list)):
+            mmd_dist = float(rkme_list[idx].dist(user_rkme))
+            if np.isfinite(mmd_dist):
+                mmd_dist_list.append(mmd_dist)
+                filtered_idx_list.append(idx)
+            else:
+                logger.warning(
+                    f"The distance between user_spec and learnware_spec (id: {learnware_list[idx].id}) is not finite, where distance is {mmd_dist}"
+                )
 
-        sorted_idx_list = sorted(range(len(learnware_list)), key=lambda k: mmd_dist_list[k])
+        sorted_idx_list = sorted(range(len(mmd_dist_list)), key=lambda k: mmd_dist_list[k])
         sorted_dist_list = [mmd_dist_list[idx] for idx in sorted_idx_list]
-        sorted_learnware_list = [learnware_list[idx] for idx in sorted_idx_list]
+        sorted_learnware_list = [learnware_list[filtered_idx_list[idx]] for idx in sorted_idx_list]
 
         return sorted_dist_list, sorted_learnware_list
 
@@ -566,6 +567,9 @@ class EasyStatSearcher(BaseSearcher):
             raise KeyError("No supported stat specification is given in the user info")
 
         user_rkme = user_info.stat_info[self.stat_spec_type]
+        if not np.isfinite(float(user_rkme.dist(user_rkme))):
+            raise ValueError("The distance between uploaded statistical specifications is not finite!")
+
         learnware_list = self._filter_by_rkme_spec_metadata(learnware_list, user_rkme)
         logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
@@ -622,13 +626,16 @@ class EasyStatSearcher(BaseSearcher):
         logger.info(f"After filter by rkme spec, learnware_list length is {len(learnware_list)}")
 
         search_results = SearchResults()
-        
+
         search_results.update_single_results(
-            [SingleSearchItem(learnware=_learnware, score=_score) for _score, _learnware in zip(sorted_score_list, single_learnware_list)]
+            [
+                SingleSearchItem(learnware=_learnware, score=_score)
+                for _score, _learnware in zip(sorted_score_list, single_learnware_list)
+            ]
         )
         if mixture_score is not None and len(mixture_learnware_list) > 0:
             search_results.update_multiple_results(
-                [MultipleSearchItem(learnwares=mixture_learnware_list, score=mixture_score)]           
+                [MultipleSearchItem(learnwares=mixture_learnware_list, score=mixture_score)]
             )
         return search_results
 

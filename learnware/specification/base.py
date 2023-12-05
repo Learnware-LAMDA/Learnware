@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import copy
 import numpy as np
 from typing import Dict
@@ -22,6 +24,9 @@ class BaseStatSpecification:
     def get_states(self):
         return {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
 
+    def dist(self, stat_spec: BaseStatSpecification):
+        raise NotImplementedError("dist is not implemented")
+        
     def save(self, filepath: str):
         """Save the statistical specification into file in filepath
 

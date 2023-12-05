@@ -50,6 +50,7 @@ semantic_specs = [
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
         "Output": {"Dimension": 10},
+        "License": {"Values": ["MIT"], "Type": "Class"},
     }
 ]
 
@@ -60,6 +61,7 @@ user_semantic = {
     "Scenario": {"Values": ["Business"], "Type": "Tag"},
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
+    "License": {"Values": ["MIT"], "Type": "Class"},
 }
 
 
@@ -175,7 +177,10 @@ def test_search(gamma=0.1, load_market=True):
             pred_y = single_item.learnware.predict(user_data)
             acc = eval_prediction(pred_y, user_label)
             acc_list.append(acc)
-            logger.info("Search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f" % (idx, single_item.score, single_item.learnware.id, acc))
+            logger.info(
+                "Search rank: %d, score: %.3f, learnware_id: %s, acc: %.3f"
+                % (idx, single_item.score, single_item.learnware.id, acc)
+            )
 
         # test reuse (job selector)
         # reuse_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)

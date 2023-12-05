@@ -48,6 +48,7 @@ semantic_specs = [
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "learnware_1", "Type": "String"},
         "Output": output_description,
+        "License": {"Values": ["MIT"], "Type": "Class"},
     }
 ]
 
@@ -59,6 +60,7 @@ user_semantic = {
     "Description": {"Values": "", "Type": "String"},
     "Name": {"Values": "", "Type": "String"},
     "Output": output_description,
+    "License": {"Values": ["MIT"], "Type": "Class"},
 }
 
 
@@ -72,7 +74,6 @@ class TextDatasetWorkflow:
 
         generate_uploader(X_train, y_train, n_uploaders=n_uploaders, data_save_root=uploader_save_root)
         generate_user(X_test, y_test, n_users=n_users, data_save_root=user_save_root)
-
 
     def _prepare_model(self):
         dataloader = TextDataLoader(data_save_root, train=True)
@@ -92,9 +93,8 @@ class TextDatasetWorkflow:
 
             logger.info("Model saved to '%s' and '%s'" % (modelv_save_path, modell_save_path))
 
-
-    def _prepare_learnware(self, 
-        data_path, modelv_path, modell_path, init_file_path, yaml_path, env_file_path, save_root, zip_name
+    def _prepare_learnware(
+        self, data_path, modelv_path, modell_path, init_file_path, yaml_path, env_file_path, save_root, zip_name
     ):
         os.makedirs(save_root, exist_ok=True)
         tmp_spec_path = os.path.join(save_root, "rkme.json")
@@ -139,7 +139,6 @@ class TextDatasetWorkflow:
         logger.info("New Learnware Saved to %s" % (zip_file_name))
         return zip_file_name
 
-
     def prepare_market(self, regenerate_flag=False):
         if regenerate_flag:
             self._init_text_dataset()
@@ -175,7 +174,6 @@ class TextDatasetWorkflow:
 
         logger.info("Total Item: %d" % (len(text_market)))
 
-
     def test(self, regenerate_flag=False):
         self.prepare_market(regenerate_flag)
         text_market = instantiate_learnware_market(market_id="ae")
@@ -199,11 +197,11 @@ class TextDatasetWorkflow:
             user_stat_spec.generate_stat_spec_from_data(X=user_data)
             user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETextSpecification": user_stat_spec})
             logger.info("Searching Market for user: %d" % (i))
-            
+
             search_result = text_market.search_learnware(user_info)
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
-            
+
             print(f"search result of user{i}:")
             print(
                 f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}"
@@ -220,7 +218,7 @@ class TextDatasetWorkflow:
             print(
                 f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, acc: {acc_list[0]}"
             )
-            
+
             if len(multiple_result) > 0:
                 mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
                 print(f"mixture_score: {multiple_result[0].score}, mixture_learnware: {mixture_id}")
