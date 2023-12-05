@@ -383,22 +383,15 @@ class RKMEImageSpecification(RegularStatSpecification):
             rkme_load = json.loads(obj_text)
             rkme_load["z"] = torch.from_numpy(np.array(rkme_load["z"], dtype="float32"))
             rkme_load["beta"] = torch.from_numpy(np.array(rkme_load["beta"], dtype="float64"))
-
+            
             for d in self.get_states():
                 if d in rkme_load.keys():
+                    if d == "type" and rkme_load[d] != self.type:
+                        raise TypeError(f"The type of loaded RKME ({rkme_load[d]}) is different from the expected type ({self.type})!")
                     setattr(self, d, rkme_load[d])
 
             self.beta = self.beta.to(self._device)
             self.z = self.z.to(self._device)
-
-            if self.type == self.__class__.__name__:
-                return True
-            else:
-                logger.error(
-                    f"The type of loaded RKME ({self.type}) is different from the expected type ({self.__class__.__name__})!"
-                )
-
-        return False
 
 
 def _get_zca_matrix(X, reg_coef=0.1):

@@ -82,9 +82,11 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
                     return package_name
                 else:
                     return package
-        except Exception as e:
-            logger.error(e)
-
+        except subprocess.CalledProcessError:
+            pass
+        except Exception as err:
+            logger.error(err)
+            
         return None
 
     exist_packages = []
@@ -99,7 +101,9 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
             exist_packages.append(result)
         else:
             nonexist_packages.append(package)
-
+    
+    if len(nonexist_packages) > 0:
+        logger.info(f"Filtered out {len(nonexist_packages)} non-exist pip packages.")
     return exist_packages, nonexist_packages
 
 
