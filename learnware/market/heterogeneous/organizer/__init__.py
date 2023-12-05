@@ -245,7 +245,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         ret = []
         for idx in ids:
             spec = self.learnware_list[idx].get_specification()
-            if is_hetero(stat_specs=spec.get_stat_spec(), semantic_spec=spec.get_semantic_spec()):
+            if is_hetero(stat_specs=spec.get_stat_spec(), semantic_spec=spec.get_semantic_spec(), verbose=False):
                 ret.append(idx)
         return ret
 

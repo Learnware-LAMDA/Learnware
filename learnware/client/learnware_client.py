@@ -70,7 +70,14 @@ class LearnwareClient:
         self.tempdir_list = []
         self.login_status = False
         atexit.register(self.cleanup)
-
+    
+    def is_connected(self):
+        url = f"{self.host}/auth/login_by_token"
+        response = requests.post(url)
+        if response.status_code == 404:
+            return False
+        return True
+        
     def login(self, email, token):
         url = f"{self.host}/auth/login_by_token"
 
@@ -172,7 +179,7 @@ class LearnwareClient:
         if result["code"] != 0:
             raise Exception("update failed: " + json.dumps(result))
 
-    def download_learnware(self, learnware_id, save_path):
+    def download_learnware(self, learnware_id: str, save_path: str):
         url = f"{self.host}/engine/download_learnware"
 
         response = requests.get(
