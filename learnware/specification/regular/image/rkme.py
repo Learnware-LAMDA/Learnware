@@ -7,6 +7,7 @@ import json
 import os
 
 from typing import Any
+from contextlib import contextmanager
 
 import numpy as np
 import torch
@@ -73,6 +74,7 @@ class RKMEImageSpecification(RegularStatSpecification):
         step_size: float = 0.01,
         steps: int = 100,
         resize: bool = True,
+        sample_size: int = 5000,
         nonnegative_beta: bool = True,
         reduce: bool = True,
         verbose: bool = True,
@@ -92,6 +94,8 @@ class RKMEImageSpecification(RegularStatSpecification):
             Total rounds in the iterative optimization.
         resize : bool
             Whether to scale the image to the requested size, by default True.
+        sample_size: int
+            Size of sampled set used to generate specification
         nonnegative_beta : bool, optional
             True if weights for the reduced set are intended to be kept non-negative, by default False.
         reduce : bool, optional
@@ -153,45 +157,40 @@ class RKMEImageSpecification(RegularStatSpecification):
             self.beta = torch.from_numpy(self.beta).to(self._device)
             return
 
-        self._random_generator = RandomGenerator(0)
-        # crucial
-        torch.manual_seed(0)
-        torch.cuda.manual_seed_all(0)
-        torch.backends.cudnn.deterministic = True
-        if ("cross_platform" not in kwargs or kwargs["cross_platform"]):
-            torch.cuda.set_rng_state(
-                new_state=torch.cuda.get_rng_state(self._device.index),
-                device="cpu")
+        # auto sample
+        if len(X_train) > sample_size:
+            indices = np.random.choice(len(X_train), size=sample_size, replace=False)
+            X_train = X_train(indices)
 
-        random_models = list(self._generate_models(n_models=self.n_models, channel=X.shape[1]))
-        self.z = torch.zeros(Z_shape).to(self._device).float()
-        self._random_generator.normal_(self.z, 0, 1)
-
-        with torch.no_grad():
-            x_features = self._generate_random_feature(X_train, random_models=random_models)
-        self._update_beta(x_features, nonnegative_beta, random_models=random_models)
-        
         try:
             import torch_optimizer
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually.")
-        
-        optimizer = torch_optimizer.AdaBelief([{"params": [self.z]}], lr=step_size, eps=1e-16)
+            raise ModuleNotFoundError(
+                f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually.")
 
-        for _ in tqdm(range(steps)) if verbose else range(steps):
-            # Regenerate Random Models
+        cross_platform = "cross_platform" not in kwargs or kwargs["cross_platform"]
+        # crucial
+        with deterministic(cross_platform, self._device) as random_generator:
+            self._random_generator = random_generator
+
             random_models = list(self._generate_models(n_models=self.n_models, channel=X.shape[1]))
+            self.z = torch.zeros(Z_shape).to(self._device).float()
+            self._random_generator.normal_(self.z, 0, 1)
 
             with torch.no_grad():
                 x_features = self._generate_random_feature(X_train, random_models=random_models)
-            self._update_z(x_features, optimizer, random_models=random_models)
             self._update_beta(x_features, nonnegative_beta, random_models=random_models)
 
-        # Recovering Random Number Generation Settings
-        if ("cross_platform" not in kwargs or kwargs["cross_platform"]):
-            torch.cuda.set_rng_state(
-                new_state=torch.cuda.get_rng_state(self._device.index),
-                device="cuda")
+            optimizer = torch_optimizer.AdaBelief([{"params": [self.z]}], lr=step_size, eps=1e-16)
+
+            for _ in tqdm(range(steps)) if verbose else range(steps):
+                # Regenerate Random Models
+                random_models = list(self._generate_models(n_models=self.n_models, channel=X.shape[1]))
+
+                with torch.no_grad():
+                    x_features = self._generate_random_feature(X_train, random_models=random_models)
+                self._update_z(x_features, optimizer, random_models=random_models)
+                self._update_beta(x_features, nonnegative_beta, random_models=random_models)
 
     @torch.no_grad()
     def _update_beta(self, x_features: Any, nonnegative_beta: bool = True, random_models=None):
@@ -447,6 +446,27 @@ class RandomGenerator:
         data = self.state.normal(mean, std, size=tensor.shape)
         with torch.no_grad():
             tensor.copy_(torch.asarray(data, dtype=tensor.dtype))
+
+
+@contextmanager
+def deterministic(cross_platform, device):
+    torch.manual_seed(0)
+    torch.cuda.manual_seed_all(0)
+    deterministic_state = torch.backends.cudnn.deterministic
+    torch.backends.cudnn.deterministic = True
+    if cross_platform:
+        torch.cuda.set_rng_state(
+            new_state=torch.cuda.get_rng_state(device.index),
+            device="cpu")
+
+    yield RandomGenerator(0)
+
+    torch.backends.cudnn.deterministic = deterministic_state
+    if cross_platform:
+        torch.cuda.set_rng_state(
+            new_state=torch.cuda.get_rng_state(device.index),
+            device="cuda")
+
 
 class _ConvNet_wide(nn.Module):
     def __init__(self, channel, random_generator, mu=None, sigma=None, k=2, net_width=128, net_depth=3, im_size=(32, 32)):
