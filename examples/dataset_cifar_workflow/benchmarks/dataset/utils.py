@@ -4,6 +4,7 @@ from functools import reduce
 import numpy as np
 import torch
 import torchvision
+from torch.utils.data import TensorDataset, Dataset, DataLoader
 
 torchvision.disable_beta_transforms_warning()
 from torchvision.transforms import transforms, v2
@@ -86,3 +87,7 @@ def build_transforms(train_X):
     ])
 
     return augment_transform, regular_transform, whiten_transform
+
+def cached(data: Dataset, device):
+    X, y = next(iter(DataLoader(data, batch_size=len(data))))
+    return TensorDataset(X.to(device), y.to(device))

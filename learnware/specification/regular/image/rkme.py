@@ -168,7 +168,8 @@ class RKMEImageSpecification(RegularStatSpecification):
             raise ModuleNotFoundError(
                 f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually.")
 
-        cross_platform = "cross_platform" not in kwargs or kwargs["cross_platform"]
+        # Cross-platform by default, unless the spec is specified to be generated specifically for local experiments.
+        cross_platform = "experimental" not in kwargs or not kwargs["experimental"]
         # crucial
         with deterministic(cross_platform, self._device) as random_generator:
             self._random_generator = random_generator
@@ -439,13 +440,17 @@ def _get_zca_matrix(X, reg_coef=0.1):
 
 class RandomGenerator:
 
-    def __init__(self, seed=0):
+    def __init__(self, seed=0, cross_platform=True):
+        self.cross_platform=cross_platform
         self.state = RandomState(seed)
 
     def normal_(self, tensor: torch.Tensor, mean=0.0, std=1.0):
-        data = self.state.normal(mean, std, size=tensor.shape)
-        with torch.no_grad():
-            tensor.copy_(torch.asarray(data, dtype=tensor.dtype))
+        if self.cross_platform:
+            data = self.state.normal(mean, std, size=tensor.shape)
+            with torch.no_grad():
+                tensor.copy_(torch.asarray(data, dtype=tensor.dtype))
+        else:
+            torch.nn.init.normal_(tensor, mean, std)
 
 
 @contextmanager
@@ -459,7 +464,7 @@ def deterministic(cross_platform, device):
             new_state=torch.cuda.get_rng_state(device.index),
             device="cpu")
 
-    yield RandomGenerator(0)
+    yield RandomGenerator(seed=0, cross_platform=cross_platform)
 
     torch.backends.cudnn.deterministic = deterministic_state
     if cross_platform:

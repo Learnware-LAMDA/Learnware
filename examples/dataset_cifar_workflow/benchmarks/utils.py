@@ -14,12 +14,15 @@ from learnware.client import LearnwareClient
 from learnware.learnware import Learnware
 from learnware.specification import generate_rkme_image_spec, RKMEImageSpecification
 from .dataset import uploader_data, user_data
+from .dataset.utils import cached
 from .models.conv import ConvModel
 from learnware.market import LearnwareMarket
 from learnware.utils import choose_device
 
+from torch.profiler import profile, record_function, ProfilerActivity
+
 @torch.no_grad()
-def evaluate(model, evaluate_set: Dataset, device=None):
+def evaluate(model, evaluate_set: Dataset, device=None, distribution=True):
     device = choose_device(0) if device is None else device
 
     if isinstance(model, nn.Module):
@@ -29,16 +32,20 @@ def evaluate(model, evaluate_set: Dataset, device=None):
         mapping = lambda m, x: m.predict(x)
 
     criterion = nn.CrossEntropyLoss(reduction="sum")
-    total, correct, loss = 0, 0, 0.0
-    dataloader = DataLoader(evaluate_set, batch_size=512, shuffle=True)
+    total, correct, loss = 0, 0, torch.as_tensor(0.0, dtype=torch.float32, device=device)
+    dataloader = DataLoader(evaluate_set, batch_size=1024, shuffle=True)
     for i, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
         out = mapping(model, X)
         if not torch.is_tensor(out):
             out = torch.from_numpy(out).to(device)
-        loss += criterion(out, y)
 
-        _, predicted = torch.max(out.data, 1)
+        if distribution:
+            loss += criterion(out, y)
+            _, predicted = torch.max(out.data, 1)
+        else:
+            predicted = out
+
         total += y.size(0)
         correct += (predicted == y).sum().item()
 
@@ -67,56 +74,17 @@ def build_learnware(name: str, market: LearnwareMarket, order, model_name="conv"
 
     channel = train_set[0][0].shape[0]
     image_size = train_set[0][0].shape[1], train_set[0][0].shape[2]
-
     model = ConvModel(channel=channel, im_size=image_size,
                       n_random_features=out_classes).to(device)
 
-    model.train()
-
-    # SGD optimizer with learning rate 1e-2
-    optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9)
-    # Scheduler
-    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
-    # mean-squared error loss
-    criterion = nn.CrossEntropyLoss()
-    # Prepare DataLoader
-    dataloader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    # valid loss
-    best_loss = 100000 # initially
-    # Optimizing...
-    for epoch in range(epochs):
-        running_loss = []
-        model.train()
-        for i, (X, y) in enumerate(dataloader):
-            X, y = X.to(device=device), y.to(device=device)
-            optimizer.zero_grad()
-            out = model(X)
-            loss = criterion(out, y)
-            loss.backward()
-            optimizer.step()
-            running_loss.append(loss.item())
-
-        valid_loss, valid_acc = evaluate(model, valid_set, device=device)
-        train_loss, train_acc = evaluate(model, train_set, device=device)
-        if valid_loss < best_loss:
-            best_loss = valid_loss
-
-            torch.save(model.state_dict(), os.path.join(cache_dir, "model.pth"))
-            print("Epoch: {}, Valid Best Accuracy: {:.3f}% ({:.3f})".format(epoch+1, valid_acc, valid_loss))
-        if valid_acc > 99.0:
-            print("Early Stopping at 99% !")
-            break
-
-        if (epoch + 1) % 5 == 0:
-            print('Epoch: {}, Train Average Loss: {:.3f}, Accuracy {:.3f}%, Valid Average Loss: {:.3f}'.format(
-                epoch+1, np.mean(running_loss), train_acc, valid_loss))
-
-        # scheduler.step()
+    # train model
+    save_path = os.path.join(cache_dir, "model.pth")
+    train_model(model, train_set, valid_set, save_path, epochs=epochs, batch_size=batch_size, device=device)
 
     # build specification
     loader = DataLoader(spec_set, batch_size=3000, shuffle=True)
     sampled_X, _ = next(iter(loader))
-    spec = generate_rkme_image_spec(sampled_X, whitening=False, cross_platform=False)
+    spec = generate_rkme_image_spec(sampled_X, whitening=False, experimental=True)
 
     # add to market
     model_dir = os.path.abspath(os.path.join(__file__, "..", "models"))
@@ -158,6 +126,49 @@ def build_learnware(name: str, market: LearnwareMarket, order, model_name="conv"
 
     return model
 
+def train_model(model: nn.Module, train_set: Dataset, valid_set: Dataset,
+                save_path: str, epochs=35, batch_size=128, device=None):
+    device = choose_device(0) if device is None else device
+
+    model.train()
+    # SGD optimizer with learning rate 1e-2
+    optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9)
+    # Scheduler
+    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
+    # mean-squared error loss
+    criterion = nn.CrossEntropyLoss()
+    # Prepare DataLoader
+    dataloader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    # valid loss
+    best_loss = 100000 # initially
+    # Optimizing...
+    for epoch in range(epochs):
+        running_loss = []
+        model.train()
+        for i, (X, y) in enumerate(dataloader):
+            X, y = X.to(device=device), y.to(device=device)
+            optimizer.zero_grad()
+            out = model(X)
+            loss = criterion(out, y)
+            loss.backward()
+            optimizer.step()
+            running_loss.append(loss.item())
+
+        valid_loss, valid_acc = evaluate(model, valid_set, device=device)
+        train_loss, train_acc = evaluate(model, train_set, device=device)
+        if valid_loss < best_loss:
+            best_loss = valid_loss
+
+            torch.save(model.state_dict(), save_path)
+            print("Epoch: {}, Valid Best Accuracy: {:.3f}% ({:.3f})".format(epoch+1, valid_acc, valid_loss))
+        if valid_acc > 99.0:
+            print("Early Stopping at 99% !")
+            break
+
+        if (epoch + 1) % 5 == 0:
+            print('Epoch: {}, Train Average Loss: {:.3f}, Accuracy {:.3f}%, Valid Average Loss: {:.3f}'.format(
+                epoch+1, np.mean(running_loss), train_acc, valid_loss))
+
 
 def build_specification(name: str, cache_id, order, sampled_size=3000):
     cache_dir = os.path.abspath(os.path.join(
@@ -174,7 +185,7 @@ def build_specification(name: str, cache_id, order, sampled_size=3000):
         test_dataset, spec_dataset, indices, _ = user_data(order=order)
         loader = DataLoader(spec_dataset, batch_size=sampled_size, shuffle=True)
         sampled_X, _ = next(iter(loader))
-        spec = generate_rkme_image_spec(sampled_X, whitening=False, cross_platform=False)
+        spec = generate_rkme_image_spec(sampled_X, whitening=False, experimental=True)
 
         spec.msg = indices.tolist()
         spec.save(cache_path)
@@ -184,20 +195,14 @@ def build_specification(name: str, cache_id, order, sampled_size=3000):
 
 class Recorder:
 
-    def __init__(self):
+    def __init__(self, headers, formats):
+        assert len(headers) == len(formats)
         self.data = defaultdict(list)
+        self.headers = headers
+        self.formats = formats
 
-    def record(self, name, accuracy, loss):
-        self.data[name].append((accuracy, loss))
-
-    def latest(self):
-        table = []
-
-        for name, values in self.data.items():
-            value = values[-1]
-            table.append([name, "{:.3f}%".format(value[0]), "{:.3f}".format(value[1])])
-
-        return str(tabulate(table, headers=["Case", "Accuracy", "Loss"], tablefmt='orgtbl'))
+    def record(self, name, *args):
+        self.data[name].append(args)
 
     def summary(self):
         table = []
@@ -205,8 +210,14 @@ class Recorder:
         for name, values in self.data.items():
             value_mean = [np.mean(v) for v in zip(*values)]
             value_std = [np.std(v) for v in zip(*values)]
-            table.append([name,
-                          "{:.3f}% ± {:.3f}%".format(value_mean[0], value_std[0]),
-                          "{:.3f} ± {:.3f}" .format(value_mean[1], value_std[1])])
+            table.append([name] + [f.format(m, s) for f, m, s in zip(self.formats, value_mean, value_std)])
 
-        return str(tabulate(table, headers=["Case", "Accuracy", "Loss"], tablefmt='orgtbl'))
+        return str(tabulate(table, headers=["Case"] + self.headers, tablefmt='orgtbl'))
+
+    def save(self, path):
+        with open(path, "w") as f:
+            json.dump(self.data, f)
+
+    def load(self, path):
+        with open(path, "r") as f:
+            self.data = json.load(f)
