@@ -4,7 +4,7 @@ Learnwares Search
 
 ``Learnware Searcher`` is a key component of ``Learnware Market`` that identifies and recommends helpful learnwares to users according to their ``UserInfo``. Based on whether the returned learnware dimensions are consistent with user tasks, the searchers can be divided into two categories: homogeneous searchers and heterogeneous searchers. 
 
-All the searchers are implemented as a subclass of ``BaseSearcher``. When initializing, you should assign a ``organizer`` to it. The introduction of ``organizer`` is seen in . Then these searchers can be called with ``UserInfo`` and return ``SearchResults``.
+All the searchers are implemented as a subclass of ``BaseSearcher``. When initializing, you should assign a ``organizer`` to it. The introduction of ``organizer`` is shown in `COMPONENTS: Market - Framework <../components/market.html>`_. Then these searchers can be called with ``UserInfo`` and return ``SearchResults``.
 
 
 Homo Search
@@ -15,7 +15,7 @@ The homogeneous search of helpful learnwares can be divided into two stages: sem
 User information
 -------------------------------
 ``BaseUserInfo`` is a ``Python API`` for users to provide enough information to identify helpful learnwares.
-When initializing ``BaseUserInfo``, three optional information can be provided: ``id``, ``semantic_spec`` and ``stat_info``. The generation of these specifications is seen in `Prepare Learnware <./upload.html>`_.
+When initializing ``BaseUserInfo``, three optional information can be provided: ``id``, ``semantic_spec`` and ``stat_info``. The generation of these specifications is shown in `WORKFLOWS: Prepare Learnware <./upload.html>`_.
 
 
 
