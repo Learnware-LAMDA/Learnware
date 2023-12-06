@@ -20,16 +20,15 @@ import matplotlib.pyplot as plt
 # Login to Beiming system
 client = LearnwareClient()
 
-
-logger = get_module_logger("text_test", level="INFO")
+logger = get_module_logger("text_workflow", level="INFO")
 origin_data_root = "./data/origin_data"
 processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
-dataset = "ae"  # argumentative essays
-n_uploaders = 7
-n_users = 7
-n_classes = 3
+dataset = "20newsgroups"
+n_uploaders = 5
+n_users = 5
+n_classes = 20
 n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
 repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
 
@@ -44,9 +43,12 @@ os.makedirs(uploader_save_root, exist_ok=True)
 os.makedirs(model_save_root, exist_ok=True)
 
 output_description = {
-    "Dimension": 3,
-    "Description": {"0": "ineffective", "1": "effective", "2": "adequate",},
+    "Dimension": 20,
+    "Description": {"0": "0", "1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6",
+                    "7": "7", "8": "8", "9": "9", "10": "10", "11": "11", "12": "12", "13": "13",
+                    "14": "14", "15": "15", "16": "16", "17": "17", "18": "18", "19": "19"}
 }
+
 semantic_spec = client.create_semantic_specification(
     name="learnware_example",
     description="Just a example for text learnware",
@@ -88,7 +90,7 @@ class TextDatasetWorkflow:
         for i in range(n_uploaders):
             logger.info("Train on uploader: %d" % (i))
             X, y = dataloader.get_idx_data(i)
-            vectorizer, lgbm = train(X, y, out_classes=n_classes)
+            vectorizer, clf = train(X, y, out_classes=n_classes)
 
             modelv_save_path = os.path.join(model_save_root, "uploader_v_%d.pth" % (i))
             modell_save_path = os.path.join(model_save_root, "uploader_l_%d.pth" % (i))
@@ -97,12 +99,12 @@ class TextDatasetWorkflow:
                 pickle.dump(vectorizer, f)
 
             with open(modell_save_path, "wb") as f:
-                pickle.dump(lgbm, f)
+                pickle.dump(clf, f)
 
             logger.info("Model saved to '%s' and '%s'" % (modelv_save_path, modell_save_path))
 
     def _prepare_learnware(
-        self, data_path, modelv_path, modell_path, init_file_path, yaml_path, env_file_path, save_root, zip_name
+            self, data_path, modelv_path, modell_path, init_file_path, yaml_path, env_file_path, save_root, zip_name
     ):
         os.makedirs(save_root, exist_ok=True)
         tmp_spec_path = os.path.join(save_root, "rkme.json")
@@ -284,7 +286,6 @@ class TextDatasetWorkflow:
 
         os.makedirs("./figs", exist_ok=True)
         os.makedirs("./curves", exist_ok=True)
-
 
         for i in range(n_users):
             user_model_score_mat = []
