@@ -30,15 +30,17 @@ class TestAllLearnware(unittest.TestCase):
         self.client.login(email, token)
 
     def test_all_learnware(self):
-        max_learnware_num = 1000
+        max_learnware_num = 2000
         semantic_spec = self.client.create_semantic_specification()
         user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={})
         result = self.client.search_learnware(user_info, page_size=max_learnware_num)
-        print(f"result size: {len(result)}")
-        print(f"key in result: {[key for key in result[0]]}")
+        
+        learnware_ids = result["single"]["learnware_ids"]
+        keys = [key for key in result["single"]["semantic_specifications"][0]]
+        print(f"result size: {len(learnware_ids)}")
+        print(f"key in result: {keys}")
 
         failed_ids = []
-        learnware_ids = [res["learnware_id"] for res in result]
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             for idx in learnware_ids:
                 zip_path = os.path.join(tempdir, f"test_{idx}.zip")
