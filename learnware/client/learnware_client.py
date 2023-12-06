@@ -228,43 +228,46 @@ class LearnwareClient:
                 "matching": None,
             },
         }
-        with tempfile.NamedTemporaryFile(prefix="learnware_stat_", suffix=".json") as ftemp:
+        with tempfile.NamedTemporaryFile(prefix="learnware_stat_", suffix=".json", delete=False) as ftemp:
+            temp_file_name = ftemp.name
             if stat_spec is not None:
-                stat_spec.save(ftemp.name)
+                stat_spec.save(temp_file_name)
 
-            with open(ftemp.name, "r") as fin:
-                semantic_specification = user_info.get_semantic_spec()
-                if stat_spec is None:
-                    files = None
-                else:
-                    files = {"statistical_specification": fin}
+        with open(temp_file_name, "r") as fin:
+            semantic_specification = user_info.get_semantic_spec()
+            if stat_spec is None:
+                files = None
+            else:
+                files = {"statistical_specification": fin}
 
-                response = requests.post(
-                    url,
-                    files=files,
-                    data={
-                        "semantic_specification": json.dumps(semantic_specification),
-                        "limit": page_size,
-                        "page": page_index,
-                    },
-                    headers=self.headers,
-                )
+            response = requests.post(
+                url,
+                files=files,
+                data={
+                    "semantic_specification": json.dumps(semantic_specification),
+                    "limit": page_size,
+                    "page": page_index,
+                },
+                headers=self.headers,
+            )
+            result = response.json()
 
-                result = response.json()
+            if result["code"] != 0:
+                raise Exception("search failed: " + json.dumps(result))
 
-                if result["code"] != 0:
-                    raise Exception("search failed: " + json.dumps(result))
+            for learnware in result["data"]["learnware_list_single"]:
+                returns["single"]["learnware_ids"].append(learnware["learnware_id"])
+                returns["single"]["semantic_specifications"].append(learnware["semantic_specification"])
+                returns["single"]["matching"].append(learnware["matching"])
 
-                for learnware in result["data"]["learnware_list_single"]:
-                    returns["single"]["learnware_ids"].append(learnware["learnware_id"])
-                    returns["single"]["semantic_specifications"].append(learnware["semantic_specification"])
-                    returns["single"]["matching"].append(learnware["matching"])
-
-                if len(result["data"]["learnware_list_multi"]) > 0:
-                    multi_learnware = result["data"]["learnware_list_multi"][0]
-                    returns["multiple"]["learnware_ids"].append(multi_learnware["learnware_id"])
-                    returns["multiple"]["semantic_specifications"].append(multi_learnware["semantic_specification"])
-                    returns["multiple"]["matching"] = learnware["matching"]
+            if len(result["data"]["learnware_list_multi"]) > 0:
+                multi_learnware = result["data"]["learnware_list_multi"][0]
+                returns["multiple"]["learnware_ids"].append(multi_learnware["learnware_id"])
+                returns["multiple"]["semantic_specifications"].append(multi_learnware["semantic_specification"])
+                returns["multiple"]["matching"] = learnware["matching"]
+        
+        # Delete temp json file
+        os.remove(temp_file_name)
 
         return returns
 
