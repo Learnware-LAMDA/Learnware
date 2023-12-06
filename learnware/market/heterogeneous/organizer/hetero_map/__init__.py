@@ -9,7 +9,7 @@ from torch import Tensor, nn
 from .....utils import allocate_cuda_idx, choose_device
 from .....specification import HeteroMapTableSpecification, RKMETableSpecification
 from .feature_extractor import CLSToken, FeatureProcessor, FeatureTokenizer
-from .trainer import TransTabCollatorForCL
+from .trainer import TransTabCollatorForCL, Trainer
 
 
 class HeteroMap(nn.Module):
