@@ -16,6 +16,7 @@ class Benchmark:
     unlabeled_groudtruths_paths: List[str]
     labeled_feature_paths: Optional[List[str]] = None
     labeled_label_paths: Optional[List[str]] = None
+    extra_info_path: Optional[str] = None
     
     # TODO: add more method for benchmark
     
@@ -36,8 +37,11 @@ class Benchmark:
         return ret
     
     def get_labeled_data(self, user_ids):
+        if self.labeled_feature_paths is None or self.labeled_label_paths is None:
+            return None
+        
         if isinstance(user_ids, str):
-                    user_ids = [user_ids]
+            user_ids = [user_ids]
         
         ret = []
         for user_id in user_ids:
@@ -50,7 +54,7 @@ class Benchmark:
             ret.append((labeled_feature, labeled_groudtruth))
 
         return ret
-            
+
             
 class LearnwareBenchmark:
     
@@ -105,7 +109,12 @@ class LearnwareBenchmark:
                     assert os.path.isfile(user_groudtruth_filepath), f"user {user_id} labeled label is not valid!"
                     labeled_feature_paths.append(user_feature_filepath)
                     labeled_label_paths.append(user_groudtruth_filepath)
-        
+                    
+        extra_zip_localpath = None
+        if online_benchmark.extra_info_path is not None:
+            extra_zip_localpath = os.path.join(save_folder, os.path.basename(online_benchmark.extra_info_path))
+            GetData().download_file(online_benchmark.extra_info_path, extra_zip_localpath)
+            
         return Benchmark(
             learnware_ids=online_benchmark.learnware_ids,
             user_num=online_benchmark.user_num,
@@ -113,6 +122,7 @@ class LearnwareBenchmark:
             unlabeled_groudtruths_paths=unlabeled_groudtruth_paths,
             labeled_feature_paths=labeled_feature_paths,
             labeled_label_paths=labeled_label_paths,
+            extra_info_path=extra_zip_localpath,
         )
     
     def cleanup(self):
