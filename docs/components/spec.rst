@@ -80,6 +80,51 @@ Table Specification
 Image Specification
 --------------------------
 
+Image data lives in a higher dimensional space than other data types. Unlike lower dimensional spaces, metrics defined based on Euclidean distances (or similar distances) will fail in higher dimensional spaces. This means that measuring the similarity between image samples becomes difficult. 
+
+To address these issues, we use the Neural Tangent Kernel (NTK) based on Convolutional Neural Networks (CNN) to measure the similarity of image samples.  As we all know, CNN has greatly advanced the field of computer vision and is still a mainstream deep learning technique. 
+
+Usage & Example
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In this part, we show that how to generate Image Specification for the training set of the CIFAR-10 dataset. 
+Note that the Image Specification is generated on a subset of the CIFAR-10 dataset with ``generate_rkme_image_spec``. 
+Then, it is saved to file "cifar10.json" using ``spec.save``. 
+
+In many cases, it is difficult to construct Image Specification on the full dataset. 
+By randomly sampling a subset of the dataset, we can construct Image Specification based on it efficiently, with a strong enough statistical description of the full dataset.
+
+.. tip::
+   Typically, sampling 3,000 to 10,000 images is sufficient to generate the Image Specification.
+
+.. code-block:: python
+
+   import torchvision
+   from torch.utils.data import DataLoader
+   from learnware.specification import generate_rkme_image_spec
+
+   SAMPLED_SIZE = 5000
+
+   full_set = torchvision.datasets.CIFAR10(
+      root='./data', train=True, download=True, transform=torchvision.transforms.ToTensor())
+   loader =  DataLoader(full_set, batch_size=SAMPLED_SIZE, shuffle=True)
+   sampled_X, _ = next(iter(loader))
+
+   spec = generate_rkme_image_spec(sampled_X)
+   spec.save("cifar10.json")
+
+Privacy Protection
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+In the third row of the figure, we show the eight pseudo-data with the largest weights :math:`\beta` in the Image Specification generated on the CIFAR-10 dataset.
+Notice that the Image Specification generated based on Neural Tangent Kernel (NTK) protects the user's privacy very well.
+
+In contrast, we show the performance of the RBF kernel on image dat in the first row of the figure below. 
+The RBF not only exposes the real data (plotted in the corresponding position in the second row), but also fails to fully utilise the weights :math:`\beta`.
+
+.. image:: ../_static/img/image_spec.png
+   :align: center
+
 Text Specification
 --------------------------
 
