@@ -59,6 +59,8 @@ Framework
 ======================================
 
 
+
+
 Current Markets
 ======================================
 
@@ -80,3 +82,17 @@ One important case is that models have different feature spaces. In order to ena
 
 Current Checkers
 ======================================
+The checkers check a learnware object in different aspects, including environment configuration (``CondaChecker``), semantic specifications (``EasySemanticChecker``), and statistical specifications (``EasyStatChecker``). The ``__call__`` method of each checker is designed to be invoked as a function to conduct the respective checks on the learnware and return the outcomes. Currently, we have three checkers, which are described below.
+
+
+CondaChecker Class
+------------------
+This checker checks a the environment of the learnware object. It creates a ``LearnwaresContainer`` instance to handle the Learnware and uses ``inner_checker`` to check the Learnware. If an exception occurs, it logs the error and returns ``BaseChecker.INVALID_LEARNWARE`` status and error message.
+
+EasySemanticChecker Class
+-------------------------
+This checker checks the semantic specification of a learnware object. It checks if the given semantic specification conforms to predefined standards. It verifies each key in ``semantic_spec`` dictionary against expected types and values. If the check fails, it logs the error and returns ``INVALID_LEARNWARE`` status and error message.
+
+EasyStatChecker Class
+---------------------
+This checker checks the statistical specification and functionality of a learnware object. It performs multiple checks to validate the learnware. It checks for model instantiation, verifies input shape and statistical specifications, and test output shape and dimensions using random generated data. In case of any exceptions, it logs the error and returns ``INVALID_LEARNWARE`` status and error message.
