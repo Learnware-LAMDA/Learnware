@@ -1,4 +1,5 @@
 .. _market:
+
 ================================
 Market
 ================================
@@ -64,6 +65,12 @@ Current Markets
 
 Easy Market
 -------------
+Easy market is a basic realization of the learnware market. It consists of 
+
+- `easy_organizer = EasyOrganizer(market_id=market_id, rebuild=rebuild)`
+- `easy_searcher = EasySearcher(organizer=easy_organizer)`
+- `easy_checker_list = [EasySemanticChecker(), EasyStatChecker()]`
+
 
 Hetero Market
 --------------
