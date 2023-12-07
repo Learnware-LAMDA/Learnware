@@ -26,8 +26,8 @@ processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
 dataset = "20newsgroups"
-n_uploaders = 5
-n_users = 5
+n_uploaders = 10 # max num = 10
+n_users = 5 # max num = 10
 n_classes = 20
 n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
 repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
@@ -151,7 +151,7 @@ class TextDatasetWorkflow:
     def prepare_market(self, regenerate_flag=False):
         if regenerate_flag:
             self._init_text_dataset()
-        text_market = instantiate_learnware_market(market_id="ae", rebuild=True)
+        text_market = instantiate_learnware_market(market_id=dataset, rebuild=True)
         try:
             rmtree(learnware_pool_dir)
         except:
@@ -184,7 +184,7 @@ class TextDatasetWorkflow:
 
     def test_unlabeled(self, regenerate_flag=False):
         self.prepare_market(regenerate_flag)
-        text_market = instantiate_learnware_market(market_id="ae")
+        text_market = instantiate_learnware_market(market_id=dataset)
         print("Total Item: %d" % len(text_market))
 
         select_list = []
@@ -250,7 +250,8 @@ class TextDatasetWorkflow:
             print(f"mixture reuse loss(job selector): {reuse_score}")
 
             # test reuse (ensemble)
-            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_prob")
+            # be careful with the ensemble mode
+            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_label")
             ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
             ensemble_score = eval_prediction(ensemble_predict_y, user_label)
             ensemble_score_list.append(ensemble_score)
@@ -261,27 +262,27 @@ class TextDatasetWorkflow:
         logger.info(
             "Accuracy of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f, Best performance: %.3f +/- %.3f"
             % (
-                1 - np.mean(select_list),
+                np.mean(select_list),
                 np.std(select_list),
-                1 - np.mean(avg_list),
+                np.mean(avg_list),
                 np.std(avg_list),
-                1 - np.mean(best_list),
+                np.mean(best_list),
                 np.std(best_list),
             )
         )
         logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
         logger.info(
             "Average Job Selector Reuse Performance: %.3f +/- %.3f"
-            % (1 - np.mean(job_selector_score_list), np.std(job_selector_score_list))
+            % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
         )
         logger.info(
             "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
-            % (1 - np.mean(ensemble_score_list), np.std(ensemble_score_list))
+            % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
 
     def test_labeled(self, regenerate_flag=False, train_flag=True):
         self.prepare_market(regenerate_flag)
-        text_market = instantiate_learnware_market(market_id="ae")
+        text_market = instantiate_learnware_market(market_id=dataset)
         print("Total Item: %d" % len(text_market))
 
         os.makedirs("./figs", exist_ok=True)
