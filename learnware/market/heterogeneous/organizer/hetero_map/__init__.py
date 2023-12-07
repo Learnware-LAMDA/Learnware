@@ -1,10 +1,10 @@
-from typing import Callable, List, Optional, Union
+from typing import Callable, Union
 
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn.functional as F
-from torch import Tensor, nn
+from torch import nn
 
 from .....utils import allocate_cuda_idx, choose_device
 from .....specification import HeteroMapTableSpecification, RKMETableSpecification

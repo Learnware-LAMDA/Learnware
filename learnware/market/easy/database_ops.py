@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, text
-from sqlalchemy import Column, Integer, Text, DateTime, String
+from sqlalchemy import Column, Text, String
 import os
 import json
 import traceback
