@@ -309,7 +309,7 @@ class HeteroMap(nn.Module):
         output_feas_list = []
 
         if eval_batch_size * x_test.shape[1] > self.max_process_size:
-            eval_batch_size = int(self.max_process_size / x_test.shape[1])
+            eval_batch_size = max(1, self.max_process_size // x_test.shape[1])
 
         for i in range(0, len(x_test), eval_batch_size):
             bs_x_test = x_test.iloc[i : i + eval_batch_size]
