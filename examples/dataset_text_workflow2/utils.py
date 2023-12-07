@@ -43,55 +43,42 @@ class TextDataLoader:
         return X, y
 
 
-def generate_uploader(data_x, data_y, n_uploaders=50, data_save_root=None):
+def generate_uploader(data_x, data_y, n_uploaders=50, n_samples=5, data_save_root=None):
     if data_save_root is None:
         return
     os.makedirs(data_save_root, exist_ok=True)
-    n = len(data_x)
 
-    for i, labels in enumerate(super_classes_select3[:n_uploaders]):
+    for i, labels in enumerate(super_classes_select3[:n_uploaders // n_samples]):
         indices = [idx for idx, label in enumerate(data_y) if label.split('.')[0] in labels]
-        selected_X = data_x[indices]
-        selected_y = data_y[indices].codes
 
-        X_save_dir = os.path.join(data_save_root, "uploader_%d_X.pkl" % (i))
-        y_save_dir = os.path.join(data_save_root, "uploader_%d_y.pkl" % (i))
+        for j in range(n_samples):
+            # sample 50% data to selected_X and selected_y
+            selected_indices = random.sample(indices, len(indices) // 2)
+            selected_X = data_x[selected_indices]
+            selected_y = data_y[selected_indices].codes
 
-        with open(X_save_dir, "wb") as f:
-            pickle.dump(selected_X, f)
-        with open(y_save_dir, "wb") as f:
-            pickle.dump(selected_y, f)
-        print("Saving to %s" % (X_save_dir))
+            X_save_dir = os.path.join(data_save_root, "uploader_%d_X.pkl" % (i * n_samples + j))
+            y_save_dir = os.path.join(data_save_root, "uploader_%d_y.pkl" % (i * n_samples + j))
 
-# 随机选取
-# def generate_user(data_x, data_y, n_users=50, data_save_root=None):
-#     if data_save_root is None:
-#         return
-#     os.makedirs(data_save_root, exist_ok=True)
-#     n = len(data_x)
-#     for i in range(n_users):
-#         selected_X = data_x[i * (n // n_users): (i + 1) * (n // n_users)]
-#         selected_y = data_y[i * (n // n_users): (i + 1) * (n // n_users)].codes
-#         X_save_dir = os.path.join(data_save_root, "user_%d_X.pkl" % (i))
-#         y_save_dir = os.path.join(data_save_root, "user_%d_y.pkl" % (i))
-#         with open(X_save_dir, "wb") as f:
-#             pickle.dump(selected_X, f)
-#         with open(y_save_dir, "wb") as f:
-#             pickle.dump(selected_y, f)
-#         print("Saving to %s" % (X_save_dir))
+            with open(X_save_dir, "wb") as f:
+                pickle.dump(selected_X, f)
+            with open(y_save_dir, "wb") as f:
+                pickle.dump(selected_y, f)
+            print("Saving to %s" % (X_save_dir))
 
 def generate_user(data_x, data_y, n_users=50, data_save_root=None):
     if data_save_root is None:
         return
     os.makedirs(data_save_root, exist_ok=True)
-    n = len(data_x)
-    for i, labels in enumerate(super_classes_select3[:n_users]):
+
+    for i, labels in enumerate(super_classes_select2[:n_users]):
         indices = [idx for idx, label in enumerate(data_y) if label.split('.')[0] in labels]
         selected_X = data_x[indices]
         selected_y = data_y[indices].codes
 
         X_save_dir = os.path.join(data_save_root, "user_%d_X.pkl" % (i))
         y_save_dir = os.path.join(data_save_root, "user_%d_y.pkl" % (i))
+
         with open(X_save_dir, "wb") as f:
             pickle.dump(selected_X, f)
         with open(y_save_dir, "wb") as f:
