@@ -52,42 +52,29 @@ The ``learnware`` package provide two different implementation of ``market``, i.
 
 Easy Market
 -------------
-Easy market is a basic realization of the learnware market. It consists of 
+Easy market is a basic realization of the learnware market. It consists of ``EasyOrganizer``, ``EasySearcher``, and the checker list ``[EasySemanticChecker, EasyStatChecker]``.
 
-- **easy_organizer = EasyOrganizer(market_id=market_id, rebuild=rebuild)**
-- **easy_searcher = EasySearcher(organizer=easy_organizer)**
-- **easy_checker_list = [EasySemanticChecker(), EasyStatChecker()]**
 
-``EasyOrganizer`` has the following functions:
+``EasyOrganizer`` mainly has the following methods to store learnwares, which is an easy way to organize learnwares.
 
-- **reload_market(self, rebuild=False) -> bool**: Reload the learnware market when server restarted, and return a flag indicating whether the market is reloaded successfully.
-- **add_learnware(self, zip_path: str, semantic_spec: dict, check_status: int, learnware_id: str = None) -> Tuple[str, int]**: Add a learnware with ``learnware_id``, ``semantic_spec`` and model files in ``zip_path`` into the market. Return the ``learnware_id`` and ``learnwere_status``. The ``learnwere_status`` is set ``check_status`` if it is provided, else ``checker`` will be called to generate the ``learnwere_status``.
-- **delete_learnware(self, id: str) -> bool**: Delete the learnware with ``id`` from the market, return a flag of whether the deletion is successfully.
-- **update_learnware(self, id: str, zip_path: str = None, semantic_spec: dict = None, check_status: int = None)->int**: Update the learnware's ``zip_path``, ``semantic_spec``, ``check_status``. If None, the corresponding item is not updated. Return a flag indicating whether it passed the ``checker``.
-- **get_learnware_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]**: Get one target learnware or a list of target learnwares. Return None if the learnware is not found.
-- **get_learnware_zip_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]**: Similar to **get_learnware_by_ids**, but return the zip paths.
-- **get_learnware_dir_path_by_ids(self, ids: Union[str, List[str]]) -> Union[Learnware, List[Learnware]]**: Similar to **get_learnware_by_ids**, but return the dir paths.
-- **get_learnware_ids(self, top: int = None, check_status: int = None) -> List[str]**: Return the top k(k = ``top``) learnware ids with ``check_status``. If ``top`` is None, return all the matching learnwares; if ``check_status`` is None, any status are allowed.
-- **get_learnwares(self, top: int = None, check_status: int = None) -> List[Learnware]**: Similar to **get_learnware_ids**, but return list of learnwares instead of ids.
-- **reload_learnware(self, learnware_id: str)**: Reload all the attributes of the learnware with ``learnware_id``.
-- **get_learnware_info_from_storage(self, learnware_id: str) -> Dict**: Return learnware zip path and semantic_specification from storage.
-- **__len__(self)**: Return the number of learnwares in the market.
+- **reload_market**: Reload the learnware market when server restarted, and return a flag indicating whether the market is reloaded successfully.
+- **add_learnware**: Add a learnware with ``learnware_id``, ``semantic_spec`` and model files in ``zip_path`` into the market. Return the ``learnware_id`` and ``learnwere_status``. The ``learnwere_status`` is set ``check_status`` if it is provided, else ``checker`` will be called to generate the ``learnwere_status``.
+- **delete_learnware**: Delete the learnware with ``id`` from the market, return a flag of whether the deletion is successfully.
+- **update_learnware**: Update the learnware's ``zip_path``, ``semantic_spec``, ``check_status``. If None, the corresponding item is not updated. Return a flag indicating whether it passed the ``checker``.
+- **get_learnwares**: Similar to **get_learnware_ids**, but return list of learnwares instead of ids.
+- **reload_learnware**: Reload all the attributes of the learnware with ``learnware_id``.
 
 ``EasySearcher`` consists of ``EasyFuzzsematicSearcher`` and ``EasyStatSearcher``. Detailed introduction is in `WORKFLOWS: Learnwares Search <../workflows/search.html>`_.
 
 ``EasySemanticChecker`` and ``EasyStatChecker`` are used to check the validity of the learnwares. They are used as:
 
-- **EasySemanticChecker/EasyStatChecker.__call__(self, learnware)**
+- ``EasySemanticChecker`` mainly check the integrity and legitimacy of the ``semantic_spec`` in the learnware. A legal ``semantic_spec`` should includes all the keys, and the type of each key should meet our requirements. For keys with type ``Class``, the values should be unique and in our ``valid_list``; for keys with type ``Tag``, the values should not be empty; for keys with type ``String``, a non-empty string is expected as the value; for a table learnware, the dimensions and description of inputs is needed; for ``classification`` or ``regression`` learnwares, the dimensions and description of outputs is indispensable. The learnwares that pass the ``EasySemanticChecker`` is marked as ``NONUSABLE_LEARNWARE``; otherwise, it is ``INVALID_LEARNWARE`` and error information will be returned.
+- ``EasyStatChecker`` mainly check the ``model`` and ``stat_spec`` of the learnwares. It includes the following steps:
 
-``EasySemanticChecker`` mainly check the integrity and legitimacy of the ``semantic_spec`` in the learnware. A legal ``semantic_spec`` should includes all the keys, and the type of each key should meet our requirements. For keys with type ``Class``, the values should be unique and in our ``valid_list``; for keys with type ``Tag``, the values should not be empty; for keys with type ``String``, a non-empty string is expected as the value; for a table learnware, the dimensions and description of inputs is needed; for ``classification`` or ``regression`` learnwares, the dimensions and description of outputs is indispensable. The learnwares that pass the ``EasySemanticChecker`` is marked as ``NONUSABLE_LEARNWARE``; otherwise, it is ``INVALID_LEARNWARE`` and error information will be returned.
-
-
-``EasyStatChecker`` mainly check the ``model`` and ``stat_spec`` of the learnwares. It includes the following steps:
-
-- **Check model instantiation**: ``learnware.instantiate_model`` to instantiate the model and transform it to a ``BaseModel``.
-- **Check input shape**: Check whether the shape of ``semantic_spec`` input(if exists), ``learnware.input_shape`` and shape of ``stat_spec`` are consistent, and then generate an example input with that shape. 
-- **Check model prediction**: Use the model to predict the label of the example input, and record the output shape. 
-- **Check output shape**: For ``Classification``, ``Regression`` and ``Feature Extraction`` tasks, the output shape should be consistent with that in ``semantic_spec`` and ``learnware.output_shape``. Besides, for ``Regression`` tasks, the output should be a legal class in ``semantic_spec``.
+  - **Check model instantiation**: ``learnware.instantiate_model`` to instantiate the model and transform it to a ``BaseModel``.
+  - **Check input shape**: Check whether the shape of ``semantic_spec`` input(if exists), ``learnware.input_shape`` and shape of ``stat_spec`` are consistent, and then generate an example input with that shape. 
+  - **Check model prediction**: Use the model to predict the label of the example input, and record the output shape. 
+  - **Check output shape**: For ``Classification``, ``Regression`` and ``Feature Extraction`` tasks, the output shape should be consistent with that in ``semantic_spec`` and ``learnware.output_shape``. Besides, for ``Regression`` tasks, the output should be a legal class in ``semantic_spec``.
 
 If any step above fails or meets a error, the learnware will be marked as ``INVALID_LEARNWARE``. The learnwares that pass the ``EasyStatChecker`` is marked as ``USABLE_LEARNWARE``.
 
