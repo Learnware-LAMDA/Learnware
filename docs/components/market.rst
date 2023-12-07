@@ -4,64 +4,51 @@
 Market
 ================================
 
+The ``learnware market`` receives high-performance machine learning models from developers, incorporates them into the system, and provides services to users by identifying and reusing learnware to help users solve current tasks. Developers voluntarily submit various learnwares to the learnware market, and the market conducts quality checks and further organization of these learnwares. When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares. 
 
-Concepts
-======================================
-
-In the learnware paradigm, there are three key players: *developers*, *users*, and the *market*. 
-
-* Developers: Typically machine learning experts who create and aim to share or sell their high-performing trained machine learning models. 
-* Users: Require machine learning services but often possess limited data and lack the necessary knowledge and expertise in machine learning. 
-* Market: Acquires top-performing trained models from developers, houses them within the marketplace, and offers services to users by identifying and reusing learnwares to help users with their current tasks. 
-
-This process can be broken down into two main stages.
-
-Submitting Stage
-------------------------------
-
-During the *submitting stage*, developers can voluntarily submit their trained models to the learnware market. The market will then implement a quality assurance mechanism, such as performance validation, to determine if a submitted model is suitable for acceptance. In a learnware market with millions of models, identifying potentially helpful models for a new user is a challenge.
-
-Requiring users to submit their own data to the market for model testing is impractical, time-consuming, and costly, as it could lead to data leakage. Straightforward approaches, such as measuring the similarity between user data and the original training data of models, are also infeasible due to privacy and proprietary concerns. Our design operates under the constraint that the learnware market has no access to the original training data from developers or users. Furthermore, it assumes that users have limited knowledge of the models available in the market.
-
-The solution's crux lies in the *specification*, which is central to the learnware proposal. Once a submitted model is accepted by the learnware market, it is assigned a specification, which conveys the model's specialty and utility without revealing its original training data. For simplicity, consider models as functions that map input domain :math:`\mathcal{X}` to output domain :math:`\mathcal{Y}` with respect to objective 'obj.' These models exist in a functional space :math:`\mathcal{F}: \mathcal{X} \mapsto \mathcal{Y}` with respect to 'obj.' Each model has a specification, and all specifications form a specification space, where those for models that serve similar tasks are situated closely.
-
-In a learnware market, heterogeneous models may have different :math:`\mathcal{X}`, :math:`\mathcal{Y}`, or objectives. If we refer to the specification space that covers all possible models in all possible functional spaces as the 'specification world' analogously, then each specification space corresponding to one possible functional space can be called a 'specification island.' Designing an elegant specification format that encompasses the entire specification world and allows all possible models to be efficiently and adequately identified is a significant challenge. Currently, we adopt a practical design, where each learnware's specification consists of two parts.
-
-
-Reusing Stage
-------------------------------
-
-Creating Learnware Specifications
-++++++++++++++++++++++++++++++++++++
-
-The first part of the learnware specification can be realized by a string consisting of a set of descriptions/tags given by the learnware market. These tags address aspects such as the task, input, output, and objective. Based on the user's provided descriptions/tags, the corresponding specification island can be efficiently and accurately located. The designer of the learnware market can create an initial set of descriptions/tags, which can grow as new models are accepted, and new functional spaces and specification islands are created.
-
-Merging Specification Islands
-+++++++++++++++++++++++++++++++++
-
-Specification islands can merge into larger ones. For example, when a new model about :math:`F: \mathcal{X}_1 \cup \mathcal{X}_2 \mapsto \mathcal{Y}` with respect to 'obj' is accepted by the learnware market, two islands can be merged. This is possible because the market can have synthetic data by randomly generating inputs, feeding them to models, and concatenating each input with its corresponding output to construct a dataset reflecting the function of a model. In principle, specification islands can be merged if there are common ingredients in :math:`\mathcal{X}`, :math:`\mathcal{Y}`, and 'obj.'
-
-Deploying Learnware Models
-++++++++++++++++++++++++++++++
-
-In the deploying stage, the user submits their requirement to the learnware market, which then identifies and returns helpful learnwares to the user. There are two issues to address: how to identify learnwares matching the user requirement and how to reuse the returned learnwares.
-
-The learnware market can house thousands or millions of models. Efficiently identifying helpful learnwares is challenging, especially given that the market has no access to the original training data of learnwares or the current user's data. With the specification design mentioned earlier, the market can request users to describe their intentions using a set of descriptions/tags, through a user interface or a learnware description language. Based on this information, the task becomes identifying helpful learnwares in a specification island.
-
-Reusing Learnwares
-++++++++++++++++++++++
-
-Once helpful learnwares are identified and delivered to the user, they can be reused in various ways. Users can apply the received learnware directly to their data, use multiple learnwares to create an ensemble, or adapt and polish the received learnware(s) using their own data. Learnwares can also be used as feature augmentors, with their outputs used as augmented features for building the final model.
-
-Helpful learnwares may be trained for tasks that are not exactly the same as the user's current task. In such cases, users can tackle their tasks in a divide-and-conquer way or reuse the learnwares collectively through measuring the utility of each model on each testing instance. If users find it difficult to express their requirements accurately, they can adapt and polish the received learnwares directly using their own data.
-
+The ``learnware market`` will receive various kinds of learnwares, and learnwares from different feature/label spaces form numerous islands of specifications. All these islands together constitute the ``specification world`` in the learnware market. The market should discover and establish connections between different islands, and then merge them into a unified specification world. This further organization of learnwares support search learnwares among all learnwares, not just among learnwares which has the same feature space and label space with the user's task requirements.
 
 Framework
 ======================================
 
+The ``learnware market`` is combined with a ``organizer``, a ``searcher``, and a list of ``checker``s. 
+
+The ``organizer`` can store and organize learnwares in the market. It supports ``add``, ``delete``, and ``update`` operations for learnwares. It also provides the interface for ``searcher`` to search learnwares based on user requirement.
+
+The ``searcher`` can search learnwares based on user requirement. The implementation of ``searcher`` is dependent on the concrete implementation and interface for ``organizer``, where usually an ``organizer`` can be compatible with multiple different ``searcher``s.
+
+The ``checker`` is used for checking the learnware in some standards. It should check the utility of a learnware and is supposed to return the status and a message related to the learnware's check result. Only the learnwares who passed the ``checker`` could be able to be stored and added into the ``learnware market``. 
+
+
+
+Current Checkers
+======================================
+
+The ``learnware`` package provide two different implementation of ``market`` where both of them share the same ``checker`` list. So we first introduce the details of ``checker``s.
+
+The ``checker``s check a learnware object in different aspects, including environment configuration (``CondaChecker``), semantic specifications (``EasySemanticChecker``), and statistical specifications (``EasyStatChecker``). The ``__call__`` method of each checker is designed to be invoked as a function to conduct the respective checks on the learnware and return the outcomes. It defines three types of learnwares: ``INVALID_LEARNWARE`` denotes the learnware does not pass the check, ``NONUSABLE_LEARNWARE`` denotes the learnware pass the check but cannot make prediction, ``USABLE_LEARWARE`` denotes the leanrware pass the check and can make prediction. Currently, we have three ``checker``s, which are described below.
+
+
+``CondaChecker``
+------------------
+This ``checker`` checks a the environment of the learnware object. It creates a ``LearnwaresContainer`` instance to handle the Learnware and uses ``inner_checker`` to check the Learnware. If an exception occurs, it logs the error and returns ``NONUSABLE_LEARNWARE`` status and error message.
+
+
+``EasySemanticChecker``
+-------------------------
+This ``checker`` checks the semantic specification of a learnware object. It checks if the given semantic specification conforms to predefined standards. It verifies each key in predefined dictionary. If the check fails, it logs the error and returns ``NONUSABLE_LEARNWARE`` status and error message.
+
+
+``EasyStatChecker``
+---------------------
+
+This ``checker`` checks the statistical specification and functionality of a learnware object. It performs multiple checks to validate the learnware. It checks for model instantiation, verifies input shape and statistical specifications, and test output shape using random generated data. In case of any exceptions, it logs the error and returns ``NONUSABLE_LEARNWARE`` status and error message.
+
 
 Current Markets
 ======================================
+
+The ``learnware`` package provide two different implementation of ``market``, i.e. ``Easy Market`` and ``Hetero Market``. They have different implementation of ``organizer`` and ``searcher``.
 
 Easy Market
 -------------
@@ -116,6 +103,3 @@ One important case is that models have different feature spaces. In order to ena
 - First, design a method for the market to connect different feature spaces to a common subspace and implement the function ``HeterogeneousFeatureMarket.learn_mapping_functions``. This function uses specifications of all submitted models to learn mapping functions that can map the data in the original feature space to the common subspace and vice verse.
 - Second, use learned mapping functions to implement the functions ``HeterogeneousFeatureMarket.transform_original_to_subspace`` and ``HeterogeneousFeatureMarket.transform_subspace_to_original``.
 - Third, use the functions ``HeterogeneousFeatureMarket.transform_original_to_subspace`` and ``HeterogeneousFeatureMarket.transform_subspace_to_original`` to overwrite the mehtod ``EvolvedMarket.generate_new_stat_specification`` and  ``EvolvedMarket.EvolvedMarket.evolve_learnware_list`` of the base class ``EvolvedMarket``.
-
-Current Checkers
-======================================
