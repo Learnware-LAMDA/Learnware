@@ -1,6 +1,6 @@
 import math
 import os
-from typing import Callable, Dict, List, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
