@@ -26,9 +26,12 @@ processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
 dataset = "20newsgroups"
-n_uploaders = 10 # max num = 10
-n_users = 5 # max num = 10
+
+n_uploaders = 50 # max = 10 * n_samples
+n_samples = 5
+n_users = 10  # max = 10
 n_classes = 20
+
 n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
 repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
 
@@ -37,10 +40,13 @@ data_save_root = os.path.join(processed_data_root, dataset)
 user_save_root = os.path.join(data_save_root, "user")
 uploader_save_root = os.path.join(data_save_root, "uploader")
 model_save_root = os.path.join(data_save_root, "uploader_model")
+user_train_save_root = os.path.join(data_save_root, "user_train")
+
 os.makedirs(data_root, exist_ok=True)
 os.makedirs(user_save_root, exist_ok=True)
 os.makedirs(uploader_save_root, exist_ok=True)
 os.makedirs(model_save_root, exist_ok=True)
+os.makedirs(user_train_save_root, exist_ok=True)
 
 output_description = {
     "Dimension": 20,
@@ -82,8 +88,11 @@ class TextDatasetWorkflow:
     def _prepare_data(self):
         X_train, y_train, X_test, y_test = get_data(data_root)
 
-        generate_uploader(X_train, y_train, n_uploaders=n_uploaders, data_save_root=uploader_save_root)
+        generate_uploader(X_train, y_train, n_uploaders=n_uploaders, n_samples=n_samples,
+                          data_save_root=uploader_save_root)
         generate_user(X_test, y_test, n_users=n_users, data_save_root=user_save_root)
+
+        generate_user(X_train, y_train, n_users=n_users, data_save_root=user_train_save_root)
 
     def _prepare_model(self):
         dataloader = TextDataLoader(data_save_root, train=True)
@@ -247,7 +256,7 @@ class TextDatasetWorkflow:
             reuse_predict = reuse_baseline.predict(user_data=user_data)
             reuse_score = eval_prediction(reuse_predict, user_label)
             job_selector_score_list.append(reuse_score)
-            print(f"mixture reuse loss(job selector): {reuse_score}")
+            print(f"mixture reuse accuracy (job selector): {reuse_score}")
 
             # test reuse (ensemble)
             # be careful with the ensemble mode
@@ -301,8 +310,8 @@ class TextDatasetWorkflow:
                     test_y = pickle.load(f)
                     test_y = np.array(test_y)
 
-                train_data_path = os.path.join(uploader_save_root, "uploader_%d_X.pkl" % (i))
-                train_label_path = os.path.join(uploader_save_root, "uploader_%d_y.pkl" % (i))
+                train_data_path = os.path.join(user_train_save_root, "user_%d_X.pkl" % (i))
+                train_label_path = os.path.join(user_train_save_root, "user_%d_y.pkl" % (i))
                 with open(train_data_path, "rb") as f:
                     train_x = pickle.load(f)
                 with open(train_label_path, "rb") as f:
