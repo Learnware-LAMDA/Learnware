@@ -3,6 +3,8 @@ import os
 import zipfile
 from collections import defaultdict
 from shutil import rmtree
+
+from matplotlib import pyplot as plt
 from tabulate import tabulate
 
 import numpy as np
@@ -127,7 +129,8 @@ def build_learnware(name: str, market: LearnwareMarket, order, model_name="conv"
     return model
 
 def train_model(model: nn.Module, train_set: Dataset, valid_set: Dataset,
-                save_path: str, epochs=35, batch_size=128, device=None):
+                save_path: str, epochs=35, batch_size=128,
+                device=None, verbose=True):
     device = choose_device(0) if device is None else device
 
     model.train()
@@ -160,12 +163,14 @@ def train_model(model: nn.Module, train_set: Dataset, valid_set: Dataset,
             best_loss = valid_loss
 
             torch.save(model.state_dict(), save_path)
-            print("Epoch: {}, Valid Best Accuracy: {:.3f}% ({:.3f})".format(epoch+1, valid_acc, valid_loss))
+            if verbose:
+                print("Epoch: {}, Valid Best Accuracy: {:.3f}% ({:.3f})".format(epoch+1, valid_acc, valid_loss))
         if valid_acc > 99.0:
-            print("Early Stopping at 99% !")
+            if verbose:
+                print("Early Stopping at 99% !")
             break
 
-        if (epoch + 1) % 5 == 0:
+        if verbose and (epoch + 1) % 5 == 0:
             print('Epoch: {}, Train Average Loss: {:.3f}, Accuracy {:.3f}%, Valid Average Loss: {:.3f}'.format(
                 epoch+1, np.mean(running_loss), train_acc, valid_loss))
 
@@ -214,6 +219,9 @@ class Recorder:
 
         return str(tabulate(table, headers=["Case"] + self.headers, tablefmt='orgtbl'))
 
+    def __getitem__(self, item):
+        return [[x[item] for x in v] for k, v in self.data.items()]
+
     def save(self, path):
         with open(path, "w") as f:
             json.dump(self.data, f)
@@ -221,3 +229,43 @@ class Recorder:
     def load(self, path):
         with open(path, "r") as f:
             self.data = json.load(f)
+
+
+def plot_labeled_performance_curves(name, user_mat, pruning_mat, n_labeled_list, save_path=None):
+    plt.figure(figsize=(10, 6))
+    plt.xticks(range(len(n_labeled_list)), n_labeled_list)
+
+    mats = [user_mat, pruning_mat]
+
+    styles = [
+        {"color": "navy", "linestyle": "-", "marker": "o"},
+        {"color": "magenta", "linestyle": "-.", "marker": "d"},
+    ]
+
+    labels = [
+        "User Model",
+        "Multiple Learnware Reuse (EnsemblePrune)",
+    ]
+
+    for mat, style, label in zip(mats, styles, labels):
+        array_mat = 1 - np.asarray(mat) / 100
+        mean_curve, std_curve = np.mean(array_mat, axis=1), np.std(array_mat, axis=1)
+        plt.plot(mean_curve, **style, label=label)
+        plt.fill_between(
+            range(len(n_labeled_list)),
+            mean_curve - 0.5 * std_curve,
+            mean_curve + 0.5 * std_curve,
+            color=style["color"],
+            alpha=0.2,
+        )
+
+    plt.xlabel("Labeled Data Size")
+    plt.ylabel("1 - Accuracy")
+    plt.title(f"{name} Homo Limited Labeled Data")
+    plt.legend()
+    plt.tight_layout()
+    if save_path:
+        plt.savefig(
+            save_path, bbox_inches="tight", dpi=600
+        )
+    plt.show()

@@ -6,6 +6,8 @@ import torch
 import torchvision
 from torch.utils.data import TensorDataset, Dataset, DataLoader
 
+from learnware.utils import choose_device
+
 torchvision.disable_beta_transforms_warning()
 from torchvision.transforms import transforms, v2
 
@@ -49,10 +51,11 @@ def split_dataset(labels, size, split="uploader", order=None):
 def build_zca_matrix(X, reg_coef=0.1):
     X = (X - torch.mean(X, [0, 2, 3], keepdim=True)) / (torch.std(X, [0, 2, 3], keepdim=True))
 
+    device = choose_device(0)
     X_flat = X.reshape(X.shape[0], -1)
     cov = (X_flat.T @ X_flat) / X_flat.shape[0]
     reg_amount = reg_coef * torch.trace(cov) / cov.shape[0]
-    u, s, _ = torch.svd(cov.cuda() + reg_amount * torch.eye(cov.shape[0]).cuda())
+    u, s, _ = torch.svd(cov.to(device) + reg_amount * torch.eye(cov.shape[0]).to(device))
     inv_sqrt_zca_eigs = s ** (-0.5)
     whitening_transform = torch.einsum(
         'ij,j,kj->ik', u, inv_sqrt_zca_eigs, u)

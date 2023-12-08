@@ -64,7 +64,7 @@ def get_cifar10(output_channels=3, image_size=32, z_score=True, order=None):
     train_X = transform_data(X_train, whitening_mat)
     test_X = transform_data(X_train, whitening_mat)
 
-    selected_data_indexes, order = split_dataset(y_test, 3000, split="user", order=order)
+    selected_data_indexes, order = split_dataset(y_test, 10000, split="user", order=order)
 
     return TensorDataset(test_X[selected_data_indexes], y_test[selected_data_indexes]), order
 
@@ -72,35 +72,12 @@ def get_cifar10(output_channels=3, image_size=32, z_score=True, order=None):
 
 
 if __name__ == "__main__":
-    # 3 5
-    # learnware.init(deterministic=False)
-    #
-    # userset1, order = get_cifar10()
-    # print(order)
-    # loader = DataLoader(userset1, batch_size=3000, shuffle=True)
-    # sampled_X, _ = next(iter(loader))
-    # spec = generate_rkme_image_spec(sampled_X, whitening=False)
-    # spec.msg = order
-    # spec.save("old1.json")
-    # old1 = spec
-    #
-    # # userset2 = userset1
-    # userset2, order = get_cifar10()
-    # print(order)
-    # loader = DataLoader(userset2, batch_size=3000, shuffle=True)
-    # sampled_X, _ = next(iter(loader))
-    # spec = generate_rkme_image_spec(sampled_X, whitening=False)
-    # spec.msg = order
-    # spec.save("old2.json")
-    # old2 = spec
-    #
-    # old1, order1 = get_spec("hope1.json", order=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-    # old2, order2 = get_spec("hope2.json", order=[2, 3, 4, 5, 0, 1, 6, 7, 8, 9])
-    # np.random.seed(0)
-    # random.seed(0)
-    old1, order1 = get_spec(None, order=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    # old1, order1 = get_spec("spec_1_V100.json", order=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    # old2, order2 = get_spec("spec_2_A100.json", order=[2, 3, 4, 5, 6, 7, 0, 1, 8, 9])
 
-    old2, order2 = get_spec(None, order=[2, 3, 4, 5, 6, 7, 0, 1, 8, 9])
-    print(order1, order2)
-    print(f(old1.dist(old2)))
+    old3, order3 = get_spec("spec_3_A100.json", order=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    old4, order4 = get_spec("spec_6_A100.json", order=[2, 3, 4, 5, 6, 7, 0, 1, 8, 9])
+
+    print(order3, order4)
+    print(f(old3.dist(old4)))
 

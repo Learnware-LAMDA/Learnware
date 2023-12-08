@@ -459,7 +459,7 @@ def deterministic(cross_platform, device):
     torch.cuda.manual_seed_all(0)
     deterministic_state = torch.backends.cudnn.deterministic
     torch.backends.cudnn.deterministic = True
-    if cross_platform:
+    if cross_platform and torch.cuda.is_available():
         torch.cuda.set_rng_state(
             new_state=torch.cuda.get_rng_state(device.index),
             device="cpu")
@@ -467,7 +467,7 @@ def deterministic(cross_platform, device):
     yield RandomGenerator(seed=0, cross_platform=cross_platform)
 
     torch.backends.cudnn.deterministic = deterministic_state
-    if cross_platform:
+    if cross_platform and torch.cuda.is_available():
         torch.cuda.set_rng_state(
             new_state=torch.cuda.get_rng_state(device.index),
             device="cuda")
