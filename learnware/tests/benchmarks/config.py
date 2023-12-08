@@ -1,21 +1,24 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional, List
-from ...learnware import Learnware
+
 
 @dataclass
-class OnlineBenchmark:
+class BenchmarkConfig:
+    name: str
     learnware_ids: List[str]
     user_num: int
-    unlabeled_data_path: str
-    labeled_data_path: Optional[str] = None
+    test_data_path: str
+    train_data_path: Optional[str] = None
     extra_info_path: Optional[str] = None
 
-online_benchmarks = {
-    "example": OnlineBenchmark(
+
+benchmark_configs = {
+    "example": BenchmarkConfig(
+        name="example",
         learnware_ids=["00001951", "00001980", "00001987"],
         user_num=3,
-        unlabeled_data_path="example_path1",
-        labeled_data_path="example_path2",
-        extra_info_path="example_path3"
+        test_data_path="example_path1",
+        train_data_path="example_path2",
+        extra_info_path="example_path3",
     )
 }
