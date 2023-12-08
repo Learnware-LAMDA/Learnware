@@ -12,15 +12,24 @@ from learnware.market import BaseUserInfo
 class TestAllLearnware(unittest.TestCase):
     client = LearnwareClient()
     
-    def __init__(self, method_name='runTest', email=None, token=None):
-        super(TestAllLearnware, self).__init__(method_name)
-        self.email = email
-        self.token = token
+    @classmethod
+    def setUpClass(cls) -> None:
+        config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    
+        if not os.path.exists(config_path):
+            data = {"email": None, "token": None}
+            with open(config_path, "w") as file:
+                json.dump(data, file)
+
+        with open(config_path, "r") as file:
+            data = json.load(file)
+            email = data.get("email")
+            token = data.get("token")
         
-        if self.email is not None and self.token is not None:
-            self.client.login(self.email, self.token)
+        if email is None or token is None:
+            print("Please set email and token in config.json.")
         else:
-            print("Client doest not login, all tests will be ignored!")
+            cls.client.login(email, token)
 
     @unittest.skipIf(not client.is_login(), "Client doest not login!")
     def test_all_learnware(self):
@@ -52,10 +61,9 @@ class TestAllLearnware(unittest.TestCase):
                 print(f"The currently failed learnware ids: {failed_ids}")
 
 
-
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestAllLearnware("test_all_learnware", email=None, token=None))
+    _suite.addTest(TestAllLearnware("test_all_learnware"))
     return _suite
 
 if __name__ == "__main__":

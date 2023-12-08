@@ -1,5 +1,5 @@
 import os
-import argparse
+import json
 import unittest
 import tempfile
 
@@ -9,15 +9,24 @@ from learnware.specification import generate_semantic_spec
 class TestUpload(unittest.TestCase):
     client = LearnwareClient()
     
-    def __init__(self, method_name='runTest', email=None, token=None):
-        super(TestUpload, self).__init__(method_name)
-        self.email = email
-        self.token = token
+    @classmethod
+    def setUpClass(cls) -> None:
+        config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    
+        if not os.path.exists(config_path):
+            data = {"email": None, "token": None}
+            with open(config_path, "w") as file:
+                json.dump(data, file)
+
+        with open(config_path, "r") as file:
+            data = json.load(file)
+            email = data.get("email")
+            token = data.get("token")
         
-        if self.email is not None and self.token is not None:
-            self.client.login(self.email, self.token)
+        if email is None or token is None:
+            print("Please set email and token in config.json.")
         else:
-            print("Client doest not login, all tests will be ignored!")
+            cls.client.login(email, token)
 
     @unittest.skipIf(not client.is_login(), "Client doest not login!")
     def test_upload(self):
@@ -61,7 +70,7 @@ class TestUpload(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    _suite.addTest(TestUpload("test_upload", email=None, token=None))
+    _suite.addTest(TestUpload("test_upload"))
     return _suite
 
 if __name__ == "__main__":
