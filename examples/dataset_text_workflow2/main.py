@@ -32,8 +32,8 @@ n_samples = 5
 n_users = 10  # max = 10
 n_classes = 20
 
-n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
-repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
+n_labeled_list = [100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 8000, 10000]
+repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3, 3, 3]
 
 data_root = os.path.join(origin_data_root, dataset)
 data_save_root = os.path.join(processed_data_root, dataset)
@@ -390,16 +390,17 @@ class TextDatasetWorkflow:
         plt.xticks(range(len(n_labeled_list)), n_labeled_list)
 
         styles = [
-            {"color": "orange", "linestyle": "--", "marker": "s"},
+            # {"color": "orange", "linestyle": "--", "marker": "s"},
             {"color": "navy", "linestyle": "-", "marker": "o"},
             {"color": "magenta", "linestyle": "-.", "marker": "d"},
         ]
 
-        labels = ["Single Learnware Reuse", "User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
+        # labels = ["Single Learnware Reuse", "User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
+        labels = ["User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
 
         single_mat, user_mat, pruning_mat = user_curves_data
         print(single_mat, user_mat, pruning_mat)
-        for mat, style, label in zip([single_mat, user_mat, pruning_mat], styles, labels):
+        for mat, style, label in zip([user_mat, pruning_mat], styles, labels):
             mean_curve, std_curve = [np.mean(lst) for lst in mat], [np.std(lst) for lst in mat]
             mean_curve, std_curve = np.array(mean_curve), np.array(std_curve)
             plt.plot(mean_curve, **style, label=label)
