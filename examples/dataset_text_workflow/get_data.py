@@ -1,16 +1,18 @@
 import os
-
+import json
+import numpy as np
+from sklearn.datasets import fetch_20newsgroups
 import pandas as pd
 
+def get_data(data_root):
+    dataset_train = fetch_20newsgroups(data_home=data_root, subset='train')
+    target_names = dataset_train["target_names"]
 
-def get_data(data_root="./data"):
-    dtrain = pd.read_csv(os.path.join(data_root, "train.csv"))
-    dtest = pd.read_csv(os.path.join(data_root, "test.csv"))
+    X_train = np.array(dataset_train["data"])
+    y_train = pd.Categorical.from_codes(dataset_train["target"], categories=target_names)
 
-    # returned X(DataFrame), y(Series)
-    return (
-        dtrain[["discourse_text", "discourse_type"]],
-        dtrain["discourse_effectiveness"],
-        dtest[["discourse_text", "discourse_type"]],
-        dtest["discourse_effectiveness"],
-    )
+    X_test, y_test = fetch_20newsgroups(data_home=data_root, subset='test', return_X_y=True)
+    X_test = np.array(X_test)
+    y_test = pd.Categorical.from_codes(y_test, categories=target_names)
+
+    return X_train, y_train, X_test, y_test

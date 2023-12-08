@@ -1,11 +1,19 @@
 import os
 import pickle
+import random
+from itertools import combinations
 
 import numpy as np
 import pandas as pd
 from lightgbm import LGBMClassifier, Booster
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, f1_score
+
+super_classes = ["comp", "rec", "sci", "talk", "misc"]
+super_classes_select2 = list(combinations(super_classes, 2))
+super_classes_select3 = list(combinations(super_classes, 3))
 
 
 class TextDataLoader:
@@ -35,51 +43,47 @@ class TextDataLoader:
         return X, y
 
 
-def generate_uploader(data_x: pd.Series, data_y: pd.Series, n_uploaders=50, data_save_root=None):
+def generate_uploader(data_x, data_y, n_uploaders=50, n_samples=5, data_save_root=None):
     if data_save_root is None:
         return
     os.makedirs(data_save_root, exist_ok=True)
 
-    types = data_x["discourse_type"].unique()
+    for i, labels in enumerate(super_classes_select3[:n_uploaders // n_samples]):
+        indices = [idx for idx, label in enumerate(data_y) if label.split('.')[0] in labels]
 
-    for i in range(n_uploaders):
-        indices = data_x["discourse_type"] == types[i]
-        selected_X = (types[i] + ' ' + data_x[indices]["discourse_text"]).to_list()
-        selected_y = data_y[indices].to_list()
+        for j in range(n_samples):
+            # sample 50% data to selected_X and selected_y
+            selected_indices = random.sample(indices, len(indices) // 2)
+            selected_X = data_x[selected_indices]
+            selected_y = data_y[selected_indices].codes
 
-        X_save_dir = os.path.join(data_save_root, "uploader_%d_X.pkl" % (i))
-        y_save_dir = os.path.join(data_save_root, "uploader_%d_y.pkl" % (i))
-        with open(X_save_dir, "wb") as f:
-            pickle.dump(selected_X, f)
-        with open(y_save_dir, "wb") as f:
-            pickle.dump(selected_y, f)
+            X_save_dir = os.path.join(data_save_root, "uploader_%d_X.pkl" % (i * n_samples + j))
+            y_save_dir = os.path.join(data_save_root, "uploader_%d_y.pkl" % (i * n_samples + j))
 
-        print("Saving to %s" % (X_save_dir))
-
+            with open(X_save_dir, "wb") as f:
+                pickle.dump(selected_X, f)
+            with open(y_save_dir, "wb") as f:
+                pickle.dump(selected_y, f)
+            print("Saving to %s" % (X_save_dir))
 
 def generate_user(data_x, data_y, n_users=50, data_save_root=None):
     if data_save_root is None:
         return
     os.makedirs(data_save_root, exist_ok=True)
 
-    types = data_x["discourse_type"].unique()
-
-    for i in range(n_users):
-        indices = data_x["discourse_type"] == types[i]
-        selected_X = (types[i] + ' ' + data_x[indices]["discourse_text"]).to_list()
-        selected_y = data_y[indices].to_list()
+    for i, labels in enumerate(super_classes_select2[:n_users]):
+        indices = [idx for idx, label in enumerate(data_y) if label.split('.')[0] in labels]
+        selected_X = data_x[indices]
+        selected_y = data_y[indices].codes
 
         X_save_dir = os.path.join(data_save_root, "user_%d_X.pkl" % (i))
         y_save_dir = os.path.join(data_save_root, "user_%d_y.pkl" % (i))
+
         with open(X_save_dir, "wb") as f:
             pickle.dump(selected_X, f)
         with open(y_save_dir, "wb") as f:
             pickle.dump(selected_y, f)
-
         print("Saving to %s" % (X_save_dir))
-
-
-from param_search import grid_search
 
 
 # Train Uploaders' models
@@ -87,31 +91,10 @@ def train(X, y, out_classes):
     vectorizer = TfidfVectorizer(stop_words="english")
     X_tfidf = vectorizer.fit_transform(X)
 
-    X_train, X_valid, y_train, y_valid = train_test_split(X, y, test_size=0.2, random_state=42)
+    clf = MultinomialNB(alpha=0.1)
+    clf.fit(X_tfidf, y)
 
-    X_trian_tfidf = vectorizer.transform(X_train)
-    X_valid_tfidf = vectorizer.transform(X_valid)
-
-    model_path = "models/model.pkl"
-    best_params = grid_search(X_trian_tfidf, X_valid_tfidf, y_train, y_valid, out_classes, True, model_path)
-
-    # lgbm = Booster(model_file="models/model.txt")
-    # with open(model_path, "rb") as f:
-    #     lgbm = pickle.load(f)
-
-    param = {
-        "learning_rate": 0.1,
-        "importance_type": "gain",
-        "objective": "multiclass",
-        "num_class": out_classes,
-        "n_estimators": 1000,
-        'max_bin': 512,
-        "verbose": -1,
-        **best_params}
-    lgbm = LGBMClassifier(**param)
-    lgbm.fit(X_tfidf, y)
-
-    return vectorizer, lgbm
+    return vectorizer, clf
 
 
 def eval_prediction(pred_y, target_y):

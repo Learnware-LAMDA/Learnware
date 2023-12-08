@@ -20,33 +20,41 @@ import matplotlib.pyplot as plt
 # Login to Beiming system
 client = LearnwareClient()
 
-
-logger = get_module_logger("text_test", level="INFO")
+logger = get_module_logger("text_workflow", level="INFO")
 origin_data_root = "./data/origin_data"
 processed_data_root = "./data/processed_data"
 tmp_dir = "./data/tmp"
 learnware_pool_dir = "./data/learnware_pool"
-dataset = "ae"  # argumentative essays
-n_uploaders = 7
-n_users = 7
-n_classes = 3
-n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
-repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
+dataset = "20newsgroups"
+
+n_uploaders = 50 # max = 10 * n_samples
+n_samples = 5
+n_users = 10  # max = 10
+n_classes = 20
+
+n_labeled_list = [100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 8000, 10000]
+repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3, 3, 3]
 
 data_root = os.path.join(origin_data_root, dataset)
 data_save_root = os.path.join(processed_data_root, dataset)
 user_save_root = os.path.join(data_save_root, "user")
 uploader_save_root = os.path.join(data_save_root, "uploader")
 model_save_root = os.path.join(data_save_root, "uploader_model")
+user_train_save_root = os.path.join(data_save_root, "user_train")
+
 os.makedirs(data_root, exist_ok=True)
 os.makedirs(user_save_root, exist_ok=True)
 os.makedirs(uploader_save_root, exist_ok=True)
 os.makedirs(model_save_root, exist_ok=True)
+os.makedirs(user_train_save_root, exist_ok=True)
 
 output_description = {
-    "Dimension": 3,
-    "Description": {"0": "ineffective", "1": "effective", "2": "adequate",},
+    "Dimension": 20,
+    "Description": {"0": "0", "1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6",
+                    "7": "7", "8": "8", "9": "9", "10": "10", "11": "11", "12": "12", "13": "13",
+                    "14": "14", "15": "15", "16": "16", "17": "17", "18": "18", "19": "19"}
 }
+
 semantic_spec = client.create_semantic_specification(
     name="learnware_example",
     description="Just a example for text learnware",
@@ -80,15 +88,18 @@ class TextDatasetWorkflow:
     def _prepare_data(self):
         X_train, y_train, X_test, y_test = get_data(data_root)
 
-        generate_uploader(X_train, y_train, n_uploaders=n_uploaders, data_save_root=uploader_save_root)
+        generate_uploader(X_train, y_train, n_uploaders=n_uploaders, n_samples=n_samples,
+                          data_save_root=uploader_save_root)
         generate_user(X_test, y_test, n_users=n_users, data_save_root=user_save_root)
+
+        generate_user(X_train, y_train, n_users=n_users, data_save_root=user_train_save_root)
 
     def _prepare_model(self):
         dataloader = TextDataLoader(data_save_root, train=True)
         for i in range(n_uploaders):
             logger.info("Train on uploader: %d" % (i))
             X, y = dataloader.get_idx_data(i)
-            vectorizer, lgbm = train(X, y, out_classes=n_classes)
+            vectorizer, clf = train(X, y, out_classes=n_classes)
 
             modelv_save_path = os.path.join(model_save_root, "uploader_v_%d.pth" % (i))
             modell_save_path = os.path.join(model_save_root, "uploader_l_%d.pth" % (i))
@@ -97,12 +108,12 @@ class TextDatasetWorkflow:
                 pickle.dump(vectorizer, f)
 
             with open(modell_save_path, "wb") as f:
-                pickle.dump(lgbm, f)
+                pickle.dump(clf, f)
 
             logger.info("Model saved to '%s' and '%s'" % (modelv_save_path, modell_save_path))
 
     def _prepare_learnware(
-        self, data_path, modelv_path, modell_path, init_file_path, yaml_path, env_file_path, save_root, zip_name
+            self, data_path, modelv_path, modell_path, init_file_path, yaml_path, env_file_path, save_root, zip_name
     ):
         os.makedirs(save_root, exist_ok=True)
         tmp_spec_path = os.path.join(save_root, "rkme.json")
@@ -149,7 +160,7 @@ class TextDatasetWorkflow:
     def prepare_market(self, regenerate_flag=False):
         if regenerate_flag:
             self._init_text_dataset()
-        text_market = instantiate_learnware_market(market_id="ae", rebuild=True)
+        text_market = instantiate_learnware_market(market_id=dataset, rebuild=True)
         try:
             rmtree(learnware_pool_dir)
         except:
@@ -182,7 +193,7 @@ class TextDatasetWorkflow:
 
     def test_unlabeled(self, regenerate_flag=False):
         self.prepare_market(regenerate_flag)
-        text_market = instantiate_learnware_market(market_id="ae")
+        text_market = instantiate_learnware_market(market_id=dataset)
         print("Total Item: %d" % len(text_market))
 
         select_list = []
@@ -245,10 +256,11 @@ class TextDatasetWorkflow:
             reuse_predict = reuse_baseline.predict(user_data=user_data)
             reuse_score = eval_prediction(reuse_predict, user_label)
             job_selector_score_list.append(reuse_score)
-            print(f"mixture reuse loss(job selector): {reuse_score}")
+            print(f"mixture reuse accuracy (job selector): {reuse_score}")
 
             # test reuse (ensemble)
-            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_prob")
+            # be careful with the ensemble mode
+            reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="vote_by_label")
             ensemble_predict_y = reuse_ensemble.predict(user_data=user_data)
             ensemble_score = eval_prediction(ensemble_predict_y, user_label)
             ensemble_score_list.append(ensemble_score)
@@ -259,32 +271,31 @@ class TextDatasetWorkflow:
         logger.info(
             "Accuracy of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f, Best performance: %.3f +/- %.3f"
             % (
-                1 - np.mean(select_list),
+                np.mean(select_list),
                 np.std(select_list),
-                1 - np.mean(avg_list),
+                np.mean(avg_list),
                 np.std(avg_list),
-                1 - np.mean(best_list),
+                np.mean(best_list),
                 np.std(best_list),
             )
         )
         logger.info("Average performance improvement: %.3f" % (np.mean(improve_list)))
         logger.info(
             "Average Job Selector Reuse Performance: %.3f +/- %.3f"
-            % (1 - np.mean(job_selector_score_list), np.std(job_selector_score_list))
+            % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
         )
         logger.info(
             "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
-            % (1 - np.mean(ensemble_score_list), np.std(ensemble_score_list))
+            % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
 
     def test_labeled(self, regenerate_flag=False, train_flag=True):
         self.prepare_market(regenerate_flag)
-        text_market = instantiate_learnware_market(market_id="ae")
+        text_market = instantiate_learnware_market(market_id=dataset)
         print("Total Item: %d" % len(text_market))
 
         os.makedirs("./figs", exist_ok=True)
         os.makedirs("./curves", exist_ok=True)
-
 
         for i in range(n_users):
             user_model_score_mat = []
@@ -299,8 +310,8 @@ class TextDatasetWorkflow:
                     test_y = pickle.load(f)
                     test_y = np.array(test_y)
 
-                train_data_path = os.path.join(uploader_save_root, "uploader_%d_X.pkl" % (i))
-                train_label_path = os.path.join(uploader_save_root, "uploader_%d_y.pkl" % (i))
+                train_data_path = os.path.join(user_train_save_root, "user_%d_X.pkl" % (i))
+                train_label_path = os.path.join(user_train_save_root, "user_%d_y.pkl" % (i))
                 with open(train_data_path, "rb") as f:
                     train_x = pickle.load(f)
                 with open(train_label_path, "rb") as f:
@@ -379,16 +390,17 @@ class TextDatasetWorkflow:
         plt.xticks(range(len(n_labeled_list)), n_labeled_list)
 
         styles = [
-            {"color": "orange", "linestyle": "--", "marker": "s"},
+            # {"color": "orange", "linestyle": "--", "marker": "s"},
             {"color": "navy", "linestyle": "-", "marker": "o"},
             {"color": "magenta", "linestyle": "-.", "marker": "d"},
         ]
 
-        labels = ["Single Learnware Reuse", "User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
+        # labels = ["Single Learnware Reuse", "User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
+        labels = ["User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
 
         single_mat, user_mat, pruning_mat = user_curves_data
         print(single_mat, user_mat, pruning_mat)
-        for mat, style, label in zip([single_mat, user_mat, pruning_mat], styles, labels):
+        for mat, style, label in zip([user_mat, pruning_mat], styles, labels):
             mean_curve, std_curve = [np.mean(lst) for lst in mat], [np.std(lst) for lst in mat]
             mean_curve, std_curve = np.array(mean_curve), np.array(std_curve)
             plt.plot(mean_curve, **style, label=label)
