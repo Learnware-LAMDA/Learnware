@@ -16,7 +16,7 @@ class TestLearnwareLoad(unittest.TestCase):
         self.client = LearnwareClient()
 
         root = os.path.dirname(__file__)
-        self.learnware_ids = ["00000084", "00000154", "00000155"]
+        self.learnware_ids = ["00000910", "00000899", "00000900"]
         self.zip_paths = [os.path.join(root, x) for x in ["1.zip", "2.zip", "3.zip"]]
 
     def test_load_multi_learnware_by_zippath(self):
@@ -24,8 +24,8 @@ class TestLearnwareLoad(unittest.TestCase):
             self.client.download_learnware(learnware_id, zip_path)
 
         learnware_list = self.client.load_learnware(learnware_path=self.zip_paths, runnable_option="docker")
-        reuser = AveragingReuser(learnware_list, mode="vote_by_label")
-        input_array = np.random.random(size=(20, 13))
+        reuser = AveragingReuser(learnware_list, mode="mean")
+        input_array = np.random.random(size=(20, 40))
         print(reuser.predict(input_array))
 
         for learnware in learnware_list:
@@ -33,8 +33,8 @@ class TestLearnwareLoad(unittest.TestCase):
 
     def test_load_multi_learnware_by_id(self):
         learnware_list = self.client.load_learnware(learnware_id=self.learnware_ids, runnable_option="docker")
-        reuser = AveragingReuser(learnware_list, mode="vote_by_label")
-        input_array = np.random.random(size=(20, 13))
+        reuser = AveragingReuser(learnware_list, mode="mean")
+        input_array = np.random.random(size=(20, 40))
         print(reuser.predict(input_array))
 
         for learnware in learnware_list:

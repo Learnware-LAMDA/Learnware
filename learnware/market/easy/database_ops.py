@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, text
-from sqlalchemy import Column, Integer, Text, DateTime, String
+from sqlalchemy import Column, Text, String
 import os
 import json
 import traceback
@@ -177,6 +177,11 @@ class DatabaseOperations(object):
                 id = id.strip()
                 try:
                     semantic_spec_dict = json.loads(semantic_spec)
+                    if "License" not in semantic_spec_dict:
+                        semantic_spec_dict["License"] = {
+                            "Values": ["Apache-2.0"],
+                            "Type": "Class",
+                        }
                     new_learnware = get_learnware_from_dirpath(
                         id=id, semantic_spec=semantic_spec_dict, learnware_dirpath=folder_path, ignore_error=False
                     )

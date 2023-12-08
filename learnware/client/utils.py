@@ -10,24 +10,20 @@ logger = get_module_logger(module_name="client_utils")
 
 
 def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE):
-    if env is None:
-        env = os.environ.copy()
-        pass
-
-    if isinstance(args, str):
-        pass
-    else:
-        args = " ".join(args)
-        pass
+    env = os.environ.copy() if env is None else env
+    args = args if isinstance(args, str) else " ".join(args)
 
     com_process = subprocess.run(args, stdout=stdout, stderr=stderr, timeout=timeout, env=env, shell=True)
 
     try:
         com_process.check_returncode()
     except subprocess.CalledProcessError as err:
-        errmsg = com_process.stderr.decode()
-        logger.warning(f"System Execute Error: {errmsg}")
-        raise Exception(errmsg)
+        if err.stderr is not None:
+            errmsg = err.stderr.decode()
+            logger.warning(f"System Execute Error: {errmsg}")
+        raise err
+    
+    return com_process
 
 
 def remove_enviroment(conda_env):
@@ -76,7 +72,7 @@ def install_environment(learnware_dirpath, conda_env):
                     "-n",
                     f"{conda_env}",
                     "--no-capture-output",
-                    "python3",
+                    "python",
                     "-m",
                     "pip",
                     "install",
@@ -95,7 +91,7 @@ def install_environment(learnware_dirpath, conda_env):
             "-n",
             f"{conda_env}",
             "--no-capture-output",
-            "python3",
+            "python",
             "-m",
             "pip",
             "install",
