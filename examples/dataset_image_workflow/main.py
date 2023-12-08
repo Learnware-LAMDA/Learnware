@@ -22,7 +22,7 @@ os.environ["HTTP_PROXY"] = "http://" + PROXY_IP + ":7890"
 os.environ["HTTPS_PROXY"] = "http://" + PROXY_IP + ":7890"
 
 
-class CifarDatasetWorkflow:
+class ImageDatasetWorkflow:
 
     def prepare(self, market_size=50, market_id=None, rebuild=False, faster=True):
         """initialize learnware market"""
@@ -141,4 +141,4 @@ class CifarDatasetWorkflow:
 
 
 if __name__ == "__main__":
-    fire.Fire(CifarDatasetWorkflow)
+    fire.Fire(ImageDatasetWorkflow)
