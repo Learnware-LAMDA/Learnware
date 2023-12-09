@@ -8,7 +8,7 @@ from torchvision.transforms import transforms
 from torch.utils.data import TensorDataset
 
 from .utils import cached
-from examples.dataset_cifar_workflow.benchmarks.dataset.utils import split_dataset, build_transforms
+from examples.dataset_image_workflow.benchmarks.dataset.utils import split_dataset, build_transforms
 
 cache_root = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..', 'cache'))
 

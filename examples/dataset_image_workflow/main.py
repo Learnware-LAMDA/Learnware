@@ -29,7 +29,7 @@ class ImageDatasetWorkflow:
         learnware.init()
         assert not rebuild
 
-        market_id = "dataset_cifar_workflow" if market_id is None else market_id
+        market_id = "dataset_image_workflow" if market_id is None else market_id
         orders = np.stack([np.random.permutation(10) for _ in range(market_size)])
 
         print("Using market_id", market_id)
@@ -48,7 +48,7 @@ class ImageDatasetWorkflow:
     def evaluate(self, user_size=100, market_id=None, faster=True):
         learnware.init()
 
-        market_id = "dataset_cifar_workflow" if market_id is None else market_id
+        market_id = "dataset_image_workflow" if market_id is None else market_id
         orders = np.stack([np.random.permutation(10) for _ in range(user_size)])
 
         print("Using market_id", market_id)
