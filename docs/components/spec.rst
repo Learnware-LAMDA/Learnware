@@ -99,19 +99,17 @@ By randomly sampling a subset of the dataset, we can construct Image Specificati
 
 .. code-block:: python
 
-   import torchvision
-   from torch.utils.data import DataLoader
-   from learnware.specification import generate_rkme_image_spec
+    import torchvision
+    from torch.utils.data import DataLoader
+    from learnware.specification import generate_rkme_image_spec
 
-   SAMPLED_SIZE = 5000
 
-   full_set = torchvision.datasets.CIFAR10(
-      root='./data', train=True, download=True, transform=torchvision.transforms.ToTensor())
-   loader =  DataLoader(full_set, batch_size=SAMPLED_SIZE, shuffle=True)
-   sampled_X, _ = next(iter(loader))
+    cifar10 = torchvision.datasets.CIFAR10(
+       root='./data', train=True, download=True, transform=torchvision.transforms.ToTensor())
+    X, _ = next(iter(DataLoader(cifar10, batch_size=len(cifar10))))
 
-   spec = generate_rkme_image_spec(sampled_X)
-   spec.save("cifar10.json")
+    spec = generate_rkme_image_spec(X, sample_size=5000)
+    spec.save("cifar10.json")
 
 Privacy Protection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
