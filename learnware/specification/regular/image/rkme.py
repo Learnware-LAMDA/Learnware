@@ -164,7 +164,7 @@ class RKMEImageSpecification(RegularStatSpecification):
         # auto sample
         if len(X_train) > sample_size:
             indices = np.random.choice(len(X_train), size=sample_size, replace=False)
-            X_train = X_train(indices)
+            X_train = X_train[indices]
 
         try:
             import torch_optimizer
