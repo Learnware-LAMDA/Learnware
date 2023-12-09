@@ -417,6 +417,7 @@ class LearnwareClient:
             data_type="Text",
             task_type="Segmentation",
             scenarios="Financial",
+            library_type="Scikit-learn",
             license="Apache-2.0",
         ) if semantic_specification is None else semantic_specification
         
@@ -428,12 +429,9 @@ class LearnwareClient:
                 z_file.extractall(tempdir)
 
             learnware = get_learnware_from_dirpath(
-                id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir
+                id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir, ignore_error=False
             )
-
-            if learnware is None:
-                raise Exception("The learnware is not valid.")
-
+            
             check_status, message = LearnwareClient._check_stat_specification(learnware)
             assert check_status is True, message
 
