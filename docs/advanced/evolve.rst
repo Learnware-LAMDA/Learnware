@@ -1,5 +1,5 @@
 ==============================
-Specification evolvement
+Specification Evolvement
 ==============================
 
 The specification is the core of the learnware paradigm.

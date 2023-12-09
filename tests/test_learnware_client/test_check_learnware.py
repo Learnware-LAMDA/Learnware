@@ -4,9 +4,7 @@ import zipfile
 import unittest
 import tempfile
 
-
 from learnware.client import LearnwareClient
-
 
 class TestCheckLearnware(unittest.TestCase):
     def setUp(self):
@@ -68,6 +66,15 @@ class TestCheckLearnware(unittest.TestCase):
                     semantic_spec = json.load(json_file)
             LearnwareClient.check_learnware(self.zip_path, semantic_spec)
 
+def suite():
+    _suite = unittest.TestSuite()
+    _suite.addTest(TestCheckLearnware("test_check_learnware_pip"))
+    _suite.addTest(TestCheckLearnware("test_check_learnware_conda"))
+    _suite.addTest(TestCheckLearnware("test_check_learnware_dependency"))
+    _suite.addTest(TestCheckLearnware("test_check_learnware_image"))
+    _suite.addTest(TestCheckLearnware("test_check_learnware_text"))
+    return _suite
 
 if __name__ == "__main__":
-    unittest.main()
+    runner = unittest.TextTestRunner()
+    runner.run(suite())

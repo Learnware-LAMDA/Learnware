@@ -139,7 +139,7 @@ class LearnwareMarket:
     def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
         try:
             final_status = BaseChecker.NONUSABLE_LEARNWARE
-            if len(checker_names):
+            if checker_names is not None and len(checker_names):
                 with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
                     with zipfile.ZipFile(zip_path, mode="r") as z_file:
                         z_file.extractall(tempdir)

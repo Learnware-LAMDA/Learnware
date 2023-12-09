@@ -1,8 +1,8 @@
 import os
 import copy
+from typing import Optional
 
 from .base import Learnware
-
 from .utils import get_stat_spec_from_config
 from ..specification import Specification
 from ..utils import read_yaml_to_dict
@@ -12,7 +12,7 @@ from ..config import C
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, ignore_error=True) -> Learnware:
+def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, ignore_error=True) -> Optional[Learnware]:
     """Get the learnware object from dirpath, and provide the manage interface tor Learnware class
 
     Parameters
