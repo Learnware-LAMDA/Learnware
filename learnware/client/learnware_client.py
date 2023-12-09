@@ -54,6 +54,7 @@ class SemanticSpecificationKey(Enum):
     TASK_TYPE = "Task"
     LIBRARY_TYPE = "Library"
     SENARIOES = "Scenario"
+    LICENSE = "License"
 
 
 class LearnwareClient:
@@ -69,14 +70,14 @@ class LearnwareClient:
         self.tempdir_list = []
         self.login_status = False
         atexit.register(self.cleanup)
-    
+
     def is_connected(self):
         url = f"{self.host}/auth/login_by_token"
         response = requests.post(url)
         if response.status_code == 404:
             return False
         return True
-        
+
     def login(self, email, token):
         url = f"{self.host}/auth/login_by_token"
 
@@ -89,10 +90,10 @@ class LearnwareClient:
         token = result["data"]["token"]
         self.headers = {"Authorization": f"Bearer {token}"}
         self.login_status = True
-    
+
     def is_login(self):
         return self.login_status
-    
+
     @require_login
     def logout(self):
         url = f"{self.host}/auth/logout"
@@ -277,7 +278,7 @@ class LearnwareClient:
                 returns["multiple"]["learnware_ids"].append(multi_learnware["learnware_id"])
                 returns["multiple"]["semantic_specifications"].append(multi_learnware["semantic_specification"])
                 returns["multiple"]["matching"] = learnware["matching"]
-        
+
         # Delete temp json file
         os.remove(temp_file_name)
 
