@@ -71,10 +71,10 @@ Easy market is a basic realization of the learnware market. It consists of ``Eas
 ``Easy Searcher``
 ++++++++++++++++++++
 
-``EasySearcher`` consists of ``EasyFuzzsematicSearcher`` and ``EasyStatSearcher``. 
+``EasySearcher`` consists of ``EasyFuzzsematicSearcher`` and ``EasyStatSearcher``. ``EasyFuzzsematicSearcher`` is a kind of ``Semantic Specification Searcher``, while ``EasyStatSearcher`` is a kind of ``Statistical Specification Searcher``. All these searchers return helpful learnwares based on ``BaseUserInfo`` provided by users.
 
-For search learnware, we should pass ``UserInfo`` into ``searcher``. ``BaseUserInfo`` is a ``Python API`` for users to provide enough information to identify helpful learnwares.
-When initializing ``BaseUserInfo``, three optional information can be provided: ``id``, ``semantic_spec`` and ``stat_info``. The generation of these specifications is shown in `WORKFLOWS: Prepare Learnware <./upload.html>`_.
+``BaseUserInfo`` is a ``Python API`` for users to provide enough information to identify helpful learnwares.
+When initializing ``BaseUserInfo``, three optional information can be provided: ``id``, ``semantic_spec`` and ``stat_info``. The introductions of these specifications is shown in `COMPONENTS: Specification <./spec.html>`_.
 
 
 The semantic specification search and statistical specification search have been integrated into the same interface ``EasySearcher``. 
@@ -87,8 +87,7 @@ The semantic specification search and statistical specification search have been
 ``Semantic Specification Searcher``
 ''''''''''''''''''''''''''''''''''''
 
-To search for learnwares that fit your task purpose, the user could first provide a semantic specification ``user_semantic`` that describes the characteristics of your task.
-The Learnware Market will perform a first-stage search based on ``user_semantic``, identifying potentially helpful leaarnwares whose models solve tasks similar to your requirements. There are two types of Semantic Specification Search: ``EasyExactSemanticSearcher`` and ``EasyFuzzSemanticSearcher``. 
+``Semantic Specification Searcher`` is the first-stage search based on ``user_semantic``, identifying potentially helpful learnwares whose models solve tasks similar to your requirements. There are two types of Semantic Specification Search: ``EasyExactSemanticSearcher`` and ``EasyFuzzSemanticSearcher``. 
 
 In these two searchers, each learnware in the ``learnware_list`` is compared with ``user_info`` according to their ``semantic_spec``, and added to the search result if mathched. Two semantic_spec are matched when all the key words are matched or empty in ``user_info``. Different keys have different matching rules. Their ``__call__`` functions are the same:
 
@@ -104,7 +103,7 @@ The results are returned storing in ``single_results`` of ``SearchResults``.
 ``Statistical Specification Searcher``
 ''''''''''''''''''''''''''''''''''''''''''
 
-If you choose to provide your own statistical specification ``stat_info``,  the Learnware Market can perform a more accurate leanware selection using ``EasyStatSearcher``. 
+If user's statistical specification ``stat_info`` is provided,  the learnware market can perform a more accurate leanware selection using ``EasyStatSearcher``. 
 
 - **EasyStatSearcher.__call__(self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy",) -> SearchResults**
  
