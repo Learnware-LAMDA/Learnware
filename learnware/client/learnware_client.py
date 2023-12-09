@@ -412,19 +412,16 @@ class LearnwareClient:
 
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
-        semantic_specification = (
-            generate_semantic_spec(
-                name="test",
-                description="test",
-                data_type="Text",
-                task_type="Segmentation",
-                scenarios="Financial",
-                license="Apache-2.0",
-            )
-            if semantic_specification is None
-            else semantic_specification
-        )
-
+        semantic_specification = generate_semantic_spec(
+            name="test",
+            description="test",
+            data_type="Text",
+            task_type="Segmentation",
+            scenarios="Financial",
+            library_type="Scikit-learn",
+            license="Apache-2.0",
+        ) if semantic_specification is None else semantic_specification
+        
         check_status, message = LearnwareClient._check_semantic_specification(semantic_specification)
         assert check_status, f"Semantic specification check failed due to {message}!"
 
@@ -433,12 +430,9 @@ class LearnwareClient:
                 z_file.extractall(tempdir)
 
             learnware = get_learnware_from_dirpath(
-                id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir
+                id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir, ignore_error=False
             )
-
-            if learnware is None:
-                raise Exception("The learnware is not valid.")
-
+            
             check_status, message = LearnwareClient._check_stat_specification(learnware)
             assert check_status is True, message
 

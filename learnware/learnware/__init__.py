@@ -1,6 +1,7 @@
 import os
 import copy
 from typing import Optional
+import traceback
 
 from .base import Learnware
 from .utils import get_stat_spec_from_config
@@ -45,7 +46,12 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, 
     }
 
     try:
-        yaml_config = read_yaml_to_dict(os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"]))
+        
+        learnware_yaml_path = os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"])
+        assert os.path.exists(learnware_yaml_path), f"learnware.yaml is not found for learnware_{id}, please check the learnware folder or zipfile."
+        
+        
+        yaml_config = read_yaml_to_dict(learnware_yaml_path)
 
         if "name" in yaml_config:
             learnware_config["name"] = yaml_config["name"]
@@ -60,7 +66,10 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, 
         learnware_spec = Specification()
         for _stat_spec in learnware_config["stat_specifications"]:
             stat_spec = _stat_spec.copy()
-            stat_spec["file_name"] = os.path.join(learnware_dirpath, stat_spec["file_name"])
+            stat_spec_path = os.path.join(learnware_dirpath, stat_spec["file_name"])
+            assert os.path.exists(stat_spec_path), f"statistical specification file {stat_spec['file_name']} is not found for learnware_{id}, please check the learnware folder or zipfile."
+            
+            stat_spec["file_name"] = stat_spec_path
             stat_spec_inst = get_stat_spec_from_config(stat_spec)
             learnware_spec.update_stat_spec(**{stat_spec_inst.type: stat_spec_inst})
 
@@ -69,7 +78,7 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, 
     except Exception as e:
         if not ignore_error:
             raise e
-        logger.warning(f"Load Learnware {id} failed! Due to {repr(e)}")
+        logger.warning(f"Load Learnware {id} failed! Due to {e}; details:\n{traceback.format_exc()}")
         return None
 
     return Learnware(
