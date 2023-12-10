@@ -4,7 +4,7 @@
 Learnware & Reuser
 ==========================================
 
-Learnware and Reuser are related...
+``Learnware`` is the most basic concept in the ``learnware paradigm``. In this section, we will introduce the concept and design of ``learnware`` and its extension for ``Hetero Reuse``. Then we will introduce the ``Reuse Methods``, which applies one or several ``learnware``s to solve the user's task.
 
 Concepts
 ===================
