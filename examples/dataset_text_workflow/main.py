@@ -32,8 +32,8 @@ n_samples = 5
 n_users = 10  # max = 10
 n_classes = 20
 
-n_labeled_list = [100, 200, 500, 1000, 2000, 3000, 4000, 5000, 6000, 8000, 10000]
-repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3, 3, 3]
+n_labeled_list = [100, 200, 500, 1000, 2000, 4000]
+repeated_list = [10, 10, 10, 3, 3, 3]
 
 data_root = os.path.join(origin_data_root, dataset)
 data_save_root = os.path.join(processed_data_root, dataset)
@@ -290,18 +290,18 @@ class TextDatasetWorkflow:
         )
 
     def test_labeled(self, regenerate_flag=False, train_flag=True):
-        self.prepare_market(regenerate_flag)
-        text_market = instantiate_learnware_market(market_id=dataset)
-        print("Total Item: %d" % len(text_market))
+        if train_flag:
+            self.prepare_market(regenerate_flag)
+            text_market = instantiate_learnware_market(market_id=dataset)
+            print("Total Item: %d" % len(text_market))
 
-        os.makedirs("./figs", exist_ok=True)
-        os.makedirs("./curves", exist_ok=True)
+            os.makedirs("./figs", exist_ok=True)
+            os.makedirs("./curves", exist_ok=True)
 
-        for i in range(n_users):
-            user_model_score_mat = []
-            pruning_score_mat = []
-            single_score_mat = []
-            if train_flag:
+            for i in range(n_users):
+                user_model_score_mat = []
+                pruning_score_mat = []
+                single_score_mat = []
                 user_data_path = os.path.join(user_save_root, "user_%d_X.pkl" % (i))
                 user_label_path = os.path.join(user_save_root, "user_%d_y.pkl" % (i))
                 with open(user_data_path, "rb") as f:
@@ -348,7 +348,7 @@ class TextDatasetWorkflow:
                 for n_label, repeated in zip(n_labeled_list, repeated_list):
                     user_model_score_list, reuse_pruning_score_list = [], []
                     if n_label > len(train_x):
-                        break
+                        n_label = len(train_x)
                     for _ in range(repeated):
                         # x_train, y_train = train_x[:n_label], train_y[:n_label]
                         x_train, y_train = zip(*random.sample(list(zip(train_x, train_y)), k=n_label))
@@ -378,14 +378,23 @@ class TextDatasetWorkflow:
                 # np.save("./curves/curve" + str(i), user_curves_data)
                 with open("./curves/curve" + str(i) + ".pkl", "wb") as f:
                     pickle.dump(user_curves_data, f)
-
+        pruning_curves_data, user_model_curves_data = [], []
+        for i in range(n_users):
             with open("./curves/curve" + str(i) + ".pkl", "rb") as f:
                 user_curves_data = pickle.load(f)
-            # user_curves_data = np.load("./curves/curve" + str(i) + ".npy")
+                (single_score_mat, user_model_score_mat, pruning_score_mat) = user_curves_data
+            for i in range(len(single_score_mat)):
+                user_model_score_mat[i] = np.mean(user_model_score_mat[i])
+                pruning_score_mat[i] = np.mean(pruning_score_mat[i])
+            if len(user_model_score_mat) < 6:
+                for i in range(6 - len(user_model_score_mat)):
+                    user_model_score_mat.append(user_model_score_mat[-1])
+                    pruning_score_mat.append(pruning_score_mat[-1])
+            user_model_curves_data.append(user_model_score_mat[:6])
+            pruning_curves_data.append(pruning_score_mat[:6])
+        self._plot_labeled_peformance_curves([user_model_curves_data, pruning_curves_data])
 
-            self._plot_labeled_peformance_curves("user_" + str(i), user_curves_data)
-
-    def _plot_labeled_peformance_curves(self, name, user_curves_data):
+    def _plot_labeled_peformance_curves(self, all_user_curves_data):
         plt.figure(figsize=(10, 6))
         plt.xticks(range(len(n_labeled_list)), n_labeled_list)
 
@@ -398,11 +407,10 @@ class TextDatasetWorkflow:
         # labels = ["Single Learnware Reuse", "User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
         labels = ["User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
 
-        single_mat, user_mat, pruning_mat = user_curves_data
-        print(single_mat, user_mat, pruning_mat)
+        user_mat, pruning_mat = all_user_curves_data
+        user_mat, pruning_mat = np.array(user_mat), np.array(pruning_mat)
         for mat, style, label in zip([user_mat, pruning_mat], styles, labels):
-            mean_curve, std_curve = [np.mean(lst) for lst in mat], [np.std(lst) for lst in mat]
-            mean_curve, std_curve = np.array(mean_curve), np.array(std_curve)
+            mean_curve, std_curve = 1 - np.mean(mat, axis=0), np.std(mat, axis=0)
             plt.plot(mean_curve, **style, label=label)
             plt.fill_between(
                 range(len(mean_curve)),
@@ -413,11 +421,11 @@ class TextDatasetWorkflow:
             )
 
         plt.xlabel("Labeled Data Size")
-        plt.ylabel("Accuracy")
-        plt.title(f"{name} Text Limited Labeled Data")
+        plt.ylabel("1 - Accuracy")
+        plt.title(f"Text Limited Labeled Data")
         plt.legend()
         plt.tight_layout()
-        plt.savefig(os.path.join("figs", f"{name}_text_labeled_curves.png"), bbox_inches="tight", dpi=700)
+        plt.savefig(os.path.join("figs", f"text_labeled_curves.png"), bbox_inches="tight", dpi=700)
 
 
 if __name__ == "__main__":
