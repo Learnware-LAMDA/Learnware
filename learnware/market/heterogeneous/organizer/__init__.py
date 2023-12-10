@@ -12,7 +12,7 @@ from ...base import BaseChecker, BaseUserInfo
 from ...easy import EasyOrganizer
 from ....learnware import Learnware
 from ....logger import get_module_logger
-from ....specification import HeteroMapTableSpecification, RKMETableSpecification
+from ....specification import HeteroMapTableSpecification
 
 
 logger = get_module_logger("hetero_map_table_organizer")
