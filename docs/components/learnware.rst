@@ -20,6 +20,37 @@ In our implementation, the class ``Learnware`` has 3 important member variables:
 Learnware for Hetero Reuse (Feature Align + Hetero Map Learnware)
 =======================================================================
 
+In the Hetero Market(see `COMPONENTS:Market  <./market>`_ for details), ``HeteroSearcher`` identifies and recommends helpful learnwares among all learnwares in the market, 
+including learnwares with feature/label space different from the user's task requirements(heterogeneous learnwares). ``FeatureAlignLearnware`` and ``HeteroMapLearnware``
+extends ``Learnware`` with the ability to align the feature space and label space of the learnware to the user's task requirements, providing methods for heterogeneous learnwares to be reused in tasks beyond their original purposes.
+
+``FeatureAlignLearnware``
+_________________________
+
+``FeatureAlignLearnware`` employs a neural network to align the feature space of the learnware to the user's task. 
+It is initialized with a ``Learnware``, and has the following methods to expand the applicable scope of this ``Learnware``:
+
+- **align**: Key interface that trains a neural network to align ``user_rkme``, which is the ``RKMETableSpecification`` of the user's data, with the learnware's statistical specification.
+- **predict**: Predict the output for user data using the trained neural network and the original learnware's model.
+
+
+``HeteroMapAlignLearnware``
+____________________________
+
+If user data is not only heterogeneous in feature space but also in label space, ``HeteroMapAlignLearnware`` uses the help of 
+a small amount of labeled data ``(x_train, y_train)`` required from the user task to align heterogeneous learnwares with the user task.
+
+- ``HeteroMapAlignLearnware.align(self, user_rkme: RKMETableSpecification, x_train: np.ndarray, y_train: np.ndarray)``
+
+  - **input space alignment**: Align the feature space of the learnware to the user task's statistical specification ``user_rkme`` using ``FeatureAlignLearnware``.
+  - **output space alignment**: Further align the label space of the aligned learnware to the user task through supervised learning of ``FeatureAugmentReuser`` using ``(x_train, y_train)``.
+
+- ``HeteroMapAlignLearnware.predict(self, user_data)``
+
+  - If input space and output space alignment are both performed, use the ``FeatureAugmentReuser`` to predict the output for user data.
+
+
+
 All Reuse Methods
 ===========================
 
@@ -38,6 +69,7 @@ The job selector is essentially a multi-class classifier :math:`g(\boldsymbol{x}
 Given a testing sample :math:`\boldsymbol{x}`, the ``JobSelectorReuser`` predicts it by using the :math:`g(\boldsymbol{x})`-th learnware in ``learnware_list``.
 If ``use_herding`` is set to false, the ``JobSelectorReuser`` uses data points in each learware's RKME spefication with the corresponding learnware index to train a job selector.
 If ``use_herding`` is true, the algorithm estimates the mixture weight based on RKME specifications and raw user data, uses the weight to generate ``herding_num`` auxiliary data points mimicking the user distribution through the kernel herding method, and learns a job selector on these data.
+
 
 
 AveragingReuser
