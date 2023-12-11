@@ -164,4 +164,4 @@ The semantic specification search and statistical specification search have been
   - If the ``stat_info`` is provided in ``user_info``, it conducts one of the following two types of statistical specification search using ``EasySearcher``, depending on whether heterogeneous learnware search is enabled. If enabled, ``stat_info`` will be updated with a ``HeteroMapTableSpecification`` generated for the user, and the Hetero Market performs heterogeneous learnware selection based on the updated ``stat_info``. If not enabled, the Hetero Market performs homogeneous learnware selection based on the original ``stat_info``.
   
 .. note:: 
-  The heterogeneous learnware search is enabled when ``user_info`` contains valid heterogeneous search information. Please refer to `WORKFLOWS:Search  <../workflows/search>`_ for details.
+  The heterogeneous learnware search is enabled when ``user_info`` contains valid heterogeneous search information. Please refer to `WORKFLOWS:Search  <../workflows/search.html>`_ for details.
