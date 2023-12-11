@@ -16,6 +16,7 @@ from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningR
 from utils import generate_uploader, generate_user, TextDataLoader, train, eval_prediction
 from learnware.client import LearnwareClient, SemanticSpecificationKey
 import matplotlib.pyplot as plt
+from learnware.specification import generate_semantic_spec
 
 # Login to Beiming system
 client = LearnwareClient()
@@ -55,7 +56,8 @@ output_description = {
                     "14": "14", "15": "15", "16": "16", "17": "17", "18": "18", "19": "19"}
 }
 
-semantic_spec = client.create_semantic_specification(
+
+semantic_spec = generate_semantic_spec(
     name="learnware_example",
     description="Just a example for text learnware",
     data_type="Text",
@@ -67,7 +69,7 @@ semantic_spec = client.create_semantic_specification(
     output_description=output_description,
 )
 
-user_semantic = client.create_semantic_specification(
+user_semantic = generate_semantic_spec(
     # name="learnware_example",
     description="Just a example for text learnware",
     data_type="Text",
