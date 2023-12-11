@@ -14,12 +14,12 @@ The homogeneous search of helpful learnwares can be divided into two stages: sem
 
 .. code-block:: python
 
-    # generate BaseUserInfo(semantic_spec + stat_info)
+    # An example of user_semantic
     user_semantic = {
-        "Data": {"Values": ["Table"], "Type": "Class"},
-        "Task": {"Values": ["Regression"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
-        "Scenario": {"Values": ["Business"], "Type": "Tag"},
+        "Data": {"Values": ["Image"], "Type": "Class"},
+        "Task": {"Values": ["Classification"], "Type": "Class"},
+        "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
+        "Scenario": {"Values": ["Education"], "Type": "Class"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "", "Type": "String"},
         "Input": {"Dimension": 82, "Description": {},},
@@ -50,3 +50,49 @@ The homogeneous search of helpful learnwares can be divided into two stages: sem
 
 Hetero Search
 ======================
+
+For table-based user tasks, 
+homogeneous searchers like ``EasySearcher`` fail to recommend learnwares when no table learnware matches the user task's feature dimension, returning empty results.
+To enhance functionality, ``learnware`` package includes the heterogeneous learnware search feature, whose processions is as follows: 
+
+- Learnware markets such as ``Hetero Market`` integrate different specification islands into a unified "specification world" by assigning system-level specifications to all learnwares. This allows heterogeneous searchers like ``HeteroSearcher`` to find helpful learnwares from all available table learnwares.
+- Searchers assign system-level specifications to users based on ``UserInfo``'s statistical specification, using methods provided by corresponding organizers. In ``Hetero Market``, for example, ``HeteroOrganizer.generate_hetero_map_spec`` generates system-level specifications for users.
+- Finally searchers conduct statistical specification search across the "specification world". User's system-level specification will guide the searcher in pinpointing helpful heterogeneous learnwares.
+
+To activate heterogeneous learnware search, ``UserInfo`` should contain both semantic and statistical specifications. What's more, the semantic specification should meet the following requirements: 
+
+- The task type should be ``Classification`` or ``Regression``.
+- The data type should be ``Table``.
+- It should include description for at least one feature dimension.
+- The feature dimension stated here should match with the feature dimension in the statistical specification.
+
+The following codes shows how to search for helpful heterogeneous learnwares from a market 
+``hetero_market`` for a user. The introduction of ``HeteroMarket`` is in `COMPONENTS: Hetero Market <../components/market.html>`_.
+
+.. code-block:: python
+
+  input_description = {
+      "Dimension": 2,
+      "Description": {
+          "0": "leaf width",
+          "1": "leaf length",
+      },
+  }
+  
+  # user_semantic should meet the above requirements
+  user_semantic = generate_semantic_spec(
+      data_type="table",
+      task_type="Classification",
+      scenarios=["Business"],
+      input_description=input_description,
+  )
+  
+  user_spec = generate_stat_spec(type="table", X=train_x)
+  
+  user_info = BaseUserInfo(
+      semantic_spec=user_semantic,
+      stat_info={user_spec.type: user_spec}
+  )
+
+  # search for heterogeneous learnwares in hetero_market
+  search_result = hetero_market.search_learnware(user_info)
