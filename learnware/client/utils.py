@@ -28,8 +28,6 @@ def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stde
 
 def remove_enviroment(conda_env):
     system_execute(args=["conda", "env", "remove", "-n", f"{conda_env}"])
-    logger.info(f"The learnware conda env [{conda_env}] is removed.")
-
 
 def install_environment(learnware_dirpath, conda_env):
     """Install environment of a learnware
@@ -51,7 +49,7 @@ def install_environment(learnware_dirpath, conda_env):
         if "environment.yaml" in os.listdir(learnware_dirpath):
             yaml_path: str = os.path.join(learnware_dirpath, "environment.yaml")
             yaml_path_filter: str = os.path.join(tempdir, "environment_filter.yaml")
-            logger.info(f"checking the avaliabe conda packages for {conda_env}")
+            logger.info(f"checking the available conda packages for {conda_env}")
             filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
             # create environment
             logger.info(f"create conda env [{conda_env}] according to .yaml file")
@@ -60,7 +58,7 @@ def install_environment(learnware_dirpath, conda_env):
         elif "requirements.txt" in os.listdir(learnware_dirpath):
             requirements_path: str = os.path.join(learnware_dirpath, "requirements.txt")
             requirements_path_filter: str = os.path.join(tempdir, "requirements_filter.txt")
-            logger.info(f"checking the avaliabe pip packages for {conda_env}")
+            logger.info(f"checking the available pip packages for {conda_env}")
             filter_nonexist_pip_packages_file(requirements_file=requirements_path, output_file=requirements_path_filter)
             logger.info(f"create empty conda env [{conda_env}]")
             system_execute(args=["conda", "create", "-y", "--name", f"{conda_env}", "python=3.8"])

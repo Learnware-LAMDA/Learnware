@@ -1,7 +1,6 @@
-from typing import List, Dict, Tuple, Any, Union
+from typing import List, Tuple, Any
 
 from .user_info import AnchoredUserInfo
-from ..base import BaseUserInfo
 from ..easy.searcher import EasySearcher
 from ...logger import get_module_logger
 from ...learnware import Learnware
