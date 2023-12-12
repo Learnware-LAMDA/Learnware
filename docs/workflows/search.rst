@@ -15,10 +15,10 @@ The homogeneous search of helpful learnwares can be divided into two stages: sem
 
     # generate BaseUserInfo(semantic_spec + stat_info)
     user_semantic = {
-        "Data": {"Values": ["Image"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Tag"},
-        "Scenario": {"Values": ["Education"], "Type": "Class"},
+        "Data": {"Values": ["Table"], "Type": "Class"},
+        "Task": {"Values": ["Regression"], "Type": "Class"},
+        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
+        "Scenario": {"Values": ["Business"], "Type": "Tag"},
         "Description": {"Values": "", "Type": "String"},
         "Name": {"Values": "", "Type": "String"},
         "Input": {"Dimension": 82, "Description": {},},
