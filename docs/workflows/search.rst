@@ -6,7 +6,6 @@ Learnwares Search
 
 All the searchers are implemented as a subclass of ``BaseSearcher``. When initializing, you should assign a ``organizer`` to it. The introduction of ``organizer`` is shown in `COMPONENTS: Market - Framework <../components/market.html>`_. Then these searchers can be called with ``UserInfo`` and return ``SearchResults``.
 
-
 Homo Search
 ======================
 
@@ -14,6 +13,7 @@ The homogeneous search of helpful learnwares can be divided into two stages: sem
 
 .. code-block:: python
 
+    # generate BaseUserInfo(semantic_spec + stat_info)
     # generate BaseUserInfo(semantic_spec + stat_info)
     user_semantic = {
         "Data": {"Values": ["Table"], "Type": "Class"},
@@ -46,7 +46,6 @@ The homogeneous search of helpful learnwares can be divided into two stages: sem
     multiple_result = search_result.get_multiple_results()
     mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
     print(f"mixture_score: {multiple_result[0].score}, mixture_learnwares: {mixture_id}")
-
 
 Hetero Search
 ======================
