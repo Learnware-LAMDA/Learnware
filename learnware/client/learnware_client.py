@@ -264,7 +264,6 @@ class LearnwareClient:
                 headers=self.headers,
             )
             result = response.json()
-
             if result["code"] != 0:
                 raise Exception("search failed: " + json.dumps(result))
 
@@ -273,10 +272,9 @@ class LearnwareClient:
                 returns["single"]["semantic_specifications"].append(learnware["semantic_specification"])
                 returns["single"]["matching"].append(learnware["matching"])
 
-            if len(result["data"]["learnware_list_multi"]) > 0:
-                multi_learnware = result["data"]["learnware_list_multi"][0]
-                returns["multiple"]["learnware_ids"].append(multi_learnware["learnware_id"])
-                returns["multiple"]["semantic_specifications"].append(multi_learnware["semantic_specification"])
+            for learnware in result["data"]["learnware_list_multi"]:
+                returns["multiple"]["learnware_ids"].append(learnware["learnware_id"])
+                returns["multiple"]["semantic_specifications"].append(learnware["semantic_specification"])
                 returns["multiple"]["matching"] = learnware["matching"]
 
         # Delete temp json file
@@ -412,16 +410,20 @@ class LearnwareClient:
 
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
-        semantic_specification = generate_semantic_spec(
-            name="test",
-            description="test",
-            data_type="Text",
-            task_type="Segmentation",
-            scenarios="Financial",
-            library_type="Scikit-learn",
-            license="Apache-2.0",
-        ) if semantic_specification is None else semantic_specification
-        
+        semantic_specification = (
+            generate_semantic_spec(
+                name="test",
+                description="test",
+                data_type="Text",
+                task_type="Segmentation",
+                scenarios="Financial",
+                library_type="Scikit-learn",
+                license="Apache-2.0",
+            )
+            if semantic_specification is None
+            else semantic_specification
+        )
+
         check_status, message = LearnwareClient._check_semantic_specification(semantic_specification)
         assert check_status, f"Semantic specification check failed due to {message}!"
 
@@ -432,7 +434,7 @@ class LearnwareClient:
             learnware = get_learnware_from_dirpath(
                 id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir, ignore_error=False
             )
-            
+
             check_status, message = LearnwareClient._check_stat_specification(learnware)
             assert check_status is True, message
 
