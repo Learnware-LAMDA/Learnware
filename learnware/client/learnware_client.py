@@ -273,7 +273,6 @@ class LearnwareClient:
                 returns["single"]["matching"].append(learnware["matching"])
 
             for learnware in result["data"]["learnware_list_multi"]:
-                # multi_learnware = result["data"]["learnware_list_multi"][0]
                 returns["multiple"]["learnware_ids"].append(learnware["learnware_id"])
                 returns["multiple"]["semantic_specifications"].append(learnware["semantic_specification"])
                 returns["multiple"]["matching"] = learnware["matching"]
