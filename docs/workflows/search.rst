@@ -65,10 +65,14 @@ To activate heterogeneous learnware search, ``UserInfo`` should contain both sem
 - The feature dimension stated here should match with the feature dimension in the statistical specification.
 
 The following codes shows how to search for helpful heterogeneous learnwares from a market 
-``hetero_market`` for a user. The introduction of ``HeteroMarket`` is in `COMPONENTS: Hetero Market <../components/market.html>`_.
+``hetero_market`` for a user. The introduction of ``HeteroMarket`` is in `COMPONENTS: Hetero Market <../components/market.html#hetero-market>`_.
 
 .. code-block:: python
 
+  # initiate a Hetero Market
+  hetero_market = initiate_learnware_market(market_id="test_hetero", name="hetero")
+  
+  # user_semantic should meet the above requirements
   input_description = {
       "Dimension": 2,
       "Description": {
@@ -76,17 +80,13 @@ The following codes shows how to search for helpful heterogeneous learnwares fro
           "1": "leaf length",
       },
   }
-  
-  # user_semantic should meet the above requirements
   user_semantic = generate_semantic_spec(
       data_type="table",
       task_type="Classification",
       scenarios=["Business"],
       input_description=input_description,
   )
-  
   user_spec = generate_stat_spec(type="table", X=train_x)
-  
   user_info = BaseUserInfo(
       semantic_spec=user_semantic,
       stat_info={user_spec.type: user_spec}
