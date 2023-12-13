@@ -8,7 +8,7 @@ reuse tools, based on whether user has gathered a small amount of labeled data b
 
 .. note:: 
 
-    For detailed explanations of the learnware reusers mentioned below, please refer to `COMPONENTS: Learnware & Reuser  <../components/learnware.html#all-reuse-methods>`_ .
+    For detailed explanations of the learnware reusers mentioned below, please refer to `COMPONENTS: All Reuse Methods  <../components/learnware.html#all-reuse-methods>`_ .
 
 Homo Reuse
 ====================
@@ -96,7 +96,7 @@ Normally these learnwares are hard to be used, leave alone polished by users, du
 with the user's task, users can easily reuse them with the same set of reuse methods mentioned above.
 
 During the alignment process of heterogeneous learnware, the statistical specifications of the learnware and the user's task ``(user_spec)`` are used for input space alignment, 
-and a small amount of labeled data `(val_x, val_y)`` is mandatory to be used for output space alignment. This can be done by the following code:
+and a small amount of labeled data ``(val_x, val_y)`` is mandatory to be used for output space alignment. This can be done by the following code:
 
 .. code:: python
 
@@ -110,7 +110,7 @@ and a small amount of labeled data `(val_x, val_y)`` is mandatory to be used for
     # Make predictions using the aligned heterogeneous learnware
     predict_y = hetero_learnware.predict(user_data=test_x)
 
-If you want to reuse multiple heterogeneous learnwares, 
+To reuse multiple heterogeneous learnwares, 
 combine ``HeteroMapAlignLearnware`` with the homogeneous reuse methods ``AveragingReuser`` and ``EnsemblePruningReuser`` mentioned above will do the trick:
 
 .. code:: python

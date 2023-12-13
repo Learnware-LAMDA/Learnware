@@ -133,7 +133,7 @@ Hetero Market
 -------------
 
 Hetero Market consists of ``HeteroMapTableOrganizer``, ``HeteroSearcher``, and the checker list ``[EasySemanticChecker, EasyStatChecker]``.
-It is an extended version of the Easy Market which accommodates table learnwares from different feature spaces(heterogeneous table learnwares). 
+It is an extended version of the Easy Market which accommodates table learnwares from different feature spaces(heterogeneous table learnwares), expanding the applicable scope of learnware paradigm. 
 This market trains a heterogeneous engine based on existing learnware specifications in the market to merge different specification islands and assign new specifications(``HeteroMapTableSpecification``) to learnwares. 
 With more learnwares submitted, the heterogeneous engine will continuously update and is expected to build a more precise specification world.
 

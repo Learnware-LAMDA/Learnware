@@ -61,7 +61,7 @@ helpful beyond their original purposes, and eliminating the need for users to bu
 There are two main categories of ``Reuse Methods``: (1) direct reuse and (2) reuse based on a small amount of labeled data.
 
 .. note:: 
-    Combine ``HeteroMapAlignLearnware`` with the following reuse methods to enable the reuse of heterogeneous learnwares. See `WORKFLOW: Reuse <../workflows/reuse.html>`_ for details.
+    Combine ``HeteroMapAlignLearnware`` with the following reuse methods to enable the reuse of heterogeneous learnwares. See `WORKFLOW: Hetero Reuse <../workflows/reuse.html#hetero-reuse>`_ for details.
 
 Direct Reuse of Learnware
 --------------------------
