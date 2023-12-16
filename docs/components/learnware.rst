@@ -4,7 +4,7 @@
 Learnware & Reuser
 ==========================================
 
-``Learnware`` is the most basic concept in the ``learnware paradigm``. In this section, we will introduce the concept and design of ``learnware`` and its extension for ``Hetero Reuse``. Then we will introduce the ``Reuse Methods``, which applies one or several ``learnware``s to solve the user's task.
+``Learnware`` is the most basic concept in the ``learnware paradigm``. In this section, we will introduce the concept and design of ``learnware`` and its extension for ``Hetero Reuse``. Then we will introduce the ``Reuse Methods``, which applies one or several ``learnware``\ s to solve the user's task.
 
 Concepts
 ===================
@@ -16,38 +16,123 @@ In our implementation, the class ``Learnware`` has 3 important member variables:
 - ``model``: The model in the learnware, can be a ``BaseModel`` or a dict including model name and path. When it is a dict, the function ``Learnware.instantiate_model`` is used to transform it to a ``BaseModel``. The function ``Learnware.predict`` use the model to predict for an input ``X``. See more in `COMPONENTS: Model <./model.html>`_.
 - ``specification``: The specification including the semantic specification and the statistic specification.
 
-
 Learnware for Hetero Reuse (Feature Align + Hetero Map Learnware)
 =======================================================================
+
+In the Hetero Market(see `COMPONENTS: Hetero Market  <./market.html#hetero-market>`_ for details), ``HeteroSearcher`` identifies and recommends helpful learnwares among all learnwares in the market, 
+including learnwares with feature/label spaces different from the user's task requirements(heterogeneous learnwares). ``FeatureAlignLearnware`` and ``HeteroMapLearnware``
+are designed to enable the reuse of heterogeneous learnwares, which extends ``Learnware`` with the ability to align the feature space and label space of the learnware to the user's task requirements, 
+and provide basic interfaces for heterogeneous learnwares to be applied to tasks beyond their original purposes.
+
+``FeatureAlignLearnware``
+---------------------------
+
+``FeatureAlignLearnware`` employs a neural network to align the feature space of the learnware to the user's task. 
+It is initialized with a ``Learnware``, and has the following methods to expand the applicable scope of this ``Learnware``:
+
+- **align**: Trains a neural network to align ``user_rkme``, which is the ``RKMETableSpecification`` of the user's data, with the learnware's statistical specification.
+- **predict**: Predict the output for user data using the trained neural network and the original learnware's model.
+
+
+``HeteroMapAlignLearnware``
+-----------------------------
+
+If user data is not only heterogeneous in feature space but also in label space, ``HeteroMapAlignLearnware`` uses the help of 
+a small amount of labeled data ``(x_train, y_train)`` required from the user task to align heterogeneous learnwares with the user task.
+There are two key interfaces in ``HeteroMapAlignLearnware``:
+
+- ``HeteroMapAlignLearnware.align(self, user_rkme: RKMETableSpecification, x_train: np.ndarray, y_train: np.ndarray)``
+
+    - **input space alignment**: Align the feature space of the learnware to the user task's statistical specification ``user_rkme`` using ``FeatureAlignLearnware``.
+    - **output space alignment**: Further align the label space of the aligned learnware to the user task through supervised learning of ``FeatureAugmentReuser`` using ``(x_train, y_train)``.
+
+- ``HeteroMapAlignLearnware.predict(self, user_data)``
+
+    - If input space and output space alignment are both performed, use the ``FeatureAugmentReuser`` to predict the output for ``user_data``.
+
 
 All Reuse Methods
 ===========================
 
+In addition to applying ``Learnware``, ``FeatureAlignLearnware`` or ``HeteroMapAlignLearnware`` objects directly by calling their ``predict`` interface, 
+the ``learnware`` package also provides a set of ``Reuse Methods`` for users to further customize a single or multiple learnwares, with the hope of enabling learnwares to be 
+helpful beyond their original purposes, and eliminating the need for users to build models from scratch.
+
+There are two main categories of ``Reuse Methods``: (1) direct reuse and (2) reuse based on a small amount of labeled data.
+
+.. note:: 
+    Combine ``HeteroMapAlignLearnware`` with the following reuse methods to enable the reuse of heterogeneous learnwares. See `WORKFLOW: Hetero Reuse <../workflows/reuse.html#hetero-reuse>`_ for details.
+
+Direct Reuse of Learnware
+--------------------------
+
+Two methods for direct reuse of learnwares are provided: ``JobSelectorReuser`` and ``AveragingReuser``.
+
 JobSelectorReuser
---------------------
+^^^^^^^^^^^^^^^^^^
 
-The ``JobSelectorReuser`` is a class that inherits from the base reuse class ``BaseReuser``.
-Its purpose is to create a job selector that identifies the optimal learnware for each data point in user data.
-There are three parameters required to initialize the class:
+``JobSelectorReuser`` trains a classifier ``job selector`` that identifies the optimal learnware for each data point in user data.
+There are three member variables:
 
-- ``learnware_list``: A list of objects of type ``Learnware``. Each ``Learnware`` object should have an RKME specification.
+- ``learnware_list``: A list of ``Learnware`` objects for the ``JobSelectorReuser`` to choose from.
 - ``herding_num``: An optional integer that specifies the number of items to herd, which defaults to 1000 if not provided.
 - ``use_herding``: A boolean flag indicating whether to use kernel herding.
 
-The job selector is essentially a multi-class classifier :math:`g(\boldsymbol{x}):\mathcal{X}\rightarrow \mathcal{I}` with :math:`\mathcal{I}=\{1,\ldots, C\}`, where :math:`C` is the size of ``learnware_list``.
-Given a testing sample :math:`\boldsymbol{x}`, the ``JobSelectorReuser`` predicts it by using the :math:`g(\boldsymbol{x})`-th learnware in ``learnware_list``.
-If ``use_herding`` is set to false, the ``JobSelectorReuser`` uses data points in each learware's RKME spefication with the corresponding learnware index to train a job selector.
-If ``use_herding`` is true, the algorithm estimates the mixture weight based on RKME specifications and raw user data, uses the weight to generate ``herding_num`` auxiliary data points mimicking the user distribution through the kernel herding method, and learns a job selector on these data.
+The most important methods of ``JobSelectorReuser`` are ``job_selector`` and ``predict``:
+
+- **job_selector**: Train a ``job selector`` based on user's data and the ``learnware_list``. Processions are different based on the value of ``use_herding``:
+
+    - If ``use_herding`` is False: Statistical specifications of learnwares in ``learnware_list`` combined with the corresponding learnware index are used to train the ``job selector``.
+    - If ``use_herding`` is True:
+  
+      - Estimate the mixture weight based on user raw data and the statistical specifications of learnwares in ``learnware_list``
+      - Use the mixture weight to generate ``herding_num`` auxiliary data points which mimic the user task's distribution through the kernel herding method
+      - Finally learns the ``job selector`` on the auxiliary data points.
+  
+- **predict**: The ``job selector`` is essentially a multi-class classifier :math:`g(\boldsymbol{x}):\mathcal{X}\rightarrow \mathcal{I}` with :math:`\mathcal{I}=\{1,\ldots, C\}`, where :math:`C` is the size of ``learnware_list``. Given a testing sample :math:`\boldsymbol{x}`, the ``JobSelectorReuser`` predicts it by using the :math:`g(\boldsymbol{x})`-th learnware in ``learnware_list``.
 
 
 AveragingReuser
-------------------
+^^^^^^^^^^^^^^^^^^
 
-The ``AveragingReuser`` is a class that inherits from the base reuse class ``BaseReuser``, that implements the average ensemble method by averaging each learnware's output to predict user data.
-There are two parameters required to initialize the class:
+``AveragingReuser`` uses an ensemble method to make predictions. It is initialized with a list of ``Learnware`` objects, and has a member variable ``mode`` which
+specifies the ensemble method(default is set to ``mean``). 
 
-- ``learnware_list``: A list of objects of type ``Learnware``.
-- ``mode``: The mode of averaging leanrware outputs, which can be set to "mean" or "vote" and defaults to "mean".
+- **predict**: The member variable ``mode`` provides different options for classification and regression tasks:
 
-If ``mode`` is set to "mean", the ``AveragingReuser`` computes the mean of the learnware's output to predict user data, which is commonly used in regression tasks.
-If ``mode`` is set to "vote", the ``AveragingReuser`` computes the mean of the softmax of the learnware's output to predict each label probability of user data, which is commonly used in classification tasks.
+    - For regression tasks, ``mode`` should be set to ``mean``. The prediction is the average of the learnwares' outputs.
+    - For classification tasks, ``mode`` has two available options. If ``mode`` is set to ``vote_by_label``, the prediction is the majority vote label based on learnwares' output labels. If ``mode`` is set to ``vote_by_prob``, the prediction is the mean vector of all learnwares' output label probabilities.
+
+
+Reuse Learnware with Labeled Data
+----------------------------------
+
+When users have a small amount of labeled data available, ``learnware`` package provides two methods: ``EnsemblePruningReuser`` and ``FeatureAugmentReuser`` to help reuse learnwares.
+They are both initialized with a list of ``Learnware`` objects ``learnware_list``, and have different implementations of ``fit`` and ``predict`` methods.
+
+EnsemblePruningReuser
+^^^^^^^^^^^^^^^^^^^^^^
+
+The ``EnsemblePruningReuser`` class implements a selective ensemble approach inspired by the MDEP algorithm, as detailed in [1]_.
+It selects a subset of learnwares from ``learnware_list``, utilizing user's labeled data for effective ensemble integration on user tasks. 
+This method effectively balances validation error, margin ratio, and ensemble size, leading to a robust and optimized selection of learnwares for task-specific ensemble creation. 
+
+- **fit**: Effectively prunes the large set of learnwares ``learnware_list`` by evaluating and comparing the learnwares based on their performance on user's labeled validation data ``(val_X, val_y)``. Returns the most suitable subset of learnwares. 
+- **predict**: The ``mode`` member variable has two available options. Set ``mode`` to ``regression`` for regression tasks, and ``classification`` for classification tasks. The prediction is the average of the selected learnwares' outputs.
+
+
+FeatureAugmentReuser
+^^^^^^^^^^^^^^^^^^^^^^
+
+``FeatureAugmentReuser`` helps users reuse learnwares by augmenting features. In this method, 
+outputs of the learnwares from ``learnware_list`` on user's validation data ``val_X`` are taken as augmented features and are concatenated with original features ``val_X``.
+The augmented data(concatenated features combined with validation labels ``val_y``) are then used to train a simple model ``augment_reuser`` which gives the final prediction
+on ``user_data``.
+
+- **fit**: Trains the ``augment_reuser`` using augmented user validation data. For classification tasks, ``mode`` should be set to ``classification``, and ``augment_reuser`` is a ``LogisticRegression`` model. For regression tasks, mode should be set to ``classification``, and ``augment_reuser`` is a ``RidgeCV`` model. 
+
+
+References
+-----------
+
+.. [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective Evolutionary Ensemble Pruning Guided by Margin Distribution. In: Proceedings of the 17th International Conference on Parallel Problem Solving from Nature (PPSN'22), Dortmund, Germany, 2022.

@@ -11,11 +11,11 @@ The ``learnware market`` will receive various kinds of learnwares, and learnware
 Framework
 ======================================
 
-The ``learnware market`` is combined with a ``organizer``, a ``searcher``, and a list of ``checker``s. 
+The ``learnware market`` is combined with a ``organizer``, a ``searcher``, and a list of ``checker``\ s. 
 
 The ``organizer`` can store and organize learnwares in the market. It supports ``add``, ``delete``, and ``update`` operations for learnwares. It also provides the interface for ``searcher`` to search learnwares based on user requirement.
 
-The ``searcher`` can search learnwares based on user requirement. The implementation of ``searcher`` is dependent on the concrete implementation and interface for ``organizer``, where usually an ``organizer`` can be compatible with multiple different ``searcher``s.
+The ``searcher`` can search learnwares based on user requirement. The implementation of ``searcher`` is dependent on the concrete implementation and interface for ``organizer``, where usually an ``organizer`` can be compatible with multiple different ``searcher``\ s.
 
 The ``checker`` is used for checking the learnware in some standards. It should check the utility of a learnware and is supposed to return the status and a message related to the learnware's check result. Only the learnwares who passed the ``checker`` could be able to be stored and added into the ``learnware market``. 
 
@@ -24,9 +24,9 @@ The ``checker`` is used for checking the learnware in some standards. It should 
 Current Checkers
 ======================================
 
-The ``learnware`` package provide two different implementation of ``market`` where both of them share the same ``checker`` list. So we first introduce the details of ``checker``s.
+The ``learnware`` package provide two different implementation of ``market`` where both of them share the same ``checker`` list. So we first introduce the details of ``checker``\ s.
 
-The ``checker``s check a learnware object in different aspects, including environment configuration (``CondaChecker``), semantic specifications (``EasySemanticChecker``), and statistical specifications (``EasyStatChecker``). The ``__call__`` method of each checker is designed to be invoked as a function to conduct the respective checks on the learnware and return the outcomes. It defines three types of learnwares: ``INVALID_LEARNWARE`` denotes the learnware does not pass the check, ``NONUSABLE_LEARNWARE`` denotes the learnware pass the check but cannot make prediction, ``USABLE_LEARWARE`` denotes the leanrware pass the check and can make prediction. Currently, we have three ``checker``s, which are described below.
+The ``checker``s check a learnware object in different aspects, including environment configuration (``CondaChecker``), semantic specifications (``EasySemanticChecker``), and statistical specifications (``EasyStatChecker``). The ``__call__`` method of each checker is designed to be invoked as a function to conduct the respective checks on the learnware and return the outcomes. It defines three types of learnwares: ``INVALID_LEARNWARE`` denotes the learnware does not pass the check, ``NONUSABLE_LEARNWARE`` denotes the learnware pass the check but cannot make prediction, ``USABLE_LEARWARE`` denotes the leanrware pass the check and can make prediction. Currently, we have three ``checker``\ s, which are described below.
 
 
 ``CondaChecker``
@@ -50,9 +50,9 @@ Current Markets
 
 The ``learnware`` package provide two different implementation of ``market``, i.e. ``Easy Market`` and ``Hetero Market``. They have different implementation of ``organizer`` and ``searcher``.
 
+Easy Market
+-------------
 
-``Easy Market``
------------------
 Easy market is a basic realization of the learnware market. It consists of ``EasyOrganizer``, ``EasySearcher``, and the checker list ``[EasySemanticChecker, EasyStatChecker]``.
 
 
@@ -71,7 +71,7 @@ Easy market is a basic realization of the learnware market. It consists of ``Eas
 ``Easy Searcher``
 ++++++++++++++++++++
 
-``EasySearcher`` consists of ``EasyFuzzsematicSearcher`` and ``EasyStatSearcher``. ``EasyFuzzsematicSearcher`` is a kind of ``Semantic Specification Searcher``, while ``EasyStatSearcher`` is a kind of ``Statistical Specification Searcher``. All these searchers return helpful learnwares based on ``BaseUserInfo`` provided by users.
+``EasySearcher`` consists of ``EasyFuzzsemanticSearcher`` and ``EasyStatSearcher``. ``EasyFuzzsemanticSearcher`` is a kind of ``Semantic Specification Searcher``, while ``EasyStatSearcher`` is a kind of ``Statistical Specification Searcher``. All these searchers return helpful learnwares based on ``BaseUserInfo`` provided by users.
 
 ``BaseUserInfo`` is a ``Python API`` for users to provide enough information to identify helpful learnwares.
 When initializing ``BaseUserInfo``, three optional information can be provided: ``id``, ``semantic_spec`` and ``stat_info``. The introductions of these specifications is shown in `COMPONENTS: Specification <./spec.html>`_.
@@ -81,7 +81,7 @@ The semantic specification search and statistical specification search have been
 
 - **EasySearcher.__call__(self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy",) -> SearchResults**
 
-  - It conducts the semantic seacher ``EasyFuzzsematicSearcher``  on all the learnwares from the ``organizer`` with the same ``check_status`` (All learnwares if ``check_status`` is None). If the result is not empty and the ``stat_info`` is provided in ``user_info``, then it conducts ``EasyStatSearcher``, and return the ``SearchResults``.
+  - It conducts the semantic searcher ``EasyFuzzsematicSearcher``  on all the learnwares from the ``organizer`` with the same ``check_status`` (All learnwares if ``check_status`` is None). If the result is not empty and the ``stat_info`` is provided in ``user_info``, then it conducts ``EasyStatSearcher``, and return the ``SearchResults``.
 
 
 ``Semantic Specification Searcher``
@@ -128,15 +128,40 @@ If user's statistical specification ``stat_info`` is provided,  the learnware ma
 
 If any step above fails or meets a error, the learnware will be marked as ``INVALID_LEARNWARE``. The learnwares that pass the ``EasyStatChecker`` is marked as ``USABLE_LEARNWARE``.
 
-``Hetero Market``
---------------------
 
-The learnware market naturally consists of models with different feature spaces, different label spaces, or different objectives. It is beneficial for the market to accommodate these heterogeneous learnwares and provide corresponding learnware recommendation and reuse services to the user so as to expand the applicable scope of learnware paradigm.
+Hetero Market
+-------------
 
-Models are submitted to the market with their original specifications. However, these specifications are hard to be used for responding to user requirements due to heterogeneity. Specifications of heterogeneous models reside in different specification spaces. The market needs to merge these specification spaces into a unified one. To achieve this adjustment, you need to implement the class ``EvolvedMarket``, especially the function ``EvolvedMarket.generate_new_stat_specification``, which generates new statistical specifcation in an identical space for each submitted model.
+Hetero Market consists of ``HeteroMapTableOrganizer``, ``HeteroSearcher``, and the checker list ``[EasySemanticChecker, EasyStatChecker]``.
+It is an extended version of the Easy Market which accommodates table learnwares from different feature spaces(heterogeneous table learnwares), expanding the applicable scope of learnware paradigm. 
+This market trains a heterogeneous engine based on existing learnware specifications in the market to merge different specification islands and assign new specifications(``HeteroMapTableSpecification``) to learnwares. 
+With more learnwares submitted, the heterogeneous engine will continuously update and is expected to build a more precise specification world.
 
-One important case is that models have different feature spaces. In order to enable the learnware market to handle heterogeneous feature spaces, you need to implement the class ``HeterogeneousFeatureMarket`` in the following way:
 
-- First, design a method for the market to connect different feature spaces to a common subspace and implement the function ``HeterogeneousFeatureMarket.learn_mapping_functions``. This function uses specifications of all submitted models to learn mapping functions that can map the data in the original feature space to the common subspace and vice verse.
-- Second, use learned mapping functions to implement the functions ``HeterogeneousFeatureMarket.transform_original_to_subspace`` and ``HeterogeneousFeatureMarket.transform_subspace_to_original``.
-- Third, use the functions ``HeterogeneousFeatureMarket.transform_original_to_subspace`` and ``HeterogeneousFeatureMarket.transform_subspace_to_original`` to overwrite the mehtod ``EvolvedMarket.generate_new_stat_specification`` and  ``EvolvedMarket.EvolvedMarket.evolve_learnware_list`` of the base class ``EvolvedMarket``.
+``HeteroMapTableOrganizer``
++++++++++++++++++++++++++++
+
+``HeteroMapTableOrganizer`` overrides methods from ``EasyOrganizer`` and implements new methods to support organization of heterogeneous table learnwares. Key features include:
+
+- **reload_market**: Reloads the heterogeneous engine if there is one, otherwise initializes an engine with default configurations. Returns a flag indicating whether the market is reloaded successfully.
+- **reset**: Resets the heterogeneous market with specific settings regarding the heterogeneous engine such as ``auto_update``, ``auto_update_limit`` and ``training_args`` configurations.
+- **add_learnware**: Add a learnware into the market, meanwhile assigning ``HeteroMapTableSpecification`` to the learnware using the heterogeneous engine. The engine's update process will be triggered if ``auto_update`` is set to True and the number of learnwares in the market with ``USABLE_LEARNWARE`` status exceeds ``auto_update_limit``. Return the ``learnware_id`` and ``learnwere_status``.
+- **delete_learnware**: Removes the learnware with ``id`` from the market, also remove its new specification if there is one. Return a flag of whether the deletion is successful.
+- **update_learnware**: Update the learnware's ``zip_path``, ``semantic_spec``, ``check_status`` and its new specification if there is one. Return a flag indicating whether it passed the ``checker``.
+- **generate_hetero_map_spec**: Generate ``HeteroMapTableSpecification`` for users based on the information provided in ``user_info``.
+- **train**: Build the heterogeneous engine using learnwares from the market that supports heterogeneous market training.
+
+
+``HeteroSearcher``
+++++++++++++++++++
+
+``HeteroSearcher`` builds upon ``EasySearcher`` with additional support for searching among heterogeneous table learnwares, returning helpful learnwares with feature space and label space different from the user's task requirements.
+The semantic specification search and statistical specification search have been integrated into the same interface ``HeteroSearcher``.
+
+- **HeteroSearcher.__call__(self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy",) -> SearchResults**
+
+  - It conducts the semantic searcher ``EasyFuzzsematicSearcher``  on all the learnwares from the ``HeteroOrganizer`` with the same ``check_status`` (All learnwares if ``check_status`` is None).
+  - If the ``stat_info`` is provided in ``user_info``, it conducts one of the following two types of statistical specification search using ``EasySearcher``, depending on whether heterogeneous learnware search is enabled. If enabled, ``stat_info`` will be updated with a ``HeteroMapTableSpecification`` generated for the user, and the Hetero Market performs heterogeneous learnware selection based on the updated ``stat_info``. If not enabled, the Hetero Market performs homogeneous learnware selection based on the original ``stat_info``.
+  
+.. note:: 
+  The heterogeneous learnware search is enabled when ``user_info`` contains valid heterogeneous search information. Please refer to `WORKFLOWS: Hetero Search  <../workflows/search.html#hetero-search>`_ for details.
