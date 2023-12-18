@@ -73,10 +73,12 @@ def generate_rkme_image_spec(
     step_size: float = 0.01,
     steps: int = 100,
     resize: bool = True,
+    sample_size: int = 5000,
     nonnegative_beta: bool = True,
     reduce: bool = True,
     verbose: bool = True,
     cuda_idx: int = None,
+    **kwargs
 ) -> RKMEImageSpecification:
     """
         Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification for Image.
@@ -119,7 +121,7 @@ def generate_rkme_image_spec(
     # Generate rkme spec
     rkme_image_spec = RKMEImageSpecification(cuda_idx=cuda_idx)
     rkme_image_spec.generate_stat_spec_from_data(
-        X, reduced_set_size, step_size, steps, resize, nonnegative_beta, reduce, verbose
+        X, reduced_set_size, step_size, steps, resize, sample_size, nonnegative_beta, reduce, verbose, **kwargs
     )
     return rkme_image_spec
 
