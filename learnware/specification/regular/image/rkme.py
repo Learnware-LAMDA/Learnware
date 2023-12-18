@@ -39,7 +39,6 @@ class RKMEImageSpecification(RegularStatSpecification):
         """
         self.RKME_IMAGE_VERSION = 1  # Please maintain backward compatibility.
 
-        # TODO: remove this
         self.msg=None
 
         self.z = None
