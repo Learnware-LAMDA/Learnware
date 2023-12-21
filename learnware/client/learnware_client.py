@@ -179,6 +179,17 @@ class LearnwareClient:
         if result["code"] != 0:
             raise Exception("update failed: " + json.dumps(result))
 
+    def get_semantic_specification(self, learnware_id: str):
+        url = f"{self.host}/engine/learnware_info"
+        response = requests.get(url, params={"learnware_id": learnware_id}, headers=self.headers)
+
+        result = response.json()
+
+        if result["code"] != 0:
+            raise Exception("get learnware info failed: " + json.dumps(result))
+
+        return result["data"]["learnware_info"]["semantic_specification"]
+
     def download_learnware(self, learnware_id: str, save_path: str):
         url = f"{self.host}/engine/download_learnware"
 
