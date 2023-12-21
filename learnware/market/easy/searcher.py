@@ -15,6 +15,13 @@ logger = get_module_logger("easy_seacher")
 
 
 class EasyExactSemanticSearcher(BaseSearcher):
+    def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
+        match_learnwares = []
+        for learnware in learnware_list:
+            if learnware_id == learnware.id:
+                match_learnwares.append(learnware)
+        return match_learnwares
+
     def _match_semantic_spec(self, semantic_spec1, semantic_spec2):
         """
         semantic_spec1: semantic spec input by user
@@ -29,12 +36,10 @@ class EasyExactSemanticSearcher(BaseSearcher):
 
         for key in semantic_spec1.keys():
             v1 = semantic_spec1[key].get("Values", "")
-            v2 = semantic_spec2[key].get("Values", "")
-
-            if len(v1) == 0:
-                # user input is empty, no need to search
+            if key not in semantic_spec2 or len(v1) == 0:
                 continue
 
+            v2 = semantic_spec2[key].get("Values", "")
             if key in ("Name", "Description"):
                 v1 = v1.lower()
                 if v1 not in name2 and v1 not in description2:
@@ -57,9 +62,15 @@ class EasyExactSemanticSearcher(BaseSearcher):
 
     def __call__(self, learnware_list: List[Learnware], user_info: BaseUserInfo) -> SearchResults:
         match_learnwares = []
+        user_semantic_spec = user_info.get_semantic_spec()
+
+        # Learnware id search
+        if "learnware_id" in user_semantic_spec:
+            learnware_list = self._learnware_id_search(user_semantic_spec["learnware_id"]["Values"], learnware_list)
+
+        # Semantic tag match
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
-            user_semantic_spec = user_info.get_semantic_spec()
             if self._match_semantic_spec(user_semantic_spec, learnware_semantic_spec):
                 match_learnwares.append(learnware)
         logger.info("semantic_spec search: choose %d from %d learnwares" % (len(match_learnwares), len(learnware_list)))
@@ -67,6 +78,13 @@ class EasyExactSemanticSearcher(BaseSearcher):
 
 
 class EasyFuzzSemanticSearcher(BaseSearcher):
+    def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
+        match_learnwares = []
+        for learnware in learnware_list:
+            if learnware_id in learnware.id:
+                match_learnwares.append(learnware)
+        return match_learnwares
+
     def _match_semantic_spec_tag(self, semantic_spec1, semantic_spec2) -> bool:
         """Judge if tags of two semantic specs are consistent
 
@@ -128,6 +146,11 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
         final_result = []
         user_semantic_spec = user_info.get_semantic_spec()
 
+        # Learnware id search
+        if "learnware_id" in user_semantic_spec:
+            learnware_list = self._learnware_id_search(user_semantic_spec["learnware_id"]["Values"], learnware_list)
+
+        # Semantic tag match
         for learnware in learnware_list:
             learnware_semantic_spec = learnware.get_specification().get_semantic_spec()
             if self._match_semantic_spec_tag(user_semantic_spec, learnware_semantic_spec):
