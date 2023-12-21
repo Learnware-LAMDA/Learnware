@@ -186,7 +186,7 @@ class LearnwareClient:
         result = response.json()
 
         if result["code"] != 0:
-            raise Exception("get learnware info failed: " + json.dumps(result))
+            raise Exception("get learnware semantic specification failed: " + json.dumps(result))
 
         return result["data"]["learnware_info"]["semantic_specification"]
 
