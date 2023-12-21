@@ -40,10 +40,9 @@ class TestAllLearnware(unittest.TestCase):
 
     def test_all_learnware(self):
         if not self._skip_test():
-            max_learnware_num = 2000
             semantic_spec = generate_semantic_spec()
             user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={})
-            result = self.client.search_learnware(user_info, page_size=max_learnware_num)
+            result = self.client.search_learnware(user_info, page_size=None)
 
             learnware_ids = result["single"]["learnware_ids"]
             keys = [key for key in result["single"]["semantic_specifications"][0]]
@@ -55,10 +54,8 @@ class TestAllLearnware(unittest.TestCase):
                 for idx in learnware_ids:
                     zip_path = os.path.join(tempdir, f"test_{idx}.zip")
                     self.client.download_learnware(idx, zip_path)
-                    with zipfile.ZipFile(zip_path, "r") as zip_file:
-                        with zip_file.open("semantic_specification.json") as json_file:
-                            semantic_spec = json.load(json_file)
                     try:
+                        semantic_spec = self.client.get_semantic_specification(idx)
                         LearnwareClient.check_learnware(zip_path, semantic_spec)
                         print(f"check learnware {idx} succeed")
                     except:
