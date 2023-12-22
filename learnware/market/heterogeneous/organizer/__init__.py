@@ -12,7 +12,7 @@ from ...base import BaseChecker, BaseUserInfo
 from ...easy import EasyOrganizer
 from ....learnware import Learnware
 from ....logger import get_module_logger
-from ....specification import HeteroMapTableSpecification, RKMETableSpecification
+from ....specification import HeteroMapTableSpecification
 
 
 logger = get_module_logger("hetero_map_table_organizer")
@@ -165,9 +165,11 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         int
             The final learnware check_status.
         """
+        old_semantic_spec = self.learnware_list[id].get_specification().get_semantic_spec()
         final_status = super(HeteroMapTableOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
         if final_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(id)):
-            self._update_learware_hetero_spec(id)
+            if zip_path is not None or old_semantic_spec.get("Input", {}) != semantic_spec.get("Input", {}):
+                self._update_learware_hetero_spec(id)
         return final_status
 
     def _reload_learnware_hetero_spec(self, learnware_id):

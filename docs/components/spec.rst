@@ -3,79 +3,66 @@
 Specification
 ================================
 
-Concepts & Types
-======================================
+Learnware specification is the core component of the learnware paradigm, linking all processes about learnwares, including uploading, organizing, searching, deploying and reusing. 
 
-The search of helpful learnwares can be divided into two stages: statistical specification and semantic specification.
+In this section, we will introduce the concept and design of learnware specification in the ``learnware`` package.
+We will then explore ``regular specification``\ s tailored for different data types such as tables, images and texts.
+Lastly, we cover a ``system specification`` specifically assigned to table learnwares by the learnware market, aimed at accommodating all available table learnwares into a unified "specification world" despite their heterogeneity.
+
+Concepts & Types
+==================
+
+The learnware specification describes the model's specialty and utility in a certain format, allowing the model to be identified and reused by future users who may have no prior knowledge of the learnware.
+The ``learnware`` package employs a highly extensible specification design, which consists of two parts:
+
+- **Semantic specification** describes the model's type and functionality through a set of descriptions and tags. Learnwares with similar semantic specifications reside in the same specification island
+- **Statistical specification** characterizes the statistical information contained in the model using various machine learning techniques. It plays a crucial role in locating the appropriate place for the model within the specification island.
+
+When searching in the learnware market, the system first locates specification islands based on the semantic specification of the user's task, 
+then pinpoints highly beneficial learnwares on theses islands based on the statistical specification of the user's task.
 
 Statistical Specification
 ---------------------------
 
-The learnware specification should ideally provide essential information about every model in the learnware market, enabling efficient and accurate identification for future users. Our current specification design has two components. The first part consists of a string of descriptions or tags assigned by the learnware market based on developer-submitted information. These descriptions or tags help identify the model's specification island. Different learnware market enterprises may use different descriptions or tags.
+We employ the ``Reduced Kernel Mean Embedding (RKME) Specification`` as the foundation for implementing statistical specification for diverse data types, 
+with adjustments made according to the characteristics of each data type. 
+The RKME specification is a recent development in learnware specification design, which represents the distribution of a model's training data in a privacy-preserving manner.
 
-The second part of the specification is crucial for determining the model's position in the functional space :math:`F: \mathcal{X} \mapsto \mathcal{Y}` with respect to obj. A recent development in this area is the RKME (Reduced Kernel Mean Embedding) specification, which builds on the reduced set of KME (Kernel Mean Embedding) techniques. KME is a powerful method for mapping a probability distribution to a point in RKHS (Reproducing Kernel Hilbert Space), while the reduced set retains this ability with a concise representation that doesn't reveal the original data.
-
-The RKME specification assumes that each learnware is a well-performed model on its training data. The RKME specification is based on RKME :math:`\widetilde{\Phi}`, which aims to provide a good representation by constructing a reduced set to approximate the empirical KME :math:`\Phi=\int_{\mathcal{X}} k(\boldsymbol{x}, \cdot) \mathrm{d} P(\boldsymbol{x})` of the underlying distribution. Theoretically, when the kernel function satisfies :math:`k(\boldsymbol{x}, \boldsymbol{x}) \leq 1` for all :math:`x \in \mathcal{X}`, we have the guarantee that
-
-.. math::
-
-   \|\widetilde{\Phi}-\Phi\|_{\mathcal{H}} \leq 2 \sqrt{\frac{2}{n}}+\sqrt{\frac{1}{m}}+\sqrt{\frac{2 \log (1 / \delta)}{m}},
-
-with a probability of at least :math:`1-\delta`, where :math:`n, m` are the sizes of the RKME reduced set and the original data, respectively. It is known that when using characteristic kernels such as the Gaussian kernel, KME can capture all information about the distribution. Additionally, when the RKHS of the kernel function is finite-dimensional, RKME has a linear convergence rate :math:`O\left(e^{-n}\right)` to empirical KME; for infinite-dimensional RKHS, it has been proved constructively that RKME can enjoy :math:`O(\sqrt{d} / n)` convergence rate under :math:`L_{\infty}` measure, where :math:`d` is the dimension of the original data. Therefore, RKME is guaranteed to be a good estimation of KME and a valid representation for data distribution that encodes the ability of a trained model.
-
-Under certain assumptions, the risk for the user task can be bounded, such as assuming that the distribution corresponding to the user's task matches that of a learnware, or that it can be approximated by a mixture of distributions corresponding to a set of learnwares' tasks, i.e.,
-
-.. math::
-
-   \mathcal{D}_u=\sum_{i=1}^N w_i \mathcal{D}_i
-
-where :math:`\mathcal{D}_u` is the distribution corresponding to the user's task, :math:`N` is the number of learnwares, and :math:`\mathcal{D}_i` are their corresponding distributions. We have :math:`\sum_{i=1}^N w_i=1` and :math:`w_i \geq 0`. These two assumptions are known as task-recurrent and instance-recurrent assumptions. Additionally, assume that all learnwares are well-performed ones:
-
-.. math::
-
-   \mathbb{E}_{\mathcal{D}_i}\left[\ell\left(\widehat{f}_i(\boldsymbol{x}), \boldsymbol{y}\right)\right] \leq \epsilon, \forall i \in[N],
-
-where :math:`\widehat{f}_i` is the function corresponding to the :math:`i`-th learnware, :math:`\ell` is the loss function, and :math:`\boldsymbol{y}` is assumed to be determined by a ground-truth global function :math:`h`. Under these assumptions, recent studies have attempted to bound the risk on the user's task. With the task-recurrent assumption and selecting the learnware :math:`\left(\widehat{f}_i, \tilde{\Phi}_i\right)` with the smallest RKHS distance :math:`\eta` according to RKME, given the loss function
-
-.. math::
-
-   \left|\ell\left(\widehat{f}_i(\boldsymbol{x}), h(\boldsymbol{x})\right)\right| \leq U, \forall \boldsymbol{x} \in \mathcal{X}, \forall i \in[N],
-
-we have
-
-.. math::
-
-   \mathbb{E}_{\mathcal{D}_u}\left[\ell\left(\widehat{f}_i(\boldsymbol{x}), \boldsymbol{y}\right)\right] \leq \epsilon+U \eta+O\left(\frac{1}{\sqrt{m}}+\frac{1}{\sqrt{n}}\right).
-
-As for the instance-recurrent assumption and the 0/1-loss
-
-.. math::
-
-   \ell_{01}(f(\boldsymbol{x}), \boldsymbol{y})=\mathbb{I}(f(\boldsymbol{x}) \neq \boldsymbol{y}),
-
-a more general result has been achieved:
-
-.. math::
-
-   \mathbb{E}_{\mathcal{D}_u}\left[\ell_{01}(f(\boldsymbol{x}), \boldsymbol{y})\right] \leq \epsilon+R(g),
-
-where :math:`R(g)=\sum_{i=1}^N w_i \mathbb{E}_{\mathcal{D}_1}\left[\ell_{01}(g(\boldsymbol{x}), i)\right]` represents the weighted risk of any learnware selector :math:`g(x)`, which takes unlabeled data as input and assigns it to the appropriate model, :math:`f(\boldsymbol{x})=\widehat{f}_{g(\boldsymbol{x})}(\boldsymbol{x})` is the final model for the user's task.
-
-Efforts have been made to enable the learnware market to handle unseen tasks, where the user's task involves some unseen aspects that have never been addressed by the current learnwares in the market. A more general theoretical analysis has been presented based on mixture proportion estimation.
-
+Within the ``learnware`` package, you'll find two types of statistical specifications: ``regular specification`` and ``system specification``. The former is generated locally
+by users to express their model's statistical information, while the latter is assigned by the learnware market to accommodate and organize heterogeneous learnwares. 
 
 Semantic Specification
----------------------------
+-----------------------
 
-The semantic specification describes the characteristics of user's task and the market will identify potentially helpful leaarnwares whose models solve tasks similar to your requirements. The detail semantic specification is in `Indentification Learnwares <../workflow/identify.html>`_.
+The semantic specification consists of a "dict" structure that includes keywords "Data", "Task", "Library", "Scenario", "License", "Description", and "Name". 
+In the case of table learnwares, users should additionally provide descriptions for each feature dimension and output dimension through the "Input" and "Output" keywords.
 
 
 Regular Specification
 ======================================
 
+The ``learnware`` package provides a unified interface, ``generate_stat_spec``, for generating ``regular specification``\ s across different data types. 
+Users can use the training data ``train_x`` (supported types include numpy.ndarray, pandas.DataFrame, and torch.Tensor) as input to generate the ``regular specification`` of the model,
+as shown in the following code:
+
+.. code:: python
+
+   for learnware.specification import generate_stat_spec
+
+   data_type = "table" # supported data types: ["table", "image", "text"]
+   regular_spec = generate_stat_spec(type=data_type, x=train_x)
+   regular_spec.save("stat.json")
+
+It's worth noting that the above code only runs on user's local computer and does not interact with any cloud servers or leak any local private data.
+
+.. note:: 
+
+   In cases where the model's training data is too large, causing the above code to fail, you can consider sampling the training data to ensure it's of a suitable size before proceeding with reduction generation.
 
 Table Specification
 --------------------------
+
+The ``regular specification`` for tabular learnware is essentially the RKME specification of the model's training table data. No additional adjustment is needed.
 
 Image Specification
 --------------------------
@@ -99,19 +86,17 @@ By randomly sampling a subset of the dataset, we can construct Image Specificati
 
 .. code-block:: python
 
-   import torchvision
-   from torch.utils.data import DataLoader
-   from learnware.specification import generate_rkme_image_spec
+    import torchvision
+    from torch.utils.data import DataLoader
+    from learnware.specification import generate_rkme_image_spec
 
-   SAMPLED_SIZE = 5000
 
-   full_set = torchvision.datasets.CIFAR10(
-      root='./data', train=True, download=True, transform=torchvision.transforms.ToTensor())
-   loader =  DataLoader(full_set, batch_size=SAMPLED_SIZE, shuffle=True)
-   sampled_X, _ = next(iter(loader))
+    cifar10 = torchvision.datasets.CIFAR10(
+       root='./data', train=True, download=True, transform=torchvision.transforms.ToTensor())
+    X, _ = next(iter(DataLoader(cifar10, batch_size=len(cifar10))))
 
-   spec = generate_rkme_image_spec(sampled_X)
-   spec.save("cifar10.json")
+    spec = generate_rkme_image_spec(X, sample_size=5000)
+    spec.save("cifar10.json")
 
 Privacy Protection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -131,3 +116,20 @@ Text Specification
 
 System Specification
 ======================================
+
+In contrast to ``regular specification``\ s which are generated solely by users,
+``system specification``\ s are higher-level statistical specifications assigned by learnware markets 
+to effectively accommodate and organize heterogeneous learnwares. 
+This implies that ``regular specification``\ s are usually applicable across different markets, while ``system specification``\ s are generally closely associated
+with particular learnware market implementations.
+
+``system specification`` play a critical role in heterogeneous markets such as the ``Hetero Market``:
+
+- Learnware organizers use these specifications to connect isolated specification islands into unified "specification world"s.
+- Learnware searchers perform helpful learnware recommendations among all table learnwares in the market, leveraging the ``system specification``\ s generated for users.
+
+
+``learnware`` package now includes a type of ``system specification``, named ``HeteroMapTableSpecification``, made especially for the ``Hetero Market`` implementation.
+This specification is automatically given to all table learnwares when they are added to the ``Hetero Market``.
+It is also set up to be updated periodically, ensuring it remains accurate as the learnware market evolves and builds more precise specification worlds.
+Please refer to `COMPONENTS: Hetero Market  <../components/market.html#hetero-market>`_ for implementation details.
