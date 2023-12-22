@@ -165,9 +165,11 @@ class HeteroMapTableOrganizer(EasyOrganizer):
         int
             The final learnware check_status.
         """
+        old_semantic_spec = self.learnware_list[id].get_specification().get_semantic_spec()
         final_status = super(HeteroMapTableOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
         if final_status == BaseChecker.USABLE_LEARWARE and len(self._get_hetero_learnware_ids(id)):
-            self._update_learware_hetero_spec(id)
+            if zip_path is not None or old_semantic_spec.get("Input", {}) != semantic_spec.get("Input", {}):
+                self._update_learware_hetero_spec(id)
         return final_status
 
     def _reload_learnware_hetero_spec(self, learnware_id):
