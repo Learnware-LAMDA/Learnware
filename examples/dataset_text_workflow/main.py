@@ -1,202 +1,76 @@
 import os
 import fire
-import pickle
 import time
-import zipfile
-from shutil import copyfile, rmtree
 import random
-
+import pickle
+import tempfile
 import numpy as np
-
-import learnware.specification as specification
-from get_data import get_data
-from learnware.logger import get_module_logger
-from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser
-from utils import generate_uploader, generate_user, TextDataLoader, train, eval_prediction
-from learnware.client import LearnwareClient, SemanticSpecificationKey
 import matplotlib.pyplot as plt
-from learnware.specification import generate_semantic_spec
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import TfidfVectorizer
 
-# Login to Beiming system
-client = LearnwareClient()
+from learnware.client import LearnwareClient
+from learnware.logger import get_module_logger
+from learnware.specification import RKMETextSpecification
+from learnware.tests.benchmarks import LearnwareBenchmark
+from learnware.market import instantiate_learnware_market, BaseUserInfo
+from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
+from config import text_benchmark_config
 
 logger = get_module_logger("text_workflow", level="INFO")
-origin_data_root = "./data/origin_data"
-processed_data_root = "./data/processed_data"
-tmp_dir = "./data/tmp"
-learnware_pool_dir = "./data/learnware_pool"
-dataset = "20newsgroups"
-
-n_uploaders = 50 # max = 10 * n_samples
-n_samples = 5
-n_users = 10  # max = 10
-n_classes = 20
-
-n_labeled_list = [100, 200, 500, 1000, 2000, 4000]
-repeated_list = [10, 10, 10, 3, 3, 3]
-
-data_root = os.path.join(origin_data_root, dataset)
-data_save_root = os.path.join(processed_data_root, dataset)
-user_save_root = os.path.join(data_save_root, "user")
-uploader_save_root = os.path.join(data_save_root, "uploader")
-model_save_root = os.path.join(data_save_root, "uploader_model")
-user_train_save_root = os.path.join(data_save_root, "user_train")
-
-os.makedirs(data_root, exist_ok=True)
-os.makedirs(user_save_root, exist_ok=True)
-os.makedirs(uploader_save_root, exist_ok=True)
-os.makedirs(model_save_root, exist_ok=True)
-os.makedirs(user_train_save_root, exist_ok=True)
-
-output_description = {
-    "Dimension": 20,
-    "Description": {"0": "0", "1": "1", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6",
-                    "7": "7", "8": "8", "9": "9", "10": "10", "11": "11", "12": "12", "13": "13",
-                    "14": "14", "15": "15", "16": "16", "17": "17", "18": "18", "19": "19"}
-}
 
 
-semantic_spec = generate_semantic_spec(
-    name="learnware_example",
-    description="Just a example for text learnware",
-    data_type="Text",
-    task_type="Classification",
-    library_type="Scikit-learn",
-    scenarios=["Education"],
-    license="MIT",
-    input_description=None,
-    output_description=output_description,
-)
+def train(X, y):
+    # Train Uploaders' models
+    vectorizer = TfidfVectorizer(stop_words="english")
+    X_tfidf = vectorizer.fit_transform(X)
 
-user_semantic = generate_semantic_spec(
-    # name="learnware_example",
-    description="Just a example for text learnware",
-    data_type="Text",
-    task_type="Classification",
-    library_type="Scikit-learn",
-    scenarios=["Education"],
-    license="MIT",
-    input_description=None,
-    output_description=output_description,
-)
+    clf = MultinomialNB(alpha=0.1)
+    clf.fit(X_tfidf, y)
+
+    return vectorizer, clf
+
+
+def eval_prediction(pred_y, target_y):
+    if not isinstance(pred_y, np.ndarray):
+        pred_y = pred_y.detach().cpu().numpy()
+    if len(pred_y.shape) == 1:
+        predicted = np.array(pred_y)
+    else:
+        predicted = np.argmax(pred_y, 1)
+    annos = np.array(target_y)
+
+    total = predicted.shape[0]
+    correct = (predicted == annos).sum().item()
+
+    return correct / total
 
 
 class TextDatasetWorkflow:
-    def _init_text_dataset(self):
-        self._prepare_data()
-        self._prepare_model()
+    def prepare_market(self, rebuild=False):
+        client = LearnwareClient()
+        self.text_benchmark = LearnwareBenchmark().get_benchmark(text_benchmark_config)
+        self.text_market = instantiate_learnware_market(market_id=self.text_benchmark.name, rebuild=rebuild)
+        self.user_semantic = client.get_semantic_specification(self.text_benchmark.learnware_ids[0])
 
-    def _prepare_data(self):
-        X_train, y_train, X_test, y_test = get_data(data_root)
+        if len(self.text_market) == 0 or rebuild == True:
+            for learnware_id in self.text_benchmark.learnware_ids:
+                with tempfile.TemporaryDirectory(prefix="text_benchmark_") as tempdir:
+                    zip_path = os.path.join(tempdir, f"{learnware_id}.zip")
+                    for i in range(20):
+                        try:
+                            semantic_spec = client.get_semantic_specification(learnware_id)
+                            client.download_learnware(learnware_id, zip_path)
+                            break
+                        except:
+                            time.sleep(1)
+                            continue
+                    self.text_market.add_learnware(zip_path, semantic_spec)
 
-        generate_uploader(X_train, y_train, n_uploaders=n_uploaders, n_samples=n_samples,
-                          data_save_root=uploader_save_root)
-        generate_user(X_test, y_test, n_users=n_users, data_save_root=user_save_root)
+        logger.info("Total Item: %d" % (len(self.text_market)))
 
-        generate_user(X_train, y_train, n_users=n_users, data_save_root=user_train_save_root)
-
-    def _prepare_model(self):
-        dataloader = TextDataLoader(data_save_root, train=True)
-        for i in range(n_uploaders):
-            logger.info("Train on uploader: %d" % (i))
-            X, y = dataloader.get_idx_data(i)
-            vectorizer, clf = train(X, y, out_classes=n_classes)
-
-            modelv_save_path = os.path.join(model_save_root, "uploader_v_%d.pth" % (i))
-            modell_save_path = os.path.join(model_save_root, "uploader_l_%d.pth" % (i))
-
-            with open(modelv_save_path, "wb") as f:
-                pickle.dump(vectorizer, f)
-
-            with open(modell_save_path, "wb") as f:
-                pickle.dump(clf, f)
-
-            logger.info("Model saved to '%s' and '%s'" % (modelv_save_path, modell_save_path))
-
-    def _prepare_learnware(
-            self, data_path, modelv_path, modell_path, init_file_path, yaml_path, env_file_path, save_root, zip_name
-    ):
-        os.makedirs(save_root, exist_ok=True)
-        tmp_spec_path = os.path.join(save_root, "rkme.json")
-
-        tmp_modelv_path = os.path.join(save_root, "modelv.pth")
-        tmp_modell_path = os.path.join(save_root, "modell.pth")
-
-        tmp_yaml_path = os.path.join(save_root, "learnware.yaml")
-        tmp_init_path = os.path.join(save_root, "__init__.py")
-        tmp_env_path = os.path.join(save_root, "requirements.txt")
-
-        with open(data_path, "rb") as f:
-            X = pickle.load(f)
-
-        st = time.time()
-
-        user_spec = specification.RKMETextSpecification()
-
-        user_spec.generate_stat_spec_from_data(X=X)
-        ed = time.time()
-        logger.info("Stat spec generated in %.3f s" % (ed - st))
-        user_spec.save(tmp_spec_path)
-
-        copyfile(modelv_path, tmp_modelv_path)
-        copyfile(modell_path, tmp_modell_path)
-
-        copyfile(yaml_path, tmp_yaml_path)
-        copyfile(init_file_path, tmp_init_path)
-        copyfile(env_file_path, tmp_env_path)
-        zip_file_name = os.path.join(learnware_pool_dir, "%s.zip" % (zip_name))
-        with zipfile.ZipFile(zip_file_name, "w", compression=zipfile.ZIP_DEFLATED) as zip_obj:
-            zip_obj.write(tmp_spec_path, "rkme.json")
-
-            zip_obj.write(tmp_modelv_path, "modelv.pth")
-            zip_obj.write(tmp_modell_path, "modell.pth")
-
-            zip_obj.write(tmp_yaml_path, "learnware.yaml")
-            zip_obj.write(tmp_init_path, "__init__.py")
-            zip_obj.write(tmp_env_path, "requirements.txt")
-        rmtree(save_root)
-        logger.info("New Learnware Saved to %s" % (zip_file_name))
-        return zip_file_name
-
-    def prepare_market(self, regenerate_flag=False):
-        if regenerate_flag:
-            self._init_text_dataset()
-        text_market = instantiate_learnware_market(market_id=dataset, rebuild=True)
-        try:
-            rmtree(learnware_pool_dir)
-        except:
-            pass
-        os.makedirs(learnware_pool_dir, exist_ok=True)
-        for i in range(n_uploaders):
-            data_path = os.path.join(uploader_save_root, "uploader_%d_X.pkl" % (i))
-
-            modelv_path = os.path.join(model_save_root, "uploader_v_%d.pth" % (i))
-            modell_path = os.path.join(model_save_root, "uploader_l_%d.pth" % (i))
-
-            init_file_path = "./example_files/example_init.py"
-            yaml_file_path = "./example_files/example_yaml.yaml"
-            env_file_path = "./example_files/requirements.txt"
-            new_learnware_path = self._prepare_learnware(
-                data_path,
-                modelv_path,
-                modell_path,
-                init_file_path,
-                yaml_file_path,
-                env_file_path,
-                tmp_dir,
-                "%s_%d" % (dataset, i),
-            )
-            semantic_spec["Name"]["Values"] = "learnware_%d" % (i)
-            semantic_spec["Description"]["Values"] = "test_learnware_number_%d" % (i)
-            text_market.add_learnware(new_learnware_path, semantic_spec)
-
-        logger.info("Total Item: %d" % (len(text_market)))
-
-    def test_unlabeled(self, regenerate_flag=False):
-        self.prepare_market(regenerate_flag)
-        text_market = instantiate_learnware_market(market_id=dataset)
-        print("Total Item: %d" % len(text_market))
+    def test_unlabeled(self, rebuild=False):
+        self.prepare_market(rebuild)
 
         select_list = []
         avg_list = []
@@ -204,21 +78,19 @@ class TextDatasetWorkflow:
         improve_list = []
         job_selector_score_list = []
         ensemble_score_list = []
-        all_learnwares = text_market.get_learnwares()
-        for i in range(n_users):
-            user_data_path = os.path.join(user_save_root, "user_%d_X.pkl" % (i))
-            user_label_path = os.path.join(user_save_root, "user_%d_y.pkl" % (i))
-            with open(user_data_path, "rb") as f:
-                user_data = pickle.load(f)
-            with open(user_label_path, "rb") as f:
-                user_label = pickle.load(f)
+        all_learnwares = self.text_market.get_learnwares()
 
-            user_stat_spec = specification.RKMETextSpecification()
+        for i in range(self.text_benchmark.user_num):
+            user_data, user_label = self.text_benchmark.get_test_data(user_ids=i)
+
+            user_stat_spec = RKMETextSpecification()
             user_stat_spec.generate_stat_spec_from_data(X=user_data)
-            user_info = BaseUserInfo(semantic_spec=user_semantic, stat_info={"RKMETextSpecification": user_stat_spec})
+            user_info = BaseUserInfo(
+                semantic_spec=self.user_semantic, stat_info={"RKMETextSpecification": user_stat_spec}
+            )
             logger.info("Searching Market for user: %d" % (i))
 
-            search_result = text_market.search_learnware(user_info)
+            search_result = self.text_market.search_learnware(user_info)
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
 
@@ -267,7 +139,6 @@ class TextDatasetWorkflow:
             ensemble_score = eval_prediction(ensemble_predict_y, user_label)
             ensemble_score_list.append(ensemble_score)
             print(f"mixture reuse accuracy (ensemble): {ensemble_score}")
-
             print("\n")
 
         logger.info(
@@ -291,43 +162,36 @@ class TextDatasetWorkflow:
             % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
 
-    def test_labeled(self, regenerate_flag=False, train_flag=True):
+    def test_labeled(self, rebuild=False, train_flag=True):
+        self.n_labeled_list = [100, 200, 500, 1000, 2000, 4000]
+        self.repeated_list = [10, 10, 10, 3, 3, 3]
+        self.root_path = os.path.dirname(os.path.abspath(__file__))
+        self.fig_path = os.path.join(self.root_path, "figs")
+        self.curve_path = os.path.join(self.root_path, "curves")
+
         if train_flag:
-            self.prepare_market(regenerate_flag)
-            text_market = instantiate_learnware_market(market_id=dataset)
-            print("Total Item: %d" % len(text_market))
+            self.prepare_market(rebuild)
+            os.makedirs(self.fig_path, exist_ok=True)
+            os.makedirs(self.curve_path, exist_ok=True)
 
-            os.makedirs("./figs", exist_ok=True)
-            os.makedirs("./curves", exist_ok=True)
-
-            for i in range(n_users):
+            for i in range(self.text_benchmark.user_num):
                 user_model_score_mat = []
                 pruning_score_mat = []
                 single_score_mat = []
-                user_data_path = os.path.join(user_save_root, "user_%d_X.pkl" % (i))
-                user_label_path = os.path.join(user_save_root, "user_%d_y.pkl" % (i))
-                with open(user_data_path, "rb") as f:
-                    test_x = pickle.load(f)
-                with open(user_label_path, "rb") as f:
-                    test_y = pickle.load(f)
-                    test_y = np.array(test_y)
+                test_x, test_y = self.text_benchmark.get_test_data(user_ids=i)
+                test_y = np.array(test_y)
 
-                train_data_path = os.path.join(user_train_save_root, "user_%d_X.pkl" % (i))
-                train_label_path = os.path.join(user_train_save_root, "user_%d_y.pkl" % (i))
-                with open(train_data_path, "rb") as f:
-                    train_x = pickle.load(f)
-                with open(train_label_path, "rb") as f:
-                    train_y = pickle.load(f)
-                    train_y = np.array(train_y)
+                train_x, train_y = self.text_benchmark.get_train_data(user_ids=i)
+                train_y = np.array(train_y)
 
-                user_stat_spec = specification.RKMETextSpecification()
+                user_stat_spec = RKMETextSpecification()
                 user_stat_spec.generate_stat_spec_from_data(X=test_x)
                 user_info = BaseUserInfo(
-                    semantic_spec=user_semantic, stat_info={"RKMETextSpecification": user_stat_spec}
+                    semantic_spec=self.user_semantic, stat_info={"RKMETextSpecification": user_stat_spec}
                 )
                 logger.info(f"Searching Market for user_{i}")
 
-                search_result = text_market.search_learnware(user_info)
+                search_result = self.text_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
                 multiple_result = search_result.get_multiple_results()
 
@@ -347,7 +211,8 @@ class TextDatasetWorkflow:
                 else:
                     mixture_learnware_list = [single_result[0].learnware]
                 print(len(train_x))
-                for n_label, repeated in zip(n_labeled_list, repeated_list):
+
+                for n_label, repeated in zip(self.n_labeled_list, self.repeated_list):
                     user_model_score_list, reuse_pruning_score_list = [], []
                     if n_label > len(train_x):
                         n_label = len(train_x)
@@ -357,7 +222,7 @@ class TextDatasetWorkflow:
                         x_train = list(x_train)
                         y_train = np.array(list(y_train))
 
-                        modelv, modell = train(x_train, y_train, out_classes=n_classes)
+                        modelv, modell = train(x_train, y_train)
                         user_model_predict_y = modell.predict(modelv.transform(test_x))
                         user_model_score = eval_prediction(user_model_predict_y, test_y)
                         user_model_score_list.append(user_model_score)
@@ -377,12 +242,12 @@ class TextDatasetWorkflow:
 
                 logger.info(f"Saving Curves for User_{i}")
                 user_curves_data = (single_score_mat, user_model_score_mat, pruning_score_mat)
-                # np.save("./curves/curve" + str(i), user_curves_data)
-                with open("./curves/curve" + str(i) + ".pkl", "wb") as f:
+                with open(os.path.join(self.curve_path, f"curve{str(i)}.pkl"), "wb") as f:
                     pickle.dump(user_curves_data, f)
+
         pruning_curves_data, user_model_curves_data = [], []
-        for i in range(n_users):
-            with open("./curves/curve" + str(i) + ".pkl", "rb") as f:
+        for i in range(self.text_benchmark.user_num):
+            with open(os.path.join(self.curve_path, f"curve{str(i)}.pkl"), "rb") as f:
                 user_curves_data = pickle.load(f)
                 (single_score_mat, user_model_score_mat, pruning_score_mat) = user_curves_data
             for i in range(len(single_score_mat)):
@@ -398,7 +263,7 @@ class TextDatasetWorkflow:
 
     def _plot_labeled_peformance_curves(self, all_user_curves_data):
         plt.figure(figsize=(10, 6))
-        plt.xticks(range(len(n_labeled_list)), n_labeled_list)
+        plt.xticks(range(len(self.n_labeled_list)), self.n_labeled_list)
 
         styles = [
             # {"color": "orange", "linestyle": "--", "marker": "s"},
@@ -427,7 +292,7 @@ class TextDatasetWorkflow:
         plt.title(f"Text Limited Labeled Data")
         plt.legend()
         plt.tight_layout()
-        plt.savefig(os.path.join("figs", f"text_labeled_curves.png"), bbox_inches="tight", dpi=700)
+        plt.savefig(os.path.join(self.fig_path, "text_labeled_curves.png"), bbox_inches="tight", dpi=700)
 
 
 if __name__ == "__main__":
