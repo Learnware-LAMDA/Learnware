@@ -49,7 +49,7 @@ Homo Experiments
 For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 users, each applying one feature engineering method, 
 and using the test data from their respective store as user data. These users can then search for homogeneous learnwares in the market with the same feature spaces as their tasks.
 
-The MSE of search and reuse is presented in the table below:
+The Mean Squared Error (MSE) of search and reuse is presented in the table below:
 
 ===================  ======================  =================  ==================
    Top-1 Reuse       Average Ensemble Reuse   Best in Market     Average in Market
@@ -58,17 +58,15 @@ The MSE of search and reuse is presented in the table below:
 ===================  ======================  =================  ==================
 
 When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield
-better results than training models from scratch on limited training data. We present the change curves in MSE for the user's self-trained model and
-a multiple learnware reuse method: Ensemble Pruning. These curves display their performance on the user's test data as the amount of labeled training data increases. 
+better results than training models from scratch on limited training data. We present the change curves in MSE for the user's self-trained model, as well as for the Feature Augmentation single learnware reuse method and the Ensemble Pruning multiple learnware reuse method. 
+These curves display their performance on the user's test data as the amount of labeled training data increases. 
 The average results across 55 users are depicted in the figure below:
 
 .. image:: ../_static/img/table_homo_labeled.png
-   :width: 300
-   :height: 200
+   :align: center
    :alt: Table Homo Limited Labeled Data
 
-From the figure, it's evident that when users have limited training data, the performance of reusing multiple table learnwares is superior to that of the user's own model. 
-However, as the user's training data increases, we anticipate the user's own model to eventually outperform learnware reuse. 
+From the figure, it's evident that when users have limited training data, the performance of reusing single/multiple table learnwares is superior to that of the user's own model. 
 This emphasizes the benefit of learnware reuse in significantly reducing the need for extensive training data and achieving enhanced results when available user training data is limited.
 
 
@@ -78,7 +76,7 @@ Hetero Experiments
 In heterogeneous experiments, the learnware market would recommend helpful heterogeneous learnwares with different feature spaces with 
 the user tasks. Based on whether there are learnwares in the market that handle tasks similar to the user's task, the experiments can be further subdivided into the following two types:
 
-Cross Feature Engineering Experiments
+Cross Feature Space Experiments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We designate the 41 stores in the PFS dataset as users, creating their user data with an alternative feature engineering approach that varies from the methods employed by learnwares in the market. 
@@ -112,8 +110,7 @@ These curves display their performance on the user's test data as the amount of 
 The average results across 10 users are depicted in the figure below:
 
 .. image:: ../_static/img/table_hetero_labeled.png
-   :width: 300
-   :height: 200
+   :align: center
    :alt: Table Hetero Limited Labeled Data
 
 We can observe that heterogeneous learnwares are beneficial when there's a limited amount of the user's labeled training data available, 
@@ -157,8 +154,7 @@ The accuracy of search and reuse is presented in the table below:
 We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse(EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
 .. image:: ../_static/img/text_example_labeled_curves.png
-   :width: 300
-   :height: 200
+   :align: center
    :alt: Text Limited Labeled Data
 
 
