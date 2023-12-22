@@ -181,7 +181,7 @@ class LearnwareClient:
 
     def get_semantic_specification(self, learnware_id: str):
         url = f"{self.host}/engine/learnware_info"
-        response = requests.get(url, params={"learnware_id": learnware_id}, headers=self.headers)
+        response = requests.get(url, params={"learnware_id": learnware_id}, headers=self.headers, stream=True)
 
         result = response.json()
 
