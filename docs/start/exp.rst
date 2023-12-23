@@ -133,13 +133,13 @@ Model training comprised two parts: the first part involved training a tfidf fea
 
 Our experiments comprises two components:
 
-* ``test_unlabeled`` is designed to evaluate performance when users possess only testing data, searching and reusing learnware available in the market.
-* ``test_labeled`` aims to assess performance when users have both testing and limited training data, searching and reusing learnware directly from the market instead of training a model from scratch. This helps determine the amount of training data saved for the user.
+* ``unlabeled_text_example`` is designed to evaluate performance when users possess only testing data, searching and reusing learnware available in the market.
+* ``labeled_text_example`` aims to assess performance when users have both testing and limited training data, searching and reusing learnware directly from the market instead of training a model from scratch. This helps determine the amount of training data saved for the user.
 
 Results
 ----------------
 
-* ``test_unlabeled``:
+* ``unlabeled_text_example``:
 
 The accuracy of search and reuse is presented in the table below:
 
@@ -149,7 +149,7 @@ The accuracy of search and reuse is presented in the table below:
   0.859 +/- 0.051          0.844 +/- 0.053                    0.858 +/- 0.051
 ==================== ================================= =================================
 
-* ``test_labeled``:
+* ``labeled_text_example``:
 
 We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse(EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
@@ -192,6 +192,6 @@ Examples for the `20-newsgroup` dataset are available at [examples/dataset_text_
 We utilize the `fire` module to construct our experiments. You can execute the experiment with the following commands:
 
 * `python main.py prepare_market`: Prepares the market.
-* `python main.py test_unlabeled`: Executes the test_unlabeled experiment; the results will be printed in the terminal.
-* `python main.py test_labeled`: Executes the test_labeled experiment; result curves will be automatically saved in the `figs` directory.
-* Additionally, you can use `python main.py test_unlabeled True` to combine steps 1 and 2. The same approach applies to running test_labeled directly.
+* `python main.py unlabeled_text_example`: Executes the unlabeled_text_example experiment; the results will be printed in the terminal.
+* `python main.py labeled_text_example`: Executes the labeled_text_example experiment; result curves will be automatically saved in the `figs` directory.
+* Additionally, you can use `python main.py unlabeled_text_example True` to combine steps 1 and 2. The same approach applies to running labeled_text_example directly.

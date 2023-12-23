@@ -92,7 +92,7 @@ class TextDatasetWorkflow:
 
         logger.info("Total Item: %d" % (len(self.text_market)))
 
-    def test_unlabeled(self, rebuild=False):
+    def unlabeled_text_example(self, rebuild=False):
         self._prepare_market(rebuild)
 
         select_list = []
@@ -183,7 +183,7 @@ class TextDatasetWorkflow:
             % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
 
-    def test_labeled(self, rebuild=False, train_flag=True):
+    def labeled_text_example(self, rebuild=False, train_flag=True):
         self.n_labeled_list = [100, 200, 500, 1000, 2000, 4000]
         self.repeated_list = [10, 10, 10, 3, 3, 3]
         self.root_path = os.path.dirname(os.path.abspath(__file__))
