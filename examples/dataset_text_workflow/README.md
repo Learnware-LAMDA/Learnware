@@ -2,8 +2,8 @@
 
 ## Introduction
 
-We conducted experiments on the widely used text benchmark dataset: `20-newsgroup <http://qwone.com/~jason/20Newsgroups/>`_.
-20-newsgroup is a renowned text classification benchmark with a hierarchical structure, featuring 5 superclasses {comp, rec, sci, talk, misc}.
+We conducted experiments on the widely used text benchmark dataset: [``20-newsgroup``](http://qwone.com/~jason/20Newsgroups/).
+``20-newsgroup`` is a renowned text classification benchmark with a hierarchical structure, featuring 5 superclasses {comp, rec, sci, talk, misc}.
 
 In the submitting stage, we enumerated all combinations of three superclasses from the five available, randomly sampling 50% of each combination from the training set to create datasets for 50 uploaders.
 
@@ -21,13 +21,13 @@ Our experiments comprises two components:
 
 ## Run the code
 
-Run the following command to start the ``unlabeled_text_example`.
+Run the following command to start the ``unlabeled_text_example``.
 
 ```bash
 python workflow.py unlabeled_text_example
 ```
 
-Run the following command to start the ``labeled_text_example`.
+Run the following command to start the ``labeled_text_example``.
 
 ```bash
 python workflow.py labeled_text_example
