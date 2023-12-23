@@ -84,17 +84,17 @@ Consequently, while the market's learnwares from the PFS dataset undertake tasks
 we tested various heterogeneous learnware reuse methods (without using user's labeled data) and compared them to the user's self-trained model based on a small amount of training data.
 The average MSE performance across 41 users are as follows:
 
-+------------------------------------+---------------------+
-| Mean in Market (Single)            | 1.459 +/- 1.066     |
-+------------------------------------+---------------------+
-| Best in Market (Single)            | 1.226 +/- 1.032     |
-+------------------------------------+---------------------+
-| Top-1 Reuse (Single)               | 1.407 +/- 1.061     |
-+------------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple)  | 1.312 +/- 1.099     |
-+------------------------------------+---------------------+
-| User model with 50 labeled data    | 1.267 +/- 1.055     |
-+------------------------------------+---------------------+
++---------------------------------------+---------------------+
+| **Mean in Market (Single)**           | 1.459 +/- 1.066     |
++---------------------------------------+---------------------+
+| **Best in Market (Single)**           | 1.226 +/- 1.032     |
++---------------------------------------+---------------------+
+| **Top-1 Reuse (Single)**              | 1.407 +/- 1.061     |
++---------------------------------------+---------------------+
+| **Average Ensemble Reuse (Multiple)** | 1.312 +/- 1.099     |
++---------------------------------------+---------------------+
+| **User model with 50 labeled data**   | 1.267 +/- 1.055     |
++---------------------------------------+---------------------+
 
 From the results, it is noticeable that the learnware market still perform quite well even when users lack labeled data, 
 provided it includes learnwares addressing tasks that are similar but not identical to the user's. 
@@ -143,11 +143,17 @@ Results
 
 The accuracy of search and reuse is presented in the table below:
 
-==================== ================================= ================================= ================================= =================================
-    Top-1 Reuse             Job Selector Reuse                Average Ensemble Reuse               Best in Market                  Average in Market
-==================== ================================= ================================= ================================= =================================
-   0.846 +/- 0.054            0.845 +/- 0.053                   0.862 +/- 0.051                    0.859 +/- 0.051                  0.507 +/- 0.030
-==================== ================================= ================================= ================================= =================================
++--------------------------------------+---------------------+
+| **Mean in Market (Single)**          | 0.507 +/- 0.030     |
++--------------------------------------+---------------------+
+| **Best in Market (Single)**          | 0.859 +/- 0.051     |
++--------------------------------------+---------------------+
+| **Top-1 Reuse (Single)**             | 0.846 +/- 0.054     |
++--------------------------------------+---------------------+
+| **Job Selector Reuse (Multiple)**    | 0.845 +/- 0.053     |
++--------------------------------------+---------------------+
+|**Average Ensemble Reuse (Multiple)** | 0.862 +/- 0.051     |
++--------------------------------------+---------------------+
 
 * ``test_labeled``:
 
