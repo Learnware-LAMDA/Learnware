@@ -52,6 +52,7 @@ class TextDatasetWorkflow:
         self.text_benchmark = LearnwareBenchmark().get_benchmark(text_benchmark_config)
         self.text_market = instantiate_learnware_market(market_id=self.text_benchmark.name, rebuild=rebuild)
         self.user_semantic = client.get_semantic_specification(self.text_benchmark.learnware_ids[0])
+        self.user_semantic['Name']['Values'] = ''
 
         if len(self.text_market) == 0 or rebuild == True:
             for learnware_id in self.text_benchmark.learnware_ids:
