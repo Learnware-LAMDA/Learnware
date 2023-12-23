@@ -51,11 +51,17 @@ and using the test data from their respective store as user data. These users ca
 
 The Mean Squared Error (MSE) of search and reuse is presented in the table below:
 
-===================  ======================  =================  ==================
-   Top-1 Reuse       Average Ensemble Reuse   Best in Market     Average in Market
-===================  ======================  =================  ==================
- 0.280 +/- 0.090        0.267 +/- 0.051       0.151 +/- 0.046    0.331 +/- 0.040
-===================  ======================  =================  ==================
++-----------------------------------+---------------------+
+| Mean in Market (Single)           | 0.331 ± 0.040       |
++-----------------------------------+---------------------+
+| Best in Market (Single)           | 0.151 ± 0.046       |
++-----------------------------------+---------------------+
+| Top-1 Reuse (Single)              | 0.280 ± 0.090       |
++-----------------------------------+---------------------+
+| Job Selector Reuse (Multiple)     | 0.274 ± 0.064       |
++-----------------------------------+---------------------+
+| Average Ensemble Reuse (Multiple) | 0.267 ± 0.051       |
++-----------------------------------+---------------------+
 
 When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield
 better results than training models from scratch on limited training data. We present the change curves in MSE for the user's self-trained model, as well as for the Feature Augmentation single learnware reuse method and the Ensemble Pruning multiple learnware reuse method. 
@@ -84,17 +90,17 @@ Consequently, while the market's learnwares from the PFS dataset undertake tasks
 we tested various heterogeneous learnware reuse methods (without using user's labeled data) and compared them to the user's self-trained model based on a small amount of training data.
 The average MSE performance across 41 users are as follows:
 
-+------------------------------------+---------------------+
-| Mean in Market (Single)            | 1.459 +/- 1.066     |
-+------------------------------------+---------------------+
-| Best in Market (Single)            | 1.226 +/- 1.032     |
-+------------------------------------+---------------------+
-| Top-1 Reuse (Single)               | 1.407 +/- 1.061     |
-+------------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple)  | 1.312 +/- 1.099     |
-+------------------------------------+---------------------+
-| User model with 50 labeled data    | 1.267 +/- 1.055     |
-+------------------------------------+---------------------+
++-----------------------------------+---------------------+
+| Mean in Market (Single)           | 1.459 ± 1.066       |
++-----------------------------------+---------------------+
+| Best in Market (Single)           | 1.226 ± 1.032       |
++-----------------------------------+---------------------+
+| Top-1 Reuse (Single)              | 1.407 ± 1.061       |
++-----------------------------------+---------------------+
+| Average Ensemble Reuse (Multiple) | 1.312 ± 1.099       |
++-----------------------------------+---------------------+
+| User model with 50 labeled data   | 1.267 ± 1.055       |
++-----------------------------------+---------------------+
 
 From the results, it is noticeable that the learnware market still perform quite well even when users lack labeled data, 
 provided it includes learnwares addressing tasks that are similar but not identical to the user's. 
@@ -143,17 +149,23 @@ Results
 
 The accuracy of search and reuse is presented in the table below:
 
-==================== ================================= =================================
- Top-1 Performance         Job Selector Reuse                Average Ensemble Reuse
-==================== ================================= =================================
-  0.859 +/- 0.051          0.844 +/- 0.053                    0.858 +/- 0.051
-==================== ================================= =================================
++-----------------------------------+---------------------+
+| Mean in Market (Single)           | 0.507 ± 0.030       |
++-----------------------------------+---------------------+
+| Best in Market (Single)           | 0.859 ± 0.051       |
++-----------------------------------+---------------------+
+| Top-1 Reuse (Single)              | 0.846 ± 0.054       |
++-----------------------------------+---------------------+
+| Job Selector Reuse (Multiple)     | 0.845 ± 0.053       |
++-----------------------------------+---------------------+
+| Average Ensemble Reuse (Multiple) | 0.862 ± 0.051       |
++-----------------------------------+---------------------+
 
 * ``labeled_text_example``:
 
 We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse(EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
-.. image:: ../_static/img/text_example_labeled_curves.png
+.. image:: ../_static/img/text_labeled_curves.png
    :align: center
    :alt: Text Limited Labeled Data
 
@@ -170,11 +182,17 @@ We constructed 50 target tasks using data from the test set of CIFAR-10. Similar
 
 With this experimental setup, we evaluated the performance of RKME Image using 1 - Accuracy as the loss.
 
-==================== ==================== ==================== ====================
- Top-1 Reuse         Job Selector Reuse    Voting Reuse          Best in Market    
-==================== ==================== ==================== ====================
- 0.406 +/- 0.128      0.406 +/- 0.128      0.310 +/- 0.112       0.304 ± 0.046     
-==================== ==================== ==================== ====================
++-----------------------------------+---------------------+
+| Mean in Market (Single)           | 0.655 ± 0.021       |
++-----------------------------------+---------------------+
+| Best in Market (Single)           | 0.304 ± 0.046       |
++-----------------------------------+---------------------+
+| Top-1 Reuse (Single)              | 0.406 ± 0.128       |
++-----------------------------------+---------------------+
+| Job Selector Reuse (Multiple)     | 0.406 ± 0.128       |
++-----------------------------------+---------------------+
+| Average Ensemble Reuse (Multiple) | 0.310 ± 0.112       |
++-----------------------------------+---------------------+
 
 In some specific settings, the user will have a small number of labelled samples. In such settings, learning the weight of selected learnwares on a limited number of labelled samples can result in a better performance than training directly on a limited number of labelled samples.
 
