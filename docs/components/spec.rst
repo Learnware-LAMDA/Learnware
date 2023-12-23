@@ -112,8 +112,7 @@ The RBF not only exposes the real data (plotted in the corresponding position in
 
 Text Specification
 --------------------------
-Different from tabular data, each text input is a string of different length, so we should first transform them to equal-length arrays. Sentence embedding is used here to complete this transformation. We choose the model ``paraphrase-multilingual-MiniLM-L12-v2``, a lightweight multilingual embedding model. Then, we calculate the RKME specification on the embedding, 
-just like we do with tabular data. Besides, we use the package ``langdetect`` to detect and store the language of the text inputs for further search. We hope to search for the learnware which supports the language of the user task.
+
 
 System Specification
 ======================================

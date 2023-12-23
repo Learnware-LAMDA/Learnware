@@ -1,4 +1,3 @@
-
 import json
 import requests
 from tqdm import tqdm
@@ -18,12 +17,12 @@ class GetData:
         self.chunk_size = chunk_size
 
     def download_file(self, file_path: str, save_path: str):
-        url = f"{self.host}/engine/download"
+        url = f"{self.host}/datasets/download_datasets"
 
         response = requests.get(
             url,
             params={
-                "file_path": file_path,
+                "dataset": file_path,
             },
             stream=True,
         )

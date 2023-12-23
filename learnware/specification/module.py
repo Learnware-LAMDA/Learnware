@@ -78,7 +78,7 @@ def generate_rkme_image_spec(
     reduce: bool = True,
     verbose: bool = True,
     cuda_idx: int = None,
-    **kwargs
+    **kwargs,
 ) -> RKMEImageSpecification:
     """
         Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification for Image.
@@ -168,7 +168,7 @@ def generate_rkme_text_spec(
     # Check input type
     if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
         raise TypeError("Input data must be a list of strings.")
-    
+
     # Generate rkme text spec
     rkme_text_spec = RKMETextSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_text_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
@@ -237,7 +237,7 @@ def generate_semantic_spec(
     }
     if input_description is not None:
         semantic_specification["Input"] = input_description
-    
+
     if output_description is not None:
         semantic_specification["Output"] = output_description
 
