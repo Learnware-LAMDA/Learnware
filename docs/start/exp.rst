@@ -46,21 +46,21 @@ Based on the specific design of user tasks, our experiments were primarily categ
 Homo Experiments
 -----------------------
 
-For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 users, each applying one feature engineering method, 
-and using the test data from their respective store as user data. These users can then search for homogeneous learnwares in the market with the same feature spaces as their tasks.
+In homogeneous experiments, the 55 stores in the Corporacion dataset are considered as 55 users. Each store uses the same feature engineering method 
+and their own test set as user data. These users then search for and reuse homogeneous learnwares in the market which exactly match the feature spaces of their tasks.
 
 The Mean Squared Error (MSE) of search and reuse is presented in the table below:
 
 +-----------------------------------+---------------------+
-| Mean in Market (Single)           | 0.331 ± 0.040       |
+| Mean in Market (Single)           | 0.323 ± 0.041       |
 +-----------------------------------+---------------------+
-| Best in Market (Single)           | 0.151 ± 0.046       |
+| Best in Market (Single)           | 0.302 ± 0.036       |
 +-----------------------------------+---------------------+
-| Top-1 Reuse (Single)              | 0.280 ± 0.090       |
+| Top-1 Reuse (Single)              | 0.307 ± 0.037       |
 +-----------------------------------+---------------------+
-| Job Selector Reuse (Multiple)     | 0.274 ± 0.064       |
+| Job Selector Reuse (Multiple)     | 0.308 ± 0.038       |
 +-----------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple) | 0.267 ± 0.051       |
+| Average Ensemble Reuse (Multiple) | 0.304 ± 0.036       |
 +-----------------------------------+---------------------+
 
 When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield
@@ -72,8 +72,8 @@ The average results across 55 users are depicted in the figure below:
    :align: center
    :alt: Table Homo Limited Labeled Data
 
-From the figure, it's evident that when users have limited training data, the performance of reusing single/multiple table learnwares is superior to that of the user's own model. 
-This emphasizes the benefit of learnware reuse in significantly reducing the need for extensive training data and achieving enhanced results when available user training data is limited.
+The figure clearly shows that when users have limited training data, reusing single or multiple table learnwares outperforms the user's own model. 
+This highlights the advantage of reusing learnwares in substantially reducing the need for large training datasets and achieving better outcomes with restricted user training data.
 
 
 Hetero Experiments
