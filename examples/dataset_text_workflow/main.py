@@ -62,11 +62,11 @@ class TextDatasetWorkflow:
                         try:
                             semantic_spec = client.get_semantic_specification(learnware_id)
                             client.download_learnware(learnware_id, zip_path)
+                            self.text_market.add_learnware(zip_path, semantic_spec)
                             break
                         except:
                             time.sleep(1)
                             continue
-                    self.text_market.add_learnware(zip_path, semantic_spec)
 
         logger.info("Total Item: %d" % (len(self.text_market)))
 
