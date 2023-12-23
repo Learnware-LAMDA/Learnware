@@ -51,7 +51,7 @@ The accuracy of search and reuse is presented in the table below:
 
 We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse(EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
-<div style="text-align:center;">
+<div align=center>
   <img src="../../docs/_static/img/text_labeled_curves.png" alt="Text Limited Labeled Data" style="width:50%;" />
 </div>
 
