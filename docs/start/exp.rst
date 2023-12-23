@@ -143,17 +143,17 @@ Results
 
 The accuracy of search and reuse is presented in the table below:
 
-==================== ================================= =================================
- Top-1 Performance         Job Selector Reuse                Average Ensemble Reuse
-==================== ================================= =================================
-  0.859 +/- 0.051          0.844 +/- 0.053                    0.858 +/- 0.051
-==================== ================================= =================================
+==================== ================================= ================================= ================================= =================================
+    Top-1 Reuse             Job Selector Reuse                Average Ensemble Reuse               Best in Market                  Average in Market
+==================== ================================= ================================= ================================= =================================
+   0.846 +/- 0.054            0.845 +/- 0.053                   0.862 +/- 0.051                    0.859 +/- 0.051                  0.507 +/- 0.030
+==================== ================================= ================================= ================================= =================================
 
 * ``test_labeled``:
 
 We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse(EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
-.. image:: ../_static/img/text_example_labeled_curves.png
+.. image:: ../_static/img/text_labeled_curves.png
    :align: center
    :alt: Text Limited Labeled Data
 
