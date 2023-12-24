@@ -1,4 +1,5 @@
 import os
+import random
 from datetime import datetime
 
 import fire
@@ -29,6 +30,8 @@ class ImageDatasetWorkflow:
         learnware.init()
         assert not rebuild
 
+        np.random.seed(0)
+        random.seed(0)
         market_id = "dataset_image_workflow" if market_id is None else market_id
         orders = np.stack([np.random.permutation(10) for _ in range(market_size)])
 
@@ -48,11 +51,19 @@ class ImageDatasetWorkflow:
     def evaluate(self, user_size=100, market_id=None, faster=True):
         learnware.init()
 
+        np.random.seed(1)
+        random.seed(1)
         market_id = "dataset_image_workflow" if market_id is None else market_id
         orders = np.stack([np.random.permutation(10) for _ in range(user_size)])
 
         print("Using market_id", market_id)
         market = instantiate_learnware_market(name="easy", market_id=market_id, rebuild=False)
+
+        # Create Folder to save data
+        train_data_cache_folder = os.path.abspath(os.path.join(__file__, '..', "cache", "train_data"))
+        test_data_cache_folder = os.path.abspath(os.path.join(__file__, '..', "cache", "test_data"))
+        os.makedirs(train_data_cache_folder, exist_ok=True)
+        os.makedirs(test_data_cache_folder, exist_ok=True)
 
         device = choose_device(0)
         if faster:
@@ -97,7 +108,13 @@ class ImageDatasetWorkflow:
             job_loss, job_acc = evaluate(reuse_job_selector, dataset)
             unlabeled.record("Job Selector", job_acc, job_loss)
 
-            train_set, valid_set, spec_set, order = uploader_data(order=order)
+            train_set, _, _, _ = uploader_data(order=order)
+            X, y = next(iter(DataLoader(train_set, batch_size=len(train_set))))
+            with open(os.path.join(train_data_cache_folder, "user{}_X.pkl".format(i)), "wb") as f:
+                pickle.dump(X.detach().cpu().numpy(), f)
+            with open(os.path.join(train_data_cache_folder, "user{}_y.pkl".format(i)), "wb") as f:
+                pickle.dump(y.detach().cpu().numpy(), f)
+
             for labeled_size in tqdm.tqdm([100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]):
                 loader = DataLoader(train_set, batch_size=labeled_size, shuffle=True)
                 X, y = next(iter(loader))

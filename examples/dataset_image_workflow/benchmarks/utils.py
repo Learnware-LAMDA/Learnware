@@ -1,5 +1,6 @@
 import json
 import os
+import pickle
 import zipfile
 from collections import defaultdict
 from shutil import rmtree
@@ -86,7 +87,7 @@ def build_learnware(name: str, market: LearnwareMarket, order, model_name="conv"
     # build specification
     loader = DataLoader(spec_set, batch_size=3000, shuffle=True)
     sampled_X, _ = next(iter(loader))
-    spec = generate_rkme_image_spec(sampled_X, whitening=False, experimental=True)
+    spec = generate_rkme_image_spec(sampled_X, whitening=False, experimental=False)
 
     # add to market
     model_dir = os.path.abspath(os.path.join(__file__, "..", "models"))
@@ -177,24 +178,30 @@ def train_model(model: nn.Module, train_set: Dataset, valid_set: Dataset,
 
 def build_specification(name: str, cache_id, order, sampled_size=3000):
     cache_dir = os.path.abspath(os.path.join(
-        os.path.dirname( __file__ ), '..', 'cache', 'spec'))
+        os.path.dirname(__file__), '..', 'cache'))
     os.makedirs(cache_dir, exist_ok=True)
-    cache_path = os.path.join(cache_dir, "spec_{}.json".format(cache_id))
+    spec_cache_path = os.path.join(cache_dir, 'spec', "spec_{}.json".format(cache_id))
 
-    if os.path.exists(cache_path):
+    if os.path.exists(spec_cache_path):
         spec = RKMEImageSpecification()
-        spec.load(cache_path)
+        spec.load(spec_cache_path)
 
         test_dataset, spec_dataset, _, _ = user_data(indices=torch.asarray(spec.msg))
     else:
         test_dataset, spec_dataset, indices, _ = user_data(order=order)
         loader = DataLoader(spec_dataset, batch_size=sampled_size, shuffle=True)
         sampled_X, _ = next(iter(loader))
-        spec = generate_rkme_image_spec(sampled_X, whitening=False, experimental=True)
+        spec = generate_rkme_image_spec(sampled_X, whitening=False, experimental=False)
 
         spec.msg = indices.tolist()
-        spec.save(cache_path)
+        spec.save(spec_cache_path)
 
+    # Save test_dataset to disk, spec_dataset is same as test_dataset for now
+    X, y = next(iter(DataLoader(test_dataset, batch_size=len(test_dataset))))
+    with open(os.path.join(cache_dir, 'test_data', "user{}_X.pkl".format(cache_id)), "wb") as f:
+        pickle.dump(X.detach().cpu().numpy(), f)
+    with open(os.path.join(cache_dir, 'test_data', "user{}_y.pkl".format(cache_id)), "wb") as f:
+        pickle.dump(y.detach().cpu().numpy(), f)
     return spec, test_dataset
 
 
