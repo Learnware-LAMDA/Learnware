@@ -3,7 +3,7 @@ import zipfile
 
 from .import_utils import is_torch_available
 from .module import get_module_by_module_path
-from .file import read_yaml_to_dict, save_dict_to_yaml
+from .file import read_yaml_to_dict, save_dict_to_yaml, convert_folder_to_zipfile
 from .gpu import setup_seed, choose_device, allocate_cuda_idx
 from ..config import get_platform, SystemType
 

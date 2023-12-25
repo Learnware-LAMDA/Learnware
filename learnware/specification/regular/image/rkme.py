@@ -39,8 +39,7 @@ class RKMEImageSpecification(RegularStatSpecification):
         """
         self.RKME_IMAGE_VERSION = 1  # Please maintain backward compatibility.
 
-        # TODO: remove this
-        self.msg=None
+        self.msg = None
 
         self.z = None
         self.beta = None
@@ -170,7 +169,8 @@ class RKMEImageSpecification(RegularStatSpecification):
             import torch_optimizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually.")
+                f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually."
+            )
 
         # Cross-platform by default, unless the spec is specified to be generated specifically for local experiments.
         cross_platform = "experimental" not in kwargs or not kwargs["experimental"]
@@ -422,7 +422,9 @@ class RKMEImageSpecification(RegularStatSpecification):
             for d in self.get_states():
                 if d in rkme_load.keys():
                     if d == "type" and rkme_load[d] != self.type:
-                        raise TypeError(f"The type of loaded RKME ({rkme_load[d]}) is different from the expected type ({self.type})!")
+                        raise TypeError(
+                            f"The type of loaded RKME ({rkme_load[d]}) is different from the expected type ({self.type})!"
+                        )
                     setattr(self, d, rkme_load[d])
 
             self.beta = self.beta.to(self._device)
@@ -441,9 +443,8 @@ def _get_zca_matrix(X, reg_coef=0.1):
 
 
 class RandomGenerator:
-
     def __init__(self, seed=0, cross_platform=True):
-        self.cross_platform=cross_platform
+        self.cross_platform = cross_platform
         self.state = RandomState(seed)
 
     def normal_(self, tensor: torch.Tensor, mean=0.0, std=1.0):
@@ -462,24 +463,24 @@ def deterministic(cross_platform, device):
     deterministic_state = torch.backends.cudnn.deterministic
     torch.backends.cudnn.deterministic = True
     if cross_platform and torch.cuda.is_available():
-        torch.cuda.set_rng_state(
-            new_state=torch.cuda.get_rng_state(device.index),
-            device="cpu")
+        torch.cuda.set_rng_state(new_state=torch.cuda.get_rng_state(device.index), device="cpu")
 
     yield RandomGenerator(seed=0, cross_platform=cross_platform)
 
     torch.backends.cudnn.deterministic = deterministic_state
     if cross_platform and torch.cuda.is_available():
-        torch.cuda.set_rng_state(
-            new_state=torch.cuda.get_rng_state(device.index),
-            device="cuda")
+        torch.cuda.set_rng_state(new_state=torch.cuda.get_rng_state(device.index), device="cuda")
 
 
 class _ConvNet_wide(nn.Module):
-    def __init__(self, channel, random_generator, mu=None, sigma=None, k=2, net_width=128, net_depth=3, im_size=(32, 32)):
+    def __init__(
+        self, channel, random_generator, mu=None, sigma=None, k=2, net_width=128, net_depth=3, im_size=(32, 32)
+    ):
         self.k = k
         super().__init__()
-        self.features, shape_feat = self._make_layers(channel, net_width, net_depth, im_size, mu, sigma, random_generator)
+        self.features, shape_feat = self._make_layers(
+            channel, net_width, net_depth, im_size, mu, sigma, random_generator
+        )
         # self.aggregation = nn.AvgPool2d(kernel_size=shape_feat[1])
 
     def forward(self, x):
@@ -495,7 +496,9 @@ class _ConvNet_wide(nn.Module):
         in_channels = channel
         shape_feat = [in_channels, im_size[0], im_size[1]]
         for d in range(net_depth):
-            layers += [_build_conv2d_gaussian(in_channels, int(k * net_width), random_generator, 3, 1, mean=mu, std=sigma)]
+            layers += [
+                _build_conv2d_gaussian(in_channels, int(k * net_width), random_generator, 3, 1, mean=mu, std=sigma)
+            ]
             shape_feat[0] = int(k * net_width)
 
             layers += [nn.ReLU(inplace=True)]
@@ -508,7 +511,9 @@ class _ConvNet_wide(nn.Module):
         return nn.Sequential(*layers), shape_feat
 
 
-def _build_conv2d_gaussian(in_channels, out_channels, random_generator: RandomGenerator, kernel=3, padding=1, mean=None, std=None):
+def _build_conv2d_gaussian(
+    in_channels, out_channels, random_generator: RandomGenerator, kernel=3, padding=1, mean=None, std=None
+):
     layer = nn.Conv2d(in_channels, out_channels, kernel, padding=padding)
     if mean is None:
         mean = 0

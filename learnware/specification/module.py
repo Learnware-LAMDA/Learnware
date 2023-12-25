@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 import pandas as pd
-from typing import Union, List
+from typing import Union, List, Optional
 
 from .utils import convert_to_numpy
 from .base import BaseStatSpecification
@@ -78,7 +78,7 @@ def generate_rkme_image_spec(
     reduce: bool = True,
     verbose: bool = True,
     cuda_idx: int = None,
-    **kwargs
+    **kwargs,
 ) -> RKMEImageSpecification:
     """
         Interface for users to generate Reduced Kernel Mean Embedding (RKME) specification for Image.
@@ -168,7 +168,7 @@ def generate_rkme_text_spec(
     # Check input type
     if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
         raise TypeError("Input data must be a list of strings.")
-    
+
     # Generate rkme text spec
     rkme_text_spec = RKMETextSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_text_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
@@ -177,7 +177,7 @@ def generate_rkme_text_spec(
 
 def generate_stat_spec(
     type: str, X: Union[np.ndarray, pd.DataFrame, torch.Tensor, List[str]], *args, **kwargs
-) -> BaseStatSpecification:
+) -> Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]:
     """
         Interface for users to generate statistical specification.
         Return a StatSpecification object, use .save() method to save as npy file.
@@ -204,3 +204,41 @@ def generate_stat_spec(
         return generate_rkme_image_spec(X=X, *args, **kwargs)
     else:
         raise TypeError(f"type {type} is not supported!")
+
+
+def generate_semantic_spec(
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    data_type: Optional[str] = None,
+    task_type: Optional[str] = None,
+    library_type: Optional[str] = None,
+    scenarios: Optional[Union[str, List[str]]] = None,
+    license: Optional[Union[str, List[str]]] = None,
+    input_description: Optional[dict] = None,
+    output_description: Optional[dict] = None,
+):
+    semantic_specification = dict()
+    semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
+    semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
+    semantic_specification["Library"] = {
+        "Type": "Class",
+        "Values": [library_type] if library_type is not None else [],
+    }
+
+    license = [license] if isinstance(license, str) else license
+    semantic_specification["License"] = {"Type": "Class", "Values": license if license is not None else []}
+    scenarios = [scenarios] if isinstance(scenarios, str) else scenarios
+    semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios if scenarios is not None else []}
+
+    semantic_specification["Name"] = {"Type": "String", "Values": name if name is not None else ""}
+    semantic_specification["Description"] = {
+        "Type": "String",
+        "Values": description if description is not None else "",
+    }
+    if input_description is not None:
+        semantic_specification["Input"] = input_description
+
+    if output_description is not None:
+        semantic_specification["Output"] = output_description
+
+    return semantic_specification

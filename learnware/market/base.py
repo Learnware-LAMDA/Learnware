@@ -139,7 +139,7 @@ class LearnwareMarket:
     def check_learnware(self, zip_path: str, semantic_spec: dict, checker_names: List[str] = None, **kwargs) -> bool:
         try:
             final_status = BaseChecker.NONUSABLE_LEARNWARE
-            if len(checker_names):
+            if checker_names is not None and len(checker_names):
                 with tempfile.TemporaryDirectory(prefix="pending_learnware_") as tempdir:
                     with zipfile.ZipFile(zip_path, mode="r") as z_file:
                         z_file.extractall(tempdir)
@@ -236,14 +236,14 @@ class LearnwareMarket:
         int
             The final learnware check_status.
         """
-        zip_path = self.get_learnware_zip_path_by_ids(id) if zip_path is None else zip_path
+        zip_path_for_check = self.get_learnware_zip_path_by_ids(id) if zip_path is None else zip_path
         semantic_spec = (
             self.get_learnware_by_ids(id).get_specification().get_semantic_spec()
             if semantic_spec is None
             else semantic_spec
         )
         checker_names = list(self.learnware_checker.keys()) if checker_names is None else checker_names
-        update_status = self.check_learnware(zip_path, semantic_spec, checker_names)
+        update_status = self.check_learnware(zip_path_for_check, semantic_spec, checker_names)
         check_status = (
             update_status if check_status is None or update_status == BaseChecker.INVALID_LEARNWARE else check_status
         )

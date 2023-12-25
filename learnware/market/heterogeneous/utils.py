@@ -1,9 +1,10 @@
+import traceback
 from ...logger import get_module_logger
 
 logger = get_module_logger("hetero_utils")
 
 
-def is_hetero(stat_specs: dict, semantic_spec: dict) -> bool:
+def is_hetero(stat_specs: dict, semantic_spec: dict, verbose=True) -> bool:
     """Check if user_info satifies all the criteria required for enabling heterogeneous learnware search
 
     Parameters
@@ -35,15 +36,17 @@ def is_hetero(stat_specs: dict, semantic_spec: dict) -> bool:
         semantic_decription_feature_num = len(semantic_input_description["Description"])
 
         if semantic_decription_feature_num <= 0:
-            logger.warning("At least one of Input.Description in semantic spec should be provides.")
+            if verbose:
+                logger.warning("At least one of Input.Description in semantic spec should be provides.")
             return False
 
         if table_input_shape != semantic_description_dim:
-            logger.warning("User data feature dimensions mismatch with semantic specification.")
+            if verbose:
+                logger.warning("User data feature dimensions mismatch with semantic specification.")
             return False
 
         return True
-
-    except Exception as e:
-        logger.warning(f"Invalid heterogeneous search information provided due to {e}. Use homogeneous search instead.")
+    except Exception as err:
+        if verbose:
+            logger.warning(f"Invalid heterogeneous search information provided.")
         return False

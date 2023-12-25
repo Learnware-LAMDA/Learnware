@@ -14,10 +14,11 @@ from typing import Union, List, Optional
 from ..config import C
 from .container import LearnwaresContainer
 from ..market import BaseChecker
+from ..specification import generate_semantic_spec
 from ..logger import get_module_logger
 from ..learnware import get_learnware_from_dirpath
 from ..market import BaseUserInfo
-from ..tests import get_semantic_specification
+
 
 CHUNK_SIZE = 1024 * 1024
 logger = get_module_logger(module_name="LearnwareClient")
@@ -52,8 +53,8 @@ class SemanticSpecificationKey(Enum):
     DATA_TYPE = "Data"
     TASK_TYPE = "Task"
     LIBRARY_TYPE = "Library"
-    LICENSE = "License"
     SENARIOES = "Scenario"
+    LICENSE = "License"
 
 
 class LearnwareClient:
@@ -67,7 +68,15 @@ class LearnwareClient:
 
         self.chunk_size = 1024 * 1024
         self.tempdir_list = []
+        self.login_status = False
         atexit.register(self.cleanup)
+
+    def is_connected(self):
+        url = f"{self.host}/auth/login_by_token"
+        response = requests.post(url)
+        if response.status_code == 404:
+            return False
+        return True
 
     def login(self, email, token):
         url = f"{self.host}/auth/login_by_token"
@@ -80,6 +89,10 @@ class LearnwareClient:
 
         token = result["data"]["token"]
         self.headers = {"Authorization": f"Bearer {token}"}
+        self.login_status = True
+
+    def is_login(self):
+        return self.login_status
 
     @require_login
     def logout(self):
@@ -166,7 +179,18 @@ class LearnwareClient:
         if result["code"] != 0:
             raise Exception("update failed: " + json.dumps(result))
 
-    def download_learnware(self, learnware_id, save_path):
+    def get_semantic_specification(self, learnware_id: str):
+        url = f"{self.host}/engine/learnware_info"
+        response = requests.get(url, params={"learnware_id": learnware_id}, headers=self.headers, stream=True)
+
+        result = response.json()
+
+        if result["code"] != 0:
+            raise Exception("get learnware semantic specification failed: " + json.dumps(result))
+
+        return result["data"]["learnware_info"]["semantic_specification"]
+
+    def download_learnware(self, learnware_id: str, save_path: str):
         url = f"{self.host}/engine/download_learnware"
 
         response = requests.get(
@@ -251,7 +275,6 @@ class LearnwareClient:
                 headers=self.headers,
             )
             result = response.json()
-
             if result["code"] != 0:
                 raise Exception("search failed: " + json.dumps(result))
 
@@ -260,12 +283,11 @@ class LearnwareClient:
                 returns["single"]["semantic_specifications"].append(learnware["semantic_specification"])
                 returns["single"]["matching"].append(learnware["matching"])
 
-            if len(result["data"]["learnware_list_multi"]) > 0:
-                multi_learnware = result["data"]["learnware_list_multi"][0]
-                returns["multiple"]["learnware_ids"].append(multi_learnware["learnware_id"])
-                returns["multiple"]["semantic_specifications"].append(multi_learnware["semantic_specification"])
+            for learnware in result["data"]["learnware_list_multi"]:
+                returns["multiple"]["learnware_ids"].append(learnware["learnware_id"])
+                returns["multiple"]["semantic_specifications"].append(learnware["semantic_specification"])
                 returns["multiple"]["matching"] = learnware["matching"]
-        
+
         # Delete temp json file
         os.remove(temp_file_name)
 
@@ -280,41 +302,6 @@ class LearnwareClient:
 
         if result["code"] != 0:
             raise Exception("delete failed: " + json.dumps(result))
-
-    def create_semantic_specification(
-        self,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
-        data_type: Optional[str] = None,
-        task_type: Optional[str] = None,
-        library_type: Optional[str] = None,
-        scenarios: Optional[Union[str, List[str]]] = None,
-        license: Optional[Union[str, List[str]]] = None,
-        input_description: Optional[dict] = None,
-        output_description: Optional[dict] = None,
-    ):
-        semantic_specification = dict()
-        semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
-        semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
-        semantic_specification["Library"] = {
-            "Type": "Class",
-            "Values": [library_type] if library_type is not None else [],
-        }
-
-        license = [license] if isinstance(license, str) else license
-        semantic_specification["License"] = {"Type": "Class", "Values": license if license is not None else []}
-        scenarios = [scenarios] if isinstance(scenarios, str) else scenarios
-        semantic_specification["Scenario"] = {"Type": "Tag", "Values": scenarios if scenarios is not None else []}
-
-        semantic_specification["Name"] = {"Type": "String", "Values": name if name is not None else ""}
-        semantic_specification["Description"] = {
-            "Type": "String",
-            "Values": description if description is not None else "",
-        }
-        semantic_specification["Input"] = {} if input_description is None else input_description
-        semantic_specification["Output"] = {} if output_description is None else output_description
-
-        return semantic_specification
 
     def list_semantic_specification_values(self, key: SemanticSpecificationKey):
         url = f"{self.host}/engine/semantic_specification"
@@ -435,7 +422,17 @@ class LearnwareClient:
     @staticmethod
     def check_learnware(learnware_zip_path, semantic_specification=None):
         semantic_specification = (
-            get_semantic_specification() if semantic_specification is None else semantic_specification
+            generate_semantic_spec(
+                name="test",
+                description="test",
+                data_type="Text",
+                task_type="Segmentation",
+                scenarios="Financial",
+                library_type="Scikit-learn",
+                license="Apache-2.0",
+            )
+            if semantic_specification is None
+            else semantic_specification
         )
 
         check_status, message = LearnwareClient._check_semantic_specification(semantic_specification)
@@ -446,11 +443,8 @@ class LearnwareClient:
                 z_file.extractall(tempdir)
 
             learnware = get_learnware_from_dirpath(
-                id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir
+                id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir, ignore_error=False
             )
-
-            if learnware is None:
-                raise Exception("The learnware is not valid.")
 
             check_status, message = LearnwareClient._check_stat_specification(learnware)
             assert check_status is True, message
