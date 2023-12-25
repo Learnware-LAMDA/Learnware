@@ -124,9 +124,9 @@ class JobSelectorReuser(BaseReuser):
                 task_spec = learnware_rkme_spec_list[i]
                 if self.use_herding:
                     task_herding_num = max(5, int(self.herding_num * task_mixture_weight[i]))
-                    herding_X_i = task_spec.herding(task_herding_num).detach().cpu().numpy()
+                    herding_X_i = task_spec.herding(task_herding_num)
                 else:
-                    herding_X_i = task_spec.z.detach().cpu().numpy()
+                    herding_X_i = task_spec.get_z()
                     task_herding_num = herding_X_i.shape[0]
                 task_val_num = task_herding_num // 5
 
@@ -229,8 +229,10 @@ class JobSelectorReuser(BaseReuser):
         try:
             from lightgbm import LGBMClassifier, early_stopping
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"JobSelectorReuser is not available because 'lightgbm' is not installed! Please install it manually.")
-           
+            raise ModuleNotFoundError(
+                f"JobSelectorReuser is not available because 'lightgbm' is not installed! Please install it manually."
+            )
+
         score_best = -1
         learning_rate = [0.01]
         max_depth = [66]

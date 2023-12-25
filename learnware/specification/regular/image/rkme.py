@@ -366,7 +366,7 @@ class RKMEImageSpecification(RegularStatSpecification):
         indices = torch.multinomial(self.beta, T, replacement=True)
         mock = self.z[indices] + torch.randn_like(self.z[indices]) * 0.01
 
-        return mock.numpy()
+        return mock.detach().cpu().numpy()
 
     def _sampling_candidates(self, N: int) -> np.ndarray:
         raise NotImplementedError()
