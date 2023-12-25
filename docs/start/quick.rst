@@ -92,7 +92,7 @@ Learnware Market Workflow
 
 Users can start a ``Learnware Market`` workflow according to the following steps:
 
-Initialize a Learware Market
+Initialize a Learnware Market
 -------------------------------
 
 The ``EasyMarket`` class provides the core functions of a ``Learnware Market``. 
