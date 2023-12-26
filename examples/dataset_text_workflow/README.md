@@ -39,13 +39,14 @@ python workflow.py labeled_text_example
 
 The accuracy of search and reuse is presented in the table below:
 
-| Metric                               | Value               |
-|--------------------------------------|---------------------|
-| Mean in Market (Single)              | 0.507 ± 0.030       |
-| Best in Market (Single)              | 0.859 ± 0.051       |
-| Top-1 Reuse (Single)                 | 0.846 ± 0.054       |
-| Job Selector Reuse (Multiple)        | 0.845 ± 0.053       |
-| Average Ensemble Reuse (Multiple)    | 0.862 ± 0.051       |
+| Setting                               | Accuracy            |
+|---------------------------------------|---------------------|
+| Mean in Market (Single)               | 0.507 ± 0.030       |
+| Best in Market (Single)               | 0.859 ± 0.051       |
+| Top-1 Reuse (Single)                  | 0.846 ± 0.054       |
+| Job Selector Reuse (Multiple)         | 0.845 ± 0.053       |
+| Average Ensemble Reuse (Multiple)     | 0.862 ± 0.051       |
+
 
 ### ``labeled_text_example``:
 

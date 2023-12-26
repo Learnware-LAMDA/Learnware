@@ -16,8 +16,8 @@ Ubuntu 20.04.4 LTS    Nvidia Tesla V100S    Intel(R) Xeon(R) Gold 6240R
 ====================  ====================  ===============================
 
 
-Table: homo+hetero
-====================
+Tabular Data Experiments
+===========================
 
 Datasets
 ------------------
@@ -43,8 +43,8 @@ Based on the specific design of user tasks, our experiments were primarily categ
 - ``heterogeneous experiments`` aim to evaluate the performance of identifying and reusing helpful heterogeneous learnwares in situations where 
   no available learnwares match the feature space of the user's task. This helps to highlight the potential of learnwares for applications beyond their original purpose.
 
-Homo Experiments
------------------------
+Homogeneous Tabular Dataset
+-----------------------------
 
 For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 users, each applying one feature engineering method, 
 and using the test data from their respective store as user data. These users can then search for homogeneous learnwares in the market with the same feature spaces as their tasks.
@@ -52,16 +52,19 @@ and using the test data from their respective store as user data. These users ca
 The Mean Squared Error (MSE) of search and reuse is presented in the table below:
 
 +-----------------------------------+---------------------+
-| Mean in Market (Single)           | 0.331 ± 0.040       |
+| Setting                           |        MSE          |
++===================================+=====================+
+| Mean in Market (Single)           |   0.331 ± 0.040     |
 +-----------------------------------+---------------------+
-| Best in Market (Single)           | 0.151 ± 0.046       |
+| Best in Market (Single)           |   0.151 ± 0.046     |
 +-----------------------------------+---------------------+
-| Top-1 Reuse (Single)              | 0.280 ± 0.090       |
+| Top-1 Reuse (Single)              |   0.280 ± 0.090     |
 +-----------------------------------+---------------------+
-| Job Selector Reuse (Multiple)     | 0.274 ± 0.064       |
+| Job Selector Reuse (Multiple)     |   0.274 ± 0.064     |
 +-----------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple) | 0.267 ± 0.051       |
+| Average Ensemble Reuse (Multiple) |   0.267 ± 0.051     |
 +-----------------------------------+---------------------+
+
 
 When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield
 better results than training models from scratch on limited training data. We present the change curves in MSE for the user's self-trained model, as well as for the Feature Augmentation single learnware reuse method and the Ensemble Pruning multiple learnware reuse method. 
@@ -76,8 +79,8 @@ From the figure, it's evident that when users have limited training data, the pe
 This emphasizes the benefit of learnware reuse in significantly reducing the need for extensive training data and achieving enhanced results when available user training data is limited.
 
 
-Hetero Experiments
--------------------------
+Heterogeneous Tabular Dataset
+------------------------------
 
 In heterogeneous experiments, the learnware market would recommend helpful heterogeneous learnwares with different feature spaces with 
 the user tasks. Based on whether there are learnwares in the market that handle tasks similar to the user's task, the experiments can be further subdivided into the following two types:
@@ -91,6 +94,8 @@ we tested various heterogeneous learnware reuse methods (without using user's la
 The average MSE performance across 41 users are as follows:
 
 +-----------------------------------+---------------------+
+| Setting                           |        MSE          |
++===================================+=====================+
 | Mean in Market (Single)           | 1.459 ± 1.066       |
 +-----------------------------------+---------------------+
 | Best in Market (Single)           | 1.226 ± 1.032       |
@@ -122,8 +127,8 @@ The average results across 10 users are depicted in the figure below:
 We can observe that heterogeneous learnwares are beneficial when there's a limited amount of the user's labeled training data available, 
 aiding in better alignment with the user's specific task. This underscores the potential of learnwares to be applied to tasks beyond their original purpose.
 
-Text Experiment
-====================
+Text Data Experiment
+==========================
 
 Datasets
 ------------------
@@ -150,6 +155,8 @@ Results
 The accuracy of search and reuse is presented in the table below:
 
 +-----------------------------------+---------------------+
+| Setting                           |        Accuracy     |
++===================================+=====================+
 | Mean in Market (Single)           | 0.507 ± 0.030       |
 +-----------------------------------+---------------------+
 | Best in Market (Single)           | 0.859 ± 0.051       |
@@ -173,8 +180,8 @@ We present the change curves in classification error rates for both the user's s
 From the figure above, it is evident that when the user's own training data is limited, the performance of multiple learnware reuse surpasses that of the user's own model. As the user's training data grows, it is expected that the user's model will eventually outperform the learnware reuse. This underscores the value of reusing learnware to significantly conserve training data and achieve superior performance when user training data is limited.
 
 
-Image Experiment
-====================
+Image Data Experiment
+=========================
 
 For the CIFAR-10 dataset, we sampled the training set unevenly by category and constructed unbalanced training datasets for the 50 learnwares that contained only some of the categories. This makes it unlikely that there exists any learnware in the learnware market that can accurately handle all categories of data; only the learnware whose training data is closest to the data distribution of the target task is likely to perform well on the target task. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with a non-zero probability of sampling on only 4 categories, and the sampling ratio is 0.4: 0.4: 0.1: 0.1. Ultimately, the training set for each learnware contains 12,000 samples covering the data of 4 categories in CIFAR-10.
 
@@ -183,6 +190,8 @@ We constructed 50 target tasks using data from the test set of CIFAR-10. Similar
 With this experimental setup, we evaluated the performance of RKME Image using 1 - Accuracy as the loss.
 
 +-----------------------------------+---------------------+
+| Setting                           |        Accuracy     |
++===================================+=====================+
 | Mean in Market (Single)           | 0.655 ± 0.021       |
 +-----------------------------------+---------------------+
 | Best in Market (Single)           | 0.304 ± 0.046       |
@@ -201,15 +210,12 @@ In some specific settings, the user will have a small number of labelled samples
 
 Get Start Examples
 =========================
-Examples for `PFS, M5` and `CIFAR10` are available at [xxx]. You can run { main.py } directly to reproduce related experiments.
-The test code is mainly composed of three parts, namely data preparation (optional), specification generation and market construction, and search test.
-You can load data prepared by as and skip the data preparation step.
+Examples for `Tabular, Text` and `Image` data sets are available at `Learnware Examples <https://github.com/Learnware-LAMDA/Learnware/tree/main/examples>`_. You can run { main.py } directly to reproduce related experiments.
+We utilize the `fire` module to construct our experiments.
 
+Tabular Examples
+------------------
+You can execute the experiment with the following commands:
 
-Examples for the `20-newsgroup` dataset are available at [examples/dataset_text_workflow].
-We utilize the `fire` module to construct our experiments. You can execute the experiment with the following commands:
-
-* `python main.py prepare_market`: Prepares the market.
 * `python main.py unlabeled_text_example`: Executes the unlabeled_text_example experiment; the results will be printed in the terminal.
 * `python main.py labeled_text_example`: Executes the labeled_text_example experiment; result curves will be automatically saved in the `figs` directory.
-* Additionally, you can use `python main.py unlabeled_text_example True` to combine steps 1 and 2. The same approach applies to running labeled_text_example directly.

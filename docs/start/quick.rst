@@ -7,14 +7,14 @@ Quick Start
 Introduction
 ==================== 
 
-This ``Quick Start`` guide aims to illustrate the straightforward process of establishing a full ``Learnware Market`` workflow 
-and utilizing ``Learnware Market`` to handle user tasks.
+This ``Quick Start`` guide aims to illustrate the straightforward process of establishing a full ``Learnware`` workflow 
+and utilizing ``Learnware`` to handle user tasks.
 
 
 Installation
 ====================
 
-Learnware is currently hosted on `PyPI <https://pypi.org/>`__. You can easily intsall ``learnware`` by following these steps:
+Learnware is currently hosted on `PyPI <https://pypi.org/>`_. You can easily intsall ``learnware`` by following these steps:
 
 - For Windows and Linux users:
 
@@ -87,10 +87,10 @@ includes the following four components:
 We've also detailed the format of the learnware zipfile in :ref:`Learnware Preparation<workflows/upload:Prepare Learnware>`.
 
 
-Learnware Market Workflow
+Learnware Pacakge Workflow
 ============================
 
-Users can start a ``Learnware Market`` workflow according to the following steps:
+Users can start a ``Learnware`` workflow according to the following steps:
 
 Initialize a Learware Market
 -------------------------------
@@ -213,6 +213,6 @@ Just substitute ``test_x`` in the code snippet below with your own testing data,
 Auto Workflow Example
 ============================
 
-The ``Learnware Market`` also offers an automated workflow example. 
+The ``Learnware`` also offers automated workflow examples. 
 This includes preparing learnwares, uploading and deleting learnwares from the market, and searching for learnwares using both semantic and statistical specifications. 
-To experience the basic workflow of the Learnware Market, users can run [workflow code link].
+To experience the basic workflow of the Learnware Market, please refer to `Learnware Examples <https://github.com/Learnware-LAMDA/Learnware/tree/main/examples>`_.
