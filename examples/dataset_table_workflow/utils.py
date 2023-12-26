@@ -1,14 +1,15 @@
 import os
+import json
+import traceback
+import numpy as np
+import matplotlib.pyplot as plt
 from collections import defaultdict
 
-import json
-import matplotlib.pyplot as plt
-import numpy as np
-from loguru import logger
-import traceback
+from learnware.logger import get_module_logger
+from config import *
 
-from examples.dataset_table_workflow.config import *
-from benchmarks.config import default_size_list
+logger = get_module_logger("base_table", level="INFO")
+
 
 class Recorder:
     def __init__(self, headers=["Mean", "Std Dev"], formats=["{:.2f}", "{:.2f}"]):
@@ -79,7 +80,7 @@ def analyze_performance(user, recorders):
         logger.info(f"{user}, {user_id}, {mean_differences[user_id]}, {single_multi_diff}")
 
 
-def plot_performance_curves(user, recorders, task="Hetero", n_labeled_list=default_size_list):   
+def plot_performance_curves(user, recorders, task, n_labeled_list):
     plt.figure(figsize=(10, 6))
     
     for method, recorder in recorders.items():
@@ -106,4 +107,8 @@ def plot_performance_curves(user, recorders, task="Hetero", n_labeled_list=defau
     plt.title(f'Table {task} Limited Labeled Data')
     plt.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join('./results/figs', f"{user}_labeled_{list(recorders.keys())}.png"), bbox_inches="tight", dpi=700)
+    
+    root_path = os.path.abspath(os.path.join(__file__, ".."))
+    fig_path = os.path.join(root_path, "results", "figs")
+    os.makedirs(fig_path, exist_ok=True)
+    plt.savefig(os.path.join(fig_path, f"{user}_labeled_{list(recorders.keys())}.svg"), bbox_inches="tight", dpi=700)

@@ -1,3 +1,6 @@
+from learnware.tests.benchmarks import BenchmarkConfig
+
+
 n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
 n_repeat_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
 
@@ -16,28 +19,9 @@ labels = {
     'user_model': "User Model",  
     'single_aug': "Single Learnware Reuse (Select)",
     "select_score": "Single Learnware Reuse (Select)",
-    # "Single Learnware Reuse (Avg)",
-    # "Single Learnware Reuse (Oracle)",
     'multiple_aug': "Multiple Learnware Reuse (FeatAug)",
     'ensemble_pruning': "Multiple Learnware Reuse (EnsemblePrune)",
     'multiple_avg': "Multiple Learnware Reuse (Averaging)"
-}
-
-output_description = {
-    "Dimension": 1,
-    "Description": {
-        "0": "Product sales on the date.",
-    },
-}
-
-user_semantic = {
-    "Data": {"Values": ["Table"], "Type": "Class"},
-    "Task": {"Values": ["Regression"], "Type": "Class"},
-    "Library": {"Values": ["Others"], "Type": "Class"},
-    "Scenario": {"Values": ["Business"], "Type": "Tag"},
-    "Description": {"Values": "", "Type": "String"},
-    "Name": {"Values": "", "Type": "String"},
-    "Output": output_description,
 }
 
 align_model_params = {
@@ -63,3 +47,87 @@ market_mapping_params = {
     "ffn_dim": 512,  # [128, 256, 512, 768, 1024], # the dimension of feed-forward layer in the transformer layer
     "activation": "leakyrelu",
 }
+
+user_model_params = {
+    "Corporacion": {
+        "lgb": {
+            "params": {
+                "num_leaves": 31,
+                "objective": "regression",
+                "learning_rate": 0.1,
+                "feature_fraction": 0.8,
+                "bagging_fraction": 0.8,
+                "bagging_freq": 2,
+                "metric": "l2",
+                "num_threads": 4,
+                "verbose": -1,
+            },
+            "MAX_ROUNDS": 500,
+            "early_stopping_rounds": 50,
+        }
+    }
+}
+
+homo_table_benchmark_config = BenchmarkConfig(
+    name="Corporacion",
+    user_num=54,
+    learnware_ids=[
+        "00000912",
+        "00000911",
+        "00000910",
+        "00000909",
+        "00000908",
+        "00000907",
+        "00000906",
+        "00000905",
+        "00000904",
+        "00000903",
+        "00000902",
+        "00000901",
+        "00000900",
+        "00000899",
+        "00000898",
+        "00000897",
+        "00000896",
+        "00000895",
+        "00000894",
+        "00000893",
+        "00000892",
+        "00000891",
+        "00000890",
+        "00000889",
+        "00000888",
+        "00000887",
+        "00000886",
+        "00000885",
+        "00000884",
+        "00000883",
+        "00000882",
+        "00000881",
+        "00000880",
+        "00000879",
+        "00000878",
+        "00000877",
+        "00000876",
+        "00000875",
+        "00000874",
+        "00000873",
+        "00000872",
+        "00000871",
+        "00000870",
+        "00000869",
+        "00000868",
+        "00000867",
+        "00000866",
+        "00000865",
+        "00000864",
+        "00000863",
+        "00000862",
+        "00000861",
+        "00000860",
+        "00000859"
+    ],
+    test_data_path="Corporacion/test_data.zip",
+    train_data_path="Corporacion/train_data.zip",
+    extra_info_path="Corporacion/extra_info.zip",
+)
