@@ -6,10 +6,11 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from .....utils import allocate_cuda_idx, choose_device
-from .....specification import HeteroMapTableSpecification, RKMETableSpecification
 from .feature_extractor import CLSToken, FeatureProcessor, FeatureTokenizer
-from .trainer import TransTabCollatorForCL, Trainer
+from .trainer import Trainer, TransTabCollatorForCL
+from .....specification import (HeteroMapTableSpecification,
+                                RKMETableSpecification)
+from .....utils import allocate_cuda_idx, choose_device
 
 
 class HeteroMap(nn.Module):

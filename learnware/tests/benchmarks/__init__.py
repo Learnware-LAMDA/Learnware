@@ -3,7 +3,7 @@ import pickle
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from typing import Tuple, Optional, List, Union
+from typing import List, Optional, Tuple, Union
 
 from .config import BenchmarkConfig, benchmark_configs
 from ..data import GetData

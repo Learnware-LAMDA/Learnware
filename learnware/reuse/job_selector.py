@@ -1,15 +1,15 @@
-import torch
-import numpy as np
-
 from typing import List, Union
+
+import numpy as np
+import torch
 from sklearn.metrics import accuracy_score
 
 from .base import BaseReuser
-from ..market.utils import parse_specification_type
 from ..learnware import Learnware
-from ..specification import RKMETableSpecification, RKMETextSpecification
-from ..specification import generate_rkme_table_spec, rkme_solve_qp
 from ..logger import get_module_logger
+from ..market.utils import parse_specification_type
+from ..specification import (RKMETableSpecification, RKMETextSpecification,
+                             generate_rkme_table_spec, rkme_solve_qp)
 
 logger = get_module_logger("job_selector_reuse")
 

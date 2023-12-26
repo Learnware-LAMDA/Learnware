@@ -6,7 +6,6 @@ from ..easy import EasySearcher
 from ..utils import parse_specification_type
 from ...logger import get_module_logger
 
-
 logger = get_module_logger("hetero_searcher")
 
 

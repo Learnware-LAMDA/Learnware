@@ -1,9 +1,9 @@
-import traceback
-import numpy as np
-import torch
 import random
 import string
 import traceback
+
+import numpy as np
+import torch
 
 from ..base import BaseChecker
 from ..utils import parse_specification_type

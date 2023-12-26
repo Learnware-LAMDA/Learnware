@@ -1,6 +1,8 @@
 import os
-import yaml
 import zipfile
+
+import yaml
+
 
 def save_dict_to_yaml(dict_value: dict, save_path: str):
     """save dict object into yaml file"""

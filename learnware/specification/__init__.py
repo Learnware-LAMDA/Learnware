@@ -1,15 +1,8 @@
-from .base import Specification, BaseStatSpecification
-from .regular import (
-    RegularStatSpecification,
-    RKMEStatSpecification,
-    RKMETableSpecification,
-    RKMEImageSpecification,
-    RKMETextSpecification,
-    rkme_solve_qp,
-)
-
+from .base import BaseStatSpecification, Specification
+from .regular import (RegularStatSpecification, RKMEImageSpecification,
+                      RKMEStatSpecification, RKMETableSpecification,
+                      RKMETextSpecification, rkme_solve_qp)
 from .system import HeteroMapTableSpecification
-
 from ..utils import is_torch_available
 
 if not is_torch_available(verbose=False):
@@ -19,10 +12,6 @@ if not is_torch_available(verbose=False):
     generate_rkme_text_spec = None
     generate_semantic_spec = None
 else:
-    from .module import (
-        generate_stat_spec,
-        generate_rkme_table_spec,
-        generate_rkme_image_spec,
-        generate_rkme_text_spec,
-        generate_semantic_spec,
-    )
+    from .module import (generate_rkme_image_spec, generate_rkme_table_spec,
+                         generate_rkme_text_spec, generate_semantic_spec,
+                         generate_stat_spec)

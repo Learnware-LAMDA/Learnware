@@ -1,6 +1,7 @@
 from .base import LearnwareMarket
 from .classes import CondaChecker
-from .easy import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
+from .easy import (EasyOrganizer, EasySearcher, EasySemanticChecker,
+                   EasyStatChecker)
 from .heterogeneous import HeteroMapTableOrganizer, HeteroSearcher
 
 

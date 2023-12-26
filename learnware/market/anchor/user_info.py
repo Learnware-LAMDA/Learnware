@@ -1,4 +1,5 @@
-from typing import List, Any, Union
+from typing import Any, List, Union
+
 from ..base import BaseUserInfo
 
 

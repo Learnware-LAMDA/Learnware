@@ -1,21 +1,21 @@
-import os
-import docker
-import pickle
 import atexit
+import os
+import pickle
 import tarfile
 import tempfile
-import shortuuid
 from concurrent.futures import ThreadPoolExecutor
+from typing import List, Optional, Union
 
-from typing import List, Union, Optional
-from .utils import system_execute, install_environment, remove_enviroment
+import docker
+import shortuuid
+
+from .package_utils import (filter_nonexist_conda_packages_file,
+                            filter_nonexist_pip_packages_file)
+from .utils import install_environment, remove_enviroment, system_execute
 from ..config import C
 from ..learnware import Learnware
-from ..model.base import BaseModel
-from .package_utils import filter_nonexist_conda_packages_file, filter_nonexist_pip_packages_file
-
 from ..logger import get_module_logger
-
+from ..model.base import BaseModel
 
 logger = get_module_logger(module_name="client_container")
 

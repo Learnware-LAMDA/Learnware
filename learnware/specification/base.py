@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import copy
-import numpy as np
 from typing import Dict
+
+import numpy as np
 
 
 class BaseStatSpecification:

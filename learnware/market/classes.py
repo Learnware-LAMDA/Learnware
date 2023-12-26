@@ -1,8 +1,9 @@
 import traceback
 from typing import Tuple
+
 from .base import BaseChecker
-from ..learnware import Learnware
 from ..client.container import LearnwaresContainer
+from ..learnware import Learnware
 from ..logger import get_module_logger
 
 logger = get_module_logger("market_classes")

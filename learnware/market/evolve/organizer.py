@@ -2,8 +2,8 @@ from typing import List
 
 from ..easy.organizer import EasyOrganizer
 from ...learnware import Learnware
-from ...specification import BaseStatSpecification
 from ...logger import get_module_logger
+from ...specification import BaseStatSpecification
 
 logger = get_module_logger("evolve_organizer")
 

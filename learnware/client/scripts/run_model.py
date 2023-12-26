@@ -1,6 +1,7 @@
-import sys
-import pickle
 import argparse
+import pickle
+import sys
+
 from learnware.utils import get_module_by_module_path
 
 

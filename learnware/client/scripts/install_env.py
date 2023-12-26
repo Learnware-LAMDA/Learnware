@@ -1,6 +1,6 @@
 import argparse
-from learnware.client.utils import install_environment
 
+from learnware.client.utils import install_environment
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

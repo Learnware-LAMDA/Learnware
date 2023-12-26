@@ -1,14 +1,13 @@
-import os
 import copy
-import zipfile
+import os
 import tempfile
+import zipfile
 from shutil import copyfile, rmtree
-from typing import Tuple, List, Union, Dict
+from typing import Dict, List, Tuple, Union
 
 from .database_ops import DatabaseOperations
-from ..base import BaseOrganizer, BaseChecker
+from ..base import BaseChecker, BaseOrganizer
 from ...config import C as conf
-from ...logger import get_module_logger
 from ...learnware import Learnware, get_learnware_from_dirpath
 from ...logger import get_module_logger
 

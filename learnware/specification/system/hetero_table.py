@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-import os
-import json
-import torch
 import codecs
+import json
+import os
+
 import numpy as np
+import torch
 
 from .base import SystemStatSpecification
 from ..regular import RKMETableSpecification
 from ..regular.table.rkme import torch_rbf_kernel
 from ...logger import get_module_logger
-from ...utils import choose_device, allocate_cuda_idx
+from ...utils import allocate_cuda_idx, choose_device
 
 logger = get_module_logger("hetero_map_table_spec")
 

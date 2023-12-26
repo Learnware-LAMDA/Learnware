@@ -1,24 +1,23 @@
-import os
-import uuid
-import yaml
-import json
 import atexit
-import zipfile
 import hashlib
-import requests
+import json
+import os
 import tempfile
+import uuid
+import zipfile
 from enum import Enum
+from typing import List, Optional, Union
+
+import requests
+import yaml
 from tqdm import tqdm
-from typing import Union, List, Optional
 
-from ..config import C
 from .container import LearnwaresContainer
-from ..market import BaseChecker
-from ..specification import generate_semantic_spec
-from ..logger import get_module_logger
+from ..config import C
 from ..learnware import get_learnware_from_dirpath
-from ..market import BaseUserInfo
-
+from ..logger import get_module_logger
+from ..market import BaseChecker, BaseUserInfo
+from ..specification import generate_semantic_spec
 
 CHUNK_SIZE = 1024 * 1024
 logger = get_module_logger(module_name="LearnwareClient")
@@ -413,7 +412,7 @@ class LearnwareClient:
 
     @staticmethod
     def _check_stat_specification(learnware):
-        from ..market import EasyStatChecker, CondaChecker
+        from ..market import CondaChecker, EasyStatChecker
 
         stat_checker = CondaChecker(inner_checker=EasyStatChecker())
         check_status, message = stat_checker(learnware)

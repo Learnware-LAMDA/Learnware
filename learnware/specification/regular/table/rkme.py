@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-import os
-import torch
-import json
 import codecs
-import scipy
-import numpy as np
-from qpsolvers import Problem, solve_problem
+import json
+import os
 from collections import Counter
 from typing import Any, Union
+
+import numpy as np
+import scipy
+import torch
+from qpsolvers import Problem, solve_problem
 
 from ..base import RegularStatSpecification
 from ....logger import get_module_logger

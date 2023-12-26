@@ -2,10 +2,10 @@ import os
 import tempfile
 from dataclasses import dataclass, field
 from shutil import copyfile
-from typing import List, Tuple, Union, Optional
+from typing import List, Optional, Tuple, Union
 
-from ...utils import save_dict_to_yaml, convert_folder_to_zipfile
 from ...config import C
+from ...utils import convert_folder_to_zipfile, save_dict_to_yaml
 
 
 @dataclass
