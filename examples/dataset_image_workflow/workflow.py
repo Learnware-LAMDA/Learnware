@@ -201,7 +201,9 @@ class ImageDatasetWorkflow:
                 single_score_mat.append([best_acc] * repeated)
                 user_model_score_mat.append(user_model_score_list)
                 pruning_score_mat.append(reuse_pruning_score_list)
-                print(n_label, np.mean(user_model_score_mat[-1]), np.mean(pruning_score_mat[-1]))
+                print(
+                    f"user_label_num: {n_label}, user_acc: {np.mean(user_model_score_mat[-1])}, pruning_acc: {np.mean(pruning_score_mat[-1])}"
+                )
 
             logger.info(f"Saving Curves for User_{i}")
             user_curves_data = (single_score_mat, user_model_score_mat, pruning_score_mat)
