@@ -47,9 +47,9 @@ class ImageDatasetWorkflow:
                 alpha=0.2,
             )
 
-        plt.xlabel("Labeled Data Size", fontsize=14)
+        plt.xlabel("Amout of Labeled User Data", fontsize=14)
         plt.ylabel("1 - Accuracy", fontsize=14)
-        plt.title(f"Image Limited Labeled Data", fontsize=16)
+        plt.title(f"Results on Image Experimental Scenario", fontsize=16)
         plt.legend(fontsize=14)
         plt.tight_layout()
         plt.savefig(os.path.join(self.fig_path, "image_labeled_curves.svg"), bbox_inches="tight", dpi=700)
