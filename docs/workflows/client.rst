@@ -19,7 +19,7 @@ How to Use Client
 ============================
 
 
-Initialize a Learware Client
+Initialize a Learnware Client
 -------------------------------
 
 

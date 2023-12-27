@@ -172,7 +172,7 @@ class JobSelectorReuser(BaseReuser):
         user_data : np.ndarray
             Raw user data.
         task_rkme_list : List[RKMETableSpecification]
-            The list of learwares' rkmes whose mixture approximates the user's rkme
+            The list of learnwares' rkmes whose mixture approximates the user's rkme
         task_rkme_matrix : np.ndarray
             Inner product matrix calculated from task_rkme_list.
         """

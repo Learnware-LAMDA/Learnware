@@ -410,7 +410,7 @@ class BaseOrganizer:
         ----------
         ids : Union[str, List[str]]
             Give a id or a list of ids
-            str: id of targer learware
+            str: id of target learnware
             List[str]: A list of ids of target learnwares
 
         Returns
@@ -428,7 +428,7 @@ class BaseOrganizer:
         ----------
         ids : Union[str, List[str]]
             Give a id or a list of ids
-            str: id of targer learware
+            str: id of target learnware
             List[str]: A list of ids of target learnwares
 
         Returns
@@ -503,7 +503,7 @@ class BaseSearcher:
 class BaseChecker:
     INVALID_LEARNWARE = -1
     NONUSABLE_LEARNWARE = 0
-    USABLE_LEARWARE = 1
+    USABLE_LEARNWARE = 1
 
     def reset(self, **kwargs):
         pass
