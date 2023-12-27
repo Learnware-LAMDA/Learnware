@@ -34,25 +34,25 @@ class ImageDatasetWorkflow:
         ]
         labels = ["User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
 
-        user_mat, pruning_mat = all_user_curves_data
-        user_mat, pruning_mat = np.array(user_mat), np.array(pruning_mat)
-        for mat, style, label in zip([user_mat, pruning_mat], styles, labels):
-            mean_curve, std_curve = 1 - np.mean(mat, axis=0), np.std(mat, axis=0)
+        user_array, pruning_array = all_user_curves_data
+        for array, style, label in zip([user_array, pruning_array], styles, labels):
+            mean_curve = np.array([item[0] for item in array])
+            std_curve = np.array([item[1] for item in array])
             plt.plot(mean_curve, **style, label=label)
             plt.fill_between(
                 range(len(mean_curve)),
-                mean_curve - 0.5 * std_curve,
-                mean_curve + 0.5 * std_curve,
+                mean_curve - std_curve,
+                mean_curve + std_curve,
                 color=style["color"],
                 alpha=0.2,
             )
 
-        plt.xlabel("Labeled Data Size")
-        plt.ylabel("1 - Accuracy")
-        plt.title(f"Text Limited Labeled Data")
-        plt.legend()
+        plt.xlabel("Labeled Data Size", fontsize=14)
+        plt.ylabel("1 - Accuracy", fontsize=14)
+        plt.title(f"Image Limited Labeled Data", fontsize=16)
+        plt.legend(fontsize=14)
         plt.tight_layout()
-        plt.savefig(os.path.join(self.fig_path, "image_labeled_curves.png"), bbox_inches="tight", dpi=700)
+        plt.savefig(os.path.join(self.fig_path, "image_labeled_curves.svg"), bbox_inches="tight", dpi=700)
 
     def _prepare_market(self, rebuild=False):
         client = LearnwareClient()
@@ -81,8 +81,8 @@ class ImageDatasetWorkflow:
         np.random.seed(1)
         random.seed(1)
         self._prepare_market(rebuild)
-        self.n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
-        self.repeated_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
+        self.n_labeled_list = [100, 200, 500, 1000, 2000, 4000]
+        self.repeated_list = [10, 10, 10, 3, 3, 3]
         device = choose_device(0)
 
         self.root_path = os.path.dirname(os.path.abspath(__file__))
@@ -232,15 +232,25 @@ class ImageDatasetWorkflow:
         )
 
         pruning_curves_data, user_model_curves_data = [], []
-        for i in range(self.image_benchmark.user_num):
-            with open(os.path.join(self.curve_path, f"curve{str(i)}.pkl"), "rb") as f:
+        total_user_model_score_mat = [np.zeros(self.repeated_list[i]) for i in range(len(self.n_labeled_list))]
+        total_pruning_score_mat = [np.zeros(self.repeated_list[i]) for i in range(len(self.n_labeled_list))]
+        for user_idx in range(self.image_benchmark.user_num):
+            with open(os.path.join(self.curve_path, f"curve{str(user_idx)}.pkl"), "rb") as f:
                 user_curves_data = pickle.load(f)
                 (single_score_mat, user_model_score_mat, pruning_score_mat) = user_curves_data
-            for i in range(len(single_score_mat)):
-                user_model_score_mat[i] = np.mean(user_model_score_mat[i])
-                pruning_score_mat[i] = np.mean(pruning_score_mat[i])
-            user_model_curves_data.append(user_model_score_mat)
-            pruning_curves_data.append(pruning_score_mat)
+
+                for i in range(len(self.n_labeled_list)):
+                    total_user_model_score_mat[i] += 1 - np.array(user_model_score_mat[i]) / 100
+                    total_pruning_score_mat[i] += 1 - np.array(pruning_score_mat[i]) / 100
+
+        for i in range(len(self.n_labeled_list)):
+            total_user_model_score_mat[i] /= self.image_benchmark.user_num
+            total_pruning_score_mat[i] /= self.image_benchmark.user_num
+            user_model_curves_data.append(
+                (np.mean(total_user_model_score_mat[i]), np.std(total_user_model_score_mat[i]))
+            )
+            pruning_curves_data.append((np.mean(total_pruning_score_mat[i]), np.std(total_pruning_score_mat[i])))
+
         self._plot_labeled_peformance_curves([user_model_curves_data, pruning_curves_data])
 
 

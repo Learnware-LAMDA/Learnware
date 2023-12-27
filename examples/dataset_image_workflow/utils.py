@@ -13,7 +13,7 @@ def evaluate(model, evaluate_set: Dataset, device=None, distribution=True):
     if isinstance(model, nn.Module):
         model.eval()
         mapping = lambda m, x: m(x)
-    else:  # For predict interface
+    else:
         mapping = lambda m, x: m.predict(x)
 
     criterion = nn.CrossEntropyLoss(reduction="sum")
@@ -56,17 +56,11 @@ def train_model(
     device = choose_device(0) if device is None else device
 
     model.train()
-    # SGD optimizer with learning rate 1e-2
     optimizer = optim.SGD(model.parameters(), lr=1e-2, momentum=0.9)
-    # Scheduler
-    # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=20)
-    # mean-squared error loss
     criterion = nn.CrossEntropyLoss()
-    # Prepare DataLoader
     dataloader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    # valid loss
-    best_loss = 100000  # initially
-    # Optimizing...
+    best_loss = 100000
+
     for epoch in range(epochs):
         running_loss = []
         model.train()
