@@ -37,10 +37,12 @@ With the experimental setup above, we evaluated the performance of RKME Image by
 | Job Selector Reuse (Multiple)        | 0.534               |
 | Average Ensemble Reuse (Multiple)    | 0.676               |
 
-In some specific settings, the user will have a small number of labeled samples. In such settings, learning the weight of selected learnwares on a limited number of labeled samples can result in a better performance than training directly on a limited number of labeled samples.
-
 ### Labelled Sample Scenario
+
+In some specific settings, the user will have a small number of labeled samples. In such settings, learning the weight of selected learnwares on a limited number of labeled samples can result in a better performance than training directly on a limited number of labeled samples.
 
 <div align=center>
   <img src="../../docs/_static/img/image_labeled.svg" alt="Results on Image Experimental Scenario" style="width:50%;" />
 </div>
+
+Note that in labelled sample scenario, the labelled samples are repeatedly sampled 3 to 10 times, in order to reduce the estimation error in accuracy due to random sampling.
