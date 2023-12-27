@@ -117,8 +117,8 @@ class CorporacionDatasetWorkflow(TableWorkflow):
     def labeled_homo_table_example(self):
         logger.info("Total Item: %d" % (len(self.market)))
         methods = ["user_model", "homo_single_aug", "homo_multiple_aug", "homo_multiple_avg", "homo_ensemble_pruning"]
-        recorders = {method: Recorder() for method in methods}
         methods_to_retest = []
+        recorders = {method: Recorder() for method in methods}
 
         user = self.benchmark.name
         for idx in range(self.benchmark.user_num):
@@ -127,7 +127,7 @@ class CorporacionDatasetWorkflow(TableWorkflow):
             
             train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
             train_x, train_y = train_x.values, train_y.values
-            train_subsets = self.get_train_subsets(train_x, train_y)
+            train_subsets = self.get_train_subsets(idx, train_x, train_y)
 
             user_stat_spec = generate_stat_spec(type="table", X=test_x)
             user_info = BaseUserInfo(
@@ -155,7 +155,7 @@ class CorporacionDatasetWorkflow(TableWorkflow):
             common_config = {"learnwares": mixture_learnware_list}
             method_configs = {
                 "user_model": {"dataset": self.benchmark.name, "model_type": "lgb"},
-                "homo_single_aug": {"learnwares": [single_result[0].learnware]},
+                "homo_single_aug": {"single_learnware": [single_result[0].learnware]},
                 "homo_multiple_aug": common_config,
                 "homo_multiple_avg": common_config,
                 "homo_ensemble_pruning": common_config

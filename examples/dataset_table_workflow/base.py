@@ -34,13 +34,13 @@ class TableWorkflow:
                 x_train, y_train = sample["x_train"], sample["y_train"]
                 model = method(x_train, y_train, test_info)
                 subset_scores.append(loss_func(model.predict(test_info["test_x"]), test_info["test_y"]))
-            all_scores.append(np.mean(subset_scores))
+            all_scores.append(subset_scores)
         return all_scores
     
     @staticmethod
-    def get_train_subsets(train_x, train_y):
-        np.random.seed(1)
-        random.seed(1)
+    def get_train_subsets(idx, train_x, train_y):
+        np.random.seed(idx)
+        random.seed(idx)
         train_subsets = []
         for n_label, repeated in zip(n_labeled_list, n_repeat_list):
             train_subsets.append([])
@@ -82,24 +82,21 @@ class TableWorkflow:
         os.makedirs(save_root_path, exist_ok=True)
         save_path = os.path.join(save_root_path, f"{method_name}.json")
         
-        if method_name == "single_aug":
+        if method_name_full == "hetero_single_aug":
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
                 for learnware in test_info["learnwares"]:
                     test_info["single_learnware"] = [learnware]
                     scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
-                    recorder.record(user, idx, scores)
+                    recorder.record(user, scores)
 
                 process_single_aug(user, idx, scores, recorders, save_root_path)
                 recorder.save(save_path)
-                logger.info(f"Method {method_name} on {user}_{idx} finished")
             else:
-                process_single_aug(user, idx, recorder.data[user][str(idx)], recorders, save_root_path)
-                logger.info(f"Method {method_name} on {user}_{idx} already exists")
+                process_single_aug(user, idx, recorder.data[user], recorders, save_root_path)
         else:
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
                 scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
-                recorder.record(user, idx, scores)
+                recorder.record(user, scores)
                 recorder.save(save_path)
-                logger.info(f"Method {method_name} on {user}_{idx} finished")
-            else:
-                logger.info(f"Method {method_name} on {user}_{idx} already exists")
+
+        logger.info(f"Method {method_name} on {user}_{idx} finished")
