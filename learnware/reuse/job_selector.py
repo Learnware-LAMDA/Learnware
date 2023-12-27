@@ -59,8 +59,11 @@ class JobSelectorReuser(BaseReuser):
         for idx in range(len(self.learnware_list)):
             data_idx_list = np.where(select_result == idx)[0]
             if len(data_idx_list) > 0:
-                # pred_y = self.learnware_list[idx].predict(raw_user_data[data_idx_list])
-                pred_y = self.learnware_list[idx].predict([raw_user_data[i] for i in data_idx_list])
+                if isinstance(raw_user_data, list):
+                    pred_y = self.learnware_list[idx].predict([raw_user_data[i] for i in data_idx_list])
+                else:
+                    pred_y = self.learnware_list[idx].predict(raw_user_data[data_idx_list])
+
                 if isinstance(pred_y, torch.Tensor):
                     pred_y = pred_y.detach().cpu().numpy()
                 # elif isinstance(pred_y, tf.Tensor):
@@ -89,6 +92,9 @@ class JobSelectorReuser(BaseReuser):
         user_data : np.ndarray
             User's raw data.
         """
+        if torch.is_tensor(user_data):
+            user_data = user_data.detach().cpu().numpy()
+
         if len(self.learnware_list) == 1:
             # user_data_num = user_data.shape[0]
             user_data_num = len(user_data)
@@ -118,9 +124,9 @@ class JobSelectorReuser(BaseReuser):
                 task_spec = learnware_rkme_spec_list[i]
                 if self.use_herding:
                     task_herding_num = max(5, int(self.herding_num * task_mixture_weight[i]))
-                    herding_X_i = task_spec.herding(task_herding_num).detach().cpu().numpy()
+                    herding_X_i = task_spec.herding(task_herding_num)
                 else:
-                    herding_X_i = task_spec.z.detach().cpu().numpy()
+                    herding_X_i = task_spec.get_z()
                     task_herding_num = herding_X_i.shape[0]
                 task_val_num = task_herding_num // 5
 
@@ -223,8 +229,10 @@ class JobSelectorReuser(BaseReuser):
         try:
             from lightgbm import LGBMClassifier, early_stopping
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"JobSelectorReuser is not available because 'lightgbm' is not installed! Please install it manually.")
-           
+            raise ModuleNotFoundError(
+                f"JobSelectorReuser is not available because 'lightgbm' is not installed! Please install it manually."
+            )
+
         score_best = -1
         learning_rate = [0.01]
         max_depth = [66]
