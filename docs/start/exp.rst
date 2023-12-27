@@ -49,18 +49,18 @@ Homo Experiments
 For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 users, each applying one feature engineering method, 
 and using the test data from their respective store as user data. These users can then search for homogeneous learnwares in the market with the same feature spaces as their tasks.
 
-The Mean Squared Error (MSE) of search and reuse is presented in the table below:
+The Mean Squared Error (MSE) of search and reuse across all users is presented in the table below:
 
 +-----------------------------------+---------------------+
-| Mean in Market (Single)           | 0.331 ± 0.040       |
+| Mean in Market (Single)           | 0.331               |
 +-----------------------------------+---------------------+
-| Best in Market (Single)           | 0.151 ± 0.046       |
+| Best in Market (Single)           | 0.151               |
 +-----------------------------------+---------------------+
-| Top-1 Reuse (Single)              | 0.280 ± 0.090       |
+| Top-1 Reuse (Single)              | 0.280               |
 +-----------------------------------+---------------------+
-| Job Selector Reuse (Multiple)     | 0.274 ± 0.064       |
+| Job Selector Reuse (Multiple)     | 0.274               |
 +-----------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple) | 0.267 ± 0.051       |
+| Average Ensemble Reuse (Multiple) | 0.267               |
 +-----------------------------------+---------------------+
 
 When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield
@@ -91,15 +91,15 @@ we tested various heterogeneous learnware reuse methods (without using user's la
 The average MSE performance across 41 users are as follows:
 
 +-----------------------------------+---------------------+
-| Mean in Market (Single)           | 1.459 ± 1.066       |
+| Mean in Market (Single)           | 1.459               |
 +-----------------------------------+---------------------+
-| Best in Market (Single)           | 1.226 ± 1.032       |
+| Best in Market (Single)           | 1.226               |
 +-----------------------------------+---------------------+
-| Top-1 Reuse (Single)              | 1.407 ± 1.061       |
+| Top-1 Reuse (Single)              | 1.407               |
 +-----------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple) | 1.312 ± 1.099       |
+| Average Ensemble Reuse (Multiple) | 1.312               |
 +-----------------------------------+---------------------+
-| User model with 50 labeled data   | 1.267 ± 1.055       |
+| User model with 50 labeled data   | 1.267               |
 +-----------------------------------+---------------------+
 
 From the results, it is noticeable that the learnware market still perform quite well even when users lack labeled data, 
@@ -121,6 +121,33 @@ The average results across 10 users are depicted in the figure below:
 
 We can observe that heterogeneous learnwares are beneficial when there's a limited amount of the user's labeled training data available, 
 aiding in better alignment with the user's specific task. This underscores the potential of learnwares to be applied to tasks beyond their original purpose.
+
+Image Experiment
+====================
+
+For the CIFAR-10 dataset, we sampled the training set unevenly by category and constructed unbalanced training datasets for the 50 learnwares that contained only some of the categories. This makes it unlikely that there exists any learnware in the learnware market that can accurately handle all categories of data; only the learnware whose training data is closest to the data distribution of the target task is likely to perform well on the target task. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with a non-zero probability of sampling on only 4 categories, and the sampling ratio is 0.4: 0.4: 0.1: 0.1. Ultimately, the training set for each learnware contains 12,000 samples covering the data of 4 categories in CIFAR-10.
+
+We constructed 50 target tasks using data from the test set of CIFAR-10. Similar to constructing the training set for the learnwares, in order to allow for some variation between tasks, we sampled the test set unevenly. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with non-zero sampling probability on 6 categories, and the sampling ratio is 0.3: 0.3: 0.1: 0.1: 0.1: 0.1. Ultimately, each target task contains 3000 samples covering the data of 6 categories in CIFAR-10.
+
+With this experimental setup, we evaluated the performance of RKME Image by calculating the mean accuracy across all users.
+
++-----------------------------------+---------------------+
+| Mean in Market (Single)           | 0.346               |
++-----------------------------------+---------------------+
+| Best in Market (Single)           | 0.688               |
++-----------------------------------+---------------------+
+| Top-1 Reuse (Single)              | 0.534               |
++-----------------------------------+---------------------+
+| Job Selector Reuse (Multiple)     | 0.534               |
++-----------------------------------+---------------------+
+| Average Ensemble Reuse (Multiple) | 0.676               |
++-----------------------------------+---------------------+
+
+In some specific settings, the user will have a small number of labeled samples. In such settings, learning the weight of selected learnwares on a limited number of labeled samples can result in a better performance than training directly on a limited number of labeled samples.
+
+.. image:: ../_static/img/image_labeled.svg
+   :align: center
+
 
 Text Experiment
 ====================
@@ -147,69 +174,42 @@ Results
 
 * ``unlabeled_text_example``:
 
-The accuracy of search and reuse is presented in the table below:
+The table below presents the mean accuracy of search and reuse across all users:
 
 +-----------------------------------+---------------------+
-| Mean in Market (Single)           | 0.507 ± 0.030       |
+| Mean in Market (Single)           | 0.507               |
 +-----------------------------------+---------------------+
-| Best in Market (Single)           | 0.859 ± 0.051       |
+| Best in Market (Single)           | 0.859               |
 +-----------------------------------+---------------------+
-| Top-1 Reuse (Single)              | 0.846 ± 0.054       |
+| Top-1 Reuse (Single)              | 0.846               |
 +-----------------------------------+---------------------+
-| Job Selector Reuse (Multiple)     | 0.845 ± 0.053       |
+| Job Selector Reuse (Multiple)     | 0.845               |
 +-----------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple) | 0.862 ± 0.051       |
+| Average Ensemble Reuse (Multiple) | 0.862               |
 +-----------------------------------+---------------------+
 
 * ``labeled_text_example``:
 
 We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse(EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
-.. image:: ../_static/img/text_labeled_curves.png
+.. image:: ../_static/img/text_labeled.svg
    :align: center
-   :alt: Text Limited Labeled Data
+   :alt: Results on Text Experimental Scenario
 
 
 From the figure above, it is evident that when the user's own training data is limited, the performance of multiple learnware reuse surpasses that of the user's own model. As the user's training data grows, it is expected that the user's model will eventually outperform the learnware reuse. This underscores the value of reusing learnware to significantly conserve training data and achieve superior performance when user training data is limited.
 
-
-Image Experiment
-====================
-
-For the CIFAR-10 dataset, we sampled the training set unevenly by category and constructed unbalanced training datasets for the 50 learnwares that contained only some of the categories. This makes it unlikely that there exists any learnware in the learnware market that can accurately handle all categories of data; only the learnware whose training data is closest to the data distribution of the target task is likely to perform well on the target task. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with a non-zero probability of sampling on only 4 categories, and the sampling ratio is 0.4: 0.4: 0.1: 0.1. Ultimately, the training set for each learnware contains 12,000 samples covering the data of 4 categories in CIFAR-10.
-
-We constructed 50 target tasks using data from the test set of CIFAR-10. Similar to constructing the training set for the learnwares, in order to allow for some variation between tasks, we sampled the test set unevenly. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with non-zero sampling probability on 6 categories, and the sampling ratio is 0.3: 0.3: 0.1: 0.1: 0.1: 0.1. Ultimately, each target task contains 3000 samples covering the data of 6 categories in CIFAR-10.
-
-With this experimental setup, we evaluated the performance of RKME Image using 1 - Accuracy as the loss.
-
-+-----------------------------------+---------------------+
-| Mean in Market (Single)           | 0.655 ± 0.021       |
-+-----------------------------------+---------------------+
-| Best in Market (Single)           | 0.304 ± 0.046       |
-+-----------------------------------+---------------------+
-| Top-1 Reuse (Single)              | 0.406 ± 0.128       |
-+-----------------------------------+---------------------+
-| Job Selector Reuse (Multiple)     | 0.406 ± 0.128       |
-+-----------------------------------+---------------------+
-| Average Ensemble Reuse (Multiple) | 0.310 ± 0.112       |
-+-----------------------------------+---------------------+
-
-In some specific settings, the user will have a small number of labelled samples. In such settings, learning the weight of selected learnwares on a limited number of labelled samples can result in a better performance than training directly on a limited number of labelled samples.
-
-.. image:: ../_static/img/image_labeled.png
-   :align: center
-
 Get Start Examples
 =========================
-Examples for `PFS, M5` and `CIFAR10` are available at [xxx]. You can run { main.py } directly to reproduce related experiments.
-The test code is mainly composed of three parts, namely data preparation (optional), specification generation and market construction, and search test.
-You can load data prepared by as and skip the data preparation step.
+We utilize the `fire` module to construct our experiments, including table, image and text scenario.
 
+Examples for `Image` are available at [examples/dataset_image_workflow].
+You can execute the experiment with the following commands:
 
-Examples for the `20-newsgroup` dataset are available at [examples/dataset_text_workflow].
-We utilize the `fire` module to construct our experiments. You can execute the experiment with the following commands:
+* `python workflow.py image_example`: Run both the unlabeled_image_example and labeled_image_example experiments. The results will be printed in the terminal, and the curves will be automatically saved in the `figs` directory.
 
-* `python main.py prepare_market`: Prepares the market.
-* `python main.py unlabeled_text_example`: Executes the unlabeled_text_example experiment; the results will be printed in the terminal.
-* `python main.py labeled_text_example`: Executes the labeled_text_example experiment; result curves will be automatically saved in the `figs` directory.
-* Additionally, you can use `python main.py unlabeled_text_example True` to combine steps 1 and 2. The same approach applies to running labeled_text_example directly.
+Examples for `Text` are available at [examples/dataset_text_workflow].
+You can execute the experiment with the following commands:
+
+* `python workflow.py unlabeled_text_example`: Run the unlabeled_text_example experiment. The results will be printed in the terminal.
+* `python workflow.py labeled_text_example`: Run the labeled_text_example experiment. The result curves will be automatically saved in the `figs` directory.
