@@ -9,7 +9,6 @@ The ``Learnware`` packag is designed to be easy to use and extend, it elegantly 
 
 The ``Learnware`` package serves as the engine for the Beimingwu System, it also can be used for experiements related to the learnware.
 
-================
 What is Learnware ?
 ================
 
@@ -22,14 +21,11 @@ The learnware specification consists of "semantic specification" and "statistica
 
 Learnware specifications describe the model's capabilities, enabling the model to be identified and reused by future users who may know nothing about the learnware in advance.
 
-.. image:: ../_static/img/learnware_paradigm.jpg
-   :align: center
-
-Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their model. This process is more efficient and less expensive than building a model from scratch.
-
-================
 Why do we need Learnware ?
 ================
+
+The Benefits of Learnware Paradigm
+-----------------
 
 Machine learning has achieved great success in many fields but still faces various challenges, such as the need for extensive training data and advanced training techniques, the difficulty of continuous learning, the risk of catastrophic forgetting, and the leakage of data privacy.
 
@@ -59,7 +55,14 @@ Although there are many efforts focusing on one of these issues separately, they
 |                       | large models and the carbon footprint.                                                        |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 
-================
+How to Solve Future Tasks with Learnware Paradigm?
+--------------
+
+.. image:: ../_static/img/learnware_paradigm.jpg
+   :align: center
+
+Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their model. This process is more efficient and less expensive than building a model from scratch.
+
 Procedure of Learnware Paradigm
 ================
 - **Submitting Stage**: Developers voluntarily submit various learnwares to the learnware dock system, and the system conducts quality checks and further organization of these learnwares.
@@ -69,7 +72,6 @@ Procedure of Learnware Paradigm
    :align: center
 
 
-================
 Learnware Package Design
 ================
 
