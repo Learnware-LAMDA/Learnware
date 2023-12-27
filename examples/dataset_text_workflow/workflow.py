@@ -49,25 +49,25 @@ class TextDatasetWorkflow:
         ]
         labels = ["User Model", "Multiple Learnware Reuse (EnsemblePrune)"]
 
-        user_mat, pruning_mat = all_user_curves_data
-        user_mat, pruning_mat = np.array(user_mat), np.array(pruning_mat)
-        for mat, style, label in zip([user_mat, pruning_mat], styles, labels):
-            mean_curve, std_curve = 1 - np.mean(mat, axis=0), np.std(mat, axis=0)
+        user_array, pruning_array = all_user_curves_data
+        for array, style, label in zip([user_array, pruning_array], styles, labels):
+            mean_curve = np.array([item[0] for item in array])
+            std_curve = np.array([item[1] for item in array])
             plt.plot(mean_curve, **style, label=label)
             plt.fill_between(
                 range(len(mean_curve)),
-                mean_curve - 0.5 * std_curve,
-                mean_curve + 0.5 * std_curve,
+                mean_curve - std_curve,
+                mean_curve + std_curve,
                 color=style["color"],
                 alpha=0.2,
             )
 
-        plt.xlabel("Labeled Data Size")
-        plt.ylabel("1 - Accuracy")
-        plt.title(f"Text Limited Labeled Data")
-        plt.legend()
+        plt.xlabel("Amout of Labeled User Data", fontsize=14)
+        plt.ylabel("1 - Accuracy", fontsize=14)
+        plt.title(f"Results on Text Experimental Scenario", fontsize=16)
+        plt.legend(fontsize=14)
         plt.tight_layout()
-        plt.savefig(os.path.join(self.fig_path, "text_labeled_curves.png"), bbox_inches="tight", dpi=700)
+        plt.savefig(os.path.join(self.fig_path, "text_labeled_curves.svg"), bbox_inches="tight", dpi=700)
 
     def _prepare_market(self, rebuild=False):
         client = LearnwareClient()
@@ -189,9 +189,9 @@ class TextDatasetWorkflow:
         self.root_path = os.path.dirname(os.path.abspath(__file__))
         self.fig_path = os.path.join(self.root_path, "figs")
         self.curve_path = os.path.join(self.root_path, "curves")
+        self._prepare_market(rebuild)
 
         if train_flag:
-            self._prepare_market(rebuild)
             os.makedirs(self.fig_path, exist_ok=True)
             os.makedirs(self.curve_path, exist_ok=True)
 
@@ -230,7 +230,6 @@ class TextDatasetWorkflow:
                     mixture_learnware_list = multiple_result[0].learnwares
                 else:
                     mixture_learnware_list = [single_result[0].learnware]
-                print(len(train_x))
 
                 for n_label, repeated in zip(self.n_labeled_list, self.repeated_list):
                     user_model_score_list, reuse_pruning_score_list = [], []
@@ -257,7 +256,9 @@ class TextDatasetWorkflow:
                     single_score_mat.append([best_acc] * repeated)
                     user_model_score_mat.append(user_model_score_list)
                     pruning_score_mat.append(reuse_pruning_score_list)
-                    print(n_label, np.mean(user_model_score_mat[-1]), np.mean(pruning_score_mat[-1]))
+                    print(
+                        f"user_label_num: {n_label}, user_acc: {np.mean(user_model_score_mat[-1])}, pruning_acc: {np.mean(pruning_score_mat[-1])}"
+                    )
 
                 logger.info(f"Saving Curves for User_{i}")
                 user_curves_data = (single_score_mat, user_model_score_mat, pruning_score_mat)
@@ -265,19 +266,25 @@ class TextDatasetWorkflow:
                     pickle.dump(user_curves_data, f)
 
         pruning_curves_data, user_model_curves_data = [], []
-        for i in range(self.text_benchmark.user_num):
-            with open(os.path.join(self.curve_path, f"curve{str(i)}.pkl"), "rb") as f:
+        total_user_model_score_mat = [np.zeros(self.repeated_list[i]) for i in range(len(self.n_labeled_list))]
+        total_pruning_score_mat = [np.zeros(self.repeated_list[i]) for i in range(len(self.n_labeled_list))]
+        for user_idx in range(self.text_benchmark.user_num):
+            with open(os.path.join(self.curve_path, f"curve{str(user_idx)}.pkl"), "rb") as f:
                 user_curves_data = pickle.load(f)
                 (single_score_mat, user_model_score_mat, pruning_score_mat) = user_curves_data
-            for i in range(len(single_score_mat)):
-                user_model_score_mat[i] = np.mean(user_model_score_mat[i])
-                pruning_score_mat[i] = np.mean(pruning_score_mat[i])
-            if len(user_model_score_mat) < 6:
-                for i in range(6 - len(user_model_score_mat)):
-                    user_model_score_mat.append(user_model_score_mat[-1])
-                    pruning_score_mat.append(pruning_score_mat[-1])
-            user_model_curves_data.append(user_model_score_mat[:6])
-            pruning_curves_data.append(pruning_score_mat[:6])
+
+                for i in range(len(self.n_labeled_list)):
+                    total_user_model_score_mat[i] += 1 - np.array(user_model_score_mat[i])
+                    total_pruning_score_mat[i] += 1 - np.array(pruning_score_mat[i])
+
+        for i in range(len(self.n_labeled_list)):
+            total_user_model_score_mat[i] /= self.text_benchmark.user_num
+            total_pruning_score_mat[i] /= self.text_benchmark.user_num
+            user_model_curves_data.append(
+                (np.mean(total_user_model_score_mat[i]), np.std(total_user_model_score_mat[i]))
+            )
+            pruning_curves_data.append((np.mean(total_pruning_score_mat[i]), np.std(total_pruning_score_mat[i])))
+
         self._plot_labeled_peformance_curves([user_model_curves_data, pruning_curves_data])
 
 
