@@ -3,11 +3,11 @@
 Introduction
 ================
 
-The learnware paradigm attempts to help the user reuse existed well-trained models to solve their problems instead of starting from scratch. The ``Learnware`` package provides the basic implementation of the central concepts and procedures for the learnware paradigm. 
+The learnware paradigm attempts to help the user reuse existed well-trained models to solve their problems instead of starting from scratch. The ``Learnware`` package offers a fundamental implementation of the central concepts and procedures for the learnware paradigm.
 
-The ``Learnware`` packag is designed to be easy to use and extend, it elegantly organizes related concepts and core functionalities together and is highly scalable, allowing for the easy integration of various new features and techniques in the future.
+The ``Learnware`` packag effectively organizes related concepts and core functionalities of the learnware paradigm while maintaining high scalability. This design enables effortless integration of various new features and techniques in the future.
 
-The ``Learnware`` package serves as the engine for the Beimingwu System, it also can be used for experiements related to the learnware.
+The ``Learnware`` package serves as the engine for the `Beimingwu System <https://bmwu.cloud/#/>`_ and can also be utilized for experiments related to learnware.
 
 What is Learnware ?
 ================
