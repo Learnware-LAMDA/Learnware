@@ -52,7 +52,7 @@ The table below presents the mean accuracy of search and reuse across all users:
 We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse(EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
 <div align=center>
-  <img src="../../docs/_static/img/text_labeled_curves.png" alt="Text Limited Labeled Data" style="width:50%;" />
+  <img src="../../docs/_static/img/text_labeled.svg" alt="Results on Text Experimental Scenario" style="width:50%;" />
 </div>
 
 From the figure above, it is evident that when the user's own training data is limited, the performance of multiple learnware reuse surpasses that of the user's own model. As the user's training data grows, it is expected that the user's model will eventually outperform the learnware reuse. This underscores the value of reusing learnware to significantly conserve training data and achieve superior performance when user training data is limited.
