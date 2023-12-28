@@ -3,61 +3,33 @@
 Introduction
 ================
 
-``Learnware`` is a model sharing platform, which give a basic implementation of the learnware paradigm. A learnware is a well-performed trained machine learning model with a specification that enables it to be adequately identified to reuse according to the requirement of future users who may know nothing about the learnware in advance. The learnware paradigm can solve entangled problems in the current machine learning paradigm, like continual learning and catastrophic forgetting. It also reduces resources for training a well-performed model.
+The ``learnware`` package provides a fundamental implementation of the central concepts and procedures for the learnware paradigm, which is a new paradigm aimed at enabling users to reuse existed well-trained models to solve their AI tasks instead of starting from scratch.
 
+Moreover, the package's well-structured design ensures high scalability and allows for the effortless integration of various new features and techniques in the future.
 
-Motivation
-=================
+In addition, the ``learnware`` package serves as the engine for the `Beimingwu System <https://bmwu.cloud/#/>`_ and can be effectively employed for conducting experiments related to learnware.
 
-.. image:: ../_static/img/learnware_paradigm.jpg
-   :align: center
+What is Learnware?
+====================
 
-Machine learning, especially the prevailing big model paradigm, has achieved great success in natural language processing and computer vision applications. However, it still faces challenges such as the requirement of a large amount of labeled training data, difficulty in adapting to changing environments, and catastrophic forgetting when refining trained models incrementally. These big models, while useful in their targeted tasks, often fail to address the above issues and struggle to generalize beyond their specific purposes.
+A learnware consists of high-performance machine learning models and specifications that characterize the models, i.e., "Learnware = Model + Specification."
 
-To better address the entangled issues in machine learning, we should consider the following aspects:
+The learnware specification consists of "semantic specification" and "statistical specification":
 
-+------------------------------------------------------------------------------------+
-| Aspect                                                                             |
-+====================================================================================+
-| 1. Investigate techniques that address multiple challenges simultaneously,         |
-|    recognizing that these issues are often intertwined in real-world applications. |
-+------------------------------------------------------------------------------------+
-| 2. Explore paradigms like learnware, which offers the possibility of               |
-|    systematically reusing small models for tasks beyond their original purposes,   |
-|    reducing the need for users to build models from scratch.                       |
-+------------------------------------------------------------------------------------+
-| 3. Develop solutions that enable ordinary users to create well-performing models   |
-|    without requiring proficient training skills.                                   |
-+------------------------------------------------------------------------------------+
-| 4. Address data privacy and proprietary concerns to facilitate experience          |
-|    sharing among different users while respecting confidentiality.                 |
-+------------------------------------------------------------------------------------+
-| 5. Adapt to the constraints of big data applications, where it may be              |
-|    unaffordable or infeasible to hold all data for multiple passes of scanning.    |
-+------------------------------------------------------------------------------------+
-| 6. Consider the environmental impact of training large models, as their carbon     |
-|    emissions pose a threat to our environment.                                     |
-+------------------------------------------------------------------------------------+
+- ``Semantic Specification``: Describe the type and functionality of the model through text.
+- ``Statistical Specification``: Characterize the statistical information contained in the model using various machine learning techniques.
 
-By considering these factors, we can develop a more comprehensive framework for tackling the complex challenges in machine learning, moving beyond the limitations of the big model paradigm, called Learnware.
+Learnware specifications describe the model's capabilities, enabling the model to be identified and reused by future users who may know nothing about the learnware in advance.
 
+Why do we need Learnware?
+============================
 
+The Benefits of Learnware Paradigm
+-------------------------------------
 
-Framework
-=======================
+Machine learning has achieved great success in many fields but still faces various challenges, such as the need for extensive training data and advanced training techniques, the difficulty of continuous learning, the risk of catastrophic forgetting, and the leakage of data privacy.
 
-.. image:: ../_static/img/learnware_market.jpg
-   :align: center
-
-The learnware paradigm introduces the concept of a well-performed, trained machine learning model with a specification that allows future users, who have no prior knowledge of the learnware, to reuse it based on their requirements.
-
-Developers or owners of trained machine learning models can submit their models to a learnware market. If accepted, the market assigns a specification to the model and accommodates it. The learnware market could host thousands or millions of well-performed models from different developers, for various tasks, using diverse data, and optimizing different objectives.
-
-Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their model. This process is more efficient and less expensive than building a model from scratch.
-
-
-Benefits of the Learnware Paradigm
-==============================================
+Although there are many efforts focusing on one of these issues separately, they are entangled, and solving one problem may exacerbate others. The learnware paradigm aimss to address many of these challenges through a unified framework.
 
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Benefit               | Description                                                                                   |
@@ -83,11 +55,25 @@ Benefits of the Learnware Paradigm
 |                       | large models and the carbon footprint.                                                        |
 +-----------------------+-----------------------------------------------------------------------------------------------+
 
-Challenges and Future Work
-==============================================
+How to Solve Future Tasks with Learnware Paradigm?
+----------------------------------------------------
 
-Although the learnware proposal shows promise, much work remains to make it a reality. The next sections will present some of the progress made so far.
+.. image:: ../_static/img/learnware_paradigm.jpg
+   :align: center
+
+Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their models. This process is more efficient and less expensive than building a model from scratch.
 
 
+Procedure of Learnware Paradigm
+==================================
+- ``Submitting Stage``: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
+- ``Deploying Stage``: When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it's a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
+
+.. image:: ../_static/img/learnware_market.svg
+   :align: center
 
 
+Learnware Package Design
+==========================
+
+TBD by xiaodong.
