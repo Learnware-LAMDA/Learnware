@@ -22,12 +22,13 @@ def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stde
             errmsg = err.stderr.decode()
             logger.warning(f"System Execute Error: {errmsg}")
         raise err
-    
+
     return com_process
 
 
 def remove_enviroment(conda_env):
     system_execute(args=["conda", "env", "remove", "-n", f"{conda_env}"])
+
 
 def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
     """Install environment of a learnware
@@ -46,14 +47,13 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
     Exception
         Lack of the environment configuration file.
     """
-        
     if conda_prefix is not None:
-        args_location = ['--prefix', conda_prefix]
+        args_location = ["--prefix", conda_prefix]
         conda_env = conda_prefix
     else:
-        args_location = ['--name', conda_env]
+        args_location = ["--name", conda_env]
         pass
-    
+
     with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
         logger.info(f"learnware_dir namelist: {os.listdir(learnware_dirpath)}")
         if "environment.yaml" in os.listdir(learnware_dirpath):
@@ -63,7 +63,7 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
             filter_nonexist_conda_packages_file(yaml_file=yaml_path, output_yaml_file=yaml_path_filter)
             # create environment
             logger.info(f"create conda env [{conda_env}] according to .yaml file")
-            system_execute(args=["conda", "env", "create"] + args_location +  ["--file", f"{yaml_path_filter}"])
+            system_execute(args=["conda", "env", "create"] + args_location + ["--file", f"{yaml_path_filter}"])
 
         elif "requirements.txt" in os.listdir(learnware_dirpath):
             requirements_path: str = os.path.join(learnware_dirpath, "requirements.txt")
@@ -77,7 +77,9 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
                 args=[
                     "conda",
                     "run",
-                ] + args_location + [
+                ]
+                + args_location
+                + [
                     "--no-capture-output",
                     "python",
                     "-m",
@@ -95,7 +97,9 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
         args=[
             "conda",
             "run",
-        ] + args_location + [
+        ]
+        + args_location
+        + [
             "--no-capture-output",
             "python",
             "-m",
