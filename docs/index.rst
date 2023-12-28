@@ -58,7 +58,7 @@ Document Structure
    :caption: REFERENCES:
 
    API <references/api.rst>
-   BeimingWu System <references/beiming.rst>
+   Beimingwu System <references/beimingwu.rst>
    FAQ <references/FAQ.rst>
 
 .. toctree::
