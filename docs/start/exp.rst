@@ -152,7 +152,7 @@ With this experimental setup, we evaluated the performance of RKME Image using 1
 
 In some specific settings, the user will have a small number of labelled samples. In such settings, learning the weight of selected learnwares on a limited number of labelled samples can result in a better performance than training directly on a limited number of labelled samples.
 
-.. image:: ../_static/img/image_labeled.png
+.. image:: ../_static/img/image_labeled.svg
    :align: center
 
 Text Data Experiment
