@@ -14,7 +14,7 @@ and utilizing ``Learnware`` to handle user tasks.
 Installation
 ====================
 
-Learnware is currently hosted on `PyPI <https://pypi.org/>`_. You can easily intsall ``learnware`` by following these steps:
+Learnware is currently hosted on `PyPI <https://pypi.org/>`_. You can easily intsall ``Learnware`` by following these steps:
 
 - For Windows and Linux users:
 
@@ -60,39 +60,39 @@ includes the following four components:
 
             - For Windows users:
             
-                .. code-block::
+            .. code-block::
 
-                    conda env export | findstr /v "^prefix: " > environment.yaml
+                conda env export | findstr /v "^prefix: " > environment.yaml
             
             - For macOS and Linux users
 
-                .. code-block::
+            .. code-block::
 
-                    conda env export | grep -v "^prefix: " > environment.yaml
+                conda env export | grep -v "^prefix: " > environment.yaml
             
         - Recover env from config:
 
-            .. code-block::
+        .. code-block::
 
-                conda env create -f environment.yaml
+            conda env create -f environment.yaml
     
     - ``requirements.txt`` for pip:
 
         A plain text documents that lists all packages necessary for executing the model. These dependencies can be effortlessly installed using pip with the command:
 
-            .. code-block::
-            
-                pip install -r requirements.txt.
+        .. code-block::
+        
+            pip install -r requirements.txt
 
 We've also detailed the format of the learnware zipfile in :ref:`Learnware Preparation<workflows/upload:Prepare Learnware>`.
 
 
-Learnware Pacakge Workflow
+Learnware Package Workflow
 ============================
 
 Users can start a ``Learnware`` workflow according to the following steps:
 
-Initialize a Learware Market
+Initialize a Learnware Market
 -------------------------------
 
 The ``EasyMarket`` class provides the core functions of a ``Learnware Market``. 

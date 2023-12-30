@@ -5,7 +5,7 @@ Specification
 
 Learnware specification is the core component of the learnware paradigm, linking all processes about learnwares, including uploading, organizing, searching, deploying and reusing. 
 
-In this section, we will introduce the concept and design of learnware specification in the ``learnware`` package.
+In this section, we will introduce the concept and design of learnware specification in the ``Learnware`` package.
 We will then explore ``regular specification``\ s tailored for different data types such as tables, images and texts.
 Lastly, we cover a ``system specification`` specifically assigned to table learnwares by the learnware market, aimed at accommodating all available table learnwares into a unified "specification world" despite their heterogeneity.
 
@@ -13,7 +13,7 @@ Concepts & Types
 ==================
 
 The learnware specification describes the model's specialty and utility in a certain format, allowing the model to be identified and reused by future users who may have no prior knowledge of the learnware.
-The ``learnware`` package employs a highly extensible specification design, which consists of two parts:
+The ``Learnware`` package employs a highly extensible specification design, which consists of two parts:
 
 - **Semantic specification** describes the model's type and functionality through a set of descriptions and tags. Learnwares with similar semantic specifications reside in the same specification island
 - **Statistical specification** characterizes the statistical information contained in the model using various machine learning techniques. It plays a crucial role in locating the appropriate place for the model within the specification island.
@@ -28,7 +28,7 @@ We employ the ``Reduced Kernel Mean Embedding (RKME) Specification`` as the foun
 with adjustments made according to the characteristics of each data type. 
 The RKME specification is a recent development in learnware specification design, which represents the distribution of a model's training data in a privacy-preserving manner.
 
-Within the ``learnware`` package, you'll find two types of statistical specifications: ``regular specification`` and ``system specification``. The former is generated locally
+Within the ``Learnware`` package, you'll find two types of statistical specifications: ``regular specification`` and ``system specification``. The former is generated locally
 by users to express their model's statistical information, while the latter is assigned by the learnware market to accommodate and organize heterogeneous learnwares. 
 
 Semantic Specification
@@ -41,7 +41,7 @@ In the case of table learnwares, users should additionally provide descriptions 
 Regular Specification
 ======================================
 
-The ``learnware`` package provides a unified interface, ``generate_stat_spec``, for generating ``regular specification``\ s across different data types. 
+The ``Learnware`` package provides a unified interface, ``generate_stat_spec``, for generating ``regular specification``\ s across different data types. 
 Users can use the training data ``train_x`` (supported types include numpy.ndarray, pandas.DataFrame, and torch.Tensor) as input to generate the ``regular specification`` of the model,
 as shown in the following code:
 
@@ -129,7 +129,7 @@ with particular learnware market implementations.
 - Learnware searchers perform helpful learnware recommendations among all table learnwares in the market, leveraging the ``system specification``\ s generated for users.
 
 
-``learnware`` package now includes a type of ``system specification``, named ``HeteroMapTableSpecification``, made especially for the ``Hetero Market`` implementation.
+``Learnware`` package now includes a type of ``system specification``, named ``HeteroMapTableSpecification``, made especially for the ``Hetero Market`` implementation.
 This specification is automatically given to all table learnwares when they are added to the ``Hetero Market``.
 It is also set up to be updated periodically, ensuring it remains accurate as the learnware market evolves and builds more precise specification worlds.
 Please refer to `COMPONENTS: Hetero Market  <../components/market.html#hetero-market>`_ for implementation details.

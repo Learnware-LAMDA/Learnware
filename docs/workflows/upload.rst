@@ -1,180 +1,227 @@
 .. _submit:
 ==========================================
-Learnware Preparation and Submission
+Learnware Preparation and Uoloading
 ==========================================
 
-In this section, we provide a comprehensive guide on submitting your custom learnware to the Learnware Market.
+In this section, we provide a comprehensive guide on submitting your custom learnware to the ``Learnware Market``.
 We will first discuss the necessary components of a valid learnware, followed by a detailed explanation on how to upload and remove learnwares within ``Learnware Market``.
 
 
-Prepare Learnware
-====================
+Prepare Learnware ``Zip`` Package
+====================================
 
-A valid learnware is encapsulated in a zipfile, comprising four essential components.
-Below, we illustrate the detailed structure of a learnware zipfile.
+In learnware ``Learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
 
-``__init__.py``
----------------
+- ``learnware.yaml``: learnware configuration file.
+- ``__init__.py``: methods for using the model.
+- ``stat.json``: the statistical specification of the learnware. Its filename can be customized and recorded in learnware.yaml.
+- ``environment.yaml`` or ``requirements.txt``: specifies the environment for the model.
 
-Within ``Learnware Market``, every uploader must provide a unified set of interfaces for their model, 
-facilitating easy utilization for future users.
-The ``__init__.py`` file serves as the Python interface for your model's fitting, prediction, and fine-tuning processes.
-For example, the code snippet below is used to train and save a SVM model for a sample dataset on sklearn digits classification:
+To facilitate the construction of a learnware, we provide a `Learnware Template <https://www.bmwu.cloud/static/learnware-template.zip>`_ that you can use as a basis for building your own learnware.
 
-.. code-block:: python
+Next, we will provide detailed explanations for the content of these four files.
 
-    import joblib
-    from sklearn.datasets import load_digits
-    from sklearn.model_selection import train_test_split
+Model Invocation File ``__init__.py``
+-------------------------------------
 
-    X, y = load_digits(return_X_y=True) 
-    data_X, _, data_y, _ = train_test_split(X, y, test_size=0.3, shuffle=True)
+To ensure that the uploaded learnware can be used by subsequent users, you need to provide interfaces for model fitting ``fit(X, y)``, prediction ``predict(X)``, and fine-tuning ``finetune(X, y)`` in ``__init__.py``. Among these interfaces, only the ```predict(X)``` interface is mandatory, while the others depend on the functionality of your model. 
 
-    # input dimension: (64, ), output dimension: (10, )
-    clf = svm.SVC(kernel="linear", probability=True)
-    clf.fit(data_X, data_y)
-
-    joblib.dump(clf, "svm.pkl") # model is stored as file "svm.pkl"
-
-
-Then the corresponding ``__init__.py`` for this SVM model should be structured as follows:
+Below is a reference template for the ```__init__.py``` file. Please make sure that the input parameter format (the number of parameters and parameter names) for each interface in your model invocation file matches the template below.
 
 .. code-block:: python
-    
+
     import os
-    import joblib
+    import pickle
     import numpy as np
     from learnware.model import BaseModel
 
-
-    class SVM(BaseModel):
+    class MyModel(BaseModel):
         def __init__(self):
-            super(SVM, self).__init__(input_shape=(64,), output_shape=(10,))
+            super(MyModel, self).__init__(input_shape=(37,), output_shape=(1,))
             dir_path = os.path.dirname(os.path.abspath(__file__))
-            self.model = joblib.load(os.path.join(dir_path, "svm.pkl"))
+            model_path = os.path.join(dir_path, "model.pkl")
+            with open(model_path, "rb") as f:
+                self.model = pickle.load(f)
 
         def fit(self, X: np.ndarray, y: np.ndarray):
-            pass
+            self.model = self.model.fit(X)
 
         def predict(self, X: np.ndarray) -> np.ndarray:
-            return self.model.predict_proba(X)
+            return self.model.predict(X)
 
         def finetune(self, X: np.ndarray, y: np.ndarray):
             pass
-    
-Please remember to specify the ``input_shape`` and ``output_shape`` corresponding to your model. 
-In our sklearn digits classification example, these would be (64,) and (10,) respectively.
 
 
-``stat.json``
--------------
+Please ensure that the ``MyModel`` class inherits from ``BaseModel`` in the ``learnware.model`` module, and specify the class name (e.g., ``MyModel``) in the ``learnware.yaml`` file later. 
 
-To accurately and effectively match users with appropriate learnwares for their tasks, we require information about your training dataset.
-Specifically, you are required to provide a statistical specification 
-stored as a json file, such as ``stat.json``, which contains the statistical information of the dataset. 
-This json file meets all our requirements regarding your training data, so you don't need to upload the local original data.
+Input and Output Dimensions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-There are various methods to generate a statistical specification.
-If you choose to use Reduced Kernel Mean Embedding (RKME) as your statistical specification, 
-the following code snippet offers guidance on how to construct and store the RKME of a dataset:
+``input_shape`` and ``output_shape`` represent the input and output dimensions of the model, respectively. You can refer to the following guidelines when filling them out:
+  - ``input_shape`` specifies a single input sample's dimension, and ``output_shape`` refers to the model's output dimension for a single sample.
+  - When the data type being processed is text data, there are no specific requirements for the value of ``input_shape``, and it can be filled in as ``None``.
+  - When the ``output_shape`` corresponds to tasks with variable outputs (such as object detection, text segmentation, etc.), there are no specific requirements for the value of ``output_shape``, and it can be filled in as ``None``.
+  - For classification tasks, ``output_shape`` should be (1, ) if the model directly outputs predicted labels, and the sample labels need to start from 0. If the model outputs logits, ``output_shape`` should be specified as the number of classes, i.e., (class_num, ).
+
+File Path
+^^^^^^^^^^^^^^^^^^
+If you need to load certain files within the zip package in the ``__init__.py`` file (and any other Python files that may be involved), please follow the method shown in the template above about obtaining the ``model_path``:
+  - First, obtain the root directory path of the entire package by getting ``dir_path``.
+  - - Then, based on the specific file's relative location within the package, obtain the specific file's path, ``model_path``.
+
+Module Imports
+^^^^^^^^^^^^^^^^^^
+Please note that module imports between Python files within the zip package should be done using **relative imports**. For instance:
 
 .. code-block:: python
-    
-    from learnware.specification import generate_rkme_spec
-    
-    # generate rkme specification for digits dataset
-    spec = generate_rkme_spec(X=data_X)
+
+    from .package_name import *
+    from .package_name import module_name
+
+
+Learnware Statistical Specification ``stat.json``
+---------------------------------------------------
+
+A learnware consists of a model and a specification. Therefore, after preparing the model, you need to generate a statistical specification for it. Specifically, using the previously installed ``Learnware`` package, you can use the training data ``train_x`` (supported types include numpy.ndarray, pandas.DataFrame, and torch.Tensor) as input to generate the statistical specification of the model.
+
+Here is an example of the code:
+
+.. code-block:: python
+
+    from learnware.specification import generate_stat_spec
+
+    data_type = "table" # Data types: ["table", "image", "text"]
+    spec = generate_stat_spec(type=data_type, X=train_x)
     spec.save("stat.json")
 
-Significantly, the RKME generation process is entirely conducted on your local machine, without any involvement of cloud services, 
-guaranteeing the security and privacy of your local original data.
+It's worth noting that the above code only runs on your local computer and does not interact with any cloud servers or leak any local private data.
+
+Additionally, if the model's training data is too large, causing the above code to fail, you can consider sampling the training data to ensure it's of a suitable size before proceeding with reduction generation.
 
 
-``learnware.yaml``
-------------------
+Learnware Configuration File ``learnware.yaml``
+-------------------------------------------------
 
-Additionally, you are asked to prepare a configuration file in YAML format.
-The file should detail your model's class name, the type of statistical specification(e.g. Reduced Kernel Mean Embedding, ``RKMETableSpecification``), and 
-the file name of your statistical specification file. The following ``learnware.yaml`` provides an example of
-how your learnware configuration file should be structured, based on our previous discussion:
+This file is used to specify the class name (``MyModel``) in the model invocation file ``__init__.py``, the module called for generating the statistical specification (``learnware.specification``), the category of the statistical specification (``RKMETableSpecification``), and the specific filename (``stat.json``):
 
 .. code-block:: yaml
 
     model:
-      class_name: SVM
-      kwargs: {}
+    class_name: MyModel
+    kwargs: {}
     stat_specifications:
-      - module_path: learnware.specification
+    - module_path: learnware.specification
         class_name: RKMETableSpecification
         file_name: stat.json
-        kwargs: {}  
+        kwargs: {}
 
+Please note that the statistical specification class name for different data types ``['table', 'image', 'text']`` is ``[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]``, respectively.
 
-``environment.yaml`` or ``requirements.txt``
+Model Runtime Dependent File
 --------------------------------------------
 
-In order to allow others to execute your learnware, it's necessary to specify your model's dependencies. 
-You can do this by providing either an ``environment.yaml`` file or a ``requirements.txt`` file.
+To ensure that your uploaded learnware can be used by other users, the ``zip`` package of the uploaded learnware should specify the model's runtime dependencies. The Beimingwu System supports the following two ways to specify runtime dependencies:
+  - Provide an ``environment.yaml`` file supported by ``conda``.
+  - Provide a ``requirements.txt`` file supported by ``pip``.
 
+You can choose either method, but please try to remove unnecessary dependencies to keep the dependency list as minimal as possible.
 
-- ``environment.yaml`` for conda:
+Using ``environment.yaml`` File
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-   If you provide an ``environment.yaml``, a new conda environment will be created based on this file 
-   when users install your learnware. You can generate this yaml file using the following command:
-   
-   - For Windows users:
+You can export the `environment.yaml` file directly from the `conda` virtual environment using the following command:
 
-    .. code-block::
+- For Linux and macOS systems
 
-        conda env export | findstr /v "^prefix: " > environment.yaml
-
-   - For macOS and Linux users:
-
-    .. code-block::
-
-        conda env export | grep -v "^prefix: " > environment.yaml
-
-- ``requirements.txt`` for pip:
-
-    If you provide a ``requirements.txt``, the dependent packages will be installed using the `-r` option of pip.
-    You can find more information about ``requirements.txt`` in 
-    `pip documentation <https://pip.pypa.io/en/stable/user_guide/#requirements-files>`_.
+.. code-block:: bash
     
-        
-We recommend using ``environment.yaml`` as it can help minimize conflicts between different packages.
+    conda env export | grep -v "^prefix: " > environment.yaml
 
-.. note::
-    Whether you choose to use ``environment.yaml`` or ``requirements.txt``, 
-    it's important to keep your dependencies as minimal as possible. 
-    This may involve manually opening the file and removing any unnecessary packages.
+- For Windows systems:
 
+.. code-block:: bash
+    
+    conda env export | findstr /v "^prefix: " > environment.yaml
 
-Check Learnware
-====================
-
-Upload Learnware 
-==================
-
-After preparing the four required files mentioned above, 
-you can bundle them into your own learnware zipfile. Along with the generated semantic specification that 
-succinctly describes the features of your task and model (for more details, please refer to :ref:`semantic specification<components/spec:Semantic Specification>`), 
-you can effortlessly upload your learnware to the ``Learnware Market`` using a single line of code:
+Note that the ``environment.yaml`` file in the ``zip`` package needs to be encoded in ``UTF-8`` format. Please check the encoding format of the ``environment.yaml`` file after using the above command. Due to the ``conda`` version and system differences, you may not get a ``UTF-8`` encoded file (e.g. get a ``UTF-16LE`` encoded file). You'll need to manually convert the file to ``UTF-8``, which is supported by most text editors. The following ``Python`` code for encoding conversion is also for reference:
 
 .. code-block:: python
 
-    import learnware
-    from learnware.market import EasyMarket
+    import codecs
 
-    learnware.init()
+    # Read the output file from the 'conda env export' command
+    # Assuming the file name is environment.yaml and the export format is UTF-16LE
+    with codecs.open('environment.yaml', 'r', encoding='utf-16le') as file:
+        content = file.read()
+
+    # Convert the content to UTF-8 encoding
+    output_content = content.encode('utf-8')
+
+    # Write to UTF-8 encoded file
+    with open('environment.yaml', 'wb') as file:
+        file.write(output_content)
+
+
+Additionally, due to the complexity of users' local ``conda`` virtual environments, you can execute the following command before uploading to confirm that there are no dependency conflicts in the ``environment.yaml`` file:
+
+.. code-block:: bash
     
-    # EasyMarket: most basic set of functions in a Learnware Market
-    easy_market = EasyMarket(market_id="demo", rebuild=True) 
+    conda env create --name test_env --file environment.yaml
+
+The above command will create a virtual environment based on the ``environment.yaml`` file, and if successful, it indicates that there are no dependency conflicts. You can delete the created virtual environment using the following command:
+
+.. code-block:: bash
+
+    conda env remove --name test_env
+
+Using `requirements.txt` File
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``requirements.txt`` file should list the packages required for running the ``__init__.py`` file and their specific versions. You can obtain these version details by executing the ``pip show <package_name>`` or ``conda list <package_name>`` command. Here is an example file:
+
+.. code-block:: text
+
+    numpy==1.23.5
+    scikit-learn==1.2.2
+
+Manually listing these dependencies can be cumbersome, so you can also use the ``pipreqs`` package to automatically scan your entire project and export the packages used along with their specific versions (though some manual verification may be required):
+
+.. code-block:: bash
+
+    pip install pipreqs
+    pipreqs ./  # Run this command in the project's root directory
+
+Please note that if you use the ``requirements.txt`` file to specify runtime dependencies, the system will by default install these dependencies in a ``conda`` virtual environment running ``Python 3.8`` during the learnware deployment.
+
+Furthermore, for version-sensitive packages like ``torch``, it's essential to specify package versions in the ``requirements.txt`` file to ensure successful deployment of the uploaded learnware on other machines.
+
+Upload Learnware ``Zip`` Package
+==================================
+
+After preparing the four required files mentioned above, 
+you can bundle them into your own learnware ``zip`` package. Along with the generated semantic specification that 
+succinctly describes the features of your task and model (for more details, please refer to :ref:`semantic specification<components/spec:Semantic Specification>`), 
+you can effortlessly upload your learnware to the ``Learnware Market`` as follows.
+
+.. code-block:: python
+
+    from learnware.market import BaseChecker
+    from learnware.market import instantiate_learnware_market
+
+    # instantiate a demo market
+    demo_market = instantiate_learnware_market(market_id="demo", name="hetero", rebuild=True) 
+
+    # upload the learnware into the market
+    learnware_id, learnware_status = demo_market.add_learnware(zip_path, semantic_spec) 
     
-    # single line uploading
-    easy_market.add_learnware(zip_path, semantic_spec) 
+    # assert whether the learnware passed the check and was uploaded successfully.
+    assert learnware_status != BaseChecker.INVALID_LEARNWARE, "Insert learnware failed!"
 
-Here, ``zip_path`` refers to the directory of your learnware zipfile.
+Here, ``zip_path`` refers to the directory of your learnware ``zip`` package. ``learnware_id`` indicates the id assigned by ``Learnware Market``, and the ``learnware_status`` indicates the check status for learnware.
 
+.. note:: 
+    The learnware ``zip`` package uploaded into ``LearnwareMarket`` will be checked semantically and statistically, and ``add_learnware`` will return the concrete check status. The check status ``BaseChecker.INVALID_LEARNWARE`` indicates the learnware did not pass the check. For more details about learnware checker, please refer to `Learnware Market <../components/market.html#easy-checker>`
 
 Remove Learnware
 ==================
