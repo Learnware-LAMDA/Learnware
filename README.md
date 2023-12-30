@@ -174,11 +174,11 @@ With the list of learnwares, `mixture_learnware_list`, returned from the previou
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 
 # using jobselector reuser to reuse the searched learnwares to make prediction
-reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
+reuse_job_selector = JobSelectorReuser(learnware_list=mixture_item.learnwares)
 job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
 
 # using averaging ensemble reuser to reuse the searched learnwares to make prediction
-reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
+reuse_ensemble = AveragingReuser(learnware_list=mixture_item.learnwares)
 ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
 ```
 
