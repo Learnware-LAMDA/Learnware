@@ -37,6 +37,9 @@ Semantic Specification
 The semantic specification consists of a "dict" structure that includes keywords "Data", "Task", "Library", "Scenario", "License", "Description", and "Name". 
 In the case of table learnwares, users should additionally provide descriptions for each feature dimension and output dimension through the "Input" and "Output" keywords.
 
+- If "data_type" is "Table", you need to specify the semantics of each dimension of the model's input data to make the uploaded learnware suitable for tasks with heterogeneous feature spaces.
+- If "task_type" is "Classification", you need to provide the semantics of model output labels (prediction labels start from 0), making the uploaded learnware suitable for classification tasks with heterogeneous output spaces.
+- If "task_type" is "Regression", you need to specify the semantics of each dimension of the model output, making the uploaded learnware suitable for regression tasks with heterogeneous output spaces.
 
 Regular Specification
 ======================================

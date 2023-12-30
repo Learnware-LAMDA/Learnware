@@ -10,8 +10,12 @@ As a developer, you often want make changes to ``Learnware Market`` and hope it 
 
 .. code-block:: bash
     
-    $ git clone https://github.com/Learnware-LAMDA/Learnware.git && cd learnware
-    $ python setup.py install
+    $ git clone https://github.com/Learnware-LAMDA/Learnware.git && cd Learnware
+    $ pip install -e .[dev]
+
+.. note::
+   It's recommended to use anaconda/miniconda to setup the environment. Also you can run ``pip install -e .[full, dev]`` to install ``torch`` automatically.
+
 
 Commit Format
 ==============

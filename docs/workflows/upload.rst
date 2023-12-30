@@ -7,7 +7,7 @@ In this section, we provide a comprehensive guide on submitting your custom lear
 We will first discuss the necessary components of a valid learnware, followed by a detailed explanation on how to upload and remove learnwares within ``Learnware Market``.
 
 
-Prepare Learnware ``Zip`` Package
+Prepare Learnware
 ====================================
 
 In learnware ``Learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
@@ -196,12 +196,59 @@ Please note that if you use the ``requirements.txt`` file to specify runtime dep
 
 Furthermore, for version-sensitive packages like ``torch``, it's essential to specify package versions in the ``requirements.txt`` file to ensure successful deployment of the uploaded learnware on other machines.
 
-Upload Learnware ``Zip`` Package
+Upload Learnware
 ==================================
 
-After preparing the four required files mentioned above, 
-you can bundle them into your own learnware ``zip`` package. Along with the generated semantic specification that 
-succinctly describes the features of your task and model (for more details, please refer to :ref:`semantic specification<components/spec:Semantic Specification>`), 
+After preparing the four required files mentioned above, you can bundle them into your own learnware ``zip`` package.
+
+Prepare Sematic Specifcation
+-----------------------------
+
+The semantic specification succinctly describes the features of your task and model. For uploading learnware ``zip`` package, the user need to prepare the semantic specification. Here is an example of a "Table Data" for a "Classification Task":
+
+.. code-block:: python
+
+    from learnware.specification import generate_semantic_spec
+
+    # Prepare input description when data_type="Table"
+    input_description = {
+        "Dimension": 5,
+        "Description": {
+            "0": "age",
+            "1": "weight",
+            "2": "body length",
+            "3": "animal type",
+            "4": "claw length"
+        },
+    }
+
+    # Prepare output description when task_type in ["Classification", "Regression"]
+    output_description = {
+        "Dimension": 3,
+        "Description": {
+            "0": "cat",
+            "1": "dog",
+            "2": "bird",
+        },
+    }
+
+    # Create semantic specification
+    semantic_spec = generate_semantic_spec(
+        name="learnware_example",
+        description="Just an example for uploading learnware",
+        data_type="Table",
+        task_type="Classification",
+        library_type="Scikit-learn",
+        scenarios=["Business", "Financial"],
+        input_description=input_description,
+        output_description=output_description,
+    )
+
+For more details, please refer to :ref:`semantic specification<components/spec:Semantic Specification>`, 
+
+Uploading
+--------------
+
 you can effortlessly upload your learnware to the ``Learnware Market`` as follows.
 
 .. code-block:: python

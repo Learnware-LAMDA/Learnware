@@ -16,76 +16,30 @@ Installation
 
 Learnware is currently hosted on `PyPI <https://pypi.org/>`_. You can easily intsall ``Learnware`` by following these steps:
 
-- For Windows and Linux users:
+.. code-block:: bash
 
-    .. code-block::
+    pip install learnware
 
-        pip install learnware
+In the ``Learnware`` package, besides the base classes, many core functionalities such as "learnware specification generation" and "learnware deployment" rely on the ``torch`` library. Users have the option to manually install ``torch``, or they can directly use the following command to install the ``learnware`` package:
 
-- For macOS users:
+.. code-block:: bash
 
-    .. code-block::
+    pip install learnware[full]
 
-        conda install -c pytorch faiss
-        pip install learnware
-
+.. note:: 
+    However, it's crucial to note that due to the potential complexity of the user's local environment, installing ``learnware[full]`` does not guarantee that ``torch`` will successfully invoke ``CUDA`` in the user's local setting.
 
 Prepare Learnware
 ====================
 
-The Learnware Market encompasses a board variety of learnwares. A valid learnware is a zipfile that
-includes the following four components:
+In learnware ``Learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
 
-- ``__init__.py``
+- ``learnware.yaml``: learnware configuration file.
+- ``__init__.py``: methods for using the model.
+- ``stat.json``: the statistical specification of the learnware. Its filename can be customized and recorded in learnware.yaml.
+- ``environment.yaml`` or ``requirements.txt``: specifies the environment for the model.
 
-    A Python file that provides interfaces for fitting, predicting, and fine-tuning your model.
-
-- ``rkme.json``
-
-    A JSON file that contains the statistical specification of your data. 
-
-- ``learnware.yaml``
-    
-    A configuration file that details your model's class name, the type of statistical specification(e.g. ``RKMETableSpecification`` for Reduced Kernel Mean Embedding), and 
-    the file name of your statistical specification file.
-
-- ``environment.yaml`` or ``requirements.txt``
-
-    - ``environment.yaml`` for conda:
-
-        A Conda environment configuration file for running the model. If the model environment is incompatible, this file can be used for manual configuration. 
-        Here's how you can generate this file:
-
-        - Create env config for conda:
-
-            - For Windows users:
-            
-            .. code-block::
-
-                conda env export | findstr /v "^prefix: " > environment.yaml
-            
-            - For macOS and Linux users
-
-            .. code-block::
-
-                conda env export | grep -v "^prefix: " > environment.yaml
-            
-        - Recover env from config:
-
-        .. code-block::
-
-            conda env create -f environment.yaml
-    
-    - ``requirements.txt`` for pip:
-
-        A plain text documents that lists all packages necessary for executing the model. These dependencies can be effortlessly installed using pip with the command:
-
-        .. code-block::
-        
-            pip install -r requirements.txt
-
-We've also detailed the format of the learnware zipfile in :ref:`Learnware Preparation<workflows/upload:Prepare Learnware>`.
-
+To facilitate the construction of a learnware, we provide a `Learnware Template <https://www.bmwu.cloud/static/learnware-template.zip>`_ that the users can use as a basis for building your own learnware.  We've also detailed the format of the learnware ``zip`` package in `Learnware Preparation<../workflows/upload:prepare-learnware>`.
 
 Learnware Package Workflow
 ============================
@@ -100,11 +54,10 @@ You can initialize a basic ``Learnware Market`` named "demo" using the code snip
 
 .. code-block:: python
     
-    import learnware
-    from learnware.market import EasyMarket
+    from learnware.market import instantiate_learnware_market
 
-    learnware.init()
-    easy_market = EasyMarket(market_id="demo", rebuild=True)
+    # instantiate a demo market
+    demo_market = instantiate_learnware_market(market_id="demo", name="easy", rebuild=True) 
 
 
 Upload Leanware
@@ -114,28 +67,30 @@ Before uploading your learnware to the ``Learnware Market``,
 you'll need to create a semantic specification, ``semantic_spec``. This involves selecting or inputting values for predefined semantic tags 
 to describe the features of your task and model.
 
-For instance, the dictionary snippet below illustrates the semantic specification for a Scikit-Learn type model. 
-This model is tailored for business scenarios and performs classification tasks on tabular data:
+For instance, the following codes illustrates the semantic specification for a Scikit-Learn type model. 
+This model is tailored for education scenarios and performs classification tasks on tabular data:
 
 .. code-block:: python
 
-    semantic_spec = {
-        "Data": {"Values": ["Tabular"], "Type": "Class"},
-        "Task": {"Values": ["Classification"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
-        "Scenario": {"Values": ["Business"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "demo_learnware", "Type": "String"},
-    }
+    from learnware.specification import generate_semantic_spec
+
+    semantic_spec = generate_semantic_spec(
+        name="demo_learnware",
+        data_type="Table",
+        task_type="Classification",
+        library_type="Scikit-learn",
+        scenarios="Education",
+        license="MIT",
+    )
 
 After defining the semantic specification, 
 you can upload your learnware using a single line of code:
     
 .. code-block:: python
-    
-    easy_market.add_learnware(zip_path, semantic_spec) 
 
-Here, ``zip_path`` is the directory of your learnware zipfile.
+    demo_market.add_learnware(zip_path, semantic_spec) 
+
+Here, ``zip_path`` is the directory of your learnware ``zip`` package.
 
 
 Semantic Specification Search
@@ -150,10 +105,11 @@ The ``Learnware Market`` will then perform an initial search using ``user_semant
     user_info = BaseUserInfo(id="user", semantic_spec=semantic_spec)
 
     # search_learnware: performs semantic specification search when user_info doesn't include a statistical specification
-    _, single_learnware_list, _ = easy_market.search_learnware(user_info) 
+    search_result = easy_market.search_learnware(user_info) 
+    single_result = search_results.get_single_results()
 
-    # single_learnware_list: the learnware list returned by semantic specification search
-    print(single_learnware_list)
+    # single_result: the List of Tuple[Score, Learnware] returned by semantic specification search
+    print(single_result)
     
 
 Statistical Specification Search
@@ -176,30 +132,34 @@ For example, the code below executes learnware search when using Reduced Set Ker
     user_info = BaseUserInfo(
         semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec}
     )
-    (sorted_score_list, single_learnware_list,
-        mixture_score, mixture_learnware_list) = easy_market.search_learnware(user_info)
+    search_result = easy_market.search_learnware(user_info)
 
-    # sorted_score_list: learnware scores(based on MMD distances), sorted in descending order
-    print(sorted_score_list) 
+    single_result = search_results.get_single_results()
+    multiple_result = search_results.get_multiple_results()
 
-    # single_learnware_list: learnwares, sorted by scores in descending order
-    print(single_learnware_list)
+    # search_item.score: based on MMD distances, sorted in descending order
+    # search_item.learnware.id: id of learnwares, sorted by scores in descending order
+    for search_item in single_result:
+        print(f"score: {search_item.score}, learnware_id: {search_item.learnware.id}")
 
-    # mixture_learnware_list: collection of learnwares whose combined use is beneficial
-    print(mixture_learnware_list) 
-
-    # mixture_score: score assigned to the combined set of learnwares in `mixture_learnware_list`
-    print(mixture_score)
+    # mixture_item.learnwares: collection of learnwares whose combined use is beneficial
+    # mixture_item.score: score assigned to the combined set of learnwares in `mixture_item.learnwares`
+    for mixture_item in multiple_result:
+        print(f"mixture_score: {mixture_item.score}\n")
+        mixture_id = " ".join([learnware.id for learnware in mixture_item.learnwares])
+        print(f"mixture_learnware: {mixture_id}\n")
 
 
 Reuse Learnwares
 -------------------------------
 
 With the list of learnwares, ``mixture_learnware_list``, returned from the previous step, you can readily apply them to make predictions on your own data, bypassing the need to train a model from scratch. 
-We offer two baseline methods for reusing a given list of learnwares: ``JobSelectorReuser`` and ``AveragingReuser``. 
-Just substitute ``test_x`` in the code snippet below with your own testing data, and you're all set to reuse learnwares!
+We offer provide two methods for reusing a given list of learnwares: ``JobSelectorReuser`` and ``AveragingReuser``. 
+Just substitute ``test_x`` in the code snippet below with your own testing data, and you're all set to reuse learnwares:
 
 .. code-block:: python
+
+    from learnware.reuse import JobSelectorReuser, AveragingReuser
 
     # using jobselector reuser to reuse the searched learnwares to make prediction
     reuse_job_selector = JobSelectorReuser(learnware_list=mixture_learnware_list)
@@ -208,6 +168,25 @@ Just substitute ``test_x`` in the code snippet below with your own testing data,
     # using averaging ensemble reuser to reuse the searched learnwares to make prediction
     reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list)
     ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
+
+
+We also provide two method when the user has labeled data for reusing a given list of learnwares: ``EnsemblePruningReuser`` and ``FeatureAugmentReuser``.
+Just substitute ``test_x`` in the code snippet below with your own testing data, and substitute ``train_X, train_y`` with your own training labeled data, and you're all set to reuse learnwares:
+
+.. code-block:: python
+
+    from learnware.reuse import EnsemblePruningReuser, FeatureAugmentReuser
+
+    # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
+    reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_item.learnwares, mode="classification")
+    reuse_ensemble.fit(train_X, train_y)
+    ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
+
+    # Use feature augment reuser to reuse the searched learnwares to make prediction
+    reuse_feature_augment = FeatureAugmentReuser(learnware_list=mixture_item.learnwares, mode="classification")
+    reuse_feature_augment.fit(train_X, train_y)
+    feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
+
 
 
 Auto Workflow Example
