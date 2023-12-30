@@ -204,8 +204,6 @@ The `Learnware` also offers automated workflow examples. This includes preparing
 
 # Experiments and Examples
 
-This chapter will introduce related experiments to illustrate the search and reuse performance of our learnware system.
-
 ## Environment
 
 For all experiments, we used a single Linux server. Details on the specifications are listed in the table below. All processors were used for training and evaluating.
