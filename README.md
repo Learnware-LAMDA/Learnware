@@ -1,5 +1,6 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/learnware.svg?logo=python&logoColor=white)](https://pypi.org/project/learnware/#files)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey)](https://pypi.org/project/learnware/#files)
+[![Test](https://github.com/Learnware-LAMDA/Learnware/actions/workflows/install_learnware_with_source.yaml/badge.svg)](https://github.com/Learnware-LAMDA/Learnware/actions)
 [![PypI Versions](https://img.shields.io/pypi/v/learnware)](https://pypi.org/project/learnware/#history)
 [![Documentation Status](https://readthedocs.org/projects/learnware/badge/?version=latest)](https://learnware.readthedocs.io/en/latest/?badge=latest)
 [![License](https://img.shields.io/pypi/l/learnware)](LICENSE)
