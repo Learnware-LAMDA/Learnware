@@ -132,5 +132,27 @@ combine ``HeteroMapAlignLearnware`` with the homogeneous reuse methods ``Averagi
     reuse_ensemble.fit(val_x, val_y)
     ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=test_x)
 
-Reuse with Container
-=====================
+Reuse with ``Model Container``
+================================
+
+``Learnware`` package provides ``Model Container`` to build executive environment for learnwares according to their runtime dependent files. The learnware's model will be executed in the containers and its env will be installed and uninstalled automatically.
+
+Run the following codes to try run a learnware with ``Model Container``:
+
+.. code-block:: python
+
+    from learnware.learnware import Learnware
+
+    with LearnwaresContainer(learnware, mode="conda") as env_container: # Let learnware be instance of Learnware Class, and its input shape is (20, 204)
+        learnware = env_container.get_learnwares_with_container()[0]
+        input_array = np.random.random(size=(20, 204))
+        print(learnware.predict(input_array))
+
+The ``mode`` parameter has two options, each for a specific learnware environment loading method:
+
+- ``'conda'``: Install a separate conda virtual environment for each learnware (automatically deleted after execution); run each learnware independently within its virtual environment.
+- ``'docker'``: Install a conda virtual environment inside a Docker container (automatically destroyed after execution); run each learnware independently within the container (requires Docker privileges).
+
+.. note:: 
+    It's important to note that the "conda" modes are not secure if there are any malicious learnwares. If the user cannot guarantee the security of the learnware they want to load, it's recommended to use the "docker" mode to load the learnware.
+

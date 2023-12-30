@@ -16,7 +16,7 @@ In our implementation, the class ``Learnware`` has 3 important member variables:
 - ``model``: The model in the learnware, can be a ``BaseModel`` or a dict including model name and path. When it is a dict, the function ``Learnware.instantiate_model`` is used to transform it to a ``BaseModel``. The function ``Learnware.predict`` use the model to predict for an input ``X``. See more in `COMPONENTS: Model <./model.html>`_.
 - ``specification``: The specification including the semantic specification and the statistic specification.
 
-Learnware for Hetero Reuse (Feature Align + Hetero Map Learnware)
+Learnware for Hetero Reuse
 =======================================================================
 
 In the Hetero Market(see `COMPONENTS: Hetero Market  <./market.html#hetero-market>`_ for details), ``HeteroSearcher`` identifies and recommends helpful learnwares among all learnwares in the market, 
