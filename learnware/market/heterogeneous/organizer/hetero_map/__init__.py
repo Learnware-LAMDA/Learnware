@@ -288,6 +288,9 @@ class HeteroMap(nn.Module):
         # go through transformers, get the first cls embedding
         encoder_output = self.encoder(**outputs)  # bs, seqlen+1, hidden_dim
         output_features = encoder_output[:, 0, :]
+        
+        del inputs, outputs, encoder_output
+        torch.cuda.empty_cache()
 
         return output_features
 
@@ -317,6 +320,8 @@ class HeteroMap(nn.Module):
             with torch.no_grad():
                 output_features = self._extract_features(bs_x_test).detach().cpu().numpy()
                 output_feas_list.append(output_features)
+                del output_features
+                torch.cuda.empty_cache()
 
         all_output_features = np.concatenate(output_feas_list, 0)
         return all_output_features

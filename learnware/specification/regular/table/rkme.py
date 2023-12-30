@@ -412,7 +412,7 @@ class RKMETableSpecification(RegularStatSpecification):
         S_shape = tuple([S.shape[0]] + list(Z_shape)[1:])
         S = S.reshape(S_shape)
 
-        return S
+        return S.detach().cpu().numpy()
 
     def save(self, filepath: str):
         """Save the computed RKME specification to a specified path in JSON format.
@@ -458,7 +458,9 @@ class RKMETableSpecification(RegularStatSpecification):
             for d in self.get_states():
                 if d in rkme_load.keys():
                     if d == "type" and rkme_load[d] != self.type:
-                        raise TypeError(f"The type of loaded RKME ({rkme_load[d]}) is different from the expected type ({self.type})!")
+                        raise TypeError(
+                            f"The type of loaded RKME ({rkme_load[d]}) is different from the expected type ({self.type})!"
+                        )
                     setattr(self, d, rkme_load[d])
 
 

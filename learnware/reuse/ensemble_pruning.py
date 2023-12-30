@@ -149,7 +149,9 @@ class EnsemblePruningReuser(BaseReuser):
             import geatpy as ea
         except ModuleNotFoundError:
             raise ModuleNotFoundError(f"EnsemblePruningReuser is not available because 'geatpy' is not installed! Please install it manually (only support python_version<3.11).")
-           
+
+        if torch.is_tensor(v_true):
+            v_true = v_true.detach().cpu().numpy()
 
         model_num = v_predict.shape[1]
 

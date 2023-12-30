@@ -232,7 +232,7 @@ class EasyOrganizer(BaseOrganizer):
         ----------
         ids : Union[str, List[str]]
             Give a id or a list of ids
-            str: id of target learware
+            str: id of target learnware
             List[str]: A list of ids of target learnwares
 
         Returns
@@ -264,7 +264,7 @@ class EasyOrganizer(BaseOrganizer):
         ----------
         ids : Union[str, List[str]]
             Give a id or a list of ids
-            str: id of targer learware
+            str: id of target learnware
             List[str]: A list of ids of target learnwares
 
         Returns
@@ -296,7 +296,7 @@ class EasyOrganizer(BaseOrganizer):
         ----------
         ids : Union[str, List[str]]
             Give a id or a list of ids
-            str: id of targer learware
+            str: id of target learnware
             List[str]: A list of ids of target learnwares
 
         Returns
@@ -339,11 +339,11 @@ class EasyOrganizer(BaseOrganizer):
         """
         if check_status is None:
             filtered_ids = list(self.use_flags.keys())
-        elif check_status in [BaseChecker.NONUSABLE_LEARNWARE, BaseChecker.USABLE_LEARWARE]:
+        elif check_status in [BaseChecker.NONUSABLE_LEARNWARE, BaseChecker.USABLE_LEARNWARE]:
             filtered_ids = [key for key, value in self.use_flags.items() if value == check_status]
         else:
             logger.warning(
-                f"check_status must be in [{BaseChecker.NONUSABLE_LEARNWARE}, {BaseChecker.USABLE_LEARWARE}]!"
+                f"check_status must be in [{BaseChecker.NONUSABLE_LEARNWARE}, {BaseChecker.USABLE_LEARNWARE}]!"
             )
             return None
 

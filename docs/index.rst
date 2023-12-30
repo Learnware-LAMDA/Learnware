@@ -51,14 +51,14 @@ Document Structure
    :caption: ADVANCED TOPICS:
 
    Anchor Learnware <advanced/anchor.rst>
-   Specification Evolvement <advanced/evolve.rst>
+   Evolvable Specification <advanced/evolve.rst>
 
 .. toctree::
    :maxdepth: 3
    :caption: REFERENCES:
 
    API <references/api.rst>
-   BeimingWu System <references/beiming.rst>
+   Beimingwu System <references/beimingwu.rst>
    FAQ <references/FAQ.rst>
 
 .. toctree::

@@ -106,7 +106,7 @@ We also demonstrate the detail format of learnware zipfile in [DOC link], and al
 
 Users can start an ``Learnware`` workflow according to the following steps:
 
-### Initialize a Learware Market
+### Initialize a Learnware Market
 
 The ``EasyMarket`` class implements the most basic set of functions in a ``Learnware``. 
 You can use the following code snippet to initialize a basic ``Learnware`` named "demo":

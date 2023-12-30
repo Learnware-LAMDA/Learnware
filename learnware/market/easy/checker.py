@@ -217,4 +217,4 @@ class EasyStatChecker(BaseChecker):
             logger.warning(message)
             return self.INVALID_LEARNWARE, message
 
-        return self.USABLE_LEARWARE, "EasyStatChecker Success"
+        return self.USABLE_LEARNWARE, "EasyStatChecker Success"
