@@ -355,7 +355,9 @@ From the figure above, it is evident that when the user's own training data is l
 ## Contributor
 We appreciate all contributions and thank all the contributors!
 
-[All Contributor](https://github.com/Learnware-LAMDA/Learnware/graphs/contributors)
+<div align=center>
+  <img src="https://github.com/Learnware-LAMDA/Learnware/graphs/contributors"/>
+</div>
 
 ## About us
 
