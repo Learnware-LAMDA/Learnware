@@ -3,6 +3,15 @@
 For Developer
 ================
 
+Install with Dev Mode
+=======================
+
+As a developer, you often want make changes to ``Learnware Market`` and hope it would reflect directly in your environment without reinstalling it. You can install ``Learnware Market`` in editable mode with following command.
+
+.. code-block:: bash
+    
+    $ git clone https://github.com/Learnware-LAMDA/Learnware.git && cd learnware
+    $ python setup.py install
 
 Commit Format
 ==============
@@ -50,17 +59,6 @@ Continuous Integration (CI) tools help you stick to the quality standards by run
     pip install pytest
     python -m pytest tests
 
-Development Guidance
-=======================
-
-As a developer, you often want make changes to ``Learnware Market`` and hope it would reflect directly in your environment without reinstalling it. You can install ``Learnware Market`` in editable mode with following command.
-
-.. code-block:: bash
-    
-    $ git clone https://github.com/Learnware-LAMDA/Learnware.git && cd learnware
-    $ python setup.py install
-
-
 ``pre-commit`` Config
 ========================
 
@@ -80,7 +78,7 @@ Run the following command in the root directory of ``Learnware`` Project to enab
 ``isort`` Config
 ===================
 
-The codes in the ``Learnware`` Package will be processed by ``isort``(``examples`` and ``tests`` are excluded). Run the following command to install ``isort``:
+The codes in the ``Learnware`` Package will be processed by ``isort`` (``examples`` and ``tests`` are excluded). Run the following command to install ``isort``:
 
 .. code-block:: bash
 
