@@ -187,8 +187,6 @@ Just substitute ``test_x`` in the code snippet below with your own testing data,
     reuse_feature_augment.fit(train_X, train_y)
     feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
 
-
-
 Auto Workflow Example
 ============================
 

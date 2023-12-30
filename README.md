@@ -189,9 +189,7 @@ from learnware.reuse import EnsemblePruningReuser, FeatureAugmentReuser
 
 # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
 reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_item.learnwares, mode="classification")
-reuse_ensemble.fit(train
-
-_X, train_y)
+reuse_ensemble.fit(train_X, train_y)
 ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
 
 # Use feature augment reuser to reuse the searched learnwares to make prediction
