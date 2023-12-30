@@ -211,9 +211,13 @@ This chapter will introduce related experiments to illustrate the search and reu
 
 For all experiments, we used a single Linux server. Details on the specifications are listed in the table below. All processors were used for training and evaluating.
 
+<div align=center>
+
 | System               | GPU                | CPU                      |
 |----------------------|--------------------|--------------------------|
 | Ubuntu 20.04.4 LTS   | Nvidia Tesla V100S | Intel(R) Xeon(R) Gold 6240R |
+
+</div>
 
 ## Tabular Data Experiments
 
@@ -241,6 +245,8 @@ For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 
 
 The Mean Squared Error (MSE) of search and reuse across all users is presented in the table below:
 
+<div align=center>
+
 | Setting                           | MSE    |
 |-----------------------------------|--------|
 | Mean in Market (Single)           | 0.331  |
@@ -248,6 +254,8 @@ The Mean Squared Error (MSE) of search and reuse across all users is presented i
 | Top-1 Reuse (Single)              | 0.280  |
 | Job Selector Reuse (Multiple)     | 0.274  |
 | Average Ensemble Reuse (Multiple) | 0.267  |
+
+</div>
 
 When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield better results than training models from scratch on limited training data. We present the change curves in MSE for the user's self-trained model, as well as for the Feature Augmentation single learnware reuse method and the Ensemble Pruning multiple learnware reuse method. These curves display their performance on the user's test data as the amount of labeled training data increases. The average results across 55 users are depicted in the figure below:
 
@@ -265,6 +273,8 @@ In heterogeneous experiments, the learnware market would recommend helpful heter
 
 We designate the 41 stores in the PFS dataset as users, creating their user data with an alternative feature engineering approach that varies from the methods employed by learnwares in the market. Consequently, while the market's learnwares from the PFS dataset undertake tasks very similar to our users, the feature spaces do not match exactly. In this experimental configuration, we tested various heterogeneous learnware reuse methods (without using user's labeled data) and compared them to the user's self-trained model based on a small amount of training data. The average MSE performance across 41 users is as follows:
 
+<div align=center>
+
 | Setting                           | MSE    |
 |-----------------------------------|--------|
 | Mean in Market (Single)           | 1.459  |
@@ -272,6 +282,8 @@ We designate the 41 stores in the PFS dataset as users, creating their user data
 | Top-1 Reuse (Single)              | 1.407  |
 | Average Ensemble Reuse (Multiple) | 1.312  |
 | User model with 50 labeled data   | 1.267  |
+
+</div>
 
 From the results, it is noticeable that the learnware market still performs quite well even when users lack labeled data, provided it includes learnwares addressing tasks that are similar but not identical to the user's. In these instances, the market's effectiveness can match or even rival scenarios where users have access to a limited quantity of labeled data.
 
@@ -295,6 +307,8 @@ We constructed 50 target tasks using data from the test set of CIFAR-10. Similar
 
 With this experimental setup, we evaluated the performance of RKME Image using 1 - Accuracy as the loss.
 
+<div align=center>
+
 | Setting                           | Accuracy |
 |-----------------------------------|----------|
 | Mean in Market (Single)           | 0.655    |
@@ -302,6 +316,8 @@ With this experimental setup, we evaluated the performance of RKME Image using 1
 | Top-1 Reuse (Single)              | 0.406    |
 | Job Selector Reuse (Multiple)     | 0.406    |
 | Average Ensemble Reuse (Multiple) | 0.310    |
+
+</div>
 
 In some specific settings, the user will have a small number of labelled samples. In such settings, learning the weight of selected learnwares on a limited number of labelled samples can result in better performance than training directly on a limited number of labelled samples.
 
@@ -332,6 +348,8 @@ Our experiments comprise two components:
 
 The table below presents the mean accuracy of search and reuse across all users:
 
+<div align=center>
+
 | Setting                           | Accuracy |
 |-----------------------------------|----------|
 | Mean in Market (Single)           | 0.507    |
@@ -339,6 +357,8 @@ The table below presents the mean accuracy of search and reuse across all users:
 | Top-1 Reuse (Single)              | 0.846    |
 | Job Selector Reuse (Multiple)     | 0.845    |
 | Average Ensemble Reuse (Multiple) | 0.862    |
+
+</div>
 
 - **labeled_text_example**:
 
@@ -352,7 +372,7 @@ From the figure above, it is evident that when the user's own training data is l
 
 # About
 
-## Contributor
+## Contributors
 We appreciate all contributions and thank all the contributors!
 
 <div align=center>
