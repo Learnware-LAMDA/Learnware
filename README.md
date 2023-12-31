@@ -20,8 +20,15 @@
 ## Framework 
 
 <div align="center">
-  <img src="./docs/_static/img/learnware_paradigm.jpg" width="70%"/>
+  <img src="./docs/_static/img/learnware_framework.svg" width="70%"/>
 </div>
+
+
+At the workflow level, `Learnware` package consists of `Submitting Stage` and `Deploying Stage`.
+At the module level, `Learnware` package is a platform that consists of above components. The components are designed as loose-coupled modules and each component could be used stand-alone.
+
+
+## Learnware Paradigm 
 
 Machine learning, especially the prevailing big model paradigm, has achieved great success in natural language processing and computer vision applications. However, it still faces challenges such as the requirement of a large amount of labeled training data, difficulty in adapting to changing environments, and catastrophic forgetting when refining trained models incrementally. These big models, while useful in their targeted tasks, often fail to address the above issues and struggle to generalize beyond their specific purposes.
 

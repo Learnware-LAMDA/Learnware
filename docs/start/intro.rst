@@ -76,4 +76,8 @@ Procedure of Learnware Paradigm
 Learnware Package Design
 ==========================
 
-TBD by xiaodong.
+.. image:: ../_static/img/learnware_framework.svg
+   :align: center
+
+At the workflow level, ``Learnware`` package consists of ``Submitting Stage`` and ``Deploying Stage``.
+At the module level, ``Learnware`` package is a platform that consists of above components. The components are designed as loose-coupled modules and each component could be used stand-alone.
