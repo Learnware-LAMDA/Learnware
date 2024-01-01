@@ -1,10 +1,8 @@
 import os
 import subprocess
 import tempfile
-import zipfile
 
-from .package_utils import (filter_nonexist_conda_packages_file,
-                            filter_nonexist_pip_packages_file)
+from .package_utils import filter_nonexist_conda_packages_file, filter_nonexist_pip_packages_file
 from ..logger import get_module_logger
 
 logger = get_module_logger(module_name="client_utils")

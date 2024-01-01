@@ -9,8 +9,6 @@ from typing import List, Optional, Union
 import docker
 import shortuuid
 
-from .package_utils import (filter_nonexist_conda_packages_file,
-                            filter_nonexist_pip_packages_file)
 from .utils import install_environment, remove_enviroment, system_execute
 from ..config import C
 from ..learnware import Learnware
@@ -224,7 +222,7 @@ class ModelDockerContainer(ModelContainer):
         }
         container = client.containers.run(**container_config)
         logger.info(f"Docker container {container.id[:12]} is generated.")
-        
+
         try:
             environment_cmd = [
                 "pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple",
@@ -265,7 +263,7 @@ class ModelDockerContainer(ModelContainer):
         if isinstance(docker_container, docker.models.containers.Container):
             client = docker.from_env()
             container_ids = [container.id for container in client.containers.list()]
-            
+
             if docker_container.id in container_ids:
                 docker_container.stop()
                 docker_container.remove()
@@ -521,7 +519,7 @@ class LearnwaresContainer:
         except KeyboardInterrupt:
             logger.warning("The KeyboardInterrupt is ignored when removing the container env!")
             self._destroy_docker_container()
-            
+
     def __enter__(self):
         if self.mode == "conda":
             self.learnware_containers = [
