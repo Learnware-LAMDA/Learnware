@@ -1,12 +1,13 @@
 import os
-import numpy as np
-from typing import Union, List
 import sys
+from typing import List, Union
 
-from ..specification import Specification, BaseStatSpecification
-from ..model import BaseModel
-from ..utils import get_module_by_module_path
+import numpy as np
+
 from ..logger import get_module_logger
+from ..model import BaseModel
+from ..specification import BaseStatSpecification, Specification
+from ..utils import get_module_by_module_path
 
 logger = get_module_logger("Learnware")
 

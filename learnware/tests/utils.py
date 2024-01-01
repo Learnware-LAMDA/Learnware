@@ -1,5 +1,6 @@
 import unittest
 
+
 def parametrize(test_class, **kwargs):
     test_loader = unittest.TestLoader()
     test_names = test_loader.getTestCaseNames(test_class)

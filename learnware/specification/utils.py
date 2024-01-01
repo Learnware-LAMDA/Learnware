@@ -1,7 +1,8 @@
-import torch
+from typing import Union
+
 import numpy as np
 import pandas as pd
-from typing import Union
+import torch
 
 
 def convert_to_numpy(data: Union[np.ndarray, pd.DataFrame, torch.Tensor]):

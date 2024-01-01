@@ -1,10 +1,11 @@
 import os
+
 import langdetect
 import numpy as np
 
 from ..table import RKMETableSpecification
-from ....logger import get_module_logger
 from ....config import C
+from ....logger import get_module_logger
 
 logger = get_module_logger("RKMETextSpecification", "INFO")
 

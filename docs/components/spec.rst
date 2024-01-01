@@ -37,6 +37,9 @@ Semantic Specification
 The semantic specification consists of a "dict" structure that includes keywords "Data", "Task", "Library", "Scenario", "License", "Description", and "Name". 
 In the case of table learnwares, users should additionally provide descriptions for each feature dimension and output dimension through the "Input" and "Output" keywords.
 
+- If "data_type" is "Table", you need to specify the semantics of each dimension of the model's input data to make the uploaded learnware suitable for tasks with heterogeneous feature spaces.
+- If "task_type" is "Classification", you need to provide the semantics of model output labels (prediction labels start from 0), making the uploaded learnware suitable for classification tasks with heterogeneous output spaces.
+- If "task_type" is "Regression", you need to specify the semantics of each dimension of the model output, making the uploaded learnware suitable for regression tasks with heterogeneous output spaces.
 
 Regular Specification
 ======================================
@@ -131,7 +134,7 @@ with particular learnware market implementations.
 - Learnware searchers perform helpful learnware recommendations among all table learnwares in the market, leveraging the ``system specification``\ s generated for users.
 
 
-``learnware`` package now includes a type of ``system specification``, named ``HeteroMapTableSpecification``, made especially for the ``Hetero Market`` implementation.
+The ``learnware`` package now includes a type of ``system specification``, named ``HeteroMapTableSpecification``, made especially for the ``Hetero Market`` implementation.
 This specification is automatically given to all table learnwares when they are added to the ``Hetero Market``.
 It is also set up to be updated periodically, ensuring it remains accurate as the learnware market evolves and builds more precise specification worlds.
 Please refer to `COMPONENTS: Hetero Market  <../components/market.html#hetero-market>`_ for implementation details.

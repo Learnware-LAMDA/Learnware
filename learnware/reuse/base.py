@@ -1,5 +1,6 @@
-import numpy as np
 from typing import List
+
+import numpy as np
 
 from ..learnware import Learnware
 from ..logger import get_module_logger

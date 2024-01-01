@@ -1,6 +1,5 @@
-from .base import BaseReuser
 from .align import AlignLearnware
-
+from .base import BaseReuser
 from ..logger import get_module_logger
 from ..utils import is_torch_available
 
@@ -18,7 +17,7 @@ if not is_torch_available(verbose=False):
     )
 else:
     from .averaging import AveragingReuser
-    from .feature_augment import FeatureAugmentReuser
-    from .hetero import HeteroMapAlignLearnware, FeatureAlignLearnware
-    from .job_selector import JobSelectorReuser
     from .ensemble_pruning import EnsemblePruningReuser
+    from .feature_augment import FeatureAugmentReuser
+    from .hetero import FeatureAlignLearnware, HeteroMapAlignLearnware
+    from .job_selector import JobSelectorReuser

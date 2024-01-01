@@ -1,9 +1,9 @@
-from typing import List, Tuple, Any
+from typing import Any, List, Tuple
 
 from .user_info import AnchoredUserInfo
 from ..easy.searcher import EasySearcher
-from ...logger import get_module_logger
 from ...learnware import Learnware
+from ...logger import get_module_logger
 
 logger = get_module_logger("anchor_searcher")
 

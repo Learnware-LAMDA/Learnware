@@ -1,11 +1,11 @@
-import torch
-import numpy as np
 from typing import List, Union
+
+import numpy as np
+import torch
 from scipy.special import softmax
 
-
-from ..learnware import Learnware
 from .base import BaseReuser
+from ..learnware import Learnware
 from ..logger import get_module_logger
 
 logger = get_module_logger("avaraging_reuser")

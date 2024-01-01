@@ -1,11 +1,13 @@
-import torch
+from typing import List, Optional, Union
+
 import numpy as np
 import pandas as pd
-from typing import Union, List, Optional
+import torch
 
-from .utils import convert_to_numpy
 from .base import BaseStatSpecification
-from .regular import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
+from .regular import (RKMEImageSpecification, RKMETableSpecification,
+                      RKMETextSpecification)
+from .utils import convert_to_numpy
 from ..config import C
 
 

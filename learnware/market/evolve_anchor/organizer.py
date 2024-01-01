@@ -1,7 +1,7 @@
 from typing import List
 
-from ..evolve import EvolvedOrganizer
 from ..anchor import AnchoredOrganizer, AnchoredUserInfo
+from ..evolve import EvolvedOrganizer
 from ...logger import get_module_logger
 
 logger = get_module_logger("evolve_anchor_organizer")

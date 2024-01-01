@@ -12,7 +12,7 @@ In addition, the ``learnware`` package serves as the engine for the `Beimingwu S
 What is Learnware?
 ====================
 
-A learnware consists of high-performance machine learning models and specifications that characterize the models, i.e., "Learnware = Model + Specification."
+A learnware consists of a high-performance machine learning model and specifications that characterize the model, i.e., "Learnware = Model + Specification".
 
 The learnware specification consists of "semantic specification" and "statistical specification":
 
@@ -29,7 +29,7 @@ The Benefits of Learnware Paradigm
 
 Machine learning has achieved great success in many fields but still faces various challenges, such as the need for extensive training data and advanced training techniques, the difficulty of continuous learning, the risk of catastrophic forgetting, and the leakage of data privacy.
 
-Although there are many efforts focusing on one of these issues separately, they are entangled, and solving one problem may exacerbate others. The learnware paradigm aimss to address many of these challenges through a unified framework.
+Although there are many efforts focusing on one of these issues separately, they are entangled, and solving one problem may exacerbate others. The learnware paradigm aims to address many of these challenges through a unified framework.
 
 +-----------------------+-----------------------------------------------------------------------------------------------+
 | Benefit               | Description                                                                                   |
@@ -76,4 +76,8 @@ Procedure of Learnware Paradigm
 Learnware Package Design
 ==========================
 
-TBD by xiaodong.
+.. image:: ../_static/img/learnware_framework.svg
+   :align: center
+
+At the workflow level, the ``learnware`` package consists of ``Submitting Stage`` and ``Deploying Stage``.
+At the module level, the ``learnware`` package is a platform that consists of above components. The components are designed as loose-coupled modules and each component could be used stand-alone.

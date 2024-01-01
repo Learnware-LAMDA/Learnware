@@ -1,17 +1,18 @@
 import time
-import torch
-import numpy as np
-import torch.nn as nn
 from typing import List
-from tqdm import trange
+
+import numpy as np
+import torch
+import torch.nn as nn
 import torch.nn.functional as F
+from tqdm import trange
 
 from ..align import AlignLearnware
 from ..utils import fill_data_with_mean
-from ...utils import choose_device, allocate_cuda_idx
-from ...logger import get_module_logger
 from ...learnware import Learnware
+from ...logger import get_module_logger
 from ...specification import RKMETableSpecification
+from ...utils import allocate_cuda_idx, choose_device
 
 logger = get_module_logger("feature_align")
 

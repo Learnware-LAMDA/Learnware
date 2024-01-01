@@ -1,10 +1,11 @@
-import torch
 import random
-import numpy as np
 from typing import List
 
-from ..learnware import Learnware
+import numpy as np
+import torch
+
 from .base import BaseReuser
+from ..learnware import Learnware
 from ..logger import get_module_logger
 
 logger = get_module_logger("ensemble_pruning")

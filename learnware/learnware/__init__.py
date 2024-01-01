@@ -1,14 +1,14 @@
-import os
 import copy
-from typing import Optional
+import os
 import traceback
+from typing import Optional
 
 from .base import Learnware
 from .utils import get_stat_spec_from_config
+from ..config import C
+from ..logger import get_module_logger
 from ..specification import Specification
 from ..utils import read_yaml_to_dict
-from ..logger import get_module_logger
-from ..config import C
 
 logger = get_module_logger("learnware.learnware")
 

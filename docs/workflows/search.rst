@@ -51,7 +51,7 @@ Hetero Search
 
 For table-based user tasks, 
 homogeneous searchers like ``EasySearcher`` fail to recommend learnwares when no table learnware matches the user task's feature dimension, returning empty results.
-To enhance functionality, ``learnware`` package includes the heterogeneous learnware search feature, whose processions is as follows: 
+To enhance functionality, the ``learnware`` package includes the heterogeneous learnware search feature, whose processions is as follows: 
 
 - Learnware markets such as ``Hetero Market`` integrate different specification islands into a unified "specification world" by assigning system-level specifications to all learnwares. This allows heterogeneous searchers like ``HeteroSearcher`` to find helpful learnwares from all available table learnwares.
 - Searchers assign system-level specifications to users based on ``UserInfo``'s statistical specification, using methods provided by corresponding organizers. In ``Hetero Market``, for example, ``HeteroOrganizer.generate_hetero_map_spec`` generates system-level specifications for users.

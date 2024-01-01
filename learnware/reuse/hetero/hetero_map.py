@@ -1,10 +1,10 @@
 import numpy as np
 
+from .feature_align import FeatureAlignLearnware
 from ..align import AlignLearnware
+from ..feature_augment import FeatureAugmentReuser
 from ...learnware import Learnware
 from ...logger import get_module_logger
-from .feature_align import FeatureAlignLearnware
-from ..feature_augment import FeatureAugmentReuser
 from ...specification import RKMETableSpecification
 
 logger = get_module_logger("hetero_map_align")

@@ -1,7 +1,8 @@
 __version__ = "0.2.0.9"
 
-import os
 import json
+import os
+
 from .logger import get_module_logger
 from .utils import is_torch_available, setup_seed
 

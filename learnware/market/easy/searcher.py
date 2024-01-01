@@ -1,15 +1,18 @@
 import math
-import torch
+from typing import List, Optional, Tuple, Union
+
 import numpy as np
+import torch
 from rapidfuzz import fuzz
-from typing import Tuple, List, Union, Optional
 
 from .organizer import EasyOrganizer
+from ..base import (BaseSearcher, BaseUserInfo, MultipleSearchItem,
+                    SearchResults, SingleSearchItem)
 from ..utils import parse_specification_type
-from ..base import BaseUserInfo, BaseSearcher, SearchResults, SingleSearchItem, MultipleSearchItem
 from ...learnware import Learnware
-from ...specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification, rkme_solve_qp
 from ...logger import get_module_logger
+from ...specification import (RKMEImageSpecification, RKMETableSpecification,
+                              RKMETextSpecification, rkme_solve_qp)
 
 logger = get_module_logger("easy_seacher")
 

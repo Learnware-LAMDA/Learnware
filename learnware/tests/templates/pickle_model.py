@@ -1,7 +1,10 @@
 import os
 import pickle
+
 import numpy as np
+
 from learnware.model.base import BaseModel
+
 
 class PickleLoadedModel(BaseModel):
     

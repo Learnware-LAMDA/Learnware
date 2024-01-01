@@ -10,8 +10,8 @@ from torch import nn
 from torch.utils.data import DataLoader, Dataset
 from tqdm.autonotebook import trange
 
-from .....logger import get_module_logger
 from .feature_extractor import FeatureTokenizer
+from .....logger import get_module_logger
 
 logger = get_module_logger("hetero_mapping_trainer")
 

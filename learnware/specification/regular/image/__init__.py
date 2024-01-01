@@ -1,6 +1,5 @@
-from ....utils import is_torch_available
 from ....logger import get_module_logger
-
+from ....utils import is_torch_available
 
 logger = get_module_logger("regular_image_spec")
 

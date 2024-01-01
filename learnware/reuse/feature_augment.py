@@ -1,7 +1,8 @@
-import torch
-import numpy as np
 from typing import List
-from sklearn.linear_model import RidgeCV, LogisticRegressionCV
+
+import numpy as np
+import torch
+from sklearn.linear_model import LogisticRegressionCV, RidgeCV
 
 from .base import BaseReuser
 from .utils import fill_data_with_mean
