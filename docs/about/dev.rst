@@ -66,7 +66,7 @@ Continuous Integration (CI) tools help you stick to the quality standards by run
 ``pre-commit`` Config
 ========================
 
-The ``Learnware`` Package support config ``pre-commit``. Run the following command to install ``pre-commit``:
+The ``learnware`` package support config ``pre-commit``. Run the following command to install ``pre-commit``:
 
 .. code-block:: bash
 
@@ -82,7 +82,7 @@ Run the following command in the root directory of ``Learnware`` Project to enab
 ``isort`` Config
 ===================
 
-The codes in the ``Learnware`` Package will be processed by ``isort`` (``examples`` and ``tests`` are excluded). Run the following command to install ``isort``:
+The codes in the ``learnware`` package will be processed by ``isort`` (``examples`` and ``tests`` are excluded). Run the following command to install ``isort``:
 
 .. code-block:: bash
 

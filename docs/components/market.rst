@@ -48,7 +48,7 @@ This ``checker`` checks the statistical specification and functionality of a lea
 Current Markets
 ======================================
 
-The ``Learnware`` package provide two different implementation of ``market``, i.e. ``Easy Market`` and ``Hetero Market``. They have different implementation of ``organizer`` and ``searcher``.
+The ``learnware`` package provide two different implementation of ``market``, i.e. ``Easy Market`` and ``Hetero Market``. They have different implementation of ``organizer`` and ``searcher``.
 
 Easy Market
 -------------

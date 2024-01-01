@@ -20,7 +20,7 @@ Learnware is currently hosted on `PyPI <https://pypi.org/>`_. You can easily int
 
     pip install learnware
 
-In the ``Learnware`` package, besides the base classes, many core functionalities such as "learnware specification generation" and "learnware deployment" rely on the ``torch`` library. Users have the option to manually install ``torch``, or they can directly use the following command to install the ``learnware`` package:
+In the ``learnware`` package, besides the base classes, many core functionalities such as "learnware specification generation" and "learnware deployment" rely on the ``torch`` library. Users have the option to manually install ``torch``, or they can directly use the following command to install the ``learnware`` package:
 
 .. code-block:: bash
 
@@ -32,7 +32,7 @@ In the ``Learnware`` package, besides the base classes, many core functionalitie
 Prepare Learnware
 ====================
 
-In learnware ``Learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
+In learnware ``learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
 
 - ``learnware.yaml``: learnware configuration file.
 - ``__init__.py``: methods for using the model.

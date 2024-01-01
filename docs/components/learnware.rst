@@ -55,7 +55,7 @@ All Reuse Methods
 ===========================
 
 In addition to applying ``Learnware``, ``FeatureAlignLearnware`` or ``HeteroMapAlignLearnware`` objects directly by calling their ``predict`` interface, 
-the ``Learnware`` package also provides a set of ``Reuse Methods`` for users to further customize a single or multiple learnwares, with the hope of enabling learnwares to be 
+the ``learnware`` package also provides a set of ``Reuse Methods`` for users to further customize a single or multiple learnwares, with the hope of enabling learnwares to be 
 helpful beyond their original purposes, and eliminating the need for users to build models from scratch.
 
 There are two main categories of ``Reuse Methods``: (1) direct reuse and (2) reuse based on a small amount of labeled data.
@@ -107,7 +107,7 @@ specifies the ensemble method(default is set to ``mean``).
 Reuse Learnware with Labeled Data
 ----------------------------------
 
-When users have a small amount of labeled data available, ``Learnware`` package provides two methods: ``EnsemblePruningReuser`` and ``FeatureAugmentReuser`` to help reuse learnwares.
+When users have a small amount of labeled data available, the ``learnware`` package provides two methods: ``EnsemblePruningReuser`` and ``FeatureAugmentReuser`` to help reuse learnwares.
 They are both initialized with a list of ``Learnware`` objects ``learnware_list``, and have different implementations of ``fit`` and ``predict`` methods.
 
 EnsemblePruningReuser

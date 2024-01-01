@@ -135,7 +135,7 @@ combine ``HeteroMapAlignLearnware`` with the homogeneous reuse methods ``Averagi
 Reuse with ``Model Container``
 ================================
 
-``Learnware`` package provides ``Model Container`` to build executive environment for learnwares according to their runtime dependent files. The learnware's model will be executed in the containers and its env will be installed and uninstalled automatically.
+The ``learnware`` package provides ``Model Container`` to build executive environment for learnwares according to their runtime dependent files. The learnware's model will be executed in the containers and its env will be installed and uninstalled automatically.
 
 Run the following codes to try run a learnware with ``Model Container``:
 

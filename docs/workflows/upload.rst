@@ -83,7 +83,7 @@ Please note that module imports between Python files within the zip package shou
 Learnware Statistical Specification ``stat.json``
 ---------------------------------------------------
 
-A learnware consists of a model and a specification. Therefore, after preparing the model, you need to generate a statistical specification for it. Specifically, using the previously installed ``Learnware`` package, you can use the training data ``train_x`` (supported types include numpy.ndarray, pandas.DataFrame, and torch.Tensor) as input to generate the statistical specification of the model.
+A learnware consists of a model and a specification. Therefore, after preparing the model, you need to generate a statistical specification for it. Specifically, using the previously installed ``learnware`` package, you can use the training data ``train_x`` (supported types include numpy.ndarray, pandas.DataFrame, and torch.Tensor) as input to generate the statistical specification of the model.
 
 Here is an example of the code:
 
