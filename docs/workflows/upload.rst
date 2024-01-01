@@ -10,7 +10,7 @@ We will first discuss the necessary components of a valid learnware, followed by
 Prepare Learnware
 ====================================
 
-In learnware ``Learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
+In the ``learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
 
 - ``learnware.yaml``: learnware configuration file.
 - ``__init__.py``: methods for using the model.

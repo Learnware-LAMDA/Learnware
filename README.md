@@ -12,37 +12,21 @@
 </div>
 
 
-``Learnware`` is a model sharing platform, which give a basic implementation of the learnware paradigm. A learnware is a well-performed trained machine learning model with a specification that enables it to be adequately identified to reuse according to the requirement of future users who may know nothing about the learnware in advance. The learnware paradigm can solve entangled problems in the current machine learning paradigm, like continual learning and catastrophic forgetting. It also reduces resources for training a well-performed model.
+The `learnware` package provides a fundamental implementation of the central concepts and procedures for the learnware paradigm, which is a new paradigm aimed at enabling users to reuse existed well-trained models to solve their AI tasks instead of starting from scratch.
+
+Moreover, the package's well-structured design ensures high scalability and allows for the effortless integration of various new features and techniques in the future.
+
+In addition, the `learnware` package serves as the engine for the [Beimingwu System](https://bmwu.cloud) and can be effectively employed for conducting experiments related to learnware.
 
 
 # Introduction
 
-## Framework 
+## Learnware Paradigm
 
-<div align="center">
-  <img src="./docs/_static/img/learnware_framework.svg" width="70%"/>
-</div>
+A learnware consists of a high-performance machine learning model and specifications that characterize the model, i.e., "Learnware = Model + Specification".
+These specifications, encompassing both semantic and statistical aspects, detail the model's functionality and statistical information, making it easier for future users to identify and reuse these models.
 
-
-At the workflow level, `Learnware` package consists of `Submitting Stage` and `Deploying Stage`.
-At the module level, `Learnware` package is a platform that consists of above components. The components are designed as loose-coupled modules and each component could be used stand-alone.
-
-
-## Learnware Paradigm 
-
-Machine learning, especially the prevailing big model paradigm, has achieved great success in natural language processing and computer vision applications. However, it still faces challenges such as the requirement of a large amount of labeled training data, difficulty in adapting to changing environments, and catastrophic forgetting when refining trained models incrementally. These big models, while useful in their targeted tasks, often fail to address the above issues and struggle to generalize beyond their specific purposes.
-
-<div align="center">
-  <img src="./docs/_static/img/learnware_market.svg" width="70%" />
-</div>
-
-The learnware paradigm introduces the concept of a well-performed, trained machine learning model with a specification that allows future users, who have no prior knowledge of the learnware, to reuse it based on their requirements.
-
-Developers or owners of trained machine learning models can submit their models to a learnware market. If accepted, the market assigns a specification to the model and accommodates it. The learnware market could host thousands or millions of well-performed models from different developers, for various tasks, using diverse data, and optimizing different objectives.
-
-Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their model. This process is more efficient and less expensive than building a model from scratch.
-
-## Benefits of the Learnware Paradigm
+The need for Learnware arises due to challenges in machine learning, such as the need for extensive training data, advanced techniques, continuous learning, catastrophic forgetting, and data privacy issues. Although there are many efforts focusing on one of these issues separately, they are entangled, and solving one problem may exacerbate others. The learnware paradigm aims to address many of these challenges through a unified framework. Its benefits are listed as follows.
 
 |  Benefit | Description  |
 |  ----  | ----  |
@@ -54,15 +38,35 @@ Instead of building a model from scratch, users can submit their requirements to
 | Unplanned tasks | Open to all legal developers, the learnware market can accommodate helpful learnwares for various tasks. |
 | Carbon emission | Assembling small models may offer good-enough performance, reducing interest in training large models and the carbon footprint. |
 
+The learnware paradigm consists of two distinct stages:
+- `Submitting Stage`: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
+- `Deploying Stage`: When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it’s a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
+
+<div align="center">
+  <img src="./docs/_static/img/learnware_market.svg" width="70%" />
+</div>
+
+## Learnware Package Design 
+
+<div align="center">
+  <img src="./docs/_static/img/learnware_framework.svg" width="70%"/>
+</div>
+
+
+At the workflow level, the `learnware` package consists of `Submitting Stage` and `Deploying Stage`.
+At the module level, the `learnware` package is a platform that consists of above components. The components are designed as loose-coupled modules and each component could be used stand-alone.
+
+# Quick Start
+
 ## Installation
 
-Learnware is currently hosted on [PyPI](https://pypi.org/). You can easily install `Learnware` by following these steps:
+Learnware is currently hosted on [PyPI](https://pypi.org/project/learnware/). You can easily install `learnware` by following these steps:
 
 ```bash
 pip install learnware
 ```
 
-In the `Learnware` package, besides the base classes, many core functionalities such as "learnware specification generation" and "learnware deployment" rely on the `torch` library. Users have the option to manually install `torch`, or they can directly use the following command to install the `learnware` package:
+In the `learnware` package, besides the base classes, many core functionalities such as "learnware specification generation" and "learnware deployment" rely on the `torch` library. Users have the option to manually install `torch`, or they can directly use the following command to install the `learnware` package:
 
 ```bash
 pip install learnware[full]
@@ -72,7 +76,7 @@ pip install learnware[full]
 
 ## Prepare Learnware
 
-In Learnware, each learnware is encapsulated in a `zip` package, which should contain at least the following four files:
+In the `learnware` package, each learnware is encapsulated in a `zip` package, which should contain at least the following four files:
 
 - `learnware.yaml`: learnware configuration file.
 - `__init__.py`: methods for using the model.
@@ -83,7 +87,7 @@ To facilitate the construction of a learnware, we provide a [Learnware Template]
 
 ## Learnware Package Workflow
 
-Users can start a `Learnware` workflow according to the following steps:
+Users can start a `learnware` workflow according to the following steps:
 
 ### Initialize a Learnware Market
 
@@ -207,7 +211,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
 
 ### Auto Workflow Example
 
-The `Learnware` also offers automated workflow examples. This includes preparing learnwares, uploading and deleting learnwares from the market, and searching for learnwares using both semantic and statistical specifications. To experience the basic workflow of the `Learnware` package, the users can run `test/test_workflow/test_workflow.py` to try the basic workflow of `Learnware`.
+The `learnware` package also offers automated workflow examples. This includes preparing learnwares, uploading and deleting learnwares from the market, and searching for learnwares using both semantic and statistical specifications. To experience the basic workflow of the `learnware` package, the users can run `test/test_workflow/test_workflow.py` to try the basic workflow of `learnware`.
 
 # Experiments and Examples
 
@@ -223,7 +227,7 @@ For all experiments, we used a single Linux server. Details on the specification
 
 </div>
 
-## Tabular Data Experiments
+## Tabular Scenario Experiments
 
 ### Datasets
 
@@ -243,7 +247,7 @@ Based on the specific design of user tasks, our experiments were primarily categ
 
 - **heterogeneous experiments** aim to evaluate the performance of identifying and reusing helpful heterogeneous learnwares in situations where no available learnwares match the feature space of the user's task. This helps to highlight the potential of learnwares for applications beyond their original purpose.
 
-### Homogeneous Tabular Dataset
+### Homogeneous Tabular Scenario
 
 For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 users, each applying one feature engineering method, and using the test data from their respective store as user data. These users can then search for homogeneous learnwares in the market with the same feature spaces as their tasks.
 
@@ -269,7 +273,7 @@ When users have both test data and limited training data derived from their orig
 
 From the figure, it's evident that when users have limited training data, the performance of reusing single/multiple table learnwares is superior to that of the user's own model. This emphasizes the benefit of learnware reuse in significantly reducing the need for extensive training data and achieving enhanced results when available user training data is limited.
 
-### Heterogeneous Tabular Dataset
+### Heterogeneous Tabular Scenario
 
 In heterogeneous experiments, the learnware market would recommend helpful heterogeneous learnwares with different feature spaces with the user tasks. Based on whether there are learnwares in the market that handle tasks similar to the user's task, the experiments can be further subdivided into the following two types:
 
@@ -301,11 +305,9 @@ Here we have chosen the 10 stores from the M5 dataset to act as users. Although 
 
 We can observe that heterogeneous learnwares are beneficial when there's a limited amount of the user's labeled training data available, aiding in better alignment with the user's specific task. This underscores the potential of learnwares to be applied to tasks beyond their original purpose.
 
-## Image Data Experiment
+## Image Scenario Experiment
 
-For the CIFAR-10 dataset, we sampled the training set uneven
-
-ly by category and constructed unbalanced training datasets for the 50 learnwares that contained only some of the categories. This makes it unlikely that there exists any learnware in the learnware market that can accurately handle all categories of data; only the learnware whose training data is closest to the data distribution of the target task is likely to perform well on the target task. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with a non-zero probability of sampling on only 4 categories, and the sampling ratio is 0.4: 0.4: 0.1: 0.1. Ultimately, the training set for each learnware contains 12,000 samples covering the data of 4 categories in CIFAR-10.
+For the CIFAR-10 dataset, we sampled the training set unevenly by category and constructed unbalanced training datasets for the 50 learnwares that contained only some of the categories. This makes it unlikely that there exists any learnware in the learnware market that can accurately handle all categories of data; only the learnware whose training data is closest to the data distribution of the target task is likely to perform well on the target task. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with a non-zero probability of sampling on only 4 categories, and the sampling ratio is 0.4: 0.4: 0.1: 0.1. Ultimately, the training set for each learnware contains 12,000 samples covering the data of 4 categories in CIFAR-10.
 
 We constructed 50 target tasks using data from the test set of CIFAR-10. Similar to constructing the training set for the learnwares, to allow for some variation between tasks, we sampled the test set unevenly. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with non-zero sampling probability on 6 categories, and the sampling ratio is 0.3: 0.3: 0.1: 0.1: 0.1: 0.1. Ultimately, each target task contains 3000 samples covering the data of 6 categories in CIFAR-10.
 
@@ -329,7 +331,7 @@ In some specific settings, the user will have a small number of labelled samples
   <img src="./docs/_static/img/image_labeled.svg"  width="50%"/>
 </div>
 
-## Text Data Experiment
+## Text Scenario Experiment
 
 ### Datasets
 
