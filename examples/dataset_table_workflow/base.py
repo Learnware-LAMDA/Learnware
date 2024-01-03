@@ -1,19 +1,28 @@
 import os
 import time
-import pandas
+import torch
 import random
 import tempfile
 import numpy as np
+from queue import Empty
+from tqdm import tqdm
 from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
 from learnware.market import instantiate_learnware_market
 from learnware.tests.benchmarks import LearnwareBenchmark
+from torch.multiprocessing import Process, Queue, set_start_method
 
 from config import *
 from methods import *
 from utils import process_single_aug
 
 logger = get_module_logger("base_table", level="INFO")
+
+try:
+    set_start_method('spawn')
+except RuntimeError:
+    pass
+torch.multiprocessing.set_sharing_strategy("file_system")
 
 
 class TableWorkflow:
@@ -24,6 +33,8 @@ class TableWorkflow:
         os.makedirs(self.result_path, exist_ok=True)
         os.makedirs(self.curves_result_path, exist_ok=True)
         self._prepare_market(benchmark_config, name, rebuild)
+        
+        self.cuda_idx = list(range(torch.cuda.device_count()))
     
     @staticmethod
     def _limited_data(method, test_info, loss_func):
@@ -75,6 +86,7 @@ class TableWorkflow:
     def test_method(self, test_info, recorders, loss_func=loss_func_rmse):
         method_name_full = test_info["method_name"]
         method_name = method_name_full if method_name_full == "user_model" else "_".join(method_name_full.split("_")[1:])
+        method = test_methods[method_name_full]
         user, idx = test_info["user"], test_info["idx"]
         recorder = recorders[method_name_full]
         
@@ -84,15 +96,45 @@ class TableWorkflow:
         
         if method_name_full == "hetero_single_aug":
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
-                for learnware in test_info["learnwares"]:
-                    test_info["single_learnware"] = [learnware]
-                    scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
-                    recorder.record(user, scores)
+                # # single process testing
+                # all_scores = []
+                # for learnware in test_info["learnwares"]:
+                #     test_info["single_learnware"] = [learnware]
+                #     all_scores.append(self._limited_data(test_methods[method_name_full], test_info, loss_func))
+                # recorder.record(user, all_scores)
+                
+                # multi process testing
+                queue = Queue()
+                processes = []
+                bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}", unit="learnware")
+                learnware_chunks = [test_info["learnwares"][i:len(test_info["learnwares"]):len(self.cuda_idx)] for i in self.cuda_idx]
+                
+                for cuda_idx, learnware_chunk in zip(self.cuda_idx, learnware_chunks):
+                    p = Process(target=self.process_learnware_chunk, args=(cuda_idx, method, test_info, loss_func, learnware_chunk, queue))
+                    processes.append(p)
+                    p.start()
+                
+                all_results = []
+                while any(p.is_alive() for p in processes) or not queue.empty():
+                    try:
+                        result = queue.get(timeout=0.1)
+                        all_results.append(result)
+                        bar.update(1)
+                    except Empty:
+                        time.sleep(0.1)
+                        continue
+                bar.close()
 
-                process_single_aug(user, idx, scores, recorders, save_root_path)
+                for p in processes:
+                    p.join()
+                
+                all_results.sort(key=lambda x: x[0])
+                all_scores = [result[1] for result in all_results]
+                recorder.record(user, all_scores)
+                # process_single_aug(user, idx, all_scores, recorders, save_root_path)
                 recorder.save(save_path)
-            else:
-                process_single_aug(user, idx, recorder.data[user], recorders, save_root_path)
+            # else:
+            process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)
         else:
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
                 scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
