@@ -10,7 +10,6 @@ logger = get_module_logger("train_table", level="INFO")
 
 
 def train_lgb(X_train, y_train, X_val, y_val, dataset):
-    logger.info("Training and predicting models...")
     model_param = user_model_params[dataset]["lgb"]
     params = model_param["params"]
 

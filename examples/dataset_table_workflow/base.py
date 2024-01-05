@@ -152,7 +152,7 @@ class TableWorkflow:
                 #     recorder.record(user, idx, scores)
                 #     bar.update(1)  
         else:
-            if test_info["force"] or recorder.should_test_method(user, idx, save_path):
+            if recorder.should_test_method(user, idx, save_path):
                 scores = self._limited_data(method, test_info, loss_func)
                 recorder.record(user, scores)
                 recorder.save(save_path)
