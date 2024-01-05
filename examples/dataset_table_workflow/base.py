@@ -149,10 +149,10 @@ class TableWorkflow:
                 #     recorder.record(user, idx, scores)
                 #     bar.update(1)
 
-                process_single_aug(user, idx, all_scores, recorders, save_root_path)
+                # process_single_aug(user, idx, all_scores, recorders, save_root_path)
                 recorder.save(save_path)
-            else:
-                process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)  
+            #else:
+            process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)  
         else:
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
                 scores = self._limited_data(method, test_info, loss_func)

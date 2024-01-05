@@ -158,7 +158,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             logger.info(f"Hetero search result of user {user}_{idx}: mixture learnware num: {len(mixture_learnware_list)}")
 
             test_info = {"user": user, "idx": idx, "train_subsets": train_subsets, "test_x": test_x, "test_y": test_y, "n_labeled_list": hetero_n_labeled_list}
-            common_config = {"user_rkme": user_stat_spec, "multiple_learnwares": mixture_learnware_list}
+            common_config = {"user_rkme": user_stat_spec, "learnwares": mixture_learnware_list}
             method_configs = {
                 "user_model": {"dataset": self.benchmark.name, "model_type": "lgb"},
                 "hetero_single_aug": {"user_rkme": user_stat_spec, "learnwares": all_learnwares},
