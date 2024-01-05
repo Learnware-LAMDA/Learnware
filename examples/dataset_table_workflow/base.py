@@ -106,7 +106,7 @@ class TableWorkflow:
         user, idx = test_info["user"], test_info["idx"]
         recorder = recorders[method_name_full]
         
-        save_root_path = os.path.join(self.curves_result_path, f"{user}_{test_info['n_labeled_list']}/{user}_{idx}")
+        save_root_path = os.path.join(self.curves_result_path, f"{user}/{user}_{idx}")
         os.makedirs(save_root_path, exist_ok=True)
         save_path = os.path.join(save_root_path, f"{method_name}.json")
         
@@ -140,6 +140,9 @@ class TableWorkflow:
                 all_results.sort(key=lambda x: x[0])
                 all_scores = [result[1] for result in all_results]
                 recorder.record(user, all_scores)
+                recorder.save(save_path)
+                
+                process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)
                     
                 # * single-process
                 # bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}")
@@ -147,12 +150,7 @@ class TableWorkflow:
                 #     test_info['single_learnware'] = learnware
                 #     scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
                 #     recorder.record(user, idx, scores)
-                #     bar.update(1)
-
-                # process_single_aug(user, idx, all_scores, recorders, save_root_path)
-                recorder.save(save_path)
-            #else:
-            process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)  
+                #     bar.update(1)  
         else:
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
                 scores = self._limited_data(method, test_info, loss_func)

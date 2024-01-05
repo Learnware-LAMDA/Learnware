@@ -18,8 +18,6 @@ def train_lgb(X_train, y_train, X_val, y_val, dataset):
     val_pred = []
     cate_vars = []
 
-    logger.info(f"{np.shape(X_train)}, {np.shape(y_train)}, {np.shape(X_val)}, {np.shape(y_val)}")
-
     dtrain = lgb.Dataset(X_train, label=y_train, categorical_feature=cate_vars)
     dval = lgb.Dataset(X_val, label=y_val, reference=dtrain, categorical_feature=cate_vars)
     bst = lgb.train(
@@ -30,8 +28,6 @@ def train_lgb(X_train, y_train, X_val, y_val, dataset):
         callbacks=[early_stopping(model_param["early_stopping_rounds"], verbose=False)]
     )
     val_pred.append(bst.predict(X_val, num_iteration=bst.best_iteration or MAX_ROUNDS))
-    logger.info(f"Validation mse:{mean_squared_error(y_val, np.array(val_pred).transpose())}")
-
     return bst
 
 
