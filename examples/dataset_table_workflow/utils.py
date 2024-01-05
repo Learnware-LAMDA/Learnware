@@ -58,25 +58,6 @@ def process_single_aug(user, idx, scores, recorders, root_path):
         logger.error(f"Error in process_single_aug for user {user}, idx {idx}: {error_message}")
 
 
-def analyze_performance(user, recorders):
-    oracle_score_list = recorders["hetero_oracle_score"].get_performance_data(user)
-    select_score_list = recorders["hetero_select_score"].get_performance_data(user)
-    multi_avg_score_list = recorders["hetero_multiple_avg"].get_performance_data(user)
-    mean_differences = {}
-
-    for user_id in range(len(oracle_score_list)):
-        select_scores = select_score_list[user_id]
-        oracle_scores = oracle_score_list[user_id]
-        mean_difference = np.mean(select_scores) - np.mean(oracle_scores)
-        mean_differences[user_id] = mean_difference
-
-    sorted_user_ids = sorted(mean_differences, key=mean_differences.get, reverse=True)
-
-    for user_id in sorted_user_ids:
-        single_multi_diff = np.mean(select_score_list[user_id]) - np.mean(multi_avg_score_list[user_id])
-        logger.info(f"{user}, {user_id}, {mean_differences[user_id]}, {single_multi_diff}")
-
-
 def plot_performance_curves(user, recorders, task, n_labeled_list):
     plt.figure(figsize=(10, 6))
     plt.xticks(range(len(n_labeled_list)), n_labeled_list)

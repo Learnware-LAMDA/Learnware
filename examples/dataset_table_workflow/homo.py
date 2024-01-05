@@ -10,7 +10,7 @@ from learnware.reuse import AveragingReuser, JobSelectorReuser, EnsemblePruningR
 
 from methods import *
 from base import TableWorkflow
-from config import n_labeled_list
+from config import homo_n_labeled_list, homo_n_repeat_list
 from utils import Recorder, plot_performance_curves
 
 logger = get_module_logger("homo_table", level="INFO")
@@ -127,7 +127,7 @@ class CorporacionDatasetWorkflow(TableWorkflow):
             
             train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
             train_x, train_y = train_x.values, train_y.values
-            train_subsets = self.get_train_subsets(idx, train_x, train_y)
+            train_subsets = self.get_train_subsets(homo_n_labeled_list, homo_n_repeat_list, idx, train_x, train_y)
 
             user_stat_spec = generate_stat_spec(type="table", X=test_x)
             user_info = BaseUserInfo(
@@ -172,4 +172,4 @@ class CorporacionDatasetWorkflow(TableWorkflow):
             recorder.save(os.path.join(self.curves_result_path, f"{user}_{method}_performance.json"))
         
         methods_to_plot = ["user_model", "homo_single_aug", "homo_ensemble_pruning"]
-        plot_performance_curves(user, {method: recorders[method] for method in methods_to_plot}, task="Homo", n_labeled_list=n_labeled_list)
+        plot_performance_curves(user, {method: recorders[method] for method in methods_to_plot}, task="Homo", n_labeled_list=homo_n_labeled_list)

@@ -9,6 +9,7 @@ from tqdm import tqdm
 from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
 from learnware.market import instantiate_learnware_market
+from learnware.reuse.utils import fill_data_with_mean
 from learnware.tests.benchmarks import LearnwareBenchmark
 from torch.multiprocessing import Process, Queue, set_start_method
 
@@ -38,8 +39,12 @@ class TableWorkflow:
     
     @staticmethod
     def _limited_data(method, test_info, loss_func):
+        def subset_generator():
+            for subset in test_info["train_subsets"]:
+                yield subset
+                
         all_scores = []
-        for subset in test_info["train_subsets"]:
+        for subset in subset_generator():
             subset_scores = []
             for sample in subset:
                 x_train, y_train = sample["x_train"], sample["y_train"]
@@ -49,17 +54,18 @@ class TableWorkflow:
         return all_scores
     
     @staticmethod
-    def get_train_subsets(idx, train_x, train_y):
+    def get_train_subsets(n_labeled_list, n_repeat_list, idx, train_x, train_y):
         np.random.seed(idx)
         random.seed(idx)
+        train_x = fill_data_with_mean(train_x)
         train_subsets = []
         for n_label, repeated in zip(n_labeled_list, n_repeat_list):
             train_subsets.append([])
             if n_label > len(train_x):
                 n_label = len(train_x)
             for _ in range(repeated):
-                x_train, y_train = zip(*random.sample(list(zip(train_x, train_y)), k=n_label))
-                train_subsets[-1].append({"x_train": np.array(x_train), "y_train": np.array(list(y_train))})
+                subset_idxs = np.random.choice(len(train_x), n_label, replace=False)
+                train_subsets[-1].append({"x_train": np.array(train_x[subset_idxs]), "y_train": np.array(train_y[subset_idxs])})
         return train_subsets
     
     def _prepare_market(self, benchmark_config, name, rebuild):
@@ -83,6 +89,16 @@ class TableWorkflow:
                             time.sleep(1)
                             continue
     
+    @staticmethod
+    def process_learnware_chunk(cuda_idx, method, test_info, loss_func, learnware_chunk, queue):
+        torch.cuda.set_device(cuda_idx)
+        for learnware in learnware_chunk:
+            learnware_index = test_info['learnwares'].index(learnware)
+            test_info['single_learnware'] = learnware
+            scores = TableWorkflow._limited_data(method, test_info, loss_func)
+            torch.cuda.empty_cache()
+            queue.put((learnware_index, scores))
+        
     def test_method(self, test_info, recorders, loss_func=loss_func_rmse):
         method_name_full = test_info["method_name"]
         method_name = method_name_full if method_name_full == "user_model" else "_".join(method_name_full.split("_")[1:])
@@ -90,27 +106,20 @@ class TableWorkflow:
         user, idx = test_info["user"], test_info["idx"]
         recorder = recorders[method_name_full]
         
-        save_root_path = os.path.join(self.curves_result_path, user, f"{user}_{idx}")
+        save_root_path = os.path.join(self.curves_result_path, f"{user}_{test_info['n_labeled_list']}/{user}_{idx}")
         os.makedirs(save_root_path, exist_ok=True)
         save_path = os.path.join(save_root_path, f"{method_name}.json")
         
         if method_name_full == "hetero_single_aug":
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
-                # # single process testing
-                # all_scores = []
-                # for learnware in test_info["learnwares"]:
-                #     test_info["single_learnware"] = [learnware]
-                #     all_scores.append(self._limited_data(test_methods[method_name_full], test_info, loss_func))
-                # recorder.record(user, all_scores)
-                
-                # multi process testing
+                # * multi-process
                 queue = Queue()
                 processes = []
                 bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}", unit="learnware")
                 learnware_chunks = [test_info["learnwares"][i:len(test_info["learnwares"]):len(self.cuda_idx)] for i in self.cuda_idx]
                 
                 for cuda_idx, learnware_chunk in zip(self.cuda_idx, learnware_chunks):
-                    p = Process(target=self.process_learnware_chunk, args=(cuda_idx, method, test_info, loss_func, learnware_chunk, queue))
+                    p = Process(target=TableWorkflow.process_learnware_chunk, args=(cuda_idx, method, test_info, loss_func, learnware_chunk, queue))
                     processes.append(p)
                     p.start()
                 
@@ -131,14 +140,23 @@ class TableWorkflow:
                 all_results.sort(key=lambda x: x[0])
                 all_scores = [result[1] for result in all_results]
                 recorder.record(user, all_scores)
-                # process_single_aug(user, idx, all_scores, recorders, save_root_path)
+                    
+                # * single-process
+                # bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}")
+                # for learnware in test_info['learnwares']:
+                #     test_info['single_learnware'] = learnware
+                #     scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
+                #     recorder.record(user, idx, scores)
+                #     bar.update(1)
+
+                process_single_aug(user, idx, all_scores, recorders, save_root_path)
                 recorder.save(save_path)
-            # else:
-            process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)
+            else:
+                process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)  
         else:
             if test_info["force"] or recorder.should_test_method(user, idx, save_path):
-                scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
+                scores = self._limited_data(method, test_info, loss_func)
                 recorder.record(user, scores)
                 recorder.save(save_path)
-
+        
         logger.info(f"Method {method_name} on {user}_{idx} finished")

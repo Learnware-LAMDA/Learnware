@@ -2,7 +2,8 @@ import fire
 
 from learnware.logger import get_module_logger
 from homo import CorporacionDatasetWorkflow
-from config import homo_table_benchmark_config
+from hetero import HeterogeneousDatasetWorkflow
+from config import homo_table_benchmark_config, hetero_cross_feat_eng_benchmark_config, hetero_cross_task_benchmark_config
 
 logger = get_module_logger("base_table", level="INFO")
 
@@ -25,10 +26,20 @@ class TableDatasetWorkflow:
         workflow.labeled_homo_table_example()
     
     def cross_feat_eng_hetero_table_example(self):
-        pass
+        workflow = HeterogeneousDatasetWorkflow(
+            benchmark_config=hetero_cross_feat_eng_benchmark_config,
+            name="hetero",
+            rebuild=False
+        )
+        workflow.unlabeled_hetero_table_example()
 
     def cross_task_hetero_table_example(self):
-        pass
+        workflow = HeterogeneousDatasetWorkflow(
+            benchmark_config=hetero_cross_task_benchmark_config,
+            name="hetero",
+            rebuild=False
+        )
+        workflow.labeled_hetero_table_example()
 
 
 if __name__ == "__main__":

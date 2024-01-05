@@ -26,7 +26,7 @@ def train_lgb(X_train, y_train, X_val, y_val, dataset):
         params,
         dtrain,
         num_boost_round=MAX_ROUNDS,
-        valid_sets=[dtrain, dval],
+        valid_sets=[dtrain, dval] if dataset == "Corporacion" else [dval],
         callbacks=[early_stopping(model_param["early_stopping_rounds"], verbose=False)]
     )
     val_pred.append(bst.predict(X_val, num_iteration=bst.best_iteration or MAX_ROUNDS))
