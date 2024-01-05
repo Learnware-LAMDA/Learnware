@@ -111,7 +111,7 @@ class TableWorkflow:
         save_path = os.path.join(save_root_path, f"{method_name}.json")
         
         if method_name_full == "hetero_single_aug":
-            if test_info["force"] or recorder.should_test_method(user, idx, save_path):
+            if recorder.should_test_method(user, idx, save_path):
                 # * multi-process
                 queue = Queue()
                 processes = []
