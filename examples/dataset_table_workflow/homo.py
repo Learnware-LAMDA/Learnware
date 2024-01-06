@@ -169,7 +169,7 @@ class CorporacionDatasetWorkflow(TableWorkflow):
                 self.test_method(test_info, recorders, loss_func=loss_func_rmse)
         
         for method, recorder in recorders.items():
-            recorder.save(os.path.join(self.curves_result_path, f"{user}_{method}_performance.json"))
+            recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
         
         methods_to_plot = ["user_model", "homo_single_aug", "homo_ensemble_pruning"]
-        plot_performance_curves(user, {method: recorders[method] for method in methods_to_plot}, task="Homo", n_labeled_list=homo_n_labeled_list)
+        plot_performance_curves(self.curves_result_path, user, {method: recorders[method] for method in methods_to_plot}, task="Homo", n_labeled_list=homo_n_labeled_list)

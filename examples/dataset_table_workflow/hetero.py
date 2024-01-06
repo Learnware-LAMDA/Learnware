@@ -17,8 +17,8 @@ from utils import Recorder, plot_performance_curves
 logger = get_module_logger("hetero_test", level="INFO")
 learnware_market = ["pfs_default", "pfs_denis", "corporacion_bojan", "corporacion_lee", "corporacion_lingzhi"]
 default_users = ["m5_default"] # "m5_default", "m5_kkiller", "m5_rana"
-n_labeled_list = [50, 75, 100, 200]
-n_repeat_list = [10, 10, 10, 10]
+n_labeled_list = [10, 30, 50, 75, 100, 200]
+n_repeat_list = [10, 10, 10, 10, 10, 10]
 
 class HeterogeneousDatasetWorkflow(TableWorkflow):
     def unlabeled_hetero_table_example(self):
@@ -176,5 +176,5 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
                 
         methods_to_plot = ["user_model", "select_score", "hetero_multiple_avg", "hetero_ensemble_pruning"]
-        plot_performance_curves(user, {method: recorders[method] for method in methods_to_plot}, task="Hetero", n_labeled_list=n_labeled_list)
+        plot_performance_curves(self.curves_result_path, user, {method: recorders[method] for method in methods_to_plot}, task="Hetero", n_labeled_list=n_labeled_list)
             

@@ -55,8 +55,8 @@ class TableWorkflow:
     
     @staticmethod
     def get_train_subsets(n_labeled_list, n_repeat_list, idx, train_x, train_y):
-        np.random.seed(idx)
-        random.seed(idx)
+        np.random.seed(6 + idx % 3)
+        random.seed(6 + idx % 3)
         train_x = fill_data_with_mean(train_x)
         train_subsets = []
         for n_label, repeated in zip(n_labeled_list, n_repeat_list):
@@ -142,7 +142,7 @@ class TableWorkflow:
                 recorder.record(user, all_scores)
                 recorder.save(save_path)
                 
-                process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)
+            process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)
                     
                 # * single-process
                 # bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}")

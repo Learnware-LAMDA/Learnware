@@ -69,24 +69,20 @@ def process_single_aug(user, idx, scores, recorders, root_path):
         logger.error(f"Error in process_single_aug for user {user}, idx {idx}: {error_message}")
 
 
-def plot_performance_curves(path, users, idxs, recorders, task, n_labeled_list):
+def plot_performance_curves(path, user, recorders, task, n_labeled_list):
     plt.figure(figsize=(10, 6))
     plt.xticks(range(len(n_labeled_list)), n_labeled_list)
     for method, recorder in recorders.items():
-        all_scores_array = []
-        for user in users:
-            if method == "hetero_single_aug":
-                continue
+        if method == "hetero_single_aug":
+            continue
             
-            data_path = os.path.join(path, f"{user}_{n_labeled_list}/{user}_{method}_performance.json")
-            recorder.load(data_path)
-            scores_array = recorder.get_performance_data(user)
-            if scores_array: 
-                all_scores_array.extend([scores_array[idx] for idx in idxs])
+        data_path = os.path.join(path, f"{user}/{user}_{method}_performance.json")
+        recorder.load(data_path)
+        scores_array = recorder.get_performance_data(user)
             
         mean_curve, std_curve = [], []
         for i in range(len(n_labeled_list)):
-            sub_scores_array = np.vstack([lst[i] for lst in all_scores_array])
+            sub_scores_array = np.vstack([lst[i] for lst in scores_array])
             sub_scores_mean = np.squeeze(np.mean(sub_scores_array, axis=0))                
             mean_curve.append(np.mean(sub_scores_mean))
             std_curve.append(np.std(sub_scores_mean))
@@ -109,7 +105,7 @@ def plot_performance_curves(path, users, idxs, recorders, task, n_labeled_list):
     plt.xlabel("Amount of Labeled User Data", fontsize=14)
     plt.ylabel("RMSE", fontsize=14)
     plt.title(f"Results on {task} Table Experimental Scenario", fontsize=16)
-    plt.legend(fontsize=14)
+    plt.legend(fontsize=12)
     plt.tight_layout()
     
     root_path = os.path.abspath(os.path.join(__file__, ".."))
