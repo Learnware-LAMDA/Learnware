@@ -6,7 +6,7 @@ import numpy as np
 from learnware.logger import get_module_logger
 from learnware.specification import generate_stat_spec
 from learnware.market import BaseUserInfo
-from learnware.reuse import AveragingReuser, JobSelectorReuser, FeatureAlignLearnware
+from learnware.reuse import AveragingReuser, FeatureAlignLearnware
 
 from methods import *
 from base import TableWorkflow
@@ -14,8 +14,6 @@ from config import align_model_params, user_semantic, hetero_n_labeled_list, het
 from utils import Recorder, plot_performance_curves
 
 logger = get_module_logger("hetero_test", level="INFO")
-learnware_market = ["pfs_default", "pfs_denis", "corporacion_bojan", "corporacion_lee", "corporacion_lingzhi"]
-default_users = ["m5_default"] # "m5_default", "m5_kkiller", "m5_rana"
 n_labeled_list = [10, 30, 50, 75, 100, 200]
 n_repeat_list = [10, 10, 10, 10, 10, 10]
 
@@ -24,7 +22,6 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
         logger.info("Total Item: %d" % len(self.market))
         learnware_rmse_list = []
         single_score_list = []
-        job_selector_score_list = []
         ensemble_score_list = []
         all_learnwares = self.market.get_learnwares()
         
@@ -79,19 +76,12 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
                 hetero_learnware = FeatureAlignLearnware(single_result[0].learnware, **align_model_params)
                 hetero_learnware.align(user_rkme=user_stat_spec)
                 mixture_learnware_list = [hetero_learnware]
-            
-            # test reuse (job selector)
-            resue_baseline = JobSelectorReuser(learnware_list=mixture_learnware_list, herding_num=100)
-            reuse_predict = resue_baseline.predict(user_data=test_x)
-            reuse_score = loss_func_rmse(reuse_predict, test_y)
-            job_selector_score_list.append(reuse_score)
-            logger.info(f"mixture reuse rmse (job selector): {reuse_score}")
 
             # test reuse (ensemble)
             reuse_ensemble = AveragingReuser(learnware_list=mixture_learnware_list, mode="mean")
             ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
             ensemble_score = loss_func_rmse(ensemble_predict_y, test_y)
-            ensemble_score_list[user].append(ensemble_score)
+            ensemble_score_list.append(ensemble_score)
             logger.info(f"mixture reuse rmse (ensemble): {ensemble_score}")
 
             learnware_rmse_list.append(rmse_list)
@@ -110,10 +100,6 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
                 np.mean(oracle_score_list),
                 np.std(oracle_score_list),
             )
-        )
-        logger.info(
-            "Average Job Selector Reuse Performance: %.3f +/- %.3f"
-            % (np.mean(job_selector_score_list), np.std(job_selector_score_list))
         )
         logger.info(
             "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
@@ -183,4 +169,3 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
                 
         methods_to_plot = ["user_model", "select_score", "hetero_multiple_avg", "hetero_ensemble_pruning"]
         plot_performance_curves(self.curves_result_path, user, {method: recorders[method] for method in methods_to_plot}, task="Hetero", n_labeled_list=n_labeled_list)
-            
