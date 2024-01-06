@@ -2,7 +2,6 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 
-import json
 import numpy as np
 from learnware.logger import get_module_logger
 from learnware.specification import generate_stat_spec
@@ -32,10 +31,15 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
         user = self.benchmark.name
         for idx in range(self.benchmark.user_num):
             test_x, test_y = self.benchmark.get_test_data(user_ids=idx)
-            test_x, test_y = test_x.values, test_y.values
+            test_x, test_y, feature_descriptions = test_x.values, test_y.values, test_x.columns
             user_stat_spec = generate_stat_spec(type="table", X=test_x)
+            input_description = {
+                "Dimension": len(feature_descriptions),
+                "Description": {str(i): feature_descriptions[i] for i in range(len(feature_descriptions))}
+            }
+            user_semantic["Input"] = input_description
             user_info = BaseUserInfo(
-                semantic_spec=self.user_semantic, stat_info={user_stat_spec.type: user_stat_spec}
+                semantic_spec=user_semantic, stat_info={user_stat_spec.type: user_stat_spec}
             )
             logger.info(f"Searching Market for user: {user}_{idx}")
             
@@ -48,7 +52,9 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
                 f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}"
             )
             
-            pred_y = single_result[0].learnware.predict(test_x)
+            single_hetero_learnware = FeatureAlignLearnware(single_result[0].learnware, **align_model_params)
+            single_hetero_learnware.align(user_rkme=user_stat_spec)
+            pred_y = single_hetero_learnware.predict(test_x)
             single_score_list.append(loss_func_rmse(pred_y, test_y))
 
             rmse_list = []
