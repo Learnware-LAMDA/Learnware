@@ -3,11 +3,14 @@
 Introduction
 ================
 
-The ``learnware`` package provides a fundamental implementation of the central concepts and procedures for the learnware paradigm, which is a new paradigm aimed at enabling users to reuse existed well-trained models to solve their AI tasks instead of starting from scratch.
+The *learnware* paradigm, proposed by Professor Zhi-Hua Zhou in 2016 [1, 2], aims to build a vast model platform system, i.e., a *learnware dock system*, which systematically accommodates and organizes models shared by machine learning developers worldwide, and can efficiently identify and assemble existing helpful model(s) to solve future tasks in a unified way.
 
-Moreover, the package's well-structured design ensures high scalability and allows for the effortless integration of various new features and techniques in the future.
+The ``learnware`` package provides a fundamental implementation of the central concepts and procedures within the learnware paradigm. Its well-structured design ensures high scalability and facilitates the seamless integration of additional features and techniques in the future.
 
 In addition, the ``learnware`` package serves as the engine for the `Beimingwu System <https://bmwu.cloud/#/>`_ and can be effectively employed for conducting experiments related to learnware.
+
+| [1] Zhi-Hua Zhou. Learnware: on the future of machine learning. *Frontiers of Computer Science*, 2016, 10(4): 589–590
+| [2] Zhi-Hua Zhou. Machine Learning: Development and Future. *Communications of CCF*, 2017, vol.13, no.1 (2016 CNCC keynote)
 
 What is Learnware?
 ====================
