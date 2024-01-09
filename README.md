@@ -1,25 +1,47 @@
-[![Python Versions](https://img.shields.io/pypi/pyversions/learnware.svg?logo=python&logoColor=white)](https://pypi.org/project/learnware/#files)
-[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey)](https://pypi.org/project/learnware/#files)
-[![Test](https://github.com/Learnware-LAMDA/Learnware/actions/workflows/install_learnware_with_source.yaml/badge.svg)](https://github.com/Learnware-LAMDA/Learnware/actions)
-[![PypI Versions](https://img.shields.io/pypi/v/learnware)](https://pypi.org/project/learnware/#history)
-[![Documentation Status](https://readthedocs.org/projects/learnware/badge/?version=latest)](https://learnware.readthedocs.io/en/latest/?badge=latest)
-[![License](https://img.shields.io/pypi/l/learnware)](LICENSE)
-
-
-
 <div align=center>
   <img src="./docs/_static/img/logo/logo1.png"  width="50%"/>
+  <br/>
+  <br/>
 </div>
 
+<p align="center">
+    <a href="https://pypi.org/project/learnware/#files">
+        <img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/learnware.svg?logo=python&logoColor=white">
+    </a>
+    <a href="https://pypi.org/project/learnware/#files">
+        <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey">
+    </a>
+    <a href="https://github.com/Learnware-LAMDA/Learnware/actions">
+        <img alt="Test" src="https://github.com/Learnware-LAMDA/Learnware/actions/workflows/install_learnware_with_source.yaml/badge.svg">
+    </a>
+    <a href="https://pypi.org/project/learnware/#history">
+        <img alt="PypI Versions" src="https://img.shields.io/pypi/v/learnware">
+    </a>
+    <a href="https://learnware.readthedocs.io/en/latest/?badge=latest">
+        <img alt="Documentation Status" src="https://readthedocs.org/projects/learnware/badge/?version=latest">
+    </a>
+    <a href="https://github.com/Learnware-LAMDA/Learnware/blob/main/LICENSE">
+        <img alt="License" src="https://img.shields.io/pypi/l/learnware">
+    </a>
+</p>
 
-The `learnware` package provides a fundamental implementation of the central concepts and procedures for the learnware paradigm, which is a new paradigm aimed at enabling users to reuse existed well-trained models to solve their AI tasks instead of starting from scratch.
+<h3 align="center">
+    <p>
+        <b>English</b> |
+        <a href="https://github.com/Learnware-LAMDA/Learnware/blob/main/README_zh.md">中文</a>
+    </p>
+</h3>
 
-Moreover, the package's well-structured design ensures high scalability and allows for the effortless integration of various new features and techniques in the future.
+# Introduction
+
+The _learnware_ paradigm, proposed by Professor Zhi-Hua Zhou in 2016 [1, 2], aims to build a vast model platform system, i.e., a _learnware dock system_, which systematically accommodates and organizes models shared by machine learning developers worldwide, and can efficiently identify and assemble existing helpful model(s) to solve future tasks in a unified way.
+
+The `learnware` package provides a fundamental implementation of the central concepts and procedures within the learnware paradigm. Its well-structured design ensures high scalability and facilitates the seamless integration of additional features and techniques in the future.
 
 In addition, the `learnware` package serves as the engine for the [Beimingwu System](https://bmwu.cloud) and can be effectively employed for conducting experiments related to learnware.
 
-
-# Introduction
+[1] Zhi-Hua Zhou. Learnware: on the future of machine learning. _Frontiers of Computer Science_, 2016, 10(4): 589–590 <br/>
+[2] Zhi-Hua Zhou. Machine Learning: Development and Future. _Communications of CCF_, 2017, vol.13, no.1 (2016 CNCC keynote)
 
 ## Learnware Paradigm
 
