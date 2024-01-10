@@ -28,7 +28,7 @@
 <h3 align="center">
     <p>
         <b>English</b> |
-        <a href="https://github.com/Learnware-LAMDA/Learnware/blob/main/README_zh.md">中文</a>
+        <a href="https://github.com/Learnware-LAMDA/Learnware/blob/main/docs/README_zh.md">中文</a>
     </p>
 </h3>
 
@@ -39,9 +39,6 @@ The _learnware_ paradigm, proposed by Professor Zhi-Hua Zhou in 2016 [1, 2], aim
 The `learnware` package provides a fundamental implementation of the central concepts and procedures within the learnware paradigm. Its well-structured design ensures high scalability and facilitates the seamless integration of additional features and techniques in the future.
 
 In addition, the `learnware` package serves as the engine for the [Beimingwu System](https://bmwu.cloud) and can be effectively employed for conducting experiments related to learnware.
-
-[1] Zhi-Hua Zhou. Learnware: on the future of machine learning. _Frontiers of Computer Science_, 2016, 10(4): 589–590 <br/>
-[2] Zhi-Hua Zhou. Machine Learning: Development and Future. _Communications of CCF_, 2017, vol.13, no.1 (2016 CNCC keynote)
 
 ## Learnware Paradigm
 
@@ -409,4 +406,9 @@ We appreciate all contributions and thank all the contributors!
 
 ## About us
 
-Visit [LAMDA's official website](http://www.lamda.nju.edu.cn/).
+Please visit [LAMDA's official website](http://www.lamda.nju.edu.cn/).
+
+-----------------
+
+[1] Zhi-Hua Zhou. Learnware: on the future of machine learning. _Frontiers of Computer Science_, 2016, 10(4): 589–590 <br/>
+[2] Zhi-Hua Zhou. Machine Learning: Development and Future. _Communications of CCF_, 2017, vol.13, no.1 (2016 CNCC keynote)
