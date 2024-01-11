@@ -63,9 +63,8 @@ class RKMETextSpecification(RKMETableSpecification):
     def get_language_ids(X):
         try:
             text = " ".join(X)
-            lang = langdetect.detect(text)
             langs = langdetect.detect_langs(text)
-            return [l.lang for l in langs]
+            return [item.lang for item in langs]
         except Exception as e:
             logger.warning("Language detection failed.")
             return []
