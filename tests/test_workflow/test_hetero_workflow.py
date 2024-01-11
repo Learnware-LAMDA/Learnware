@@ -7,7 +7,6 @@ import tempfile
 import zipfile
 from sklearn.linear_model import Ridge
 from sklearn.datasets import make_regression
-from shutil import copyfile, rmtree
 from sklearn.metrics import mean_squared_error
 
 import learnware

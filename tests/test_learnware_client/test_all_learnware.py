@@ -1,9 +1,7 @@
 import os
 import json
-import zipfile
 import unittest
 import tempfile
-import argparse
 
 from learnware.client import LearnwareClient
 from learnware.specification import generate_semantic_spec

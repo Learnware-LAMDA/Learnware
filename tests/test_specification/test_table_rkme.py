@@ -4,7 +4,7 @@ import unittest
 import tempfile
 import numpy as np
 
-from learnware.specification import RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification
+from learnware.specification import RKMETableSpecification
 from learnware.specification import generate_stat_spec
 
 
