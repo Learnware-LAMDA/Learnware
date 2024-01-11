@@ -40,7 +40,6 @@ The `learnware` package provides a fundamental implementation of the central con
 
 In addition, the `learnware` package serves as the engine for the [Beimingwu System](https://bmwu.cloud) and can be effectively employed for conducting experiments related to learnware.
 
---------------------------
 [1] Zhi-Hua Zhou. Learnware: on the future of machine learning. _Frontiers of Computer Science_, 2016, 10(4): 589–590 <br/>
 [2] Zhi-Hua Zhou. Machine Learning: Development and Future. _Communications of CCF_, 2017, vol.13, no.1 (2016 CNCC keynote)
 
@@ -399,6 +398,24 @@ We present the change curves in classification error rates for both the user's s
 
 From the figure above, it is evident that when the user's own training data is limited, the performance of multiple learnware reuse surpasses that of the user's own model. As the user's training data grows, it is expected that the user's model will eventually outperform the learnware reuse. This underscores the value of reusing learnware to significantly conserve training data and achieve superior performance when user training data is limited.
 
+# Citation
+
+If you use our project in your research or work, we kindly request that you cite the following papers:
+
+```bibtex
+@article{zhou2022learnware,
+  author = {Zhou, Zhi-Hua and Tan, Zhi-Hao},
+  title = {Learnware: Small Models Do Big},
+  journal = {SCIENCE CHINA Information Sciences},
+  year = {2024},
+  volume = {67},
+  number = {1},
+  pages = {1--12},
+}
+```
+
+Please acknowledge the use of our project by citing these papers in your work. Thank you for your support!
+
 # About
 
 ## Contributors
@@ -408,6 +425,7 @@ We appreciate all contributions and thank all the contributors!
   <img src="https://github.com/Learnware-LAMDA/Learnware/graphs/contributors"/>
 </div>
 
-## About us
+## About Us
 
-Please visit [LAMDA's official website](http://www.lamda.nju.edu.cn/).
+The Learnware repository is developed and maintained by the LAMDA Beimingwu R&D Team.
+To learn more about our team, please visit the [Team Overview](https://docs.bmwu.cloud/en/about-us.html).
