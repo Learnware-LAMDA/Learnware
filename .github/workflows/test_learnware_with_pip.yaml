@@ -1,4 +1,4 @@
-name: Test leanrnware from source code
+name: Test learnware with pip
 
 on:
   push:
@@ -37,16 +37,11 @@ jobs:
     - name: Update pip to the latest version
       run: |
         conda run -n learnware python -m pip install --upgrade pip
-        conda run -n learnware python -m pip install flake8 pytest
-
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        conda run -n learnware python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        conda run -n learnware python -m pip install pytest
 
     - name: Install learnware
       run: |
-        conda run -n learnware python -m pip install .
+        conda run -n learnware python -m pip install learnware
 
     - name: Test workflow
       run: |
