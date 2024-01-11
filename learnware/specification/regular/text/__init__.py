@@ -8,3 +8,5 @@ if not is_torch_available(verbose=False):
     logger.error("RKMETextSpecification is not available because 'torch' is not installed!")
 else:
     from .rkme import RKMETextSpecification
+
+__all__ = ["RKMETextSpecification"]

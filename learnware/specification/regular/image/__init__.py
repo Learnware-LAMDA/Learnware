@@ -8,3 +8,5 @@ if not is_torch_available(verbose=False):
     logger.error("RKMEImageSpecification is not available because 'torch' is not installed!")
 else:
     from .rkme import RKMEImageSpecification
+
+__all__ = ["RKMEImageSpecification"]
