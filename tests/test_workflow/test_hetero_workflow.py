@@ -295,8 +295,8 @@ class TestHeteroWorkflow(unittest.TestCase):
 
         # multi model reuse
         hetero_learnware_list = []
-        for learnware in multiple_result[0].learnwares:
-            hetero_learnware = HeteroMapAlignLearnware(learnware, mode="regression")
+        for org_learnware in multiple_result[0].learnwares:
+            hetero_learnware = HeteroMapAlignLearnware(org_learnware, mode="regression")
             hetero_learnware.align(user_spec, X[:100], y[:100])
             hetero_learnware_list.append(hetero_learnware)
 

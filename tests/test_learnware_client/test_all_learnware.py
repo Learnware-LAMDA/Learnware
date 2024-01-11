@@ -56,7 +56,7 @@ class TestAllLearnware(unittest.TestCase):
                         semantic_spec = self.client.get_semantic_specification(idx)
                         LearnwareClient.check_learnware(zip_path, semantic_spec)
                         print(f"check learnware {idx} succeed")
-                    except:
+                    except Exception:
                         failed_ids.append(idx)
                         print(f"check learnware {idx} failed!!!")
 
