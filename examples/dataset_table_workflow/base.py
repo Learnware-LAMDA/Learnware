@@ -2,7 +2,9 @@ import os
 import time
 import torch
 import random
+import requests
 import tempfile
+import traceback
 import numpy as np
 from queue import Empty
 from tqdm import tqdm
@@ -27,13 +29,13 @@ torch.multiprocessing.set_sharing_strategy("file_system")
 
 
 class TableWorkflow:
-    def __init__(self, benchmark_config, name="easy", rebuild=False):
+    def __init__(self, benchmark_config, name="easy", rebuild=False, retrain=False):
         self.root_path = os.path.abspath(os.path.join(__file__, ".."))
         self.result_path = os.path.join(self.root_path, "results")
         self.curves_result_path = os.path.join(self.result_path, "curves")
         os.makedirs(self.result_path, exist_ok=True)
         os.makedirs(self.curves_result_path, exist_ok=True)
-        self._prepare_market(benchmark_config, name, rebuild)
+        self._prepare_market(benchmark_config, name, rebuild, retrain)
         
         self.cuda_idx = list(range(torch.cuda.device_count()))
     
@@ -68,13 +70,21 @@ class TableWorkflow:
                 train_subsets[-1].append({"x_train": np.array(train_x[subset_idxs]), "y_train": np.array(train_y[subset_idxs])})
         return train_subsets
     
-    def _prepare_market(self, benchmark_config, name, rebuild):
+    def _prepare_market(self, benchmark_config, name, rebuild, retrain):
         client = LearnwareClient()
         self.benchmark = LearnwareBenchmark().get_benchmark(benchmark_config)
-        self.market = instantiate_learnware_market(market_id=self.benchmark.name, name=name, rebuild=rebuild)
+        self.market = instantiate_learnware_market(
+            market_id=self.benchmark.name,
+            name=name,
+            rebuild=rebuild,
+            organizer_kwargs={
+                "auto_update": True,
+                "auto_update_limit": len(self.benchmark.learnware_ids),
+                **market_mapping_params
+            } if retrain else None
+        )
         self.user_semantic = client.get_semantic_specification(self.benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""
-
         if len(self.market) == 0 or rebuild == True:
             for learnware_id in self.benchmark.learnware_ids:
                 with tempfile.TemporaryDirectory(prefix="table_benchmark_") as tempdir:
@@ -85,7 +95,8 @@ class TableWorkflow:
                             client.download_learnware(learnware_id, zip_path)
                             self.market.add_learnware(zip_path, semantic_spec)
                             break
-                        except:
+                        except (requests.exceptions.RequestException, IOError, Exception) as e:
+                            logger.info(f"An error occurred when downloading {learnware_id}: {e}\n{traceback.format_exc()}, retrying...")
                             time.sleep(1)
                             continue
     
@@ -112,6 +123,14 @@ class TableWorkflow:
         
         if method_name_full == "hetero_single_aug":
             if recorder.should_test_method(user, idx, save_path):
+                # * single-process
+                # bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}")
+                # for learnware in test_info['learnwares']:
+                #     test_info['single_learnware'] = learnware
+                #     scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
+                #     recorder.record(user, idx, scores)
+                #     bar.update(1)  
+                
                 # * multi-process
                 queue = Queue()
                 processes = []
@@ -143,14 +162,6 @@ class TableWorkflow:
                 recorder.save(save_path)
                 
             process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)
-                    
-                # * single-process
-                # bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}")
-                # for learnware in test_info['learnwares']:
-                #     test_info['single_learnware'] = learnware
-                #     scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
-                #     recorder.record(user, idx, scores)
-                #     bar.update(1)  
         else:
             if recorder.should_test_method(user, idx, save_path):
                 scores = self._limited_data(method, test_info, loss_func)
