@@ -44,7 +44,7 @@ class AnchoredOrganizer(EasyOrganizer):
         Exception
             Raise an excpetion when given anchor_id is NOT found in anchor_learnware_list
         """
-        if not anchor_id in self.anchor_learnware_list:
+        if anchor_id not in self.anchor_learnware_list:
             raise Exception("Anchor learnware id:{} NOT Found!".format(anchor_id))
 
         self.anchor_learnware_list.pop(anchor_id)

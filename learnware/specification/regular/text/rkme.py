@@ -103,7 +103,7 @@ class RKMETextSpecification(RKMETableSpecification):
                     "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", cache_folder=cache_dir
                 )
                 X = np.array(model.encode(X))
-            except:
+            except Exception:
                 X = _get_from_client(zip_path, X)
 
         return X
