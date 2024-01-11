@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import List, Union
+from typing import Union
 
 import numpy as np
 
@@ -13,8 +13,7 @@ logger = get_module_logger("Learnware")
 
 
 class Learnware:
-    """The learnware class, which is the basic components in learnware market
-    """
+    """The learnware class, which is the basic components in learnware market"""
 
     def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification, learnware_dirpath: str):
         """The initialization method for learnware.
@@ -41,7 +40,7 @@ class Learnware:
         dirpath: str
             The path of the learnware directory
         """
-        
+
         self.id = id
         self.model = model
         self.specification = specification

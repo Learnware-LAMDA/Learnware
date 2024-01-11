@@ -17,7 +17,6 @@ from tqdm import tqdm
 from . import cnn_gp
 from ..base import RegularStatSpecification
 from ..table.rkme import rkme_solve_qp
-from .... import setup_seed
 from ....logger import get_module_logger
 from ....utils import allocate_cuda_idx, choose_device
 
