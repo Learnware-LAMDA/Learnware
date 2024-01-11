@@ -11,5 +11,4 @@ if not is_torch_available(verbose=False):
         f"RKMETableSpecification, RKMEStatSpecification and rkme_solve_qp are not available because 'torch' is not installed!"
     )
 else:
-    from .rkme import (RKMEStatSpecification, RKMETableSpecification,
-                       rkme_solve_qp)
+    from .rkme import RKMEStatSpecification, RKMETableSpecification, rkme_solve_qp

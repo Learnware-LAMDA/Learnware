@@ -16,6 +16,7 @@ def read_yaml_to_dict(yaml_path: str):
         dict_value = yaml.load(file.read(), Loader=yaml.FullLoader)
         return dict_value
 
+
 def convert_folder_to_zipfile(folder_path, zip_path):
     with zipfile.ZipFile(zip_path, "w") as zip_obj:
         for foldername, subfolders, filenames in os.walk(folder_path):

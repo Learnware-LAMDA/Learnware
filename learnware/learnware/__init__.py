@@ -13,7 +13,9 @@ from ..utils import read_yaml_to_dict
 logger = get_module_logger("learnware.learnware")
 
 
-def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, ignore_error=True) -> Optional[Learnware]:
+def get_learnware_from_dirpath(
+    id: str, semantic_spec: dict, learnware_dirpath, ignore_error=True
+) -> Optional[Learnware]:
     """Get the learnware object from dirpath, and provide the manage interface tor Learnware class
 
     Parameters
@@ -46,11 +48,11 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, 
     }
 
     try:
-        
         learnware_yaml_path = os.path.join(learnware_dirpath, C.learnware_folder_config["yaml_file"])
-        assert os.path.exists(learnware_yaml_path), f"learnware.yaml is not found for learnware_{id}, please check the learnware folder or zipfile."
-        
-        
+        assert os.path.exists(
+            learnware_yaml_path
+        ), f"learnware.yaml is not found for learnware_{id}, please check the learnware folder or zipfile."
+
         yaml_config = read_yaml_to_dict(learnware_yaml_path)
 
         if "name" in yaml_config:
@@ -67,8 +69,10 @@ def get_learnware_from_dirpath(id: str, semantic_spec: dict, learnware_dirpath, 
         for _stat_spec in learnware_config["stat_specifications"]:
             stat_spec = _stat_spec.copy()
             stat_spec_path = os.path.join(learnware_dirpath, stat_spec["file_name"])
-            assert os.path.exists(stat_spec_path), f"statistical specification file {stat_spec['file_name']} is not found for learnware_{id}, please check the learnware folder or zipfile."
-            
+            assert os.path.exists(
+                stat_spec_path
+            ), f"statistical specification file {stat_spec['file_name']} is not found for learnware_{id}, please check the learnware folder or zipfile."
+
             stat_spec["file_name"] = stat_spec_path
             stat_spec_inst = get_stat_spec_from_config(stat_spec)
             learnware_spec.update_stat_spec(**{stat_spec_inst.type: stat_spec_inst})

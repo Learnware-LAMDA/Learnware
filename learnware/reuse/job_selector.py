@@ -8,8 +8,7 @@ from .base import BaseReuser
 from ..learnware import Learnware
 from ..logger import get_module_logger
 from ..market.utils import parse_specification_type
-from ..specification import (RKMETableSpecification, RKMETextSpecification,
-                             generate_rkme_table_spec, rkme_solve_qp)
+from ..specification import RKMETableSpecification, RKMETextSpecification, generate_rkme_table_spec, rkme_solve_qp
 
 logger = get_module_logger("job_selector_reuse")
 

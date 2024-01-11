@@ -10,6 +10,7 @@ from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 
 import learnware
+
 learnware.init(logging_level=logging.WARNING)
 
 from learnware.market import instantiate_learnware_market, BaseUserInfo
@@ -19,8 +20,8 @@ from learnware.tests.templates import LearnwareTemplate, PickleModelTemplate, St
 
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
+
 class TestWorkflow(unittest.TestCase):
-    
     universal_semantic_config = {
         "data_type": "Table",
         "task_type": "Classification",
@@ -28,7 +29,7 @@ class TestWorkflow(unittest.TestCase):
         "scenarios": "Education",
         "license": "MIT",
     }
-    
+
     def _init_learnware_market(self):
         """initialize learnware market"""
         easy_market = instantiate_learnware_market(market_id="sklearn_digits_easy", name="easy", rebuild=True)
@@ -42,7 +43,7 @@ class TestWorkflow(unittest.TestCase):
             learnware_pool_dirpath = os.path.join(curr_root, "learnware_pool")
             os.makedirs(learnware_pool_dirpath, exist_ok=True)
             learnware_zippath = os.path.join(learnware_pool_dirpath, "svm_%d.zip" % (i))
-            
+
             print("Preparing Learnware: %d" % (i))
             data_X, _, data_y, _ = train_test_split(X, y, test_size=0.3, shuffle=True)
             clf = svm.SVC(kernel="linear", probability=True)
@@ -54,14 +55,17 @@ class TestWorkflow(unittest.TestCase):
             spec = generate_rkme_table_spec(X=data_X, gamma=0.1, cuda_idx=0)
             spec_filepath = os.path.join(learnware_pool_dirpath, "stat_spec.json")
             spec.save(spec_filepath)
-            
+
             LearnwareTemplate.generate_learnware_zipfile(
                 learnware_zippath=learnware_zippath,
-                model_template=PickleModelTemplate(pickle_filepath=pickle_filepath, model_kwargs={"input_shape":(64,), "output_shape": (10,), "predict_method": "predict_proba"}),
+                model_template=PickleModelTemplate(
+                    pickle_filepath=pickle_filepath,
+                    model_kwargs={"input_shape": (64,), "output_shape": (10,), "predict_method": "predict_proba"},
+                ),
                 stat_spec_template=StatSpecTemplate(filepath=spec_filepath, type="RKMETableSpecification"),
                 requirements=["scikit-learn==0.22"],
             )
-           
+
             self.zip_path_list.append(learnware_zippath)
 
     def test_upload_delete_learnware(self, learnware_num=5, delete=True):
@@ -87,7 +91,7 @@ class TestWorkflow(unittest.TestCase):
                     "Dimension": 10,
                     "Description": {f"{i}": "The probability for each digit for 0 to 9." for i in range(10)},
                 },
-                **self.universal_semantic_config
+                **self.universal_semantic_config,
             )
             easy_market.add_learnware(zip_path, semantic_spec)
 
@@ -113,7 +117,7 @@ class TestWorkflow(unittest.TestCase):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))
         assert len(easy_market) == self.learnware_num, f"The number of learnwares must be {self.learnware_num}!"
-        
+
         with tempfile.TemporaryDirectory(prefix="learnware_test_workflow") as test_folder:
             with zipfile.ZipFile(self.zip_path_list[0], "r") as zip_obj:
                 zip_obj.extractall(path=test_folder)
@@ -123,15 +127,15 @@ class TestWorkflow(unittest.TestCase):
                 description=f"test_learnware_number_{learnware_num - 1}",
                 **self.universal_semantic_config,
             )
-            
+
             user_info = BaseUserInfo(semantic_spec=semantic_spec)
             search_result = easy_market.search_learnware(user_info)
             single_result = search_result.get_single_results()
 
             print(f"Search result:")
             for search_item in single_result:
-                print("Choose learnware:",search_item.learnware.id)
-      
+                print("Choose learnware:", search_item.learnware.id)
+
     def test_stat_search(self, learnware_num=5):
         easy_market = self.test_upload_delete_learnware(learnware_num, delete=False)
         print("Total Item:", len(easy_market))

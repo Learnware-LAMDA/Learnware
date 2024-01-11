@@ -6,13 +6,11 @@ import torch
 from rapidfuzz import fuzz
 
 from .organizer import EasyOrganizer
-from ..base import (BaseSearcher, BaseUserInfo, MultipleSearchItem,
-                    SearchResults, SingleSearchItem)
+from ..base import BaseSearcher, BaseUserInfo, MultipleSearchItem, SearchResults, SingleSearchItem
 from ..utils import parse_specification_type
 from ...learnware import Learnware
 from ...logger import get_module_logger
-from ...specification import (RKMEImageSpecification, RKMETableSpecification,
-                              RKMETextSpecification, rkme_solve_qp)
+from ...specification import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification, rkme_solve_qp
 
 logger = get_module_logger("easy_seacher")
 
