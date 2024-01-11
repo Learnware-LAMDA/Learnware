@@ -11,9 +11,6 @@ from shutil import copyfile, rmtree
 from sklearn.metrics import mean_squared_error
 
 import learnware
-
-learnware.init(logging_level=logging.WARNING)
-
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_table_spec, generate_semantic_spec
 from learnware.reuse import HeteroMapAlignLearnware, AveragingReuser, EnsemblePruningReuser
@@ -21,7 +18,7 @@ from learnware.tests.templates import LearnwareTemplate, PickleModelTemplate, St
 
 from hetero_config import input_shape_list, input_description_list, output_description_list, user_description_list
 
-
+learnware.init(logging_level=logging.WARNING)
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
 

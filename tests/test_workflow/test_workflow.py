@@ -10,14 +10,12 @@ from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 
 import learnware
-
-learnware.init(logging_level=logging.WARNING)
-
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_table_spec, generate_semantic_spec
 from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser
 from learnware.tests.templates import LearnwareTemplate, PickleModelTemplate, StatSpecTemplate
 
+learnware.init(logging_level=logging.WARNING)
 curr_root = os.path.dirname(os.path.abspath(__file__))
 
 
