@@ -74,7 +74,7 @@ class TestWorkflow(unittest.TestCase):
         self.learnware_num = learnware_num
 
         print("Total Item:", len(easy_market))
-        assert len(easy_market) == 0, f"The market should be empty!"
+        assert len(easy_market) == 0, "The market should be empty!"
 
         for idx, zip_path in enumerate(self.zip_path_list):
             semantic_spec = generate_semantic_spec(
@@ -109,7 +109,7 @@ class TestWorkflow(unittest.TestCase):
 
             curr_inds = easy_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
-            assert len(curr_inds) == 0, f"The market should be empty!"
+            assert len(curr_inds) == 0, "The market should be empty!"
 
         return easy_market
 
@@ -132,7 +132,7 @@ class TestWorkflow(unittest.TestCase):
             search_result = easy_market.search_learnware(user_info)
             single_result = search_result.get_single_results()
 
-            print(f"Search result:")
+            print("Search result:")
             for search_item in single_result:
                 print("Choose learnware:", search_item.learnware.id)
 
@@ -154,7 +154,7 @@ class TestWorkflow(unittest.TestCase):
                 single_result = search_results.get_single_results()
                 multiple_result = search_results.get_multiple_results()
 
-                assert len(single_result) >= 1, f"Statistical search failed!"
+                assert len(single_result) >= 1, "Statistical search failed!"
                 print(f"search result of user{idx}:")
                 for search_item in single_result:
                     print(f"score: {search_item.score}, learnware_id: {search_item.learnware.id}")

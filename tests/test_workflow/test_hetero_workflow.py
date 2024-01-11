@@ -81,7 +81,7 @@ class TestHeteroWorkflow(unittest.TestCase):
         self.learnware_num = learnware_num
 
         print("Total Item:", len(hetero_market))
-        assert len(hetero_market) == 0, f"The market should be empty!"
+        assert len(hetero_market) == 0, "The market should be empty!"
 
         for idx, zip_path in enumerate(self.zip_path_list):
             semantic_spec = generate_semantic_spec(
@@ -109,7 +109,7 @@ class TestHeteroWorkflow(unittest.TestCase):
 
             curr_inds = hetero_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
-            assert len(curr_inds) == 0, f"The market should be empty!"
+            assert len(curr_inds) == 0, "The market should be empty!"
 
         return hetero_market
 
@@ -140,20 +140,20 @@ class TestHeteroWorkflow(unittest.TestCase):
         search_result = hetero_market.search_learnware(user_info)
         single_result = search_result.get_single_results()
 
-        print(f"Search result1:")
-        assert len(single_result) == 1, f"Exact semantic search failed!"
+        print("Search result1:")
+        assert len(single_result) == 1, "Exact semantic search failed!"
         for search_item in single_result:
             semantic_spec1 = search_item.learnware.get_specification().get_semantic_spec()
             print("Choose learnware:", search_item.learnware.id)
-            assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
+            assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], "Exact semantic search failed!"
 
         semantic_spec["Name"]["Values"] = "laernwaer"
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
         search_result = hetero_market.search_learnware(user_info)
         single_result = search_result.get_single_results()
 
-        print(f"Search result2:")
-        assert len(single_result) == self.learnware_num, f"Fuzzy semantic search failed!"
+        print("Search result2:")
+        assert len(single_result) == self.learnware_num, "Fuzzy semantic search failed!"
         for search_item in single_result:
             print("Choose learnware:", search_item.learnware.id)
 
@@ -208,7 +208,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 search_result = hetero_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
 
-                assert len(single_result) == 0, f"Statistical search failed!"
+                assert len(single_result) == 0, "Statistical search failed!"
 
                 # delete key "Task" in semantic_spec, use homo search and print WARNING INFO with "User doesn't provide correct task type"
                 print(">> delele key 'Task' test:")
@@ -217,7 +217,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 search_result = hetero_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
 
-                assert len(single_result) == 0, f"Statistical search failed!"
+                assert len(single_result) == 0, "Statistical search failed!"
 
                 # modify semantic info with mismatch dim, use homo search and print "User data feature dimensions mismatch with semantic specification."
                 print(">> mismatch dim test")
@@ -235,7 +235,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 search_result = hetero_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
 
-                assert len(single_result) == 0, f"Statistical search failed!"
+                assert len(single_result) == 0, "Statistical search failed!"
 
     def test_homo_stat_search(self, learnware_num=5):
         hetero_market = self.test_train_market_model(learnware_num, delete=False)
@@ -254,7 +254,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 single_result = search_result.get_single_results()
                 multiple_result = search_result.get_multiple_results()
 
-                assert len(single_result) >= 1, f"Statistical search failed!"
+                assert len(single_result) >= 1, "Statistical search failed!"
                 print(f"search result of user{idx}:")
                 for single_item in single_result:
                     print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
