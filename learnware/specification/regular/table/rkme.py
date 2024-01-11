@@ -148,7 +148,7 @@ class RKMETableSpecification(RegularStatSpecification):
             from fast_pytorch_kmeans import KMeans
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                f"RKMETableSpecification is not available because 'fast_pytorch_kmeans' is not installed! Please install it manually."
+                "RKMETableSpecification is not available because 'fast_pytorch_kmeans' is not installed! Please install it manually."
             )
 
         kmeans = KMeans(n_clusters=K, mode="euclidean", max_iter=100, verbose=0)

@@ -135,7 +135,7 @@ class RKMEImageSpecification(RegularStatSpecification):
             from torchvision.transforms import Resize
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                f"RKMEImageSpecification is not available because 'torchvision' is not installed! Please install it manually."
+                "RKMEImageSpecification is not available because 'torchvision' is not installed! Please install it manually."
             )
 
         if X.shape[2] != RKMEImageSpecification.IMAGE_WIDTH or X.shape[3] != RKMEImageSpecification.IMAGE_WIDTH:
@@ -167,7 +167,7 @@ class RKMEImageSpecification(RegularStatSpecification):
             import torch_optimizer
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                f"RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually."
+                "RKMEImageSpecification is not available because 'torch-optimizer' is not installed! Please install it manually."
             )
 
         # Cross-platform by default, unless the spec is specified to be generated specifically for local experiments.

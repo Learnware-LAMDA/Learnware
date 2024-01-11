@@ -49,7 +49,7 @@ class LearnwareTemplate:
             if isinstance(requirement, str):
                 line_str = requirement.strip() + "\n"
             elif isinstance(requirement, tuple):
-                assert requirement[1] in operators, f"The operator of requirements is not supported."
+                assert requirement[1] in operators, "The operator of requirements is not supported."
                 line_str = requirement[0].strip() + requirement[1].strip() + requirement[2].strip() + "\n"
             else:
                 raise TypeError(f"requirement must be type str/tuple, rather than {type(requirement)}")

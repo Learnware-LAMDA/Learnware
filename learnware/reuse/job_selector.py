@@ -69,7 +69,7 @@ class JobSelectorReuser(BaseReuser):
                 #     pred_y = pred_y.numpy()
 
                 if not isinstance(pred_y, np.ndarray):
-                    raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
+                    raise TypeError("Model output must be np.ndarray or torch.Tensor")
 
                 pred_y_list.append(pred_y)
                 data_idxs_list.append(data_idx_list)
@@ -229,7 +229,7 @@ class JobSelectorReuser(BaseReuser):
             from lightgbm import LGBMClassifier, early_stopping
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                f"JobSelectorReuser is not available because 'lightgbm' is not installed! Please install it manually."
+                "JobSelectorReuser is not available because 'lightgbm' is not installed! Please install it manually."
             )
 
         score_best = -1

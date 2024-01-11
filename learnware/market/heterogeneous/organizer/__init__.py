@@ -42,7 +42,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 for hetero_id in hetero_ids:
                     self._reload_learnware_hetero_spec(hetero_id)
         else:
-            logger.warning(f"No market mapping to reload!")
+            logger.warning("No market mapping to reload!")
             self.market_mapping = HeteroMap()
 
     def reset(self, market_id, rebuild=False, auto_update=False, auto_update_limit=100, **training_args):

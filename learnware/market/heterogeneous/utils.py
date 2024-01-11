@@ -47,5 +47,5 @@ def is_hetero(stat_specs: dict, semantic_spec: dict, verbose=True) -> bool:
         return True
     except Exception as err:
         if verbose:
-            logger.warning(f"Invalid heterogeneous search information provided.")
+            logger.warning("Invalid heterogeneous search information provided.")
         return False

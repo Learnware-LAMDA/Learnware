@@ -92,7 +92,7 @@ class RKMETextSpecification(RKMETableSpecification):
             from sentence_transformers import SentenceTransformer
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                f"RKMETextSpecification is not available because 'sentence_transformers' is not installed! Please install it manually."
+                "RKMETextSpecification is not available because 'sentence_transformers' is not installed! Please install it manually."
             )
 
         if os.path.exists(zip_path):

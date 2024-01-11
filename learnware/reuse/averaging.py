@@ -50,7 +50,7 @@ class AveragingReuser(BaseReuser):
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
             if not isinstance(pred_y, np.ndarray):
-                raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
+                raise TypeError("Model output must be np.ndarray or torch.Tensor")
 
             if len(pred_y.shape) == 1:
                 pred_y = pred_y.reshape(-1, 1)
