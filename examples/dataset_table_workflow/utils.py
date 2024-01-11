@@ -41,15 +41,10 @@ class Recorder:
 
 def process_single_aug(user, idx, scores, recorders, root_path):
     try:
-        scores_array = np.array(scores)
-        n_labeled = len(scores_array[0])
-        
-        while scores_array.ndim < 3:
-            scores_array = scores_array[np.newaxis, :]
-            
+        n_labeled = len(scores[0])
         select_scores, mean_scores, oracle_scores = [], [], []
         for i in range(n_labeled):
-            sub_scores_array = np.vstack([lst[i] for lst in scores_array])
+            sub_scores_array = np.vstack([lst[i] for lst in scores])
             sub_scores_select = np.squeeze(sub_scores_array[0])
             sub_scores_mean = np.squeeze(np.mean(sub_scores_array, axis=0))
             sub_scores_min = np.squeeze(np.min(sub_scores_array, axis=0))
@@ -63,7 +58,6 @@ def process_single_aug(user, idx, scores, recorders, root_path):
             recorders[method_name].record(user, scores)
             save_path = os.path.join(root_path, f"{method_name}.json")
             recorders[method_name].save(save_path)
-            
     except Exception:
         error_message = traceback.format_exc()
         logger.error(f"Error in process_single_aug for user {user}, idx {idx}: {error_message}")
@@ -96,8 +90,8 @@ def plot_performance_curves(path, user, recorders, task, n_labeled_list):
 
         plt.fill_between(
             range(len(mean_curve)), 
-            mean_curve - 0.2 * std_curve, 
-            mean_curve + 0.2 * std_curve, 
+            mean_curve - std_curve, 
+            mean_curve + std_curve, 
             color=style["color"], 
             alpha=0.2
         )

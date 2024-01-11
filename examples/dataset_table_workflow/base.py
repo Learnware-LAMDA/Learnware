@@ -30,7 +30,7 @@ class TableWorkflow:
     def __init__(self, benchmark_config, name="easy", rebuild=False):
         self.root_path = os.path.abspath(os.path.join(__file__, ".."))
         self.result_path = os.path.join(self.root_path, "results")
-        self.curves_result_path = os.path.join(self.root_path, "curves")
+        self.curves_result_path = os.path.join(self.result_path, "curves")
         os.makedirs(self.result_path, exist_ok=True)
         os.makedirs(self.curves_result_path, exist_ok=True)
         self._prepare_market(benchmark_config, name, rebuild)
@@ -55,8 +55,8 @@ class TableWorkflow:
     
     @staticmethod
     def get_train_subsets(n_labeled_list, n_repeat_list, idx, train_x, train_y):
-        np.random.seed(6 + idx % 3)
-        random.seed(6 + idx % 3)
+        np.random.seed(idx)
+        random.seed(idx)
         train_x = fill_data_with_mean(train_x)
         train_subsets = []
         for n_label, repeated in zip(n_labeled_list, n_repeat_list):

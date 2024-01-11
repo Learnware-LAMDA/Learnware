@@ -16,14 +16,13 @@ from utils import Recorder, plot_performance_curves
 logger = get_module_logger("homo_table", level="INFO")
 
 
-class CorporacionDatasetWorkflow(TableWorkflow):
+class HomogeneousDatasetWorkflow(TableWorkflow):
     def unlabeled_homo_table_example(self):
         logger.info("Total Item: %d" % (len(self.market)))
         learnware_rmse_list = []
         single_score_list = []
         job_selector_score_list = []
         ensemble_score_list = []
-        pruning_score_list = []
         all_learnwares = self.market.get_learnwares()
 
         user = self.benchmark.name
@@ -36,7 +35,7 @@ class CorporacionDatasetWorkflow(TableWorkflow):
             )
             logger.info(f"Searching Market for user: {user}_{idx}")
 
-            search_result = self.market.search_learnware(user_info)
+            search_result = self.market.search_learnware(user_info, max_search_num=2)
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
 
@@ -50,8 +49,10 @@ class CorporacionDatasetWorkflow(TableWorkflow):
 
             rmse_list = []
             for learnware in all_learnwares:
-                pred_y = learnware.predict(test_x)
-                rmse_list.append(loss_func_rmse(pred_y, test_y))
+                semantic_spec = learnware.specification.get_semantic_spec()
+                if semantic_spec["Input"]["Dimension"] == test_x.shape[1]:
+                    pred_y = learnware.predict(test_x)
+                    rmse_list.append(loss_func_rmse(pred_y, test_y))
             logger.info(
                 f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, rmse: {single_score_list[-1]}"
             )
@@ -76,14 +77,7 @@ class CorporacionDatasetWorkflow(TableWorkflow):
             ensemble_score = loss_func_rmse(ensemble_predict_y, test_y)
             ensemble_score_list.append(ensemble_score)
             logger.info(f"mixture reuse rmse (ensemble): {ensemble_score}")
-
-            # test reuse (ensemblePruning)
-            reuse_pruning = EnsemblePruningReuser(learnware_list=mixture_learnware_list, mode="regression")
-            pruning_predict_y = reuse_pruning.predict(user_data=test_x)
-            pruning_score = loss_func_rmse(pruning_predict_y, test_y)
-            pruning_score_list.append(pruning_score)
-            logger.info(f"mixture reuse rmse (ensemble Pruning): {pruning_score}\n")
-
+            
             learnware_rmse_list.append(rmse_list)
 
         single_list = np.array(learnware_rmse_list)
@@ -109,11 +103,8 @@ class CorporacionDatasetWorkflow(TableWorkflow):
             "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
             % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
-        logger.info(
-            "Selective Ensemble Reuse Performance: %.3f +/- %.3f"
-            % (np.mean(pruning_score_list), np.std(pruning_score_list))
-        )
-
+        
+        
     def labeled_homo_table_example(self):
         logger.info("Total Item: %d" % (len(self.market)))
         methods = ["user_model", "homo_single_aug", "homo_multiple_aug", "homo_multiple_avg", "homo_ensemble_pruning"]
