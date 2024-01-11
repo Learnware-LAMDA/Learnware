@@ -4,6 +4,7 @@ from ..logger import get_module_logger
 
 logger = get_module_logger("reuse_utils")
 
+
 def fill_data_with_mean(X: np.ndarray) -> np.ndarray:
     """
     Fill missing data (NaN, Inf) in the input array with the mean of the column.

@@ -1,6 +1,6 @@
 import os
 from setuptools import find_packages, setup
-from enum import Enum
+
 
 def read(rel_path: str) -> str:
     here = os.path.abspath(os.path.dirname(__file__))
@@ -100,7 +100,7 @@ if __name__ == "__main__":
         install_requires=REQUIRED,
         extras_require={
             "dev": DEV_REQUIRED,
-            "full":  FULL_REQUIRED,
+            "full": FULL_REQUIRED,
         },
         classifiers=[
             "Intended Audience :: Science/Research",

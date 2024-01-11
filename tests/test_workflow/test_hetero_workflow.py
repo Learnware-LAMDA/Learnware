@@ -7,12 +7,9 @@ import tempfile
 import zipfile
 from sklearn.linear_model import Ridge
 from sklearn.datasets import make_regression
-from shutil import copyfile, rmtree
 from sklearn.metrics import mean_squared_error
 
 import learnware
-learnware.init(logging_level=logging.WARNING)
-
 from learnware.market import instantiate_learnware_market, BaseUserInfo
 from learnware.specification import RKMETableSpecification, generate_rkme_table_spec, generate_semantic_spec
 from learnware.reuse import HeteroMapAlignLearnware, AveragingReuser, EnsemblePruningReuser
@@ -20,8 +17,9 @@ from learnware.tests.templates import LearnwareTemplate, PickleModelTemplate, St
 
 from hetero_config import input_shape_list, input_description_list, output_description_list, user_description_list
 
-
+learnware.init(logging_level=logging.WARNING)
 curr_root = os.path.dirname(os.path.abspath(__file__))
+
 
 class TestHeteroWorkflow(unittest.TestCase):
     universal_semantic_config = {
@@ -46,10 +44,12 @@ class TestHeteroWorkflow(unittest.TestCase):
             learnware_pool_dirpath = os.path.join(curr_root, "learnware_pool_hetero")
             os.makedirs(learnware_pool_dirpath, exist_ok=True)
             learnware_zippath = os.path.join(learnware_pool_dirpath, "ridge_%d.zip" % (i))
-            
+
             print("Preparing Learnware: %d" % (i))
 
-            X, y = make_regression(n_samples=5000, n_informative=15, n_features=input_shape_list[i % 2], noise=0.1, random_state=42)
+            X, y = make_regression(
+                n_samples=5000, n_informative=15, n_features=input_shape_list[i % 2], noise=0.1, random_state=42
+            )
             clf = Ridge(alpha=1.0)
             clf.fit(X, y)
             pickle_filepath = os.path.join(learnware_pool_dirpath, "ridge.pkl")
@@ -62,20 +62,22 @@ class TestHeteroWorkflow(unittest.TestCase):
 
             LearnwareTemplate.generate_learnware_zipfile(
                 learnware_zippath=learnware_zippath,
-                model_template=PickleModelTemplate(pickle_filepath=pickle_filepath, model_kwargs={"input_shape":(input_shape_list[i % 2],), "output_shape": (1,)}),
+                model_template=PickleModelTemplate(
+                    pickle_filepath=pickle_filepath,
+                    model_kwargs={"input_shape": (input_shape_list[i % 2],), "output_shape": (1,)},
+                ),
                 stat_spec_template=StatSpecTemplate(filepath=spec_filepath, type="RKMETableSpecification"),
                 requirements=["scikit-learn==0.22"],
             )
-            
+
             self.zip_path_list.append(learnware_zippath)
 
-    
     def _upload_delete_learnware(self, hetero_market, learnware_num, delete):
         self.test_prepare_learnware_randomly(learnware_num)
         self.learnware_num = learnware_num
 
         print("Total Item:", len(hetero_market))
-        assert len(hetero_market) == 0, f"The market should be empty!"
+        assert len(hetero_market) == 0, "The market should be empty!"
 
         for idx, zip_path in enumerate(self.zip_path_list):
             semantic_spec = generate_semantic_spec(
@@ -83,7 +85,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 description=f"test_learnware_number_{idx}",
                 input_description=input_description_list[idx % 2],
                 output_description=output_description_list[idx % 2],
-                **self.universal_semantic_config
+                **self.universal_semantic_config,
             )
             hetero_market.add_learnware(zip_path, semantic_spec)
 
@@ -103,10 +105,10 @@ class TestHeteroWorkflow(unittest.TestCase):
 
             curr_inds = hetero_market.get_learnware_ids()
             print("Available ids After Deleting Learnwares:", curr_inds)
-            assert len(curr_inds) == 0, f"The market should be empty!"
+            assert len(curr_inds) == 0, "The market should be empty!"
 
         return hetero_market
-    
+
     def test_upload_delete_learnware(self, learnware_num=5, delete=True):
         hetero_market = self._init_learnware_market()
         return self._upload_delete_learnware(hetero_market, learnware_num, delete)
@@ -129,32 +131,32 @@ class TestHeteroWorkflow(unittest.TestCase):
             name=f"learnware_{learnware_num - 1}",
             **self.universal_semantic_config,
         )
-        
+
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
         search_result = hetero_market.search_learnware(user_info)
         single_result = search_result.get_single_results()
 
-        print(f"Search result1:")
-        assert len(single_result) == 1, f"Exact semantic search failed!"
+        print("Search result1:")
+        assert len(single_result) == 1, "Exact semantic search failed!"
         for search_item in single_result:
             semantic_spec1 = search_item.learnware.get_specification().get_semantic_spec()
             print("Choose learnware:", search_item.learnware.id)
-            assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], f"Exact semantic search failed!"
+            assert semantic_spec1["Name"]["Values"] == semantic_spec["Name"]["Values"], "Exact semantic search failed!"
 
         semantic_spec["Name"]["Values"] = "laernwaer"
         user_info = BaseUserInfo(semantic_spec=semantic_spec)
         search_result = hetero_market.search_learnware(user_info)
         single_result = search_result.get_single_results()
 
-        print(f"Search result2:")
-        assert len(single_result) == self.learnware_num, f"Fuzzy semantic search failed!"
+        print("Search result2:")
+        assert len(single_result) == self.learnware_num, "Fuzzy semantic search failed!"
         for search_item in single_result:
             print("Choose learnware:", search_item.learnware.id)
 
     def test_hetero_stat_search(self, learnware_num=5):
         hetero_market = self.test_train_market_model(learnware_num, delete=False)
         print("Total Item:", len(hetero_market))
-        
+
         user_dim = 15
 
         with tempfile.TemporaryDirectory(prefix="learnware_test_hetero") as test_folder:
@@ -174,7 +176,10 @@ class TestHeteroWorkflow(unittest.TestCase):
                 semantic_spec = generate_semantic_spec(
                     input_description={
                         "Dimension": user_dim,
-                        "Description": {str(key): input_description_list[idx % 2]["Description"][str(key)] for key in range(user_dim)},
+                        "Description": {
+                            str(key): input_description_list[idx % 2]["Description"][str(key)]
+                            for key in range(user_dim)
+                        },
                     },
                     **self.universal_semantic_config,
                 )
@@ -182,7 +187,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 search_result = hetero_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
                 multiple_result = search_result.get_multiple_results()
-                
+
                 print(f"search result of user{idx}:")
                 for single_item in single_result:
                     print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
@@ -199,7 +204,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 search_result = hetero_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
 
-                assert len(single_result) == 0, f"Statistical search failed!"
+                assert len(single_result) == 0, "Statistical search failed!"
 
                 # delete key "Task" in semantic_spec, use homo search and print WARNING INFO with "User doesn't provide correct task type"
                 print(">> delele key 'Task' test:")
@@ -208,14 +213,17 @@ class TestHeteroWorkflow(unittest.TestCase):
                 search_result = hetero_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
 
-                assert len(single_result) == 0, f"Statistical search failed!"
+                assert len(single_result) == 0, "Statistical search failed!"
 
                 # modify semantic info with mismatch dim, use homo search and print "User data feature dimensions mismatch with semantic specification."
                 print(">> mismatch dim test")
                 semantic_spec = generate_semantic_spec(
                     input_description={
                         "Dimension": user_dim - 2,
-                        "Description": {str(key): input_description_list[idx % 2]["Description"][str(key)] for key in range(user_dim)},
+                        "Description": {
+                            str(key): input_description_list[idx % 2]["Description"][str(key)]
+                            for key in range(user_dim)
+                        },
                     },
                     **self.universal_semantic_config,
                 )
@@ -223,12 +231,12 @@ class TestHeteroWorkflow(unittest.TestCase):
                 search_result = hetero_market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
 
-                assert len(single_result) == 0, f"Statistical search failed!"
+                assert len(single_result) == 0, "Statistical search failed!"
 
     def test_homo_stat_search(self, learnware_num=5):
         hetero_market = self.test_train_market_model(learnware_num, delete=False)
         print("Total Item:", len(hetero_market))
-        
+
         with tempfile.TemporaryDirectory(prefix="learnware_test_hetero") as test_folder:
             for idx, zip_path in enumerate(self.zip_path_list):
                 with zipfile.ZipFile(zip_path, "r") as zip_obj:
@@ -242,7 +250,7 @@ class TestHeteroWorkflow(unittest.TestCase):
                 single_result = search_result.get_single_results()
                 multiple_result = search_result.get_multiple_results()
 
-                assert len(single_result) >= 1, f"Statistical search failed!"
+                assert len(single_result) >= 1, "Statistical search failed!"
                 print(f"search result of user{idx}:")
                 for single_item in single_result:
                     print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
@@ -260,7 +268,9 @@ class TestHeteroWorkflow(unittest.TestCase):
         user_spec = generate_rkme_table_spec(X=X, gamma=0.1, cuda_idx=0)
 
         # generate specification
-        semantic_spec = generate_semantic_spec(input_description=user_description_list[0], **self.universal_semantic_config)
+        semantic_spec = generate_semantic_spec(
+            input_description=user_description_list[0], **self.universal_semantic_config
+        )
         user_info = BaseUserInfo(semantic_spec=semantic_spec, stat_info={"RKMETableSpecification": user_spec})
 
         # learnware market search
@@ -268,7 +278,7 @@ class TestHeteroWorkflow(unittest.TestCase):
         search_result = hetero_market.search_learnware(user_info)
         single_result = search_result.get_single_results()
         multiple_result = search_result.get_multiple_results()
-        
+
         # print search results
         for single_item in single_result:
             print(f"score: {single_item.score}, learnware_id: {single_item.learnware.id}")
@@ -285,8 +295,8 @@ class TestHeteroWorkflow(unittest.TestCase):
 
         # multi model reuse
         hetero_learnware_list = []
-        for learnware in multiple_result[0].learnwares:
-            hetero_learnware = HeteroMapAlignLearnware(learnware, mode="regression")
+        for org_learnware in multiple_result[0].learnwares:
+            hetero_learnware = HeteroMapAlignLearnware(org_learnware, mode="regression")
             hetero_learnware.align(user_spec, X[:100], y[:100])
             hetero_learnware_list.append(hetero_learnware)
 
@@ -306,9 +316,9 @@ class TestHeteroWorkflow(unittest.TestCase):
 
 def suite():
     _suite = unittest.TestSuite()
-    #_suite.addTest(TestHeteroWorkflow("test_prepare_learnware_randomly"))
-    #_suite.addTest(TestHeteroWorkflow("test_upload_delete_learnware"))
-    #_suite.addTest(TestHeteroWorkflow("test_train_market_model"))
+    # _suite.addTest(TestHeteroWorkflow("test_prepare_learnware_randomly"))
+    # _suite.addTest(TestHeteroWorkflow("test_upload_delete_learnware"))
+    # _suite.addTest(TestHeteroWorkflow("test_train_market_model"))
     _suite.addTest(TestHeteroWorkflow("test_search_semantics"))
     _suite.addTest(TestHeteroWorkflow("test_hetero_stat_search"))
     _suite.addTest(TestHeteroWorkflow("test_homo_stat_search"))

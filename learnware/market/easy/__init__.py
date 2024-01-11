@@ -11,5 +11,4 @@ if not is_torch_available(verbose=False):
     logger.error("EasySeacher and EasyChecker are not available because 'torch' is not installed!")
 else:
     from .checker import EasySemanticChecker, EasyStatChecker
-    from .searcher import (EasyExactSemanticSearcher, EasyFuzzSemanticSearcher,
-                           EasySearcher, EasyStatSearcher)
+    from .searcher import EasyExactSemanticSearcher, EasyFuzzSemanticSearcher, EasySearcher, EasyStatSearcher

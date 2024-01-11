@@ -6,13 +6,11 @@ import torch
 from rapidfuzz import fuzz
 
 from .organizer import EasyOrganizer
-from ..base import (BaseSearcher, BaseUserInfo, MultipleSearchItem,
-                    SearchResults, SingleSearchItem)
+from ..base import BaseSearcher, BaseUserInfo, MultipleSearchItem, SearchResults, SingleSearchItem
 from ..utils import parse_specification_type
 from ...learnware import Learnware
 from ...logger import get_module_logger
-from ...specification import (RKMEImageSpecification, RKMETableSpecification,
-                              RKMETextSpecification, rkme_solve_qp)
+from ...specification import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification, rkme_solve_qp
 
 logger = get_module_logger("easy_seacher")
 
@@ -281,7 +279,7 @@ class EasyStatSearcher(BaseSearcher):
         learnware_num = len(learnware_list)
         RKME_list = [learnware.specification.get_stat_spec_by_name(self.stat_spec_type) for learnware in learnware_list]
 
-        if type(intermediate_K) == np.ndarray:
+        if isinstance(intermediate_K, np.ndarray):
             K = intermediate_K
         else:
             K = np.zeros((learnware_num, learnware_num))
@@ -290,7 +288,7 @@ class EasyStatSearcher(BaseSearcher):
                 for j in range(i + 1, K.shape[0]):
                     K[i, j] = K[j, i] = RKME_list[i].inner_prod(RKME_list[j])
 
-        if type(intermediate_C) == np.ndarray:
+        if isinstance(intermediate_C, np.ndarray):
             C = intermediate_C
         else:
             C = np.zeros((learnware_num, 1))

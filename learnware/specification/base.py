@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import copy
 from typing import Dict
-
-import numpy as np
 
 
 class BaseStatSpecification:
@@ -27,7 +24,7 @@ class BaseStatSpecification:
 
     def dist(self, stat_spec: BaseStatSpecification):
         raise NotImplementedError("dist is not implemented")
-        
+
     def save(self, filepath: str):
         """Save the statistical specification into file in filepath
 

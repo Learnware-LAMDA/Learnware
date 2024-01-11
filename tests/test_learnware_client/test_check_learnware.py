@@ -1,6 +1,4 @@
 import os
-import json
-import zipfile
 import unittest
 import tempfile
 

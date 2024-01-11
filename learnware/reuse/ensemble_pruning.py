@@ -54,13 +54,14 @@ class EnsemblePruningReuser(BaseReuser):
         np.ndarray
             Binary one-dimensional vector, 1 indicates that the corresponding model is selected.
         """
-        
-        
+
         try:
             import geatpy as ea
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"EnsemblePruningReuser is not available because 'geatpy' is not installed! Please install it manually (only support python_version<3.11).")
-           
+            raise ModuleNotFoundError(
+                "EnsemblePruningReuser is not available because 'geatpy' is not installed! Please install it manually (only support python_version<3.11)."
+            )
+
         model_num = v_predict.shape[1]
 
         @ea.Problem.single
@@ -148,7 +149,9 @@ class EnsemblePruningReuser(BaseReuser):
         try:
             import geatpy as ea
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"EnsemblePruningReuser is not available because 'geatpy' is not installed! Please install it manually (only support python_version<3.11).")
+            raise ModuleNotFoundError(
+                "EnsemblePruningReuser is not available because 'geatpy' is not installed! Please install it manually (only support python_version<3.11)."
+            )
 
         if torch.is_tensor(v_true):
             v_true = v_true.detach().cpu().numpy()
@@ -270,8 +273,10 @@ class EnsemblePruningReuser(BaseReuser):
         try:
             import geatpy as ea
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"EnsemblePruningReuser is not available because 'geatpy' is not installed! Please install it manually (only support python_version<3.11).")
-           
+            raise ModuleNotFoundError(
+                "EnsemblePruningReuser is not available because 'geatpy' is not installed! Please install it manually (only support python_version<3.11)."
+            )
+
         model_num = v_predict.shape[1]
         v_predict[v_predict == 0.0] = -1
         v_true[v_true == 0.0] = -1
@@ -372,7 +377,7 @@ class EnsemblePruningReuser(BaseReuser):
             if isinstance(pred_y, torch.Tensor):
                 pred_y = pred_y.detach().cpu().numpy()
             if not isinstance(pred_y, np.ndarray):
-                raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
+                raise TypeError("Model output must be np.ndarray or torch.Tensor")
 
             if len(pred_y.shape) == 1:
                 pred_y = pred_y.reshape(-1, 1)

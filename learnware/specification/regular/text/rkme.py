@@ -63,9 +63,8 @@ class RKMETextSpecification(RKMETableSpecification):
     def get_language_ids(X):
         try:
             text = " ".join(X)
-            lang = langdetect.detect(text)
             langs = langdetect.detect_langs(text)
-            return [l.lang for l in langs]
+            return [item.lang for item in langs]
         except Exception as e:
             logger.warning("Language detection failed.")
             return []
@@ -87,12 +86,14 @@ class RKMETextSpecification(RKMETableSpecification):
             return np.array(miniLM_learnware.predict(X))
 
         logger.info("Load the necessary feature extractor for RKMETextSpecification.")
-        
+
         try:
             from sentence_transformers import SentenceTransformer
         except ModuleNotFoundError:
-            raise ModuleNotFoundError(f"RKMETextSpecification is not available because 'sentence_transformers' is not installed! Please install it manually.")
-           
+            raise ModuleNotFoundError(
+                "RKMETextSpecification is not available because 'sentence_transformers' is not installed! Please install it manually."
+            )
+
         if os.path.exists(zip_path):
             X = _get_from_client(zip_path, X)
         else:
@@ -101,7 +102,7 @@ class RKMETextSpecification(RKMETableSpecification):
                     "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2", cache_folder=cache_dir
                 )
                 X = np.array(model.encode(X))
-            except:
+            except Exception:
                 X = _get_from_client(zip_path, X)
 
         return X

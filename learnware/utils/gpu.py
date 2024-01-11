@@ -17,6 +17,7 @@ def setup_seed(seed):
     random.seed(seed)
     if is_torch_available(verbose=False):
         import torch
+
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
         torch.backends.cudnn.deterministic = True

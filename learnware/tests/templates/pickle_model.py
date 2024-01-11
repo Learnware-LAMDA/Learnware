@@ -7,7 +7,6 @@ from learnware.model.base import BaseModel
 
 
 class PickleLoadedModel(BaseModel):
-    
     def __init__(
         self,
         input_shape,
@@ -25,10 +24,10 @@ class PickleLoadedModel(BaseModel):
         self.predict_method = predict_method
         self.fit_method = fit_method
         self.finetune_method = finetune_method
-            
+
     def predict(self, X: np.ndarray) -> np.ndarray:
         return getattr(self.model, self.predict_method)(X)
-    
+
     def fit(self, X: np.ndarray, y: np.ndarray):
         getattr(self.model, self.fit_method)(X, y)
 

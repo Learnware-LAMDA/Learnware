@@ -137,7 +137,9 @@ class HeteroMapTableSpecification(SystemStatSpecification):
             for d in self.get_states():
                 if d in embedding_load.keys():
                     if d == "type" and embedding_load[d] != self.type:
-                        raise TypeError(f"The type of loaded RKME ({embedding_load[d]}) is different from the expected type ({self.type})!")
+                        raise TypeError(
+                            f"The type of loaded RKME ({embedding_load[d]}) is different from the expected type ({self.type})!"
+                        )
                     setattr(self, d, embedding_load[d])
 
     def save(self, filepath: str) -> bool:

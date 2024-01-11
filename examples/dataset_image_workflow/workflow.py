@@ -49,7 +49,7 @@ class ImageDatasetWorkflow:
 
         plt.xlabel("Amout of Labeled User Data", fontsize=14)
         plt.ylabel("1 - Accuracy", fontsize=14)
-        plt.title(f"Results on Image Experimental Scenario", fontsize=16)
+        plt.title("Results on Image Experimental Scenario", fontsize=16)
         plt.legend(fontsize=14)
         plt.tight_layout()
         plt.savefig(os.path.join(self.fig_path, "image_labeled_curves.svg"), bbox_inches="tight", dpi=700)
@@ -61,7 +61,7 @@ class ImageDatasetWorkflow:
         self.user_semantic = client.get_semantic_specification(self.image_benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""
 
-        if len(self.image_market) == 0 or rebuild == True:
+        if len(self.image_market) == 0 or rebuild is True:
             for learnware_id in self.image_benchmark.learnware_ids:
                 with tempfile.TemporaryDirectory(prefix="image_benchmark_") as tempdir:
                     zip_path = os.path.join(tempdir, f"{learnware_id}.zip")
@@ -71,7 +71,7 @@ class ImageDatasetWorkflow:
                             client.download_learnware(learnware_id, zip_path)
                             self.image_market.add_learnware(zip_path, semantic_spec)
                             break
-                        except:
+                        except Exception:
                             time.sleep(1)
                             continue
 

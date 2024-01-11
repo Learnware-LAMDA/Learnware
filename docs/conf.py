@@ -100,12 +100,12 @@ html_logo = "_static/img/logo/logo1.png"
 
 
 # These folders are copied to the documentation's HTML output
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'css/custom_style.css',
+    "css/custom_style.css",
 ]
 
 # -- Options for HTMLHelp output ------------------------------------------

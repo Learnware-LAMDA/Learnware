@@ -1,8 +1,7 @@
 import os
 import zipfile
 
-from .file import (convert_folder_to_zipfile, read_yaml_to_dict,
-                   save_dict_to_yaml)
+from .file import convert_folder_to_zipfile, read_yaml_to_dict, save_dict_to_yaml
 from .gpu import allocate_cuda_idx, choose_device, setup_seed
 from .import_utils import is_torch_available
 from .module import get_module_by_module_path

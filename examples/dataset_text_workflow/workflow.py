@@ -64,7 +64,7 @@ class TextDatasetWorkflow:
 
         plt.xlabel("Amout of Labeled User Data", fontsize=14)
         plt.ylabel("1 - Accuracy", fontsize=14)
-        plt.title(f"Results on Text Experimental Scenario", fontsize=16)
+        plt.title("Results on Text Experimental Scenario", fontsize=16)
         plt.legend(fontsize=14)
         plt.tight_layout()
         plt.savefig(os.path.join(self.fig_path, "text_labeled_curves.svg"), bbox_inches="tight", dpi=700)
@@ -76,7 +76,7 @@ class TextDatasetWorkflow:
         self.user_semantic = client.get_semantic_specification(self.text_benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""
 
-        if len(self.text_market) == 0 or rebuild == True:
+        if len(self.text_market) == 0 or rebuild is True:
             for learnware_id in self.text_benchmark.learnware_ids:
                 with tempfile.TemporaryDirectory(prefix="text_benchmark_") as tempdir:
                     zip_path = os.path.join(tempdir, f"{learnware_id}.zip")
@@ -86,7 +86,7 @@ class TextDatasetWorkflow:
                             client.download_learnware(learnware_id, zip_path)
                             self.text_market.add_learnware(zip_path, semantic_spec)
                             break
-                        except:
+                        except Exception:
                             time.sleep(1)
                             continue
 

@@ -4,9 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from .base import BaseStatSpecification
-from .regular import (RKMEImageSpecification, RKMETableSpecification,
-                      RKMETextSpecification)
+from .regular import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification
 from .utils import convert_to_numpy
 from ..config import C
 

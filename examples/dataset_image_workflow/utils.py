@@ -9,19 +9,15 @@ from learnware.utils import choose_device
 @torch.no_grad()
 def evaluate(model, evaluate_set: Dataset, device=None, distribution=True):
     device = choose_device(0) if device is None else device
-
     if isinstance(model, nn.Module):
         model.eval()
-        mapping = lambda m, x: m(x)
-    else:
-        mapping = lambda m, x: m.predict(x)
 
     criterion = nn.CrossEntropyLoss(reduction="sum")
     total, correct, loss = 0, 0, torch.as_tensor(0.0, dtype=torch.float32, device=device)
     dataloader = DataLoader(evaluate_set, batch_size=1024, shuffle=True)
     for i, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
-        out = mapping(model, X)
+        out = model(X) if isinstance(model, nn.Module) else model.predict(X)
         if not torch.is_tensor(out):
             out = torch.from_numpy(out).to(device)
 

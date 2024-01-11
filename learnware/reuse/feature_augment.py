@@ -103,7 +103,7 @@ class FeatureAugmentReuser(BaseReuser):
             if isinstance(y_pred, torch.Tensor):
                 y_pred = y_pred.detach().cpu().numpy()
             if not isinstance(y_pred, np.ndarray):
-                raise TypeError(f"Model output must be np.ndarray or torch.Tensor")
+                raise TypeError("Model output must be np.ndarray or torch.Tensor")
             if len(y_pred.shape) == 1:
                 y_pred = y_pred.reshape(-1, 1)
             y_preds.append(y_pred)

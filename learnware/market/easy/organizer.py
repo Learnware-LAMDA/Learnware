@@ -94,12 +94,12 @@ class EasyOrganizer(BaseOrganizer):
             new_learnware = get_learnware_from_dirpath(
                 id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
-        except:
+        except Exception:
             logger.warning("New learnware is not properly added!")
             try:
                 os.remove(target_zip_dir)
                 rmtree(target_folder_dir)
-            except:
+            except Exception:
                 pass
             return None, BaseChecker.INVALID_LEARNWARE
 
@@ -137,7 +137,7 @@ class EasyOrganizer(BaseOrganizer):
             True for successful operation.
             False for id not found.
         """
-        if not id in self.learnware_list:
+        if id not in self.learnware_list:
             logger.warning("Learnware id:'{}' NOT Found!".format(id))
             return False
 
@@ -253,7 +253,7 @@ class EasyOrganizer(BaseOrganizer):
         else:
             try:
                 return self.learnware_list[ids]
-            except:
+            except Exception:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
@@ -285,7 +285,7 @@ class EasyOrganizer(BaseOrganizer):
         else:
             try:
                 return self.learnware_zip_list[ids]
-            except:
+            except Exception:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
@@ -317,7 +317,7 @@ class EasyOrganizer(BaseOrganizer):
         else:
             try:
                 return self.learnware_folder_list[ids]
-            except:
+            except Exception:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 

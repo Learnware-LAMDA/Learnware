@@ -11,7 +11,11 @@ logger = get_module_logger("hetero_searcher")
 
 class HeteroSearcher(EasySearcher):
     def __call__(
-        self, user_info: BaseUserInfo, check_status: Optional[int] = None, max_search_num: int = 5, search_method: str = "greedy"
+        self,
+        user_info: BaseUserInfo,
+        check_status: Optional[int] = None,
+        max_search_num: int = 5,
+        search_method: str = "greedy",
     ) -> SearchResults:
         """Search learnwares based on user_info from learnwares with check_status.
            Employs heterogeneous learnware search if specific requirements are met, otherwise resorts to homogeneous search methods.
