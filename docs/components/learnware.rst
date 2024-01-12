@@ -4,7 +4,7 @@
 Learnware & Reuser
 ==========================================
 
-``Learnware`` is the most basic concept in the ``learnware paradigm``. In this section, we will introduce the concept and design of ``learnware`` and its extension for ``Hetero Reuse``. Then we will introduce the ``Reuse Methods``, which applies one or several ``learnware``\ s to solve the user's task.
+``Learnware`` is the most basic concept in the ``learnware paradigm``. In this section, we will introduce the concept and design of ``Learnware`` and its extension for ``Hetero Reuse``. Then we will introduce the ``Reuse Methods``, which applies one or several ``Learnware``\ s to solve the user's task.
 
 Concepts
 ===================
@@ -16,7 +16,7 @@ In our implementation, the class ``Learnware`` has 3 important member variables:
 - ``model``: The model in the learnware, can be a ``BaseModel`` or a dict including model name and path. When it is a dict, the function ``Learnware.instantiate_model`` is used to transform it to a ``BaseModel``. The function ``Learnware.predict`` use the model to predict for an input ``X``. See more in `COMPONENTS: Model <./model.html>`_.
 - ``specification``: The specification including the semantic specification and the statistic specification.
 
-Learnware for Hetero Reuse (Feature Align + Hetero Map Learnware)
+Learnware for Hetero Reuse
 =======================================================================
 
 In the Hetero Market(see `COMPONENTS: Hetero Market  <./market.html#hetero-market>`_ for details), ``HeteroSearcher`` identifies and recommends helpful learnwares among all learnwares in the market, 
@@ -107,7 +107,7 @@ specifies the ensemble method(default is set to ``mean``).
 Reuse Learnware with Labeled Data
 ----------------------------------
 
-When users have a small amount of labeled data available, ``learnware`` package provides two methods: ``EnsemblePruningReuser`` and ``FeatureAugmentReuser`` to help reuse learnwares.
+When users have a small amount of labeled data available, the ``learnware`` package provides two methods: ``EnsemblePruningReuser`` and ``FeatureAugmentReuser`` to help reuse learnwares.
 They are both initialized with a list of ``Learnware`` objects ``learnware_list``, and have different implementations of ``fit`` and ``predict`` methods.
 
 EnsemblePruningReuser

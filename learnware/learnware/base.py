@@ -1,19 +1,19 @@
 import os
-import numpy as np
-from typing import Union, List
 import sys
+from typing import Union
 
-from ..specification import Specification, BaseStatSpecification
-from ..model import BaseModel
-from ..utils import get_module_by_module_path
+import numpy as np
+
 from ..logger import get_module_logger
+from ..model import BaseModel
+from ..specification import BaseStatSpecification, Specification
+from ..utils import get_module_by_module_path
 
 logger = get_module_logger("Learnware")
 
 
 class Learnware:
-    """The learnware class, which is the basic components in learnware market
-    """
+    """The learnware class, which is the basic components in learnware market"""
 
     def __init__(self, id: str, model: Union[BaseModel, dict], specification: Specification, learnware_dirpath: str):
         """The initialization method for learnware.
@@ -40,7 +40,7 @@ class Learnware:
         dirpath: str
             The path of the learnware directory
         """
-        
+
         self.id = id
         self.model = model
         self.specification = specification

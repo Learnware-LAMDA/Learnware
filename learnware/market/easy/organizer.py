@@ -1,14 +1,13 @@
-import os
 import copy
-import zipfile
+import os
 import tempfile
+import zipfile
 from shutil import copyfile, rmtree
-from typing import Tuple, List, Union, Dict
+from typing import Dict, List, Tuple, Union
 
 from .database_ops import DatabaseOperations
-from ..base import BaseOrganizer, BaseChecker
+from ..base import BaseChecker, BaseOrganizer
 from ...config import C as conf
-from ...logger import get_module_logger
 from ...learnware import Learnware, get_learnware_from_dirpath
 from ...logger import get_module_logger
 
@@ -95,34 +94,34 @@ class EasyOrganizer(BaseOrganizer):
             new_learnware = get_learnware_from_dirpath(
                 id=learnware_id, semantic_spec=semantic_spec, learnware_dirpath=target_folder_dir
             )
-        except:
+        except Exception:
             logger.warning("New learnware is not properly added!")
             try:
                 os.remove(target_zip_dir)
                 rmtree(target_folder_dir)
-            except:
+            except Exception:
                 pass
             return None, BaseChecker.INVALID_LEARNWARE
 
         if new_learnware is None:
             return None, BaseChecker.INVALID_LEARNWARE
 
-        learnwere_status = check_status if check_status is not None else BaseChecker.NONUSABLE_LEARNWARE
+        learnware_status = check_status if check_status is not None else BaseChecker.NONUSABLE_LEARNWARE
 
         self.dbops.add_learnware(
             id=learnware_id,
             semantic_spec=semantic_spec,
             zip_path=target_zip_dir,
             folder_path=target_folder_dir,
-            use_flag=learnwere_status,
+            use_flag=learnware_status,
         )
 
         self.learnware_list[learnware_id] = new_learnware
         self.learnware_zip_list[learnware_id] = target_zip_dir
         self.learnware_folder_list[learnware_id] = target_folder_dir
-        self.use_flags[learnware_id] = learnwere_status
+        self.use_flags[learnware_id] = learnware_status
         self.count += 1
-        return learnware_id, learnwere_status
+        return learnware_id, learnware_status
 
     def delete_learnware(self, id: str) -> bool:
         """Delete Learnware from market
@@ -138,7 +137,7 @@ class EasyOrganizer(BaseOrganizer):
             True for successful operation.
             False for id not found.
         """
-        if not id in self.learnware_list:
+        if id not in self.learnware_list:
             logger.warning("Learnware id:'{}' NOT Found!".format(id))
             return False
 
@@ -254,7 +253,7 @@ class EasyOrganizer(BaseOrganizer):
         else:
             try:
                 return self.learnware_list[ids]
-            except:
+            except Exception:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
@@ -286,7 +285,7 @@ class EasyOrganizer(BaseOrganizer):
         else:
             try:
                 return self.learnware_zip_list[ids]
-            except:
+            except Exception:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 
@@ -318,7 +317,7 @@ class EasyOrganizer(BaseOrganizer):
         else:
             try:
                 return self.learnware_folder_list[ids]
-            except:
+            except Exception:
                 logger.warning("Learnware ID '%s' NOT Found!" % (ids))
                 return None
 

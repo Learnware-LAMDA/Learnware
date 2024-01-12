@@ -25,7 +25,7 @@ class TestImageRKME(unittest.TestCase):
             rkme2 = RKMEImageSpecification()
             rkme2.load(rkme_path)
             assert rkme2.type == "RKMEImageSpecification"
-                
+
     def test_image_rkme(self):
         self._test_image_rkme(np.random.randint(0, 255, size=(2000, 3, 32, 32)))
         self._test_image_rkme(np.random.randint(0, 255, size=(100, 1, 128, 128)))
@@ -33,6 +33,7 @@ class TestImageRKME(unittest.TestCase):
         self._test_image_rkme(torch.randint(0, 255, (2000, 3, 32, 32)))
         self._test_image_rkme(torch.randint(0, 255, (20, 3, 128, 128)))
         self._test_image_rkme(torch.randint(0, 255, (1, 1, 128, 128)) / 255)
+
 
 if __name__ == "__main__":
     unittest.main()

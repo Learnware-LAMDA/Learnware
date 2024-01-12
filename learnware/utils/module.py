@@ -1,9 +1,9 @@
-import sys
-import re
 import importlib
 import importlib.util
-from typing import Union
+import re
+import sys
 from types import ModuleType
+from typing import Union
 
 
 def get_module_by_module_path(module_path: Union[str, ModuleType]):

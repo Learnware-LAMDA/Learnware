@@ -1,14 +1,14 @@
+import json
 import os
 import re
-import json
-import yaml
-import tempfile
 import subprocess
-from typing import List, Tuple
-from . import utils
+import tempfile
 from concurrent.futures import ThreadPoolExecutor
+from typing import List, Tuple
 
+import yaml
 
+from . import utils
 from ..logger import get_module_logger
 
 logger = get_module_logger("package_utils")
@@ -86,7 +86,7 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
             pass
         except Exception as err:
             logger.error(err)
-            
+
         return None
 
     exist_packages = []
@@ -101,7 +101,7 @@ def filter_nonexist_pip_packages(packages: list) -> Tuple[List[str], List[str]]:
             exist_packages.append(result)
         else:
             nonexist_packages.append(package)
-    
+
     if len(nonexist_packages) > 0:
         logger.info(f"Filtered out {len(nonexist_packages)} non-exist pip packages.")
     return exist_packages, nonexist_packages

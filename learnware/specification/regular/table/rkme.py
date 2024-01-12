@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-import os
-import torch
-import json
 import codecs
-import scipy
-import numpy as np
-from qpsolvers import Problem, solve_problem
+import json
+import os
 from collections import Counter
 from typing import Any, Union
+
+import numpy as np
+import scipy
+import torch
+from qpsolvers import Problem, solve_problem
 
 from ..base import RegularStatSpecification
 from ....logger import get_module_logger
@@ -147,7 +148,7 @@ class RKMETableSpecification(RegularStatSpecification):
             from fast_pytorch_kmeans import KMeans
         except ModuleNotFoundError:
             raise ModuleNotFoundError(
-                f"RKMETableSpecification is not available because 'fast_pytorch_kmeans' is not installed! Please install it manually."
+                "RKMETableSpecification is not available because 'fast_pytorch_kmeans' is not installed! Please install it manually."
             )
 
         kmeans = KMeans(n_clusters=K, mode="euclidean", max_iter=100, verbose=0)

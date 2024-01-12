@@ -12,19 +12,19 @@ from learnware.specification import generate_stat_spec
 class TestTextRKME(unittest.TestCase):
     @staticmethod
     def generate_random_text_list(num, text_type="en", min_len=10, max_len=1000):
-            text_list = []
-            for i in range(num):
-                length = random.randint(min_len, max_len)
-                if text_type == "en":
-                    characters = string.ascii_letters + string.digits + string.punctuation
-                    result_str = "".join(random.choice(characters) for i in range(length))
-                    text_list.append(result_str)
-                elif text_type == "zh":
-                    result_str = "".join(chr(random.randint(0x4E00, 0x9FFF)) for i in range(length))
-                    text_list.append(result_str)
-                else:
-                    raise ValueError("Type should be en or zh")
-            return text_list
+        text_list = []
+        for i in range(num):
+            length = random.randint(min_len, max_len)
+            if text_type == "en":
+                characters = string.ascii_letters + string.digits + string.punctuation
+                result_str = "".join(random.choice(characters) for i in range(length))
+                text_list.append(result_str)
+            elif text_type == "zh":
+                result_str = "".join(chr(random.randint(0x4E00, 0x9FFF)) for i in range(length))
+                text_list.append(result_str)
+            else:
+                raise ValueError("Type should be en or zh")
+        return text_list
 
     @staticmethod
     def _test_text_rkme(X):

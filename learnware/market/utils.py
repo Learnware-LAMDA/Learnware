@@ -1,6 +1,3 @@
-from ..specification import Specification
-
-
 def parse_specification_type(
     stat_specs: dict,
     spec_list=[

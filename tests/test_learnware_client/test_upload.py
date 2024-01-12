@@ -60,7 +60,7 @@ class TestUpload(unittest.TestCase):
 
             download_learnware_id = "00000084"
             with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
-                zip_path = os.path.join(tempdir, f"test.zip")
+                zip_path = os.path.join(tempdir, "test.zip")
                 self.client.download_learnware(download_learnware_id, zip_path)
                 learnware_id = self.client.upload_learnware(
                     learnware_zip_path=zip_path, semantic_specification=semantic_spec

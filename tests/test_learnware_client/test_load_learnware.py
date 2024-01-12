@@ -5,8 +5,9 @@ import numpy as np
 from learnware.client import LearnwareClient
 from learnware.reuse import AveragingReuser
 
+
 class TestLearnwareLoad(unittest.TestCase):
-    def __init__(self, method_name='runTest', mode="all"):
+    def __init__(self, method_name="runTest", mode="all"):
         super(TestLearnwareLoad, self).__init__(method_name)
         self.runnable_options = []
         if mode in {"all", "conda"}:
@@ -31,7 +32,6 @@ class TestLearnwareLoad(unittest.TestCase):
         for learnware in learnware_list:
             print(learnware.id, learnware.predict(input_array))
 
-
     def _test_load_learnware_by_id(self, runnable_option):
         learnware_list = self.client.load_learnware(learnware_id=self.learnware_ids, runnable_option=runnable_option)
         reuser = AveragingReuser(learnware_list, mode="vote_by_label")
@@ -44,17 +44,18 @@ class TestLearnwareLoad(unittest.TestCase):
     def test_load_learnware_by_zippath(self):
         for runnable_option in self.runnable_options:
             self._test_load_learnware_by_zippath(runnable_option=runnable_option)
-    
+
     def test_load_learnware_by_id(self):
         for runnable_option in self.runnable_options:
             self._test_load_learnware_by_id(runnable_option=runnable_option)
-            
+
 
 def suite():
     _suite = unittest.TestSuite()
     _suite.addTest(TestLearnwareLoad("test_load_learnware_by_zippath", mode="all"))
     _suite.addTest(TestLearnwareLoad("test_load_learnware_by_id", mode="all"))
     return _suite
+
 
 if __name__ == "__main__":
     runner = unittest.TextTestRunner()

@@ -1,7 +1,8 @@
 __version__ = "0.2.0.9"
 
-import os
 import json
+import os
+
 from .logger import get_module_logger
 from .utils import is_torch_available, setup_seed
 
@@ -35,12 +36,12 @@ def init(verbose=True, **kwargs):
         with open(config_file, "r") as fin_config:
             C.update(**dict(json.load(fin_config)))
 
-    ## random seed
+    # random seed
     deterministic = kwargs.get("deterministic", True)
     if deterministic:
         setup_seed(C.random_seed)
 
-    ## make dirs
+    # make dirs
     mkdir = kwargs.get("mkdir", True)
     if mkdir:
         os.makedirs(C.root_path, exist_ok=True)
@@ -48,7 +49,7 @@ def init(verbose=True, **kwargs):
         os.makedirs(C.stdout_path, exist_ok=True)
         os.makedirs(C.cache_path, exist_ok=True)
 
-    ## ignore tensorflow warning
+    # ignore tensorflow warning
     tf_loglevel = kwargs.get("tf_loglevel", "2")
     os.environ["TF_CPP_MIN_LOG_LEVEL"] = tf_loglevel
 

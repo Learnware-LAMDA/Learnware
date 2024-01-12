@@ -1,9 +1,10 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine, text
-from sqlalchemy import Column, Text, String
-import os
 import json
+import os
 import traceback
+
+from sqlalchemy import Column, String, Text, create_engine, text
+from sqlalchemy.ext.declarative import declarative_base
+
 from ...learnware import get_learnware_from_dirpath
 from ...logger import get_module_logger
 

@@ -6,10 +6,10 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-from .....utils import allocate_cuda_idx, choose_device
-from .....specification import HeteroMapTableSpecification, RKMETableSpecification
 from .feature_extractor import CLSToken, FeatureProcessor, FeatureTokenizer
-from .trainer import TransTabCollatorForCL, Trainer
+from .trainer import Trainer, TransTabCollatorForCL
+from .....specification import HeteroMapTableSpecification, RKMETableSpecification
+from .....utils import allocate_cuda_idx, choose_device
 
 
 class HeteroMap(nn.Module):
@@ -287,7 +287,7 @@ class HeteroMap(nn.Module):
         # go through transformers, get the first cls embedding
         encoder_output = self.encoder(**outputs)  # bs, seqlen+1, hidden_dim
         output_features = encoder_output[:, 0, :]
-        
+
         del inputs, outputs, encoder_output
         torch.cuda.empty_cache()
 

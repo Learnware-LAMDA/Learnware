@@ -4,13 +4,11 @@ import tempfile
 import logging
 
 import learnware
-
-learnware.init(logging_level=logging.WARNING)
-
 from learnware.learnware import Learnware
 from learnware.client import LearnwareClient
-from learnware.market import instantiate_learnware_market, BaseUserInfo, EasySemanticChecker
-from learnware.config import C
+from learnware.market import instantiate_learnware_market, BaseUserInfo
+
+learnware.init(logging_level=logging.WARNING)
 
 
 class TestSearch(unittest.TestCase):

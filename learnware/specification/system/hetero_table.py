@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-import os
-import json
-import torch
 import codecs
+import json
+import os
+
 import numpy as np
+import torch
 
 from .base import SystemStatSpecification
 from ..regular import RKMETableSpecification
 from ..regular.table.rkme import torch_rbf_kernel
 from ...logger import get_module_logger
-from ...utils import choose_device, allocate_cuda_idx
+from ...utils import allocate_cuda_idx, choose_device
 
 logger = get_module_logger("hetero_map_table_spec")
 
@@ -136,7 +137,9 @@ class HeteroMapTableSpecification(SystemStatSpecification):
             for d in self.get_states():
                 if d in embedding_load.keys():
                     if d == "type" and embedding_load[d] != self.type:
-                        raise TypeError(f"The type of loaded RKME ({embedding_load[d]}) is different from the expected type ({self.type})!")
+                        raise TypeError(
+                            f"The type of loaded RKME ({embedding_load[d]}) is different from the expected type ({self.type})!"
+                        )
                     setattr(self, d, embedding_load[d])
 
     def save(self, filepath: str) -> bool:

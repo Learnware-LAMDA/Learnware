@@ -64,7 +64,7 @@ class TextDatasetWorkflow:
 
         plt.xlabel("Amout of Labeled User Data", fontsize=14)
         plt.ylabel("1 - Accuracy", fontsize=14)
-        plt.title(f"Results on Text Experimental Scenario", fontsize=16)
+        plt.title("Results on Text Experimental Scenario", fontsize=16)
         plt.legend(fontsize=14)
         plt.tight_layout()
         plt.savefig(os.path.join(self.fig_path, "text_labeled_curves.svg"), bbox_inches="tight", dpi=700)
@@ -76,7 +76,7 @@ class TextDatasetWorkflow:
         self.user_semantic = client.get_semantic_specification(self.text_benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""
 
-        if len(self.text_market) == 0 or rebuild == True:
+        if len(self.text_market) == 0 or rebuild is True:
             for learnware_id in self.text_benchmark.learnware_ids:
                 with tempfile.TemporaryDirectory(prefix="text_benchmark_") as tempdir:
                     zip_path = os.path.join(tempdir, f"{learnware_id}.zip")
@@ -86,7 +86,7 @@ class TextDatasetWorkflow:
                             client.download_learnware(learnware_id, zip_path)
                             self.text_market.add_learnware(zip_path, semantic_spec)
                             break
-                        except:
+                        except Exception:
                             time.sleep(1)
                             continue
 
@@ -103,7 +103,7 @@ class TextDatasetWorkflow:
         ensemble_score_list = []
         all_learnwares = self.text_market.get_learnwares()
 
-        for i in range(self.text_benchmark.user_num):
+        for i in range(text_benchmark_config.user_num):
             user_data, user_label = self.text_benchmark.get_test_data(user_ids=i)
 
             user_stat_spec = RKMETextSpecification()
@@ -183,19 +183,19 @@ class TextDatasetWorkflow:
             % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
 
-    def labeled_text_example(self, rebuild=False, train_flag=True):
+    def labeled_text_example(self, rebuild=False, skip_test=False):
         self.n_labeled_list = [100, 200, 500, 1000, 2000, 4000]
         self.repeated_list = [10, 10, 10, 3, 3, 3]
         self.root_path = os.path.dirname(os.path.abspath(__file__))
         self.fig_path = os.path.join(self.root_path, "figs")
         self.curve_path = os.path.join(self.root_path, "curves")
-        self._prepare_market(rebuild)
 
-        if train_flag:
+        if not skip_test:
+            self._prepare_market(rebuild)
             os.makedirs(self.fig_path, exist_ok=True)
             os.makedirs(self.curve_path, exist_ok=True)
 
-            for i in range(self.text_benchmark.user_num):
+            for i in range(text_benchmark_config.user_num):
                 user_model_score_mat = []
                 pruning_score_mat = []
                 single_score_mat = []
@@ -268,7 +268,7 @@ class TextDatasetWorkflow:
         pruning_curves_data, user_model_curves_data = [], []
         total_user_model_score_mat = [np.zeros(self.repeated_list[i]) for i in range(len(self.n_labeled_list))]
         total_pruning_score_mat = [np.zeros(self.repeated_list[i]) for i in range(len(self.n_labeled_list))]
-        for user_idx in range(self.text_benchmark.user_num):
+        for user_idx in range(text_benchmark_config.user_num):
             with open(os.path.join(self.curve_path, f"curve{str(user_idx)}.pkl"), "rb") as f:
                 user_curves_data = pickle.load(f)
                 (single_score_mat, user_model_score_mat, pruning_score_mat) = user_curves_data
@@ -278,8 +278,8 @@ class TextDatasetWorkflow:
                     total_pruning_score_mat[i] += 1 - np.array(pruning_score_mat[i])
 
         for i in range(len(self.n_labeled_list)):
-            total_user_model_score_mat[i] /= self.text_benchmark.user_num
-            total_pruning_score_mat[i] /= self.text_benchmark.user_num
+            total_user_model_score_mat[i] /= text_benchmark_config.user_num
+            total_pruning_score_mat[i] /= text_benchmark_config.user_num
             user_model_curves_data.append(
                 (np.mean(total_user_model_score_mat[i]), np.std(total_user_model_score_mat[i]))
             )

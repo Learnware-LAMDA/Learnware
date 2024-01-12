@@ -1,5 +1,5 @@
 import logging
-from logging import Logger, handlers
+from logging import Logger
 
 from .config import C
 

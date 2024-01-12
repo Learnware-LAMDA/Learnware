@@ -1,6 +1,5 @@
 import os
 import traceback
-import pandas as pd
 from collections import defaultdict
 from typing import List, Tuple, Union
 
@@ -13,7 +12,6 @@ from ...easy import EasyOrganizer
 from ....learnware import Learnware
 from ....logger import get_module_logger
 from ....specification import HeteroMapTableSpecification
-
 
 logger = get_module_logger("hetero_map_table_organizer")
 
@@ -44,7 +42,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
                 for hetero_id in hetero_ids:
                     self._reload_learnware_hetero_spec(hetero_id)
         else:
-            logger.warning(f"No market mapping to reload!")
+            logger.warning("No market mapping to reload!")
             self.market_mapping = HeteroMap()
 
     def reset(self, market_id, rebuild=False, auto_update=False, auto_update_limit=100, **training_args):
