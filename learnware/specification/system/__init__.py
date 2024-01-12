@@ -9,3 +9,5 @@ if not is_torch_available(verbose=False):
     logger.error("HeteroMapTableSpecification is not available because 'torch' is not installed!")
 else:
     from .hetero_table import HeteroMapTableSpecification
+
+__all__ = ["SystemStatSpecification", "HeteroMapTableSpecification"]

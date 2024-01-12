@@ -10,3 +10,5 @@ if not is_torch_available(verbose=False):
 else:
     from .organizer import HeteroMapTableOrganizer
     from .searcher import HeteroSearcher
+
+__all__ = ["HeteroMapTableOrganizer", "HeteroSearcher"]
