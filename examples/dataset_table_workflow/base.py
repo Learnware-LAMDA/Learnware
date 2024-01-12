@@ -56,9 +56,9 @@ class TableWorkflow:
         return all_scores
     
     @staticmethod
-    def get_train_subsets(n_labeled_list, n_repeat_list, idx, train_x, train_y):
-        np.random.seed(idx)
-        random.seed(idx)
+    def get_train_subsets(n_labeled_list, n_repeat_list, train_x, train_y):
+        np.random.seed(1)
+        random.seed(1)
         train_x = fill_data_with_mean(train_x)
         train_subsets = []
         for n_label, repeated in zip(n_labeled_list, n_repeat_list):

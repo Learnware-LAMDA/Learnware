@@ -107,7 +107,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
         
     def labeled_homo_table_example(self):
         logger.info("Total Item: %d" % (len(self.market)))
-        methods = ["user_model", "homo_single_aug", "homo_multiple_aug", "homo_multiple_avg", "homo_ensemble_pruning"]
+        methods = ["user_model", "homo_single_aug", "homo_multiple_avg", "homo_ensemble_pruning"]
         methods_to_retest = []
         recorders = {method: Recorder() for method in methods}
 
@@ -118,7 +118,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
             
             train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
             train_x, train_y = train_x.values, train_y.values
-            train_subsets = self.get_train_subsets(homo_n_labeled_list, homo_n_repeat_list, idx, train_x, train_y)
+            train_subsets = self.get_train_subsets(homo_n_labeled_list, homo_n_repeat_list, train_x, train_y)
 
             user_stat_spec = generate_stat_spec(type="table", X=test_x)
             user_info = BaseUserInfo(
@@ -162,5 +162,5 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
         for method, recorder in recorders.items():
             recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
         
-        methods_to_plot = ["user_model", "homo_single_aug", "homo_ensemble_pruning"]
+        methods_to_plot = ["user_model", "homo_single_aug", "homo_multiple_avg", "homo_ensemble_pruning"]
         plot_performance_curves(self.curves_result_path, user, {method: recorders[method] for method in methods_to_plot}, task="Homo", n_labeled_list=homo_n_labeled_list)

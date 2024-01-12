@@ -118,7 +118,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             
             train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
             train_x, train_y, feature_descriptions = train_x.values, train_y.values, train_x.columns
-            train_subsets = self.get_train_subsets(hetero_n_labeled_list, hetero_n_repeat_list, idx, train_x, train_y)
+            train_subsets = self.get_train_subsets(hetero_n_labeled_list, hetero_n_repeat_list, train_x, train_y)
             
             user_stat_spec = generate_stat_spec(type="table", X=test_x)
             input_description = {
