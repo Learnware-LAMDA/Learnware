@@ -6,26 +6,16 @@ import requests
 import tempfile
 import traceback
 import numpy as np
-from queue import Empty
-from tqdm import tqdm
 from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
 from learnware.market import instantiate_learnware_market
 from learnware.reuse.utils import fill_data_with_mean
 from learnware.tests.benchmarks import LearnwareBenchmark
-from torch.multiprocessing import Process, Queue, set_start_method
 
 from config import *
 from methods import *
-from utils import process_single_aug
 
 logger = get_module_logger("base_table", level="INFO")
-
-try:
-    set_start_method('spawn')
-except RuntimeError:
-    pass
-torch.multiprocessing.set_sharing_strategy("file_system")
 
 
 class TableWorkflow:
@@ -99,16 +89,6 @@ class TableWorkflow:
                             logger.info(f"An error occurred when downloading {learnware_id}: {e}\n{traceback.format_exc()}, retrying...")
                             time.sleep(1)
                             continue
-    
-    @staticmethod
-    def process_learnware_chunk(cuda_idx, method, test_info, loss_func, learnware_chunk, queue):
-        torch.cuda.set_device(cuda_idx)
-        for learnware in learnware_chunk:
-            learnware_index = test_info['learnwares'].index(learnware)
-            test_info['single_learnware'] = learnware
-            scores = TableWorkflow._limited_data(method, test_info, loss_func)
-            torch.cuda.empty_cache()
-            queue.put((learnware_index, scores))
         
     def test_method(self, test_info, recorders, loss_func=loss_func_rmse):
         method_name_full = test_info["method_name"]
@@ -121,51 +101,9 @@ class TableWorkflow:
         os.makedirs(save_root_path, exist_ok=True)
         save_path = os.path.join(save_root_path, f"{method_name}.json")
         
-        if method_name_full == "hetero_single_aug":
-            if recorder.should_test_method(user, idx, save_path):
-                # * single-process
-                # bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}")
-                # for learnware in test_info['learnwares']:
-                #     test_info['single_learnware'] = learnware
-                #     scores = self._limited_data(test_methods[method_name_full], test_info, loss_func)
-                #     recorder.record(user, idx, scores)
-                #     bar.update(1)  
-                
-                # * multi-process
-                queue = Queue()
-                processes = []
-                bar = tqdm(total=len(test_info["learnwares"]), desc=f"Test {method_name}", unit="learnware")
-                learnware_chunks = [test_info["learnwares"][i:len(test_info["learnwares"]):len(self.cuda_idx)] for i in self.cuda_idx]
-                
-                for cuda_idx, learnware_chunk in zip(self.cuda_idx, learnware_chunks):
-                    p = Process(target=TableWorkflow.process_learnware_chunk, args=(cuda_idx, method, test_info, loss_func, learnware_chunk, queue))
-                    processes.append(p)
-                    p.start()
-                
-                all_results = []
-                while any(p.is_alive() for p in processes) or not queue.empty():
-                    try:
-                        result = queue.get(timeout=0.1)
-                        all_results.append(result)
-                        bar.update(1)
-                    except Empty:
-                        time.sleep(0.1)
-                        continue
-                bar.close()
-
-                for p in processes:
-                    p.join()
-                
-                all_results.sort(key=lambda x: x[0])
-                all_scores = [result[1] for result in all_results]
-                recorder.record(user, all_scores)
-                recorder.save(save_path)
-                
-            process_single_aug(user, idx, recorder.data[user][idx], recorders, save_root_path)
-        else:
-            if recorder.should_test_method(user, idx, save_path):
-                scores = self._limited_data(method, test_info, loss_func)
-                recorder.record(user, scores)
-                recorder.save(save_path)
+        if recorder.should_test_method(user, idx, save_path):
+            scores = self._limited_data(method, test_info, loss_func)
+            recorder.record(user, scores)
+            recorder.save(save_path)
         
         logger.info(f"Method {method_name} on {user}_{idx} finished")

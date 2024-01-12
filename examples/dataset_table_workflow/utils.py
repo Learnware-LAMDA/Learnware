@@ -37,39 +37,12 @@ class Recorder:
             self.load(path)
             return user not in self.data or idx > len(self.data[user]) - 1
         return True
-
-
-def process_single_aug(user, idx, scores, recorders, root_path):
-    try:
-        n_labeled = len(scores[0])
-        select_scores, mean_scores, oracle_scores = [], [], []
-        for i in range(n_labeled):
-            sub_scores_array = np.vstack([lst[i] for lst in scores])
-            sub_scores_select = np.squeeze(sub_scores_array[0])
-            sub_scores_mean = np.squeeze(np.mean(sub_scores_array, axis=0))
-            sub_scores_min = np.squeeze(np.min(sub_scores_array, axis=0))
-            
-            select_scores.append(sub_scores_select.tolist())
-            mean_scores.append(sub_scores_mean.tolist())
-            oracle_scores.append(sub_scores_min.tolist())
-
-        for method_name, scores in zip(["select_score", "mean_score", "oracle_score"], 
-                                       [select_scores, mean_scores, oracle_scores]):
-            recorders[method_name].record(user, scores)
-            save_path = os.path.join(root_path, f"{method_name}.json")
-            recorders[method_name].save(save_path)
-    except Exception:
-        error_message = traceback.format_exc()
-        logger.error(f"Error in process_single_aug for user {user}, idx {idx}: {error_message}")
-
+    
 
 def plot_performance_curves(path, user, recorders, task, n_labeled_list):
     plt.figure(figsize=(10, 6))
     plt.xticks(range(len(n_labeled_list)), n_labeled_list)
-    for method, recorder in recorders.items():
-        if method == "hetero_single_aug":
-            continue
-            
+    for method, recorder in recorders.items():    
         data_path = os.path.join(path, f"{user}/{user}_{method}_performance.json")
         recorder.load(data_path)
         scores_array = recorder.get_performance_data(user)

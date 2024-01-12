@@ -38,8 +38,8 @@ class TableDatasetWorkflow:
         workflow = HeterogeneousDatasetWorkflow(
             benchmark_config=hetero_cross_task_benchmark_config,
             name="hetero",
-            rebuild=False,
-            retrain=False
+            rebuild=True,
+            retrain=True
         )
         workflow.labeled_hetero_table_example()
 

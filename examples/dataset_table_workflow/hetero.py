@@ -109,7 +109,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
     def labeled_hetero_table_example(self):
         logger.info("Total Items: %d" % len(self.market))
         methods = ["user_model", "hetero_single_aug", "hetero_multiple_avg", "hetero_ensemble_pruning"]
-        recorders = {method: Recorder() for method in methods + ["select_score", "oracle_score", "mean_score"]}
+        recorders = {method: Recorder() for method in methods}
 
         user = self.benchmark.name
         for idx in range(self.benchmark.user_num):
@@ -134,10 +134,6 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             search_result = self.market.search_learnware(user_info)
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
-            
-            rank_map = {item.learnware.id: index for index, item in enumerate(single_result)}
-            all_learnwares = self.market.get_learnwares()
-            all_learnwares.sort(key=lambda learnware: rank_map.get(learnware.id, float('inf')))
 
             if len(multiple_result) > 0:
                 mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
@@ -152,8 +148,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             common_config = {"user_rkme": user_stat_spec, "learnwares": mixture_learnware_list}
             method_configs = {
                 "user_model": {"dataset": self.benchmark.name, "model_type": "lgb"},
-                "hetero_single_aug": {"user_rkme": user_stat_spec, "learnwares": all_learnwares},
-                "hetero_multiple_aug": common_config,
+                "hetero_single_aug": {"user_rkme": user_stat_spec, "single_learnware": single_result[0].learnware},
                 "hetero_multiple_avg": common_config,
                 "hetero_ensemble_pruning": common_config
             }
@@ -167,5 +162,4 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
         for method, recorder in recorders.items():
             recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
                 
-        methods_to_plot = ["user_model", "select_score", "mean_score", "hetero_multiple_avg", "hetero_ensemble_pruning"]
-        plot_performance_curves(self.curves_result_path, user, {method: recorders[method] for method in methods_to_plot}, task="Hetero", n_labeled_list=hetero_n_labeled_list)
+        plot_performance_curves(self.curves_result_path, user, recorders, task="Hetero", n_labeled_list=hetero_n_labeled_list)
