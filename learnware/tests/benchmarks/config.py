@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 @dataclass
@@ -12,4 +12,4 @@ class BenchmarkConfig:
     extra_info_path: Optional[str] = None
 
 
-benchmark_configs = {}
+benchmark_configs: Dict[str, BenchmarkConfig] = {}
