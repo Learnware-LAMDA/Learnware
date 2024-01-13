@@ -11,8 +11,8 @@
     <a href="https://pypi.org/project/learnware/#files">
         <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey">
     </a>
-    <a href="https://github.com/Learnware-LAMDA/Learnware/actions">
-        <img alt="Test" src="https://github.com/Learnware-LAMDA/Learnware/actions/workflows/install_learnware_with_source.yaml/badge.svg">
+    <a href="https://github.com/Learnware-LAMDA/Learnware/actions/workflows/test_learnware_with_source.yaml">
+        <img alt="Test" src="https://github.com/Learnware-LAMDA/Learnware/actions/workflows/test_learnware_with_source.yaml/badge.svg">
     </a>
     <a href="https://pypi.org/project/learnware/#history">
         <img alt="PypI Versions" src="https://img.shields.io/pypi/v/learnware">
@@ -77,7 +77,7 @@ The learnware paradigm consists of two distinct stages:
   <img src="./docs/_static/img/learnware_framework.svg" width="70%"/>
 </div>
 
-The architecture is designed based on the guidelines including _decoupling_, _autonomy_, _reusability_, and _scalability_. The above architecture diagram illustrates the architecture and framework from the perspectives of both modules and workflows.
+The architecture is designed based on the guidelines including _decoupling_, _autonomy_, _reusability_, and _scalability_. The above diagram illustrates the framework from the perspectives of both modules and workflows.
 
 - At the workflow level, the `learnware` package consists of `Submitting Stage` and `Deploying Stage`.
 
