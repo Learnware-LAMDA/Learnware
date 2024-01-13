@@ -61,23 +61,6 @@ market_mapping_params = {
 }
 
 user_model_params = {
-    # "Corporacion": {
-    #     "lgb": {
-    #         "params": {
-    #             "num_leaves": 31,
-    #             "objective": "regression",
-    #             "learning_rate": 0.1,
-    #             "feature_fraction": 0.8,
-    #             "bagging_fraction": 0.8,
-    #             "bagging_freq": 2,
-    #             "metric": "l2",
-    #             "num_threads": 4,
-    #             "verbose": -1,
-    #         },
-    #         "MAX_ROUNDS": 500,
-    #         "early_stopping_rounds": 50,
-    #     }
-    # },
     "M5": {
         "lgb": {
             "params": {
