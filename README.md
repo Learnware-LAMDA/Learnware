@@ -50,6 +50,8 @@ These specifications, encompassing both semantic and statistical aspects, detail
 
 The need for Learnware arises due to challenges in machine learning, such as the need for extensive training data, advanced techniques, continuous learning, catastrophic forgetting, and data privacy issues. Although there are many efforts focusing on one of these issues separately, they are entangled, and solving one problem may exacerbate others. The learnware paradigm aims to address many of these challenges through a unified framework. Its benefits are listed as follows.
 
+<div align=center>
+
 |  Benefit | Description  |
 |  ----  | ----  |
 | Lack of training data  | Strong models can be built with small data by adapting well-performed learnwares. |
@@ -59,6 +61,7 @@ The need for Learnware arises due to challenges in machine learning, such as the
 | Data privacy/ proprietary | Developers only submit models, not data, preserving data privacy/proprietary. |
 | Unplanned tasks | Open to all legal developers, the learnware market can accommodate helpful learnwares for various tasks. |
 | Carbon emission | Assembling small models may offer good-enough performance, reducing interest in training large models and the carbon footprint. |
+</div>
 
 The learnware paradigm consists of two distinct stages:
 - `Submitting Stage`: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
@@ -68,15 +71,41 @@ The learnware paradigm consists of two distinct stages:
   <img src="./docs/_static/img/learnware_market.svg" width="70%" />
 </div>
 
-## Learnware Package Design 
+## Framework and Infrastructure Design 
 
 <div align="center">
   <img src="./docs/_static/img/learnware_framework.svg" width="70%"/>
 </div>
 
+The engine architecture is designed based on the guidelines including _decoupling_, _autonomy_, _reusability_, and _scalability_. The above architecture diagram illustrates the architecture and framework from the perspectives of both modules andprocesses
 
-At the workflow level, the `learnware` package consists of `Submitting Stage` and `Deploying Stage`.
-At the module level, the `learnware` package is a platform that consists of above components. The components are designed as loose-coupled modules and each component could be used stand-alone.
+- At the workflow level, the `learnware` package consists of `Submitting Stage` and `Deploying Stage`.
+
+<div align=center>
+
+|  Module | Workflow  |
+|  ----  | ----  |
+| `Submitting Stage`  | The learnware developers submit learnwares to the learnware market, which conducts usability checks and further organization of these learnwares.  |
+| `Deploying Stage` | The `learnware` package identifies learnwares according to users’ task requirements and provides efficient reuse and deployment methods. |
+
+</div>
+
+- At the module level, the `learnware` package is a platform that consists of `Learnware`, `Market`, `Specification`, `Model`, `Reuse`, and `Interface` modules.
+
+<div align=center>
+
+|  Module | Description  |
+|  ----  | ----  |
+| `Learnware`  | The specific learnware, consisting of specification module, and user model module. |
+| `Market` | Designed for learnware organization, identification, and usability testing. |
+| `Specification` | Generating and storing statistical and semantic information of learnware, which can be used for learnware search and reuse. |
+| `Model` | Including the base model and the model container, which can provide unified interfaces and automatically create isolated runtime environments. |
+| `Reuse` | Including the data-free reuser, data-dependent reuser, and aligner, which can deploy and reuse learnware for user tasks. |
+| `Interface` | The interface for network communication with the `Beimingwu` backend.|
+
+</div>
+
+
 
 # Quick Start
 
