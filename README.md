@@ -63,13 +63,13 @@ The need for Learnware arises due to challenges in machine learning, such as the
 | Carbon emission | Assembling small models may offer good-enough performance, reducing interest in training large models and the carbon footprint. |
 </div>
 
-The learnware paradigm consists of two distinct stages:
-- `Submitting Stage`: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
-- `Deploying Stage`: When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it’s a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
-
 <div align="center">
   <img src="./docs/_static/img/learnware_market.svg" width="70%" />
 </div>
+
+The learnware paradigm consists of two distinct stages:
+- `Submitting Stage`: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
+- `Deploying Stage`: When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it’s a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
 
 ## Framework and Infrastructure Design 
 
