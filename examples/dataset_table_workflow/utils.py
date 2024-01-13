@@ -1,6 +1,8 @@
 import os
 import json
-import traceback
+import random
+
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import defaultdict
@@ -79,3 +81,14 @@ def plot_performance_curves(path, user, recorders, task, n_labeled_list):
     fig_path = os.path.join(root_path, "results", "figs")
     os.makedirs(fig_path, exist_ok=True)
     plt.savefig(os.path.join(fig_path, f"{task}_labeled_curves.svg"), bbox_inches="tight", dpi=700)
+
+
+def set_seed(seed):
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True

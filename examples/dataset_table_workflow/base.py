@@ -14,9 +14,13 @@ from learnware.tests.benchmarks import LearnwareBenchmark
 
 from config import *
 from methods import *
+from utils import set_seed
 
 logger = get_module_logger("base_table", level="INFO")
 
+
+# for quick test only
+from learnware.market.heterogeneous import HeteroMapTableOrganizer
 
 class TableWorkflow:
     def __init__(self, benchmark_config, name="easy", rebuild=False, retrain=False):
@@ -25,9 +29,10 @@ class TableWorkflow:
         self.curves_result_path = os.path.join(self.result_path, "curves")
         os.makedirs(self.result_path, exist_ok=True)
         os.makedirs(self.curves_result_path, exist_ok=True)
+        # if name == "hetero": 
+        #     set_seed(42)
         self._prepare_market(benchmark_config, name, rebuild, retrain)
         
-        self.cuda_idx = list(range(torch.cuda.device_count()))
     
     @staticmethod
     def _limited_data(method, test_info, loss_func):
@@ -75,6 +80,15 @@ class TableWorkflow:
         )
         self.user_semantic = client.get_semantic_specification(self.benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""
+        
+        # if retrain == True and rebuild == False: 
+        #     logger.info(f"training learnwares: {self.market.get_learnware_ids()[::-1]}")            
+        #     market_mapping = HeteroMapTableOrganizer.train(self.market.get_learnwares()[::-1], save_dir='test_model.bin', **market_mapping_params)
+        #     self.market.learnware_organizer.market_mapping = market_mapping
+        #     self.market.learnware_organizer._update_learnware_hetero_spec(self.market.get_learnware_ids()[::-1])
+            
+        #     return
+        
         if len(self.market) == 0 or rebuild == True:
             for learnware_id in self.benchmark.learnware_ids:
                 with tempfile.TemporaryDirectory(prefix="table_benchmark_") as tempdir:
