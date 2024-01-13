@@ -3,7 +3,7 @@
 API Reference
 ================================
 
-Here you can find high-level ``Learnware`` interfaces.
+Here you can find high-level interfaces in the ``learnware`` package.
 
 Market
 ====================
