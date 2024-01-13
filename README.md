@@ -77,7 +77,7 @@ The learnware paradigm consists of two distinct stages:
   <img src="./docs/_static/img/learnware_framework.svg" width="70%"/>
 </div>
 
-The engine architecture is designed based on the guidelines including _decoupling_, _autonomy_, _reusability_, and _scalability_. The above architecture diagram illustrates the architecture and framework from the perspectives of both modules andprocesses
+The architecture is designed based on the guidelines including _decoupling_, _autonomy_, _reusability_, and _scalability_. The above architecture diagram illustrates the architecture and framework from the perspectives of both modules and workflows.
 
 - At the workflow level, the `learnware` package consists of `Submitting Stage` and `Deploying Stage`.
 
