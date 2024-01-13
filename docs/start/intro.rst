@@ -76,11 +76,44 @@ Procedure of Learnware Paradigm
    :align: center
 
 
-Learnware Package Design
-==========================
+Framework and Architecture Design
+==================================
 
 .. image:: ../_static/img/learnware_framework.svg
    :align: center
 
-At the workflow level, the ``learnware`` package consists of ``Submitting Stage`` and ``Deploying Stage``.
-At the module level, the ``learnware`` package is a platform that consists of above components. The components are designed as loose-coupled modules and each component could be used stand-alone.
+The architecture is designed based on the guidelines including *decoupling*, *autonomy*, *reusability*, and *scalability*. The above architecture diagram illustrates the architecture and framework from the perspectives of both modules and workflows.
+
+- At the workflow level, the ``learnware`` package consists of ``Submitting Stage`` and ``Deploying Stage``.
+
++---------------------+-------------------------------------------------------------------------------------------------------------------+
+|      Module         |                                          Workflow                                                                 |
++=====================+===================================================================================================================+
+| ``Submitting Stage``| The learnware developers submit learnwares to the learnware market, which conducts usability checks and further   |
+|                     | organization of these learnwares.                                                                                 |
++---------------------+-------------------------------------------------------------------------------------------------------------------+
+| ``Deploying Stage`` | The `learnware` package identifies learnwares according to users’ task requirements and provides efficient        |
+|                     | reuse and deployment methods.                                                                                     |
++---------------------+-------------------------------------------------------------------------------------------------------------------+
+
+- At the module level, the ``learnware`` package is a platform that consists of ``Learnware``, ``Market``, ``Specification``, ``Model``, ``Reuse``, and ``Interface`` modules.
+
++------------------+------------------------------------------------------------------------------------------------------------+
+|      Module      |                                      Description                                                           |
++==================+============================================================================================================+
+| ``Learnware``    | The specific learnware, consisting of specification module, and user model module.                         |
++------------------+------------------------------------------------------------------------------------------------------------+
+| ``Market``       | Designed for learnware organization, identification, and usability testing.                                |
++------------------+------------------------------------------------------------------------------------------------------------+
+| ``Specification``| Generating and storing statistical and semantic information of learnware, which can be used for learnware  |
+|                  | search and reuse.                                                                                          |
++------------------+------------------------------------------------------------------------------------------------------------+
+| ``Model``        | Including the base model and the model container, which can provide unified interfaces and automatically   |
+|                  | create isolated runtime environments.                                                                      |
++------------------+------------------------------------------------------------------------------------------------------------+
+| ``Reuse``        | Including the data-free reuser, data-dependent reuser, and aligner, which can deploy and reuse learnware   |
+|                  | for user tasks.                                                                                            |
++------------------+------------------------------------------------------------------------------------------------------------+
+| ``Interface``    | The interface for network communication with the `Beimingwu` backend.                                      |
++------------------+------------------------------------------------------------------------------------------------------------+
+
