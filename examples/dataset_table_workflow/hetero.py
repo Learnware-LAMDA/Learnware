@@ -39,7 +39,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             )
             logger.info(f"Searching Market for user: {user}_{idx}")
             
-            search_result = self.market.search_learnware(user_info)
+            search_result = self.market.search_learnware(user_info, max_search_num=10)
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
             
@@ -53,15 +53,15 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             pred_y = single_hetero_learnware.predict(test_x)
             single_score_list.append(loss_func_rmse(pred_y, test_y))
 
-            # rmse_list = []
-            # for learnware in all_learnwares:
-            #     hetero_learnware = FeatureAlignLearnware(learnware, **align_model_params)
-            #     hetero_learnware.align(user_rkme=user_stat_spec)
-            #     pred_y = hetero_learnware.predict(test_x)
-            #     rmse_list.append(loss_func_rmse(pred_y, test_y)) 
-            # logger.info(
-            #     f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, rmse: {single_score_list[0]}"
-            # )
+            rmse_list = []
+            for learnware in all_learnwares:
+                hetero_learnware = FeatureAlignLearnware(learnware, **align_model_params)
+                hetero_learnware.align(user_rkme=user_stat_spec)
+                pred_y = hetero_learnware.predict(test_x)
+                rmse_list.append(loss_func_rmse(pred_y, test_y)) 
+            logger.info(
+                f"Top1-score: {single_result[0].score}, learnware_id: {single_result[0].learnware.id}, rmse: {single_score_list[0]}"
+            )
             
             if len(multiple_result) > 0:
                 mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
@@ -83,21 +83,21 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             ensemble_score_list.append(ensemble_score)
             logger.info(f"mixture reuse rmse (ensemble): {ensemble_score}")
 
-            # learnware_rmse_list.append(rmse_list)
+            learnware_rmse_list.append(rmse_list)
         
-        # single_list = np.array(learnware_rmse_list)
-        # avg_score_list = [np.mean(lst, axis=0) for lst in single_list]
-        # oracle_score_list = [np.min(lst, axis=0) for lst in single_list]
+        single_list = np.array(learnware_rmse_list)
+        avg_score_list = [np.mean(lst, axis=0) for lst in single_list]
+        oracle_score_list = [np.min(lst, axis=0) for lst in single_list]
         
         logger.info(
-            "RMSE of selected learnware: %.3f +/- %.3f" # , Average performance: %.3f +/- %.3f, Oracle performace: %.3f +/- %.3f"
+            "RMSE of selected learnware: %.3f +/- %.3f, Average performance: %.3f +/- %.3f, Oracle performace: %.3f +/- %.3f"
             % (
                 np.mean(single_score_list),
                 np.std(single_score_list),
-                # np.mean(avg_score_list),
-                # np.std(avg_score_list),
-                # np.mean(oracle_score_list),
-                # np.std(oracle_score_list),
+                np.mean(avg_score_list),
+                np.std(avg_score_list),
+                np.mean(oracle_score_list),
+                np.std(oracle_score_list)
             )
         )
         logger.info(

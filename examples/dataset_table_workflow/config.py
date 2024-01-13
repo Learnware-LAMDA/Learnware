@@ -216,7 +216,7 @@ hetero_cross_feat_eng_benchmark_config = BenchmarkConfig(
         "00000912"
     ],
     test_data_path="PFS/test_data.zip",
-    # train_data_path="PFS/train_data.zip",
+    train_data_path="PFS/train_data.zip",
     extra_info_path="PFS/extra_info.zip"
 )
 
