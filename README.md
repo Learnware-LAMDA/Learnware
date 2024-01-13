@@ -48,26 +48,11 @@ In addition, the `learnware` package serves as the engine for the [Beimingwu Sys
 A learnware consists of a high-performance machine learning model and specifications that characterize the model, i.e., "Learnware = Model + Specification".
 These specifications, encompassing both semantic and statistical aspects, detail the model's functionality and statistical information, making it easier for future users to identify and reuse these models.
 
-The need for Learnware arises due to challenges in machine learning, such as the need for extensive training data, advanced techniques, continuous learning, catastrophic forgetting, and data privacy issues. Although there are many efforts focusing on one of these issues separately, they are entangled, and solving one problem may exacerbate others. The learnware paradigm aims to address many of these challenges through a unified framework. Its benefits are listed as follows.
-
-<div align=center>
-
-|  Benefit | Description  |
-|  ----  | ----  |
-| Lack of training data  | Strong models can be built with small data by adapting well-performed learnwares. |
-| Lack of training skills | Ordinary users can obtain strong models by leveraging well-performed learnwares instead of building models from scratch. |
-| Catastrophic forgetting  | Accepted learnwares are always stored in the learnware market, retaining old knowledge. |
-| Continual learning | The learnware market continually enriches its knowledge with constant submissions of well-performed learnwares. |
-| Data privacy/ proprietary | Developers only submit models, not data, preserving data privacy/proprietary. |
-| Unplanned tasks | Open to all legal developers, the learnware market can accommodate helpful learnwares for various tasks. |
-| Carbon emission | Assembling small models may offer good-enough performance, reducing interest in training large models and the carbon footprint. |
-</div>
-
 <div align="center">
   <img src="./docs/_static/img/learnware_market.svg" width="70%" />
 </div>
 
-The learnware paradigm consists of two distinct stages:
+The above diagram illustrates the learnware paradigm, which consists of two distinct stages:
 - `Submitting Stage`: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
 - `Deploying Stage`: When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it’s a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
 
@@ -85,8 +70,8 @@ The architecture is designed based on the guidelines including _decoupling_, _au
 
 |  Module | Workflow  |
 |  ----  | ----  |
-| `Submitting Stage`  | The learnware developers submit learnwares to the learnware market, which conducts usability checks and further organization of these learnwares.  |
-| `Deploying Stage` | The `learnware` package identifies learnwares according to users’ task requirements and provides efficient reuse and deployment methods. |
+| `Submitting Stage`  | The developers submit learnwares to the learnware market, which conducts usability checks and further organization of these learnwares.  |
+| `Deploying Stage` | The learnware market recommends learnwares according to users’ task requirements and provides efficient reuse and deployment methods. |
 
 </div>
 
