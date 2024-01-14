@@ -4,7 +4,7 @@ Learnwares Reuse
 
 ``Learnware Reuser`` is a ``Python API`` that offers a variety of convenient tools for learnware reuse. Users can reuse a single learnware, combination of multiple learnwares,
 and heterogeneous learnwares using these tools efficiently, thereby saving the laborious time and effort of building models from scratch. There are mainly two types of 
-reuse tools, based on whether user has gathered a small amount of labeled data beforehand: (1) direct reuse and (2) customized reuse based on labeled data.
+reuse tools, based on whether user has gathered a small amount of labeled data beforehand: (1) data-free reuser and (2) data-dependent reuser.
 
 .. note:: 
 
@@ -15,7 +15,16 @@ Homo Reuse
 
 This part introduces baseline methods for reusing homogeneous learnwares to make predictions on unlabeled data.
 
-Direct reuse of Learnware
+The most basic way is to directly use a single learnware.
+
+.. code:: python
+
+    # learnware is a single learnware in the search results
+    # test_x is the user's data for prediction
+    # predict_y is the prediction result of the reused learnware
+    predict_y = learnware.predict(user_data=test_x)
+
+Data-Free Reuser
 --------------------------
 
 - ``JobSelector`` selects different learnwares for different data by training a ``job selector`` classifier. The following code shows how to use it:
@@ -49,7 +58,7 @@ Direct reuse of Learnware
     ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
 
 
-Reusing Learnware with Labeled Data
+Data-Dependent Reuser
 ------------------------------------
 
 When users have a small amount of labeled data, they can also adapt/polish the received learnware(s) by reusing them with the labeled data, gaining even better performance. 
@@ -143,10 +152,10 @@ Run the following codes to try run a learnware with ``Model Container``:
 
     from learnware.learnware import Learnware
 
-    with LearnwaresContainer(learnware, mode="conda") as env_container: # Let learnware be instance of Learnware Class, and its input shape is (20, 204)
+    # Let learnware be instance of Learnware Class, test_x be an input array
+    with LearnwaresContainer(learnware, mode="conda") as env_container: 
         learnware = env_container.get_learnwares_with_container()[0]
-        input_array = np.random.random(size=(20, 204))
-        print(learnware.predict(input_array))
+        print(learnware.predict(test_x))
 
 The ``mode`` parameter has two options, each for a specific learnware environment loading method:
 
