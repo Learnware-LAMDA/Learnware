@@ -106,60 +106,61 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
         )
 
 
-    def labeled_hetero_table_example(self):
+    def labeled_hetero_table_example(self, skip_test=False):
         logger.info("Total Items: %d" % len(self.market))
         methods = ["user_model", "hetero_single_aug", "hetero_multiple_avg", "hetero_ensemble_pruning"]
         recorders = {method: Recorder() for method in methods}
-
         user = self.benchmark.name
-        for idx in range(self.benchmark.user_num):
-            test_x, test_y = self.benchmark.get_test_data(user_ids=idx)
-            test_x, test_y = test_x.values, test_y.values
-            
-            train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
-            train_x, train_y, feature_descriptions = train_x.values, train_y.values, train_x.columns
-            train_subsets = self.get_train_subsets(hetero_n_labeled_list, hetero_n_repeat_list, train_x, train_y)
-            
-            user_stat_spec = generate_stat_spec(type="table", X=test_x)
-            input_description = {
-                "Dimension": len(feature_descriptions),
-                "Description": {str(i): feature_descriptions[i] for i in range(len(feature_descriptions))}
-            }
-            user_semantic["Input"] = input_description
-            user_info = BaseUserInfo(
-                semantic_spec=user_semantic, stat_info={user_stat_spec.type: user_stat_spec}
-            )
-            logger.info(f"Searching Market for user: {user}_{idx}")
-
-            search_result = self.market.search_learnware(user_info)
-            single_result = search_result.get_single_results()
-            multiple_result = search_result.get_multiple_results()
-
-            if len(multiple_result) > 0:
-                mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
-                logger.info(f"Mixture score: {multiple_result[0].score}, Mixture learnware: {mixture_id}")
-                mixture_learnware_list = multiple_result[0].learnwares
-            else:
-                mixture_learnware_list = [single_result[0].learnware]
-            
-            logger.info(f"Hetero search result of user {user}_{idx}: mixture learnware num: {len(mixture_learnware_list)}")
-
-            test_info = {"user": user, "idx": idx, "train_subsets": train_subsets, "test_x": test_x, "test_y": test_y, "n_labeled_list": hetero_n_labeled_list}
-            common_config = {"user_rkme": user_stat_spec, "learnwares": mixture_learnware_list}
-            method_configs = {
-                "user_model": {"dataset": self.benchmark.name, "model_type": "lgb"},
-                "hetero_single_aug": {"user_rkme": user_stat_spec, "single_learnware": single_result[0].learnware},
-                "hetero_multiple_avg": common_config,
-                "hetero_ensemble_pruning": common_config
-            }
-
-            for method_name in methods:
-                logger.info(f"Testing method {method_name}")
-                test_info["method_name"] = method_name
-                test_info.update(method_configs[method_name])
-                self.test_method(test_info, recorders, loss_func=loss_func_rmse)
         
-        for method, recorder in recorders.items():
-            recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
+        if not skip_test:
+            for idx in range(self.benchmark.user_num):
+                test_x, test_y = self.benchmark.get_test_data(user_ids=idx)
+                test_x, test_y = test_x.values, test_y.values
+                
+                train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
+                train_x, train_y, feature_descriptions = train_x.values, train_y.values, train_x.columns
+                train_subsets = self.get_train_subsets(hetero_n_labeled_list, hetero_n_repeat_list, train_x, train_y)
+                
+                user_stat_spec = generate_stat_spec(type="table", X=test_x)
+                input_description = {
+                    "Dimension": len(feature_descriptions),
+                    "Description": {str(i): feature_descriptions[i] for i in range(len(feature_descriptions))}
+                }
+                user_semantic["Input"] = input_description
+                user_info = BaseUserInfo(
+                    semantic_spec=user_semantic, stat_info={user_stat_spec.type: user_stat_spec}
+                )
+                logger.info(f"Searching Market for user: {user}_{idx}")
+
+                search_result = self.market.search_learnware(user_info)
+                single_result = search_result.get_single_results()
+                multiple_result = search_result.get_multiple_results()
+
+                if len(multiple_result) > 0:
+                    mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
+                    logger.info(f"Mixture score: {multiple_result[0].score}, Mixture learnware: {mixture_id}")
+                    mixture_learnware_list = multiple_result[0].learnwares
+                else:
+                    mixture_learnware_list = [single_result[0].learnware]
+                
+                logger.info(f"Hetero search result of user {user}_{idx}: mixture learnware num: {len(mixture_learnware_list)}")
+
+                test_info = {"user": user, "idx": idx, "train_subsets": train_subsets, "test_x": test_x, "test_y": test_y, "n_labeled_list": hetero_n_labeled_list}
+                common_config = {"user_rkme": user_stat_spec, "learnwares": mixture_learnware_list}
+                method_configs = {
+                    "user_model": {"dataset": self.benchmark.name, "model_type": "lgb"},
+                    "hetero_single_aug": {"user_rkme": user_stat_spec, "single_learnware": single_result[0].learnware},
+                    "hetero_multiple_avg": common_config,
+                    "hetero_ensemble_pruning": common_config
+                }
+
+                for method_name in methods:
+                    logger.info(f"Testing method {method_name}")
+                    test_info["method_name"] = method_name
+                    test_info.update(method_configs[method_name])
+                    self.test_method(test_info, recorders, loss_func=loss_func_rmse)
+            
+            for method, recorder in recorders.items():
+                recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
                 
         plot_performance_curves(self.curves_result_path, user, recorders, task="Hetero", n_labeled_list=hetero_n_labeled_list)
