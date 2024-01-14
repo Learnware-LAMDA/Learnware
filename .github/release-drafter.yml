@@ -1,4 +1,4 @@
-name-template: 'v$RESOLVED_VERSION 🌈'
+name-template: 'v$RESOLVED_VERSION \U0001F308'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
   - title: '\U0001F680 New Feature'

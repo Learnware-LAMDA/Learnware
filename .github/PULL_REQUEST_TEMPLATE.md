@@ -1,17 +1,31 @@
+<!--- Provide a general summary of your changes. -->
+
+## Description
+<!-- Provide a detailed description of your changes.. -->
+
+## How has his PR been tested?
+<!---  Put an `x` in the boxes as follows. --->
+- [ ] Please pass the test by running `pytest tests/test_workflow` under upper directory of learnware.
+- [ ] If you add new features, please test new features on your own test scirpt.
+
+## Types of changes
+<!---  Put an `x` in the boxes as follows. --->
+- [ ] This PR fixes bugs
+- [ ] This PR add new features
+- [ ] This PR update documentations or fixes typo
 <!--- 请提供您在PR中更改的简要介绍。-->
+<!--- Provide a general summary of your changes. -->
 
-## 描述
-<!-- 请详细描述您在PR中所在的更改。-->
+## Description
+<!-- Provide a detailed description of your changes.. -->
 
-## 如何测试此 PR？
-请全面测试您的更改，并附上测试结果的截图（如果适用）。
+## How has his PR been tested?
+<!---  Put an `x` in the boxes as follows. --->
+- [ ] Please pass the test by running `pytest tests/test_workflow` under upper directory of learnware.
+- [ ] If you add new features, please test new features on your own test scirpt.
 
-<!--- 在方框中打上 `x`。 --->
-- [ ] 请通过在 learnware 的上级目录下运行 `pytest tests/test_workflow` 来通过测试。
-- [ ] 如果您添加了新功能，请在您自己的测试脚本上测试改功能。
-
-## 更改的类型
-<!--- 在方框中打上 `x`。 --->
-- [ ] 此 PR 修复了 bug
-- [ ] 此 PR 添加了新功能
-- [ ] 此 PR 更新了文档或修复了拼写错误
+## Types of changes
+<!---  Put an `x` in the boxes as follows. --->
+- [ ] This PR fixes bugs
+- [ ] This PR add new features
+- [ ] This PR update documentations or fixes typo
