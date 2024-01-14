@@ -8,8 +8,7 @@ on:
     types: [published]
 
 jobs:
-  deploy_with_source_code:
-    deploy:
+  deploy_with_source:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
