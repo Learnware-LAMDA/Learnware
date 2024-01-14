@@ -1,5 +1,5 @@
 <div align=center>
-  <img src="./docs/_static/img/logo/logo1.png"  width="50%"/>
+  <img src="./docs/_static/img/logo/logo.svg"  width="420" height="auto" style="max-width: 100%;"/>
   <br/>
   <br/>
 </div>
@@ -11,26 +11,26 @@
     <a href="https://pypi.org/project/learnware/#files">
         <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey">
     </a>
-    <a href="https://github.com/Learnware-LAMDA/Learnware/actions/workflows/test_learnware_with_source.yaml">
-        <img alt="Test" src="https://github.com/Learnware-LAMDA/Learnware/actions/workflows/test_learnware_with_source.yaml/badge.svg">
-    </a>
     <a href="https://pypi.org/project/learnware/#history">
         <img alt="PypI Versions" src="https://img.shields.io/pypi/v/learnware">
+    </a>
+    <a href="https://img.shields.io/pypi/dm/example-package">
+        <img alt="PyPI Downloads" src="https://img.shields.io/pypi/dm/example-package">
     </a>
     <a href="https://learnware.readthedocs.io/en/latest/?badge=latest">
         <img alt="Documentation Status" src="https://readthedocs.org/projects/learnware/badge/?version=latest">
     </a>
-    <a href="https://github.com/Learnware-LAMDA/Learnware/blob/main/LICENSE">
+    <a href="LICENSE">
         <img alt="License" src="https://img.shields.io/pypi/l/learnware">
     </a>
 </p>
 
-<h3 align="center">
-    <p>
-        <b>English</b> |
-        <a href="https://github.com/Learnware-LAMDA/Learnware/blob/main/docs/README_zh.md">中文</a>
-    </p>
-</h3>
+<p>
+    <h3 align="center">
+        <a href="README_zh.md">中文</a> |
+        <b>English</b>
+    </h3>
+</p>
 
 # Introduction
 
@@ -49,7 +49,7 @@ A learnware consists of a high-performance machine learning model and specificat
 These specifications, encompassing both semantic and statistical aspects, detail the model's functionality and statistical information, making it easier for future users to identify and reuse these models.
 
 <div align="center">
-  <img src="./docs/_static/img/learnware_market.svg" width="70%" />
+  <img src="./docs/_static/img/learnware_market.svg" width="700" height="auto" style="max-width: 100%;" />
 </div>
 
 The above diagram illustrates the learnware paradigm, which consists of two distinct stages:
@@ -59,7 +59,7 @@ The above diagram illustrates the learnware paradigm, which consists of two dist
 ## Framework and Infrastructure Design 
 
 <div align="center">
-  <img src="./docs/_static/img/learnware_framework.svg" width="70%"/>
+  <img src="./docs/_static/img/learnware_framework.svg" width="700" height="auto" style="max-width: 100%;"/>
 </div>
 
 The architecture is designed based on the guidelines including _decoupling_, _autonomy_, _reusability_, and _scalability_. The above diagram illustrates the framework from the perspectives of both modules and workflows.
@@ -119,7 +119,7 @@ In the `learnware` package, each learnware is encapsulated in a `zip` package, w
 - `stat.json`: the statistical specification of the learnware. Its filename can be customized and recorded in learnware.yaml.
 - `environment.yaml` or `requirements.txt`: specifies the environment for the model.
 
-To facilitate the construction of a learnware, we provide a [Learnware Template](https://www.bmwu.cloud/static/learnware-template.zip) that users can use as a basis for building their own learnware. We've also detailed the format of the learnware `zip` package in [Learnware Preparation](docs/workflows/upload:prepare-learnware).
+To facilitate the construction of a learnware, we provide a [Learnware Template](https://www.bmwu.cloud/static/learnware-template.zip) that users can use as a basis for building their own learnware. We've also detailed the format of the learnware `zip` package in [Learnware Preparation](https://learnware.readthedocs.io/en/latest/workflows/upload.html#prepare-learnware).
 
 ## Learnware Package Workflow
 
@@ -161,7 +161,7 @@ After defining the semantic specification, you can upload your learnware using a
 demo_market.add_learnware(zip_path, semantic_spec)
 ```
 
-Here, `zip_path` is the directory of your learnware `zip` package.
+Here, `zip_path` is the file path of your learnware `zip` package.
 
 ### Semantic Specification Search
 
@@ -183,7 +183,7 @@ print(single_result)
 
 If you decide in favor of providing your own statistical specification file, `stat.json`, the `Learnware Market` can further refine the selection of learnwares from the previous step. This second-stage search leverages statistical information to identify one or more learnwares that are most likely to be beneficial for your task.
 
-For example, the code below executes learnware search when using Reduced Set Kernel Embedding as the statistical specification:
+For example, the code below executes learnware search when using Reduced Kernel Mean Embedding as the statistical specification:
 
 ```python
 import learnware.specification as specification
@@ -229,20 +229,20 @@ reuse_ensemble = AveragingReuser(learnware_list=mixture_item.learnwares)
 ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
 ```
 
-We also provide two methods when the user has labeled data for reusing a given list of learnwares: `EnsemblePruningReuser` and `FeatureAugmentReuser`. Substitute `test_x` in the code snippet below with your testing data, and substitute `train_X, train_y` with your training labeled data, and you're all set to reuse learnwares:
+We also provide two methods when the user has labeled data for reusing a given list of learnwares: `EnsemblePruningReuser` and `FeatureAugmentReuser`. Substitute `test_x` in the code snippet below with your testing data, and substitute `train_x, train_y` with your training labeled data, and you're all set to reuse learnwares:
 
 ```python
 from learnware.reuse import EnsemblePruningReuser, FeatureAugmentReuser
 
 # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
 reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_item.learnwares, mode="classification")
-reuse_ensemble.fit(train_X, train_y)
-ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=data_X)
+reuse_ensemble.fit(train_x, train_y)
+ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=test_x)
 
 # Use feature augment reuser to reuse the searched learnwares to make prediction
 reuse_feature_augment = FeatureAugmentReuser(learnware_list=mixture_item.learnwares, mode="classification")
-reuse_feature_augment.fit(train_X, train_y)
-feature_augment_predict_y = reuse_feature_augment.predict(user_data=data_X)
+reuse_feature_augment.fit(train_x, train_y)
+feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 ```
 
 ### Auto Workflow Example
@@ -271,7 +271,7 @@ On various tabular datasets, we initially evaluate the performance of identifyin
 
 ### Settings
 
-Our study utilize three public datasets in the field of sales forecasting: [Predict Future Sales (PFS)](https://www.kaggle.com/c/competitive-data-science-predict-future-sales/data), [M5 Forecasting (M5)](https://www.kaggle.com/competitions/m5-forecasting-accuracy/data), and [Corporacion](https://www.kaggle.com/competitions/favorita-grocery-sales-forecasting/data). To enrich the data, we apply diverse feature engineering methods to these datasets. Then we divide each dataset by store and further split the data for each store into training and test sets. A LightGBM is trained on each Corporacion and PFS training set, while the test sets and M5 datasets are reversed to construct user tasks. This results in an experimental market consisting of 265 learnwares, encompassing five types of feature spaces and two types of label spaces. All these learnwares have been uploaded to the learnware dock system.
+Our study utilize three public datasets in the field of sales forecasting: [Predict Future Sales (PFS)](https://www.kaggle.com/c/competitive-data-science-predict-future-sales/data), [M5 Forecasting (M5)](https://www.kaggle.com/competitions/m5-forecasting-accuracy/data), and [Corporacion](https://www.kaggle.com/competitions/favorita-grocery-sales-forecasting/data). To enrich the data, we apply diverse feature engineering methods to these datasets. Then we divide each dataset by store and further split the data for each store into training and test sets. A LightGBM is trained on each Corporacion and PFS training set, while the test sets and M5 datasets are reversed to construct user tasks. This results in an experimental market consisting of 265 learnwares, encompassing five types of feature spaces and two types of label spaces. All these learnwares have been uploaded to the [Beimingwu system](https://bmwu.cloud/).
 
 ### Baseline algorithms
 The most basic way to reuse a learnware is Top-1 reuser, which directly uses the single learnware chosen by RKME specification. Besides, we implement two data-free reusers and two data-dependent reusers that works on single or multiple helpful learnwares identified from the market. When users have no labeled data, JobSelector reuser selects different learnwares for different samples by training a job selector classifier; AverageEnsemble reuser uses an ensemble method to make predictions. In cases where users possess both test data and limited labeled training data, EnsemblePruning reuser selectively ensembles a subset of learnwares to choose the ones that are most suitable for the user’s task; FeatureAugment reuser regards each received learnware as a feature augmentor, taking its output as a new feature and then builds a simple model on the augmented feature set. JobSelector and FeatureAugment are only effective for tabular data, while others are also useful for text and image data.
@@ -297,9 +297,8 @@ We conduct a comparison among different baseline algorithms when the users have 
 The figure below showcases the results for different amounts of labeled data provided by the user; for each user, we conducted multiple experiments repeatedly and calculated the mean and standard deviation of the losses; the average losses over all users are illustrated in the figure. It illustrates that when users have limited training data, identifying and reusing single or multiple learnwares yields superior performance compared to user's self-trained models. 
 
 <div align=center>
-  <img src="./docs/_static/img/Homo_labeled_curves.svg"  width="50%"/>
+  <img src="./docs/_static/img/Homo_labeled_curves.svg"  width="500" height="auto" style="max-width: 100%;"/>
 </div>
-
 
 ### Heterogeneous Cases
 
@@ -330,18 +329,18 @@ We employ three distinct feature engineering methods on all the ten stores from 
 In the following figure, we present the loss curves for the user's self-trained model and several learnware reuse methods. It is evident that heterogeneous learnwares prove beneficial with a limited amount of the user's labeled data, facilitating better alignment with the user's specific task. 
 
 <div align=center>
-  <img src="./docs/_static/img/Hetero_labeled_curves.svg"  width="50%"/>
+  <img src="./docs/_static/img/Hetero_labeled_curves.svg"  width="500" height="auto" style="max-width: 100%;"/>
 </div>
 
 
 ## Image Scenario Experiment
 
-Second, we assess our system on image datasets. It is worth noting that images of different sizes could be standardized through resizing, eliminating the need to consider heterogeneous feature cases.
+Second, we assess our algorithms on image datasets. It is worth noting that images of different sizes could be standardized through resizing, eliminating the need to consider heterogeneous feature cases.
 
 ### Settings
 
-We choose the famous image classification dataset [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html), which consists of 60000 32x32 color images in 10 classes. A total of 50 learnwares are uploaded: each learnware contains a convolutional neural network trained on an unbalanced subset that includs 12000 samples from four categories with a sampling ratio of $0.4:0.4:0.1:0.1$. 
-A total of 100 user tasks are tested and each user task consists of 3000 samples of CIFAR-10 with six categories with a sampling ratio of $0.3:0.3:0.1:0.1:0.1:0.1$.
+We choose the famous image classification dataset [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html), which consists of 60000 32x32 color images in 10 classes. A total of 50 learnwares are uploaded: each learnware contains a convolutional neural network trained on an unbalanced subset that includs 12000 samples from four categories with a sampling ratio of `0.4:0.4:0.1:0.1`. 
+A total of 100 user tasks are tested and each user task consists of 3000 samples of CIFAR-10 with six categories with a sampling ratio of `0.3:0.3:0.1:0.1:0.1:0.1`.
 
 ### Results
 
@@ -361,12 +360,12 @@ We assess the average performance of various methods using 1 - Accuracy as the l
 
 
 <div align=center>
-  <img src="./docs/_static/img/image_labeled_curves.svg"  width="50%"/>
+  <img src="./docs/_static/img/image_labeled_curves.svg"  width="500" height="auto" style="max-width: 100%;"/>
 </div>
 
 ## Text Scenario Experiment
 
-Finally, we evaluate our system on text datasets. Text data naturally exhibit feature heterogeneity, but this issue can be addressed by applying a sentence embedding extractor.
+Finally, we evaluate our algorithms on text datasets. Text data naturally exhibit feature heterogeneity, but this issue can be addressed by applying a sentence embedding extractor.
 
 ### Settings
 
@@ -391,7 +390,7 @@ The results are depicted in the following table and figure. Similarly, even when
 
 
 <div align=center>
-  <img src="./docs/_static/img/text_labeled_curves.svg"  width="50%"/>
+  <img src="./docs/_static/img/text_labeled_curves.svg"  width="500" height="auto" style="max-width: 100%;"/>
 </div>
 
 
@@ -415,12 +414,9 @@ Please acknowledge the use of our project by citing these papers in your work. T
 
 # About
 
-## Contributors
-We appreciate all contributions and thank all the contributors!
+## How to Contribute
 
-<div align=center>
-  <img src="https://github.com/Learnware-LAMDA/Learnware/graphs/contributors"/>
-</div>
+Learnware is still young and may contain bugs and issues. We highly value and encourage contributions from the community. For detailed development guidelines, please consult our [Developer Guide](https://learnware.readthedocs.io/en/latest/about/dev.html). We kindly request that contributors adhere to the provided commit format and pre-commit configuration when participating in the project. Your valuable contributions are greatly appreciated.
 
 ## About Us
 
