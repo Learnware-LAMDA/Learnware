@@ -15,11 +15,11 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: '3.8'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install build
+          pip install build twine
       - name: Build package
         run: python -m build --sdist
       - name: Build and publish
@@ -34,7 +34,7 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        python-version: [3.8, 3.9, 3.10, 3.11]
+        python-version: ['3.8', '3.9', '3.10', '3.11']
 
     steps:
       - uses: actions/checkout@v2
@@ -61,13 +61,13 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build wheel on Linux
-        uses: RalfG/python-wheels-manylinux-build@v0.3.1-manylinux2010_x86_64
+        uses: RalfG/python-wheels-manylinux-build@v0.7.1-manylinux2010_x86_64
         with:
           python-versions: 'cp38-cp38 cp39-cp39 cp310-cp310 cp311-cp311'
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: '3.8'
       - name: Install dependencies
         run: |
           pip install twine  
