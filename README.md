@@ -251,6 +251,8 @@ The `learnware` package also offers automated workflow examples. This includes p
 
 # Experiments and Examples
 
+We build various types of experimental scenarios and conduct extensive empirical study to evaluate the baseline algorithms for specification generation, learnware identification, and reuse on tabular, image, and text data.
+
 ## Environment
 
 For all experiments, we used a single Linux server. Details on the specifications are listed in the table below. All processors were used for training and evaluating.
@@ -265,89 +267,85 @@ For all experiments, we used a single Linux server. Details on the specification
 
 ## Tabular Scenario Experiments
 
-### Datasets
+On various tabular datasets, we initially evaluate the performance of identifying and reusing learnwares from the learnware market that share the same feature space as the user's tasks. Additionally, since tabular tasks often come from heterogeneous feature spaces, we also assess the identification and reuse of learnwares from different feature spaces.
 
-Our study involved three public datasets in the sales forecasting field: [Predict Future Sales (PFS)](https://www.kaggle.com/c/competitive-data-science-predict-future-sales/data), [M5 Forecasting (M5)](https://www.kaggle.com/competitions/m5-forecasting-accuracy/data), and [Corporacion](https://www.kaggle.com/competitions/favorita-grocery-sales-forecasting/data).
+### Settings
 
-We applied various pre-processing methods to these datasets to enhance the richness of the data. After pre-processing, we first divided each dataset by store and then split the data for each store into training and test sets. Specifically:
+Our study utilize three public datasets in the field of sales forecasting: [Predict Future Sales (PFS)](https://www.kaggle.com/c/competitive-data-science-predict-future-sales/data), [M5 Forecasting (M5)](https://www.kaggle.com/competitions/m5-forecasting-accuracy/data), and [Corporacion](https://www.kaggle.com/competitions/favorita-grocery-sales-forecasting/data). To enrich the data, we apply diverse feature engineering methods to these datasets. Then we divide each dataset by store and further split the data for each store into training and test sets. A LightGBM is trained on each Corporacion and PFS training set, while the test sets and M5 datasets are reversed to construct user tasks. This results in an experimental market consisting of 265 learnwares, encompassing five types of feature spaces and two types of label spaces. All these learnwares have been uploaded to the learnware dock system.
 
-- For PFS, the test set consisted of the last month's data from each store.
-- For M5, we designated the final 28 days' data from each store as the test set.
-- For Corporacion, the test set was composed of the last 16 days of data from each store.
+### Baseline algorithms
+We implement three unlabeled reuse algorithms and two labeled reuse algorithms that works on single or multiple helpful learnwares identified from the market. When users have no labeled data, Top-1 reuser directly uses the single learnware chosen by RKME specification; JobSelector reuser selects different learnwares for different samples by training a job selector classifier; AverageEnsemble reuser uses an ensemble method to make predictions. In cases where users possess both test data and limited labeled training data, EnsemblePruning reuser selectively ensembles a subset of learnwares to choose the ones that are most suitable for the user’s task; FeatureAugment reuser regards each received learnware as a feature augmentor, taking its output as a new feature and then builds a simple model on the augmented feature set. JobSelector and FeatureAugment are only effective for tabular data, while others are also useful for text and image data.
 
-In the submitting stage, the Corporacion dataset's 55 stores are regarded as 165 uploaders, each employing one of three different feature engineering methods. For the PFS dataset, 100 uploaders are established, each using one of two feature engineering approaches. These uploaders then utilize their respective stores' training data to develop LightGBM models. As a result, the learnware market comprises 265 learnwares, derived from five types of feature spaces and two types of label spaces.
+### Homogeneous Cases
 
-Based on the specific design of user tasks, our experiments were primarily categorized into two types:
+In the homogeneous cases, the 53 stores within the PFS dataset function as 53 individual users. Each store utilizes its own test data as user data and applies the same feature engineering approach used in the learnware market. These users could subsequently search for homogeneous learnwares within the market that possessed the same feature spaces as their tasks.
 
-- **homogeneous experiments** are designed to evaluate performance when users can reuse learnwares in the learnware market that have the same feature space as their tasks (homogeneous learnwares). This contributes to showing the effectiveness of using learnwares that align closely with the user's specific requirements.
-
-- **heterogeneous experiments** aim to evaluate the performance of identifying and reusing helpful heterogeneous learnwares in situations where no available learnwares match the feature space of the user's task. This helps to highlight the potential of learnwares for applications beyond their original purpose.
-
-### Homogeneous Tabular Scenario
-
-For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 users, each applying one feature engineering method, and using the test data from their respective store as user data. These users can then search for homogeneous learnwares in the market with the same feature spaces as their tasks.
-
-The Mean Squared Error (MSE) of search and reuse across all users is presented in the table below:
+We conduct a comparison among different baseline algorithms when the users have no labeled data or limited amounts of labeled data. The average losses over all users are illustrated in the table below. It shows that unlabeled methods are much better than random choosing and deploying one learnware from the market.
 
 <div align=center>
 
 | Setting                           | MSE    |
 |-----------------------------------|--------|
-| Mean in Market (Single)           | 0.331  |
-| Best in Market (Single)           | 0.151  |
-| Top-1 Reuse (Single)              | 0.280  |
-| Job Selector Reuse (Multiple)     | 0.274  |
-| Average Ensemble Reuse (Multiple) | 0.267  |
+| Mean in Market (Single)           | 0.897  |
+| Best in Market (Single)           | 0.756  |
+| Top-1 Reuse (Single)              | 0.830  |
+| Job Selector Reuse (Multiple)     | 0.848  |
+| Average Ensemble Reuse (Multiple) | 0.816  |
 
 </div>
 
-When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield better results than training models from scratch on limited training data. We present the change curves in MSE for the user's self-trained model, as well as for the Feature Augmentation single learnware reuse method and the Ensemble Pruning multiple learnware reuse method. These curves display their performance on the user's test data as the amount of labeled training data increases. The average results across 55 users are depicted in the figure below:
+The figure below showcases the results for different amounts of labeled data provided by the user; for each user, we conducted multiple experiments repeatedly and calculated the mean and standard deviation of the losses; the average losses over all users are illustrated in the figure. It illustrates that when users have limited training data, identifying and reusing single or multiple learnwares yields superior performance compared to user's self-trained models. 
 
 <div align=center>
-  <img src="./docs/_static/img/table_homo_labeled.png"  width="50%"/>
+  <img src="./docs/_static/img/Homo_labeled_curves.svg"  width="50%"/>
 </div>
 
-From the figure, it's evident that when users have limited training data, the performance of reusing single/multiple table learnwares is superior to that of the user's own model. This emphasizes the benefit of learnware reuse in significantly reducing the need for extensive training data and achieving enhanced results when available user training data is limited.
 
-### Heterogeneous Tabular Scenario
+### Heterogeneous Cases
 
-In heterogeneous experiments, the learnware market would recommend helpful heterogeneous learnwares with different feature spaces with the user tasks. Based on whether there are learnwares in the market that handle tasks similar to the user's task, the experiments can be further subdivided into the following two types:
+Based on the similarity of tasks between the market's learnwares and the users, the heterogeneous cases can be further categorized into different feature engineering and different task scenarios.
 
-#### Cross Feature Space Experiments
+#### Different Feature Engineering Scenarios
 
-We designate the 41 stores in the PFS dataset as users, creating their user data with an alternative feature engineering approach that varies from the methods employed by learnwares in the market. Consequently, while the market's learnwares from the PFS dataset undertake tasks very similar to our users, the feature spaces do not match exactly. In this experimental configuration, we tested various heterogeneous learnware reuse methods (without using user's labeled data) and compared them to the user's self-trained model based on a small amount of training data. The average MSE performance across 41 users is as follows:
+We consider the 41 stores within the PFS dataset as users, generating their user data using a unique feature engineering approach that differ from the methods employed by the learnwares in the market. As a result, while some learnwares in the market are also designed for the PFS dataset, the feature spaces do not align exactly. 
+
+In this experimental setup, we examine various unlabeled reusers. The results in the following table indicate that even when users lack labeled data, the market exhibits strong performance, particularly with the AverageEnsemble method that reuses multiple learnwares.
 
 <div align=center>
 
 | Setting                           | MSE    |
 |-----------------------------------|--------|
-| Mean in Market (Single)           | 1.459  |
-| Best in Market (Single)           | 1.226  |
-| Top-1 Reuse (Single)              | 1.407  |
-| Average Ensemble Reuse (Multiple) | 1.312  |
-| User model with 50 labeled data   | 1.267  |
+| Mean in Market (Single)           | 1.149  |
+| Best in Market (Single)           | 1.038  |
+| Top-1 Reuse (Single)              | 1.105  |
+| Average Ensemble Reuse (Multiple) | 1.081  |
 
 </div>
 
-From the results, it is noticeable that the learnware market still performs quite well even when users lack labeled data, provided it includes learnwares addressing tasks that are similar but not identical to the user's. In these instances, the market's effectiveness can match or even rival scenarios where users have access to a limited quantity of labeled data.
 
-#### Cross Task Experiments
+#### Different Task Scenarios
 
-Here we have chosen the 10 stores from the M5 dataset to act as users. Although the broad task of sales forecasting is similar to the tasks addressed by the learnwares in the market, there are no learnwares available that directly cater to the M5 sales forecasting requirements. All learnwares show variations in both feature and label spaces compared to the tasks of M5 users. We present the change curves in RMSE for the user's self-trained model and several learnware reuse methods. These curves display their performance on the user's test data as the amount of labeled training data increases. The average results across 10 users are depicted in the figure below:
+We employ three distinct feature engineering methods on all the ten stores from the M5 dataset, resulting in a total of 30 users. Although the overall task of sales forecasting aligns with the tasks addressed by the learnwares in the market, there are no learnwares specifically designed to satisfy the M5 sales forecasting requirements. 
+
+In the following figure, we present the loss curves for the user's self-trained model and several learnware reuse methods. It is evident that heterogeneous learnwares prove beneficial with a limited amount of the user's labeled data, facilitating better alignment with the user's specific task. 
 
 <div align=center>
-  <img src="./docs/_static/img/table_hetero_labeled.png"  width="50%"/>
+  <img src="./docs/_static/img/Hetero_labeled_curves.svg"  width="50%"/>
 </div>
 
-We can observe that heterogeneous learnwares are beneficial when there's a limited amount of the user's labeled training data available, aiding in better alignment with the user's specific task. This underscores the potential of learnwares to be applied to tasks beyond their original purpose.
 
 ## Image Scenario Experiment
 
-For the CIFAR-10 dataset, we sampled the training set unevenly by category and constructed unbalanced training datasets for the 50 learnwares that contained only some of the categories. This makes it unlikely that there exists any learnware in the learnware market that can accurately handle all categories of data; only the learnware whose training data is closest to the data distribution of the target task is likely to perform well on the target task. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with a non-zero probability of sampling on only 4 categories, and the sampling ratio is 0.4: 0.4: 0.1: 0.1. Ultimately, the training set for each learnware contains 12,000 samples covering the data of 4 categories in CIFAR-10.
+Second, we assess our system on image datasets. It is worth noting that images of different sizes could be standardized through resizing, eliminating the need to consider heterogeneous feature cases.
 
-We constructed 50 target tasks using data from the test set of CIFAR-10. Similar to constructing the training set for the learnwares, to allow for some variation between tasks, we sampled the test set unevenly. Specifically, the probability of each category being sampled obeys a random multinomial distribution, with non-zero sampling probability on 6 categories, and the sampling ratio is 0.3: 0.3: 0.1: 0.1: 0.1: 0.1. Ultimately, each target task contains 3000 samples covering the data of 6 categories in CIFAR-10.
+### Settings
 
-With this experimental setup, we evaluated the performance of RKME Image using 1 - Accuracy as the loss.
+We choose the famous image classification dataset [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html), which consists of 60000 32x32 color images in 10 classes. A total of 50 learnwares are uploaded: each learnware contains a convolutional neural network trained on an unbalanced subset that includs 12000 samples from four categories with a sampling ratio of $0.4:0.4:0.1:0.1$. 
+A total of 100 user tasks are tested and each user task consists of 3000 samples of CIFAR-10 with six categories with a sampling ratio of $0.3:0.3:0.1:0.1:0.1:0.1$.
+
+### Results
+
+We assess the average performance of various methods using 1 - Accuracy as the loss metric. The following table and figure show that when users face a scarcity of labeled data or possess only a limited amount of it (less than 2000 instances), leveraging the learnware market can yield good performances.
 
 <div align=center>
 
@@ -361,34 +359,23 @@ With this experimental setup, we evaluated the performance of RKME Image using 1
 
 </div>
 
-In some specific settings, the user will have a small number of labelled samples. In such settings, learning the weight of selected learnwares on a limited number of labelled samples can result in better performance than training directly on a limited number of labelled samples.
 
 <div align=center>
-  <img src="./docs/_static/img/image_labeled.svg"  width="50%"/>
+  <img src="./docs/_static/img/image_labeled_curves.svg"  width="50%"/>
 </div>
 
 ## Text Scenario Experiment
 
-### Datasets
+Finally, we evaluate our system on text datasets. Text data naturally exhibit feature heterogeneity, but this issue can be addressed by applying a sentence embedding extractor.
 
-We conducted experiments on the widely used text benchmark dataset: [20-newsgroup](http://qwone.com/~jason/20Newsgroups/). 20-newsgroup is a renowned text classification benchmark with a hierarchical structure, featuring 5 superclasses {comp, rec, sci, talk, misc}.
+### Settings
 
-In the submitting stage, we enumerated all combinations of three superclasses from the five available, randomly sampling 50% of each combination from the training set to create datasets for 50 uploaders.
-
-In the deploying stage, we considered all combinations of two superclasses out of the five, selecting all data for each combination from the testing set as a test dataset for one user. This resulted in 10 users. The user's own training data was generated using the same sampling procedure as the user test data, despite originating from the training dataset.
-
-Model training comprised two parts: the first part involved training a tfidf feature extractor, and the second part used the extracted text feature vectors to train a naive Bayes classifier.
-
-Our experiments comprise two components:
-
-- **unlabeled_text_example** is designed to evaluate performance when users possess only testing data, searching and reusing learnware available in the market.
-- **labeled_text_example** aims to assess performance when users have both testing and limited training data, searching and reusing learnware directly from the market instead of training a model from scratch. This helps determine the amount of training data saved for the user.
+We conduct experiments on the well-known text classification dataset: [20-newsgroup](http://qwone.com/~jason/20Newsgroups/), which consists approximately 20000 newsgroup documents partitioned across 20 different newsgroups.
+Similar to the image experiments, a total of 50 learnwares are uploaded. Each learnware is trained on a subset that includes only half of the samples from three superclasses and the model in it is a tf-idf feature extractor combined with a naive Bayes classifier. We define 10 user tasks, and each of them encompasses two superclasses.
 
 ### Results
 
-- **unlabeled_text_example**:
-
-The table below presents the mean accuracy of search and reuse across all users:
+The results are depicted in the following table and figure. Similarly, even when no labeled data is provided, the performance achieved through learnware identification and reuse can match that of the best learnware in the market. Additionally, utilizing the learnware market allows for a reduction of approximately 2000 samples compared to training models from scratch.
 
 <div align=center>
 
@@ -402,15 +389,11 @@ The table below presents the mean accuracy of search and reuse across all users:
 
 </div>
 
-- **labeled_text_example**:
-
-We present the change curves in classification error rates for both the user's self-trained model and the multiple learnware reuse (EnsemblePrune), showcasing their performance on the user's test data as the user's training data increases. The average results across 10 users are depicted below:
 
 <div align=center>
-  <img src="./docs/_static/img/text_labeled.svg"  width="50%"/>
+  <img src="./docs/_static/img/text_labeled_curves.svg"  width="50%"/>
 </div>
 
-From the figure above, it is evident that when the user's own training data is limited, the performance of multiple learnware reuse surpasses that of the user's own model. As the user's training data grows, it is expected that the user's model will eventually outperform the learnware reuse. This underscores the value of reusing learnware to significantly conserve training data and achieve superior performance when user training data is limited.
 
 # Citation
 
