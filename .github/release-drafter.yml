@@ -1,0 +1,24 @@
+name-template: 'v$RESOLVED_VERSION 🌈'
+tag-template: 'v$RESOLVED_VERSION'
+categories:
+  - title: '\U0001F680 New Feature'
+    labels:
+      - 'feature'
+      - 'enhancement'
+  - title: '\U0001F41B Fixed Bug'
+    labels:
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+  - title: '\U0001F4D6 Documentation'
+    label: 
+      - 'doc'
+      - 'documentation'
+  - title: '\U0001F9F9 Maintenance'
+    label: 
+      - 'maintenance'
+change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
+template: |
+  ## Changes
+
+  $CHANGES
