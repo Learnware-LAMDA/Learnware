@@ -1,4 +1,4 @@
-name: "Add label automatically"
+name: Add label
 on:
 - pull_request_target
 
