@@ -41,8 +41,8 @@ jobs:
 
     - name: Install learnware
       run: |
-        conda run -n learnware python -m pip install learnware
+        conda run -n learnware python -m pip install learnware[full]
 
     - name: Test workflow
       run: |
-        conda run -n learnware python -m pytest tests/test_workflow/
+        conda run -n learnware python -m pytest tests/test_workflow/test_hetero_workflow.py

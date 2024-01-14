@@ -89,8 +89,8 @@ if __name__ == "__main__":
     setup(
         name=NAME,
         version=VERSION,
-        license="MIT Licence",
-        url="https://github.com/Learnware-LAMDA/Learnware",
+        license="Apache-2.0 Licence",
+        url="https://gitee.com/beimingwu/learnware",
         packages=find_packages(),
         include_package_data=True,
         description=DESCRIPTION,
@@ -110,7 +110,6 @@ if __name__ == "__main__":
             "Topic :: Scientific/Engineering",
             "Operating System :: POSIX :: Linux",
             "Operating System :: Microsoft :: Windows",
-            "Operating System :: MacOS",
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
             "Programming Language :: Python :: 3.9",
