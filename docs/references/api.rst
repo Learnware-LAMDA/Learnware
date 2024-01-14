@@ -22,7 +22,7 @@ Organizer
 .. autoclass:: learnware.market.EasyOrganizer
     :members:
 
-.. autoclass:: learnware.market.HeteroOrganizer
+.. autoclass:: learnware.market.HeteroMapTableOrganizer
     :members:
 
 Searcher
@@ -33,13 +33,13 @@ Searcher
 .. autoclass:: learnware.market.EasySearcher
     :members:
 
-.. autoclass:: learnware.market.EasyExactSemanticSearcher
+.. autoclass:: learnware.market.easy.EasyExactSemanticSearcher
     :members:
 
-.. autoclass:: learnware.market.EasyFuzzSemanticSearcher
+.. autoclass:: learnware.market.easy.EasyFuzzSemanticSearcher
     :members:
 
-.. autoclass:: learnware.market.EasyStatSearcher
+.. autoclass:: learnware.market.easy.EasyStatSearcher
     :members:
 
 .. autoclass:: learnware.market.HeteroSearcher
@@ -49,9 +49,6 @@ Checker
 ------------------
 
 .. autoclass:: learnware.market.BaseChecker
-    :members:
-
-.. autoclass:: learnware.market.EasyChecker
     :members:
 
 .. autoclass:: learnware.market.EasySemanticChecker
@@ -145,14 +142,14 @@ Base Model
 Container
 -------------
 
-.. autoclass:: learnware.client.ModelContainer
+.. autoclass:: learnware.client.container.ModelContainer
     :members:
 
-.. autoclass:: learnware.client.ModelCondaContainer
+.. autoclass:: learnware.client.container.ModelCondaContainer
     :members:
 
-.. autoclass:: learnware.client.ModelDockerContainer
+.. autoclass:: learnware.client.container.ModelDockerContainer
     :members:
 
-.. autoclass:: learnware.client.LearnwaresContainer
+.. autoclass:: learnware.client.container.LearnwaresContainer
     :members:
