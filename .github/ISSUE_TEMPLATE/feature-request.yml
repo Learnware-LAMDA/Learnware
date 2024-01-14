@@ -14,8 +14,6 @@ body:
 
   - type: textarea
     id: contribution
-    validations:
-      required: true
     attributes:
       label: Your Contribution
       description: |

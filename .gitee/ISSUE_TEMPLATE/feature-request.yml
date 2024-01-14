@@ -13,8 +13,6 @@ body:
 
   - type: textarea
     id: contribution
-    validations:
-      required: true
     attributes:
       label: 你的贡献
       description: |
