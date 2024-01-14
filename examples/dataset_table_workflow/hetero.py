@@ -130,8 +130,8 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
                 user_info = BaseUserInfo(
                     semantic_spec=user_semantic, stat_info={user_stat_spec.type: user_stat_spec}
                 )
+                
                 logger.info(f"Searching Market for user: {user}_{idx}")
-
                 search_result = self.market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
                 multiple_result = search_result.get_multiple_results()
