@@ -1,20 +1,20 @@
-name-template: 'v$RESOLVED_VERSION \U0001F308'
+name-template: 'v$RESOLVED_VERSION 🌈'
 tag-template: 'v$RESOLVED_VERSION'
 categories:
-  - title: '\U0001F680 New Feature'
+  - title: '🌟 New Feature'
     labels:
       - 'feature'
       - 'enhancement'
-  - title: '\U0001F41B Fixed Bug'
+  - title: '🐛 Fixed Bug'
     labels:
       - 'fix'
       - 'bugfix'
       - 'bug'
-  - title: '\U0001F4D6 Documentation'
+  - title: '📚 Documentation'
     label: 
       - 'doc'
       - 'documentation'
-  - title: '\U0001F9F9 Maintenance'
+  - title: '🧹 Maintenance'
     label: 
       - 'maintenance'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
