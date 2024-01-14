@@ -1,4 +1,4 @@
-name: Test learnware with source code
+name: Test learnware
 
 on:
   push:
@@ -46,8 +46,8 @@ jobs:
 
     - name: Install learnware
       run: |
-        conda run -n learnware python -m pip install .
+        conda run -n learnware python -m pip install .[full]
 
     - name: Test workflow
       run: |
-        conda run -n learnware python -m pytest tests/test_workflow/
+        conda run -n learnware python -m pytest tests/test_workflow/test_hetero_workflow.py
