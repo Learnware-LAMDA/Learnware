@@ -18,25 +18,25 @@ class TableDatasetWorkflow:
         )
         workflow.unlabeled_homo_table_example()
 
-    def labeled_homo_table_example(self):
+    def labeled_homo_table_example(self, skip_test=False):
         workflow = HomogeneousDatasetWorkflow(
             benchmark_config=homo_table_benchmark_config,
             name="easy",
             rebuild=False
         )
-        workflow.labeled_homo_table_example()
+        workflow.labeled_homo_table_example(skip_test=skip_test)
     
     def cross_feat_eng_hetero_table_example(self):
         set_seed(0)
         workflow = HeterogeneousDatasetWorkflow(
             benchmark_config=hetero_cross_feat_eng_benchmark_config,
             name="hetero",
-            rebuild=False,
-            retrain=False
+            rebuild=True,
+            retrain=True
         )
         workflow.unlabeled_hetero_table_example()
 
-    def cross_task_hetero_table_example(self):
+    def cross_task_hetero_table_example(self, skip_test=False):
         set_seed(0)
         workflow = HeterogeneousDatasetWorkflow(
             benchmark_config=hetero_cross_task_benchmark_config,
@@ -44,7 +44,7 @@ class TableDatasetWorkflow:
             rebuild=False,
             retrain=False
         )
-        workflow.labeled_hetero_table_example()
+        workflow.labeled_hetero_table_example(skip_test=skip_test)
 
 
 if __name__ == "__main__":

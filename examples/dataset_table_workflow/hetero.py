@@ -106,7 +106,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
         )
 
 
-    def labeled_hetero_table_example(self, skip_test=False):
+    def labeled_hetero_table_example(self, skip_test):
         logger.info("Total Items: %d" % len(self.market))
         methods = ["user_model", "hetero_single_aug", "hetero_multiple_avg", "hetero_ensemble_pruning"]
         recorders = {method: Recorder() for method in methods}

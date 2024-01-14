@@ -105,7 +105,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
         )
         
         
-    def labeled_homo_table_example(self, skip_test=False):
+    def labeled_homo_table_example(self, skip_test):
         logger.info("Total Item: %d" % (len(self.market)))
         methods = ["user_model", "homo_single_aug", "homo_ensemble_pruning"]
         recorders = {method: Recorder() for method in methods}
