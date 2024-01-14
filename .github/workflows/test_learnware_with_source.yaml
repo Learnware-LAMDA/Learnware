@@ -1,4 +1,4 @@
-name: Test learnware with source code
+name: Test learnware
 
 on:
   push:

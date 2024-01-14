@@ -1,4 +1,4 @@
-name: Add label
+name: Add Label
 on:
 - pull_request_target
 
