@@ -115,7 +115,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
             for idx in range(self.benchmark.user_num):
                 test_x, test_y = self.benchmark.get_test_data(user_ids=idx)
                 test_x, test_y = test_x.values, test_y.values
-
+                
                 train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
                 train_x, train_y = train_x.values, train_y.values
                 train_subsets = self.get_train_subsets(homo_n_labeled_list, homo_n_repeat_list, train_x, train_y)
@@ -155,7 +155,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
                     test_info["method_name"] = method_name
                     test_info.update(method_configs[method_name])
                     self.test_method(test_info, recorders, loss_func=loss_func_rmse)
-
+            
             for method, recorder in recorders.items():
                 recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
 
