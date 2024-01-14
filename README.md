@@ -66,18 +66,18 @@ The architecture is designed based on the guidelines including _decoupling_, _au
 
 - At the workflow level, the `learnware` package consists of `Submitting Stage` and `Deploying Stage`.
 
-<center>
+<div align=center>
 
 |  Module | Workflow  |
 |  ----  | ----  |
 | `Submitting Stage`  | The developers submit learnwares to the learnware market, which conducts usability checks and further organization of these learnwares.  |
 | `Deploying Stage` | The learnware market recommends learnwares according to users’ task requirements and provides efficient reuse and deployment methods. |
 
-</center>
+</div>
 
 - At the module level, the `learnware` package is a platform that consists of `Learnware`, `Market`, `Specification`, `Model`, `Reuse`, and `Interface` modules.
 
-<center>
+<div align=center>
 
 |  Module | Description  |
 |  ----  | ----  |
@@ -88,7 +88,7 @@ The architecture is designed based on the guidelines including _decoupling_, _au
 | `Reuse` | Including the data-free reuser, data-dependent reuser, and aligner, which can deploy and reuse learnware for user tasks. |
 | `Interface` | The interface for network communication with the `Beimingwu` backend.|
 
-</center>
+</div>
 
 
 
@@ -255,13 +255,13 @@ The `learnware` package also offers automated workflow examples. This includes p
 
 For all experiments, we used a single Linux server. Details on the specifications are listed in the table below. All processors were used for training and evaluating.
 
-<center>
+<div align=center>
 
 | System               | GPU                | CPU                      |
 |----------------------|--------------------|--------------------------|
 | Ubuntu 20.04.4 LTS   | Nvidia Tesla V100S | Intel(R) Xeon(R) Gold 6240R |
 
-</center>
+</div>
 
 ## Tabular Scenario Experiments
 
@@ -289,7 +289,7 @@ For homogeneous experiments, the 55 stores in the Corporacion dataset act as 55 
 
 The Mean Squared Error (MSE) of search and reuse across all users is presented in the table below:
 
-<center>
+<div align=center>
 
 | Setting                           | MSE    |
 |-----------------------------------|--------|
@@ -299,7 +299,7 @@ The Mean Squared Error (MSE) of search and reuse across all users is presented i
 | Job Selector Reuse (Multiple)     | 0.274  |
 | Average Ensemble Reuse (Multiple) | 0.267  |
 
-</center>
+</div>
 
 When users have both test data and limited training data derived from their original data, reusing single or multiple searched learnwares from the market can often yield better results than training models from scratch on limited training data. We present the change curves in MSE for the user's self-trained model, as well as for the Feature Augmentation single learnware reuse method and the Ensemble Pruning multiple learnware reuse method. These curves display their performance on the user's test data as the amount of labeled training data increases. The average results across 55 users are depicted in the figure below:
 
@@ -317,7 +317,7 @@ In heterogeneous experiments, the learnware market would recommend helpful heter
 
 We designate the 41 stores in the PFS dataset as users, creating their user data with an alternative feature engineering approach that varies from the methods employed by learnwares in the market. Consequently, while the market's learnwares from the PFS dataset undertake tasks very similar to our users, the feature spaces do not match exactly. In this experimental configuration, we tested various heterogeneous learnware reuse methods (without using user's labeled data) and compared them to the user's self-trained model based on a small amount of training data. The average MSE performance across 41 users is as follows:
 
-<center>
+<div align=center>
 
 | Setting                           | MSE    |
 |-----------------------------------|--------|
@@ -327,7 +327,7 @@ We designate the 41 stores in the PFS dataset as users, creating their user data
 | Average Ensemble Reuse (Multiple) | 1.312  |
 | User model with 50 labeled data   | 1.267  |
 
-</center>
+</div>
 
 From the results, it is noticeable that the learnware market still performs quite well even when users lack labeled data, provided it includes learnwares addressing tasks that are similar but not identical to the user's. In these instances, the market's effectiveness can match or even rival scenarios where users have access to a limited quantity of labeled data.
 
@@ -349,7 +349,7 @@ We constructed 50 target tasks using data from the test set of CIFAR-10. Similar
 
 With this experimental setup, we evaluated the performance of RKME Image using 1 - Accuracy as the loss.
 
-<center>
+<div align=center>
 
 | Setting                           | Accuracy |
 |-----------------------------------|----------|
@@ -359,7 +359,7 @@ With this experimental setup, we evaluated the performance of RKME Image using 1
 | Job Selector Reuse (Multiple)     | 0.406    |
 | Average Ensemble Reuse (Multiple) | 0.310    |
 
-</center>
+</div>
 
 In some specific settings, the user will have a small number of labelled samples. In such settings, learning the weight of selected learnwares on a limited number of labelled samples can result in better performance than training directly on a limited number of labelled samples.
 
@@ -390,7 +390,7 @@ Our experiments comprise two components:
 
 The table below presents the mean accuracy of search and reuse across all users:
 
-<center>
+<div align=center>
 
 | Setting                           | Accuracy |
 |-----------------------------------|----------|
@@ -400,7 +400,7 @@ The table below presents the mean accuracy of search and reuse across all users:
 | Job Selector Reuse (Multiple)     | 0.845    |
 | Average Ensemble Reuse (Multiple) | 0.862    |
 
-</center>
+</div>
 
 - **labeled_text_example**:
 
