@@ -430,16 +430,7 @@ If you use our project in your research or work, we kindly request that you cite
 
 Please acknowledge the use of our project by citing these papers in your work. Thank you for your support!
 
-# About
-
-## Contributors
-We appreciate all contributions and thank all the contributors!
-
-<div align=center>
-  <img src="https://github.com/Learnware-LAMDA/Learnware/graphs/contributors"/>
-</div>
-
-## About Us
+# About Us
 
 The Learnware repository is developed and maintained by the LAMDA Beimingwu R&D Team.
 To learn more about our team, please visit the [Team Overview](https://docs.bmwu.cloud/en/about-us.html).
