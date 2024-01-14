@@ -5,7 +5,7 @@ body:
     id: bug-detail
     attributes:
       label: 错误信息
-      description: 请描述你所遇到的错误，并且可以提供用于复现错误的代码或者运行截图.
+      description: 请描述你所遇到的错误，并且提供用于复现错误的代码或者运行截图.
       placeholder: 错误描述和复现方法.
     validations:
       required: true
