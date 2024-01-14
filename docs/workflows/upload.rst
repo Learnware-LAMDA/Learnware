@@ -1,6 +1,6 @@
 .. _submit:
 ==========================================
-Learnware Preparation and Uoloading
+Learnware Preparation and Uploading
 ==========================================
 
 In this section, we provide a comprehensive guide on submitting your custom learnware to the ``Learnware Market``.
@@ -66,13 +66,13 @@ Input and Output Dimensions
 
 File Path
 ^^^^^^^^^^^^^^^^^^
-If you need to load certain files within the zip package in the ``__init__.py`` file (and any other Python files that may be involved), please follow the method shown in the template above about obtaining the ``model_path``:
+If you need to load certain files within the ``zip`` package in the ``__init__.py`` file (and any other Python files that may be involved), please follow the method shown in the template above about obtaining the ``model_path``:
   - First, obtain the root directory path of the entire package by getting ``dir_path``.
-  - - Then, based on the specific file's relative location within the package, obtain the specific file's path, ``model_path``.
+  - Then, based on the specific file's relative location within the package, obtain the specific file's path, ``model_path``.
 
 Module Imports
 ^^^^^^^^^^^^^^^^^^
-Please note that module imports between Python files within the zip package should be done using **relative imports**. For instance:
+Please note that module imports between Python files within the ``zip`` package should be done using **relative imports**. For instance:
 
 .. code-block:: python
 
@@ -108,15 +108,15 @@ This file is used to specify the class name (``MyModel``) in the model invocatio
 .. code-block:: yaml
 
     model:
-    class_name: MyModel
-    kwargs: {}
+      class_name: MyModel
+      kwargs: {}
     stat_specifications:
-    - module_path: learnware.specification
+      - module_path: learnware.specification
         class_name: RKMETableSpecification
         file_name: stat.json
         kwargs: {}
 
-Please note that the statistical specification class name for different data types ``['table', 'image', 'text']`` is ``[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]``, respectively.
+Please note that the statistical specification class name for different data types ``['table', 'image', 'text']`` is ``[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]``, respectively. ``kwargs`` are reserved ports and do not need to be entered.
 
 Model Runtime Dependent File
 --------------------------------------------
@@ -240,6 +240,7 @@ The semantic specification succinctly describes the features of your task and mo
         task_type="Classification",
         library_type="Scikit-learn",
         scenarios=["Business", "Financial"],
+        license="MIT",
         input_description=input_description,
         output_description=output_description,
     )
@@ -268,7 +269,7 @@ you can effortlessly upload your learnware to the ``Learnware Market`` as follow
 Here, ``zip_path`` refers to the directory of your learnware ``zip`` package. ``learnware_id`` indicates the id assigned by ``Learnware Market``, and the ``learnware_status`` indicates the check status for learnware.
 
 .. note:: 
-    The learnware ``zip`` package uploaded into ``LearnwareMarket`` will be checked semantically and statistically, and ``add_learnware`` will return the concrete check status. The check status ``BaseChecker.INVALID_LEARNWARE`` indicates the learnware did not pass the check. For more details about learnware checker, please refer to `Learnware Market <../components/market.html#easy-checker>`
+    The learnware ``zip`` package uploaded into ``LearnwareMarket`` will be checked semantically and statistically, and ``add_learnware`` will return the concrete check status. The check status ``BaseChecker.INVALID_LEARNWARE`` indicates the learnware did not pass the check. For more details about learnware checker, please refer to `Learnware Market <../components/market.html#easy-checker>`_
 
 Remove Learnware
 ==================
@@ -279,6 +280,6 @@ from the ``Learnware Market``:
 
 .. code-block:: python
 
-    easy_market.delete_learnware(learnware_id)
+    demo_market.delete_learnware(learnware_id)
 
-Here,  ``learnware_id`` refers to the market ID of the learnware to be removed.
+Here,  ``learnware_id`` is a string that refers to the market ID of the learnware to be removed.
