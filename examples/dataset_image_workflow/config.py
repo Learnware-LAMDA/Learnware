@@ -1,6 +1,5 @@
 from learnware.tests.benchmarks import BenchmarkConfig
 
-
 image_benchmark_config = BenchmarkConfig(
     name="CIFAR-10",
     user_num=100,

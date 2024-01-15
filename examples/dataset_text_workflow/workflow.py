@@ -1,22 +1,23 @@
 import os
-import fire
-import time
-import random
 import pickle
+import random
 import tempfile
-import numpy as np
+import time
+
+import fire
 import matplotlib.pyplot as plt
+import numpy as np
+from config import text_benchmark_config
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.feature_extraction.text import TfidfVectorizer
 
 from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
+from learnware.market import BaseUserInfo, instantiate_learnware_market
+from learnware.reuse import AveragingReuser, EnsemblePruningReuser, JobSelectorReuser
 from learnware.specification import RKMETextSpecification
 from learnware.tests.benchmarks import LearnwareBenchmark
-from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
-from config import text_benchmark_config
 
 logger = get_module_logger("text_workflow", level="INFO")
 

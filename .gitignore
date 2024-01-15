@@ -45,3 +45,4 @@ learnware_pool/
 PFS/
 data/
 examples/results/
+examples/*/results/

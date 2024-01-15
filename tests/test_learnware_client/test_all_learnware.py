@@ -1,11 +1,11 @@
-import os
 import json
-import unittest
+import os
 import tempfile
+import unittest
 
 from learnware.client import LearnwareClient
-from learnware.specification import generate_semantic_spec
 from learnware.market import BaseUserInfo
+from learnware.specification import generate_semantic_spec
 
 
 class TestAllLearnware(unittest.TestCase):

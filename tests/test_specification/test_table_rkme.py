@@ -1,11 +1,11 @@
-import os
 import json
-import unittest
+import os
 import tempfile
+import unittest
+
 import numpy as np
 
-from learnware.specification import RKMETableSpecification
-from learnware.specification import generate_stat_spec
+from learnware.specification import RKMETableSpecification, generate_stat_spec
 
 
 class TestTableRKME(unittest.TestCase):

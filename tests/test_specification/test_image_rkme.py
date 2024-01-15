@@ -1,12 +1,12 @@
-import os
 import json
-import torch
-import unittest
+import os
 import tempfile
-import numpy as np
+import unittest
 
-from learnware.specification import RKMEImageSpecification
-from learnware.specification import generate_stat_spec
+import numpy as np
+import torch
+
+from learnware.specification import RKMEImageSpecification, generate_stat_spec
 
 
 class TestImageRKME(unittest.TestCase):

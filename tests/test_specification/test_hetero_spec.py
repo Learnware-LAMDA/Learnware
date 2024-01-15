@@ -1,12 +1,12 @@
-import os
 import json
-import unittest
+import os
 import tempfile
+import unittest
+
 import numpy as np
 
-from learnware.specification import RKMETableSpecification, HeteroMapTableSpecification
-from learnware.specification import generate_stat_spec
 from learnware.market.heterogeneous.organizer import HeteroMap
+from learnware.specification import HeteroMapTableSpecification, RKMETableSpecification, generate_stat_spec
 
 
 class TestTableRKME(unittest.TestCase):

@@ -1,12 +1,12 @@
-import os
-import unittest
-import tempfile
 import logging
+import os
+import tempfile
+import unittest
 
 import learnware
-from learnware.learnware import Learnware
 from learnware.client import LearnwareClient
-from learnware.market import instantiate_learnware_market, BaseUserInfo
+from learnware.learnware import Learnware
+from learnware.market import BaseUserInfo, instantiate_learnware_market
 
 learnware.init(logging_level=logging.WARNING)
 

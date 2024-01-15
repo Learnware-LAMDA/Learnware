@@ -2,9 +2,10 @@ import os
 import pickle
 import tempfile
 import zipfile
-import numpy as np
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union
+
+import numpy as np
 
 from .config import BenchmarkConfig, benchmark_configs
 from ..data import GetData

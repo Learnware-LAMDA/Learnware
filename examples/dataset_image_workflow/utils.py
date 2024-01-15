@@ -1,6 +1,6 @@
-import torch
 import numpy as np
-from torch import optim, nn
+import torch
+from torch import nn, optim
 from torch.utils.data import DataLoader, Dataset
 
 from learnware.utils import choose_device

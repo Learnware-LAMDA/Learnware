@@ -1,12 +1,11 @@
-import os
 import json
-import string
+import os
 import random
-import unittest
+import string
 import tempfile
+import unittest
 
-from learnware.specification import RKMETextSpecification
-from learnware.specification import generate_stat_spec
+from learnware.specification import RKMETextSpecification, generate_stat_spec
 
 
 class TestTextRKME(unittest.TestCase):
