@@ -1,7 +1,5 @@
-import numpy as np
 import lightgbm as lgb
 from lightgbm import early_stopping
-from sklearn.metrics import mean_squared_error
 
 from learnware.logger import get_module_logger
 from config import user_model_params
@@ -24,7 +22,7 @@ def train_lgb(X_train, y_train, X_val, y_val, dataset):
         dtrain,
         num_boost_round=MAX_ROUNDS,
         valid_sets=[dtrain, dval] if dataset == "Corporacion" else [dval],
-        callbacks=[early_stopping(model_param["early_stopping_rounds"], verbose=False)]
+        callbacks=[early_stopping(model_param["early_stopping_rounds"], verbose=False)],
     )
     val_pred.append(bst.predict(X_val, num_iteration=bst.best_iteration or MAX_ROUNDS))
     return bst
@@ -38,6 +36,6 @@ def train_model(X_train, y_train, X_val, y_val, test_info):
     dataset = test_info["dataset"]
     model_type = test_info["model_type"]
     assert model_type in ["lgb", "ridge"]
-    
+
     if model_type == "lgb":
         return train_lgb(X_train, y_train, X_val, y_val, dataset)

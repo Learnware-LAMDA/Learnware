@@ -1,18 +1,18 @@
 import os
 import warnings
 import numpy as np
-warnings.filterwarnings("ignore")
 
 from learnware.market import BaseUserInfo
 from learnware.logger import get_module_logger
 from learnware.specification import generate_stat_spec
-from learnware.reuse import AveragingReuser, JobSelectorReuser, EnsemblePruningReuser
+from learnware.reuse import AveragingReuser, JobSelectorReuser
 
-from methods import *
+from methods import loss_func_rmse
 from base import TableWorkflow
 from config import homo_n_labeled_list, homo_n_repeat_list
 from utils import Recorder, plot_performance_curves
 
+warnings.filterwarnings("ignore")
 logger = get_module_logger("homo_table", level="INFO")
 
 
@@ -30,9 +30,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
             test_x, test_y = self.benchmark.get_test_data(user_ids=idx)
             test_x, test_y = test_x.values, test_y.values
             user_stat_spec = generate_stat_spec(type="table", X=test_x)
-            user_info = BaseUserInfo(
-                semantic_spec=self.user_semantic, stat_info={user_stat_spec.type: user_stat_spec}
-            )
+            user_info = BaseUserInfo(semantic_spec=self.user_semantic, stat_info={user_stat_spec.type: user_stat_spec})
             logger.info(f"Searching Market for user: {user}_{idx}")
 
             search_result = self.market.search_learnware(user_info, max_search_num=2)
@@ -43,7 +41,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
             logger.info(
                 f"single model num: {len(single_result)}, max_score: {single_result[0].score}, min_score: {single_result[-1].score}"
             )
-            
+
             pred_y = single_result[0].learnware.predict(test_x)
             single_score_list.append(loss_func_rmse(pred_y, test_y))
 
@@ -77,7 +75,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
             ensemble_score = loss_func_rmse(ensemble_predict_y, test_y)
             ensemble_score_list.append(ensemble_score)
             logger.info(f"mixture reuse rmse (ensemble): {ensemble_score}")
-            
+
             learnware_rmse_list.append(rmse_list)
 
         single_list = np.array(learnware_rmse_list)
@@ -103,19 +101,18 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
             "Averaging Ensemble Reuse Performance: %.3f +/- %.3f"
             % (np.mean(ensemble_score_list), np.std(ensemble_score_list))
         )
-        
-        
+
     def labeled_homo_table_example(self, skip_test):
         logger.info("Total Item: %d" % (len(self.market)))
         methods = ["user_model", "homo_single_aug", "homo_ensemble_pruning"]
         recorders = {method: Recorder() for method in methods}
         user = self.benchmark.name
-        
+
         if not skip_test:
             for idx in range(self.benchmark.user_num):
                 test_x, test_y = self.benchmark.get_test_data(user_ids=idx)
                 test_x, test_y = test_x.values, test_y.values
-                
+
                 train_x, train_y = self.benchmark.get_train_data(user_ids=idx)
                 train_x, train_y = train_x.values, train_y.values
                 train_subsets = self.get_train_subsets(homo_n_labeled_list, homo_n_repeat_list, train_x, train_y)
@@ -124,7 +121,7 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
                 user_info = BaseUserInfo(
                     semantic_spec=self.user_semantic, stat_info={"RKMETableSpecification": user_stat_spec}
                 )
-                
+
                 logger.info(f"Searching Market for user: {user}_{idx}")
                 search_result = self.market.search_learnware(user_info)
                 single_result = search_result.get_single_results()
@@ -142,12 +139,18 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
                 else:
                     mixture_learnware_list = [single_result[0].learnware]
 
-                test_info = {"user": user, "idx": idx, "train_subsets": train_subsets, "test_x": test_x, "test_y": test_y}
+                test_info = {
+                    "user": user,
+                    "idx": idx,
+                    "train_subsets": train_subsets,
+                    "test_x": test_x,
+                    "test_y": test_y,
+                }
                 common_config = {"learnwares": mixture_learnware_list}
                 method_configs = {
                     "user_model": {"dataset": self.benchmark.name, "model_type": "lgb"},
                     "homo_single_aug": {"single_learnware": [single_result[0].learnware]},
-                    "homo_ensemble_pruning": common_config
+                    "homo_ensemble_pruning": common_config,
                 }
 
                 for method_name in methods:
@@ -155,8 +158,10 @@ class HomogeneousDatasetWorkflow(TableWorkflow):
                     test_info["method_name"] = method_name
                     test_info.update(method_configs[method_name])
                     self.test_method(test_info, recorders, loss_func=loss_func_rmse)
-            
+
             for method, recorder in recorders.items():
                 recorder.save(os.path.join(self.curves_result_path, f"{user}/{user}_{method}_performance.json"))
 
-        plot_performance_curves(self.curves_result_path, user, recorders, task="Homo", n_labeled_list=homo_n_labeled_list)
+        plot_performance_curves(
+            self.curves_result_path, user, recorders, task="Homo", n_labeled_list=homo_n_labeled_list
+        )

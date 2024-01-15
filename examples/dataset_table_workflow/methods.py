@@ -31,7 +31,7 @@ class HomoScoringMethods:
         reuse_multiple_augment = FeatureAugmentReuser(multiple_learnwares, mode="regression")
         reuse_multiple_augment.fit(x_train=x_train, y_train=y_train)
         return reuse_multiple_augment
-    
+
     @staticmethod
     def multiple_avg_score(x_train, y_train, test_info):
         multiple_learnwares = test_info["learnwares"]
@@ -64,29 +64,35 @@ class HeteroMethods:
         reuse_single_augment = HeteroMapAlignLearnware(single_learnware, mode="regression", **align_model_params)
         reuse_single_augment.align(user_rkme=user_rkme, x_train=x_train, y_train=y_train)
         return reuse_single_augment
-    
+
     @staticmethod
     def multiple_aug_score(x_train, y_train, test_info):
         user_rkme, multiple_learnwares = test_info["user_rkme"], test_info["learnwares"]
-        hetero_learnware_list = HeteroMethods.create_hetero_learnware_list(multiple_learnwares, user_rkme, x_train, y_train)
+        hetero_learnware_list = HeteroMethods.create_hetero_learnware_list(
+            multiple_learnwares, user_rkme, x_train, y_train
+        )
         reuse_multiple_augment = FeatureAugmentReuser(hetero_learnware_list, mode="regression")
         reuse_multiple_augment.fit(x_train=x_train, y_train=y_train)
         return reuse_multiple_augment
-    
+
     @staticmethod
     def multiple_ensemble_pruning_score(x_train, y_train, test_info):
         user_rkme, multiple_learnwares = test_info["user_rkme"], test_info["learnwares"]
-        hetero_learnware_list = HeteroMethods.create_hetero_learnware_list(multiple_learnwares, user_rkme, x_train, y_train)
+        hetero_learnware_list = HeteroMethods.create_hetero_learnware_list(
+            multiple_learnwares, user_rkme, x_train, y_train
+        )
         if len(hetero_learnware_list) == 1:
             return hetero_learnware_list[0]
         reuse_pruning = EnsemblePruningReuser(hetero_learnware_list, mode="regression")
         reuse_pruning.fit(val_X=x_train, val_y=y_train)
         return reuse_pruning
-    
+
     @staticmethod
     def multiple_avg_score(x_train, y_train, test_info):
         user_rkme, multiple_learnwares = test_info["user_rkme"], test_info["learnwares"]
-        hetero_learnware_list = HeteroMethods.create_hetero_learnware_list(multiple_learnwares, user_rkme, x_train, y_train)
+        hetero_learnware_list = HeteroMethods.create_hetero_learnware_list(
+            multiple_learnwares, user_rkme, x_train, y_train
+        )
         reuse_multiple_avg = AveragingReuser(hetero_learnware_list, mode="mean")
         return reuse_multiple_avg
 
@@ -100,5 +106,5 @@ test_methods = {
     "homo_single_aug": HomoScoringMethods.single_aug_score,
     "homo_multiple_aug": HomoScoringMethods.multiple_aug_score,
     "homo_multiple_avg": HomoScoringMethods.multiple_avg_score,
-    "homo_ensemble_pruning": HomoScoringMethods.multiple_ensemble_pruning_score
+    "homo_ensemble_pruning": HomoScoringMethods.multiple_ensemble_pruning_score,
 }
