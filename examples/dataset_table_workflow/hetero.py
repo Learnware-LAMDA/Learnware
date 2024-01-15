@@ -11,13 +11,14 @@ from learnware.reuse import AveragingReuser, FeatureAlignLearnware
 from methods import *
 from base import TableWorkflow
 from config import align_model_params, user_semantic, hetero_n_labeled_list, hetero_n_repeat_list
-from utils import Recorder, plot_performance_curves
+from utils import Recorder, plot_performance_curves, set_seed
 
 logger = get_module_logger("hetero_test", level="INFO")
 
 
 class HeterogeneousDatasetWorkflow(TableWorkflow):
     def unlabeled_hetero_table_example(self):
+        set_seed(0)
         logger.info("Total Item: %d" % len(self.market))
         learnware_rmse_list = []
         single_score_list = []
@@ -39,7 +40,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
             )
             logger.info(f"Searching Market for user: {user}_{idx}")
             
-            search_result = self.market.search_learnware(user_info, max_search_num=10)
+            search_result = self.market.search_learnware(user_info, search_method="auto")
             single_result = search_result.get_single_results()
             multiple_result = search_result.get_multiple_results()
             
@@ -107,6 +108,7 @@ class HeterogeneousDatasetWorkflow(TableWorkflow):
 
 
     def labeled_hetero_table_example(self, skip_test):
+        set_seed(0)
         logger.info("Total Items: %d" % len(self.market))
         methods = ["user_model", "hetero_single_aug", "hetero_multiple_avg", "hetero_ensemble_pruning"]
         recorders = {method: Recorder() for method in methods}

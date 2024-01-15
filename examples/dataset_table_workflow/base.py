@@ -76,6 +76,7 @@ class TableWorkflow:
         self.user_semantic["Name"]["Values"] = ""
         
         if len(self.market) == 0 or rebuild == True:
+            if retrain: set_seed(0)
             for learnware_id in self.benchmark.learnware_ids:
                 with tempfile.TemporaryDirectory(prefix="table_benchmark_") as tempdir:
                     zip_path = os.path.join(tempdir, f"{learnware_id}.zip")
