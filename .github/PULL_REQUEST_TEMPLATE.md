@@ -12,4 +12,4 @@
 <!---  Put an `x` in the boxes as follows. --->
 - [ ] This PR fixes bugs
 - [ ] This PR adds new features
-- [ ] This PR update documentations or fixes typo
+- [ ] This PR updates documentations or fixes typos
