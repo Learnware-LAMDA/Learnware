@@ -18,7 +18,7 @@ def get_version(rel_path: str) -> str:
 
 # Package meta-data.
 NAME = "learnware"
-DESCRIPTION = "learnware market project"
+DESCRIPTION = "The learnware package supports the submission, usability testing, organization, identification, deployment, and reuse of learnware."
 REQUIRES_PYTHON = ">=3.6.0"
 VERSION = get_version("learnware/__init__.py")
 
