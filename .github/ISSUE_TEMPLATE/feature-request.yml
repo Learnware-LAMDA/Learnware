@@ -1,0 +1,20 @@
+name: "\U0001F680 Feature request"
+description: Submit a proposal/request for a new learnware feature
+labels: [ "feature" ]
+body:
+  - type: textarea
+    id: feature-request
+    validations:
+      required: true
+    attributes:
+      label: Feature request
+      description: |
+        A clear and concise description of the feature proposal. If this is related to papers, codes, or other issues, please link here.
+
+
+  - type: textarea
+    id: contribution
+    attributes:
+      label: Your Contribution
+      description: |
+        Is there any way that you could help, e.g. by submitting a PR?

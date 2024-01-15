@@ -646,3 +646,6 @@ class TransformerMultiLayer(nn.Module):
         for i, mod in enumerate(self.transformer_encoder):
             outputs = mod(outputs, src_key_padding_mask=attention_mask)
         return outputs
+
+
+__all__ = ["HeteroMap", "Trainer"]

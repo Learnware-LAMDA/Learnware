@@ -1,0 +1,20 @@
+name: "\U0001F41B 错误报告"
+description: 提交错误报告以帮助我们改进北冥坞系统
+body:
+- type: textarea
+    id: bug-detail
+    attributes:
+      label: 错误信息
+      description: 请描述你所遇到的错误，并且提供用于复现错误的代码或者运行截图.
+      placeholder: 错误描述和复现方法.
+    validations:
+      required: true
+
+  - type: textarea
+    id: env-info
+    attributes:
+      label: 环境配置
+      description: 请与我们分享你的环境配置信息.
+      placeholder: learnware 版本, 使用的平台, python 版本, 等等.
+    validations:
+      required: true

@@ -14,7 +14,7 @@ and utilizing ``Learnware`` to handle user tasks.
 Installation
 ====================
 
-Learnware is currently hosted on `PyPI <https://pypi.org/>`_. You can easily intsall ``Learnware`` by following these steps:
+Learnware is currently hosted on `PyPI <https://pypi.org/project/learnware/>`_. You can easily intsall the ``learnware`` package by following these steps:
 
 .. code-block:: bash
 
@@ -32,14 +32,14 @@ In the ``learnware`` package, besides the base classes, many core functionalitie
 Prepare Learnware
 ====================
 
-In learnware ``learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
+In the ``learnware`` package, each learnware is encapsulated in a ``zip`` package, which should contain at least the following four files:
 
 - ``learnware.yaml``: learnware configuration file.
 - ``__init__.py``: methods for using the model.
 - ``stat.json``: the statistical specification of the learnware. Its filename can be customized and recorded in learnware.yaml.
 - ``environment.yaml`` or ``requirements.txt``: specifies the environment for the model.
 
-To facilitate the construction of a learnware, we provide a `Learnware Template <https://www.bmwu.cloud/static/learnware-template.zip>`_ that the users can use as a basis for building your own learnware.  We've also detailed the format of the learnware ``zip`` package in `Learnware Preparation<../workflows/upload:prepare-learnware>`.
+To facilitate the construction of a learnware, we provide a `Learnware Template <https://www.bmwu.cloud/static/learnware-template.zip>`_ that the users can use as a basis for building your own learnware.  We've also detailed the format of the learnware ``zip`` package in `Learnware Preparation <../workflows/upload:prepare-learnware>`_.
 
 Learnware Package Workflow
 ============================
@@ -119,7 +119,7 @@ If you decide in favor of porviding your own statistical specification file, ``s
 the ``Learnware Market`` can further refine the selection of learnwares from the previous step. 
 This second-stage search leverages statistical information to identify one or more learnwares that are most likely to be beneficial for your task. 
 
-For example, the code below executes learnware search when using Reduced Set Kernel Embedding as the statistical specification:
+For example, the code below executes learnware search when using Reduced Kernel Mean Embedding (RKME) as the statistical specification:
 
 .. code-block:: python
 

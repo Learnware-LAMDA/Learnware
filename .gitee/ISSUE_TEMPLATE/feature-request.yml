@@ -1,0 +1,19 @@
+name: "\U0001F680 功能建议"
+description: 提交关于 Learnware 新功能的建议
+labels: [ "feature" ]
+body:
+  - type: textarea
+    id: feature-request
+    validations:
+      required: true
+    attributes:
+      label: 功能描述
+      description: |
+        对所建议功能的清晰且简洁的描述. 如果功能和其他论文、代码或者 Issues 相关, 可以提供相应的链接.
+
+  - type: textarea
+    id: contribution
+    attributes:
+      label: 你的贡献
+      description: |
+        你是否可以提供帮助, 例如提交 PR?

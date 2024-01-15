@@ -8,9 +8,9 @@ Installation Guide
 ===================================
 .. note::
 
-   The ``learnware`` package supports `Windows`, `Linux`. It's recommended to use ``Learnware`` in `Linux`. ``Learnware`` supports Python3, which is up to Python3.11.
+   The ``learnware`` package supports `Windows`, `Linux`. It's recommended to use ``learnware`` in `Linux`. This package supports Python3, which is up to Python3.11.
 
-Users can easily install ``Learnware`` by pip according to the following command:
+Users can easily install ``learnware`` by pip according to the following command:
 
 .. code-block:: bash
 
@@ -29,10 +29,10 @@ In the ``learnware`` package, besides the base classes, many core functionalitie
 Install ``learnware`` Package From Source
 ==========================================
 
-Also, Users can install ``Learnware`` by the source code according to the following steps:
+Also, Users can install ``learnware`` by the source code according to the following steps:
 
-- Enter the root directory of ``Learnware``, in which the file ``setup.py`` exists.
-- Then, please execute the following command to install the environment dependencies and install ``Learnware``:
+- Enter the root directory of this project, in which the file ``setup.py`` exists.
+- Then, please execute the following command to install the environment dependencies and install ``learnware``:
 
     .. code-block:: bash
         

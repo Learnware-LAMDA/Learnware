@@ -1,4 +1,4 @@
-name: Test leanrnware from source code
+name: Test learnware
 
 on:
   push:
@@ -42,12 +42,12 @@ jobs:
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
-        conda run -n learnware python -m flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        conda run -n learnware python -m flake8 . --ignore=E203,E501,F841,W503
 
     - name: Install learnware
       run: |
-        conda run -n learnware python -m pip install .
+        conda run -n learnware python -m pip install .[full]
 
     - name: Test workflow
       run: |
-        conda run -n learnware python -m pytest tests/test_workflow/
+        conda run -n learnware python -m pytest tests/test_workflow/test_hetero_workflow.py

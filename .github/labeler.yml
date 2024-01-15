@@ -1,0 +1,6 @@
+documentation:
+- 'docs/**/*'
+- '**/*.md'
+
+pending:
+- any: ['**/*', '!docs/**/*', '!**/*.md']

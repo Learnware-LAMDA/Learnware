@@ -81,7 +81,7 @@ Ensure that the input parameters for the semantic specification fall within the 
 * "task_type" must be within the range of ``key=SemanticSpecificationKey.TASK_TYPE``.
 * "library_type" must be within the range of ``key=SemanticSpecificationKey.LIBRARY_TYPE``.
 * "scenarios" must be a subset of ``key=SemanticSpecificationKey.SENARIOS``.
-* "license" must be a subset of ``key=SemanticSpecificationKey.LICENSE``.
+* "license" must be within the range of ``key=SemanticSpecificationKey.LICENSE``.
 * When "data_type" is set to "Table", it is necessary to provide "input_description".
 * When "task_type" is either "Classification" or "Regression", it is necessary to provide "output_description".
 

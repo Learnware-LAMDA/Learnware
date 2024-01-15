@@ -1,0 +1,20 @@
+name: "\U0001F41B Bug Report"
+description: Submit a bug report to help us improve learnware
+body:
+  - type: textarea
+    id: bug-detail
+    attributes:
+      label: Bug Detail
+      description: Please report the bug in detail or provide a code sample that reproduces the problem you ran into.
+      placeholder: bug detail and reproduction.
+    validations:
+      required: true
+
+  - type: textarea
+    id: runtime-environment
+    attributes:
+      label: Runtime Environment
+      description: Please share your environment setting with us.
+      placeholder: learnware version, platform, python version, ...
+    validations:
+      required: true

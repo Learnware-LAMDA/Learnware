@@ -1,0 +1,12 @@
+name: "\U00002753 Questions & Help"
+description: Have some questions? We can offer help
+labels: [ "question" ]
+body:
+  - type: textarea
+    id: question
+    validations:
+      required: true
+    attributes:
+      label: Description
+      description: |
+        We sincerely suggest you to carefully read the [documentation](http://learnware.readthedocs.io/) of our library. After that, if you still feel puzzled, please describe the question clearly under this issue.

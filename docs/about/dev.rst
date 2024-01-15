@@ -6,7 +6,7 @@ For Developer
 Install with Dev Mode
 =======================
 
-As a developer, you often want make changes to ``Learnware Market`` and hope it would reflect directly in your environment without reinstalling it. You can install ``Learnware Market`` in editable mode with following command.
+As a developer, you often want make changes to ``learnware`` and hope it would reflect directly in your environment without reinstalling it. You can install ``learnware`` in editable mode with following command.
 
 .. code-block:: bash
     
@@ -33,7 +33,7 @@ The suffix specifies the specific nature of the modification, with the initial l
 Examples: The following are all valid:
 
 - [DOC] Fix the document
-- [FIX, ENH] Fix the bug and add some feature"
+- [FIX, ENH] Fix the bug and add some features
 
 
 Docstring
@@ -47,7 +47,7 @@ Continuous Integration
 ======================
 Continuous Integration (CI) tools help you stick to the quality standards by running tests every time you push a new commit and reporting the results to a pull request.
 
-``Learnware Market`` will check the following tests when you pull a request:
+This project will check the following tests when you pull a request:
 1. We will check your code length, you can fix your code style by the following commands:
 
 .. code-block:: bash

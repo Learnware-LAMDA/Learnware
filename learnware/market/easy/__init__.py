@@ -8,7 +8,20 @@ if not is_torch_available(verbose=False):
     EasySearcher = None
     EasySemanticChecker = None
     EasyStatChecker = None
+    EasyExactSemanticSearcher = None
+    EasyFuzzSemanticSearcher = None
+    EasyStatSearcher = None
     logger.error("EasySeacher and EasyChecker are not available because 'torch' is not installed!")
 else:
     from .checker import EasySemanticChecker, EasyStatChecker
     from .searcher import EasyExactSemanticSearcher, EasyFuzzSemanticSearcher, EasySearcher, EasyStatSearcher
+
+__all__ = [
+    "EasyOrganizer",
+    "EasySemanticChecker",
+    "EasyStatChecker",
+    "EasyExactSemanticSearcher",
+    "EasyFuzzSemanticSearcher",
+    "EasySearcher",
+    "EasyStatSearcher",
+]

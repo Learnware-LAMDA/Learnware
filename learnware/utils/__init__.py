@@ -5,7 +5,6 @@ from .file import convert_folder_to_zipfile, read_yaml_to_dict, save_dict_to_yam
 from .gpu import allocate_cuda_idx, choose_device, setup_seed
 from .import_utils import is_torch_available
 from .module import get_module_by_module_path
-from ..config import SystemType, get_platform
 
 
 def zip_learnware_folder(path: str, output_name: str):
@@ -16,3 +15,15 @@ def zip_learnware_folder(path: str, output_name: str):
                 if file.endswith(".pyc") or os.path.islink(full_path):
                     continue
                 zip_ref.write(full_path, arcname=os.path.relpath(full_path, path))
+
+
+__all__ = [
+    "convert_folder_to_zipfile",
+    "read_yaml_to_dict",
+    "save_dict_to_yaml",
+    "allocate_cuda_idx",
+    "choose_device",
+    "setup_seed",
+    "is_torch_available",
+    "get_module_by_module_path",
+]
