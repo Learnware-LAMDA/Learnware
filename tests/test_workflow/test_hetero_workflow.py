@@ -1,21 +1,21 @@
-import torch
-import pickle
-import unittest
-import os
 import logging
+import os
+import pickle
 import tempfile
+import unittest
 import zipfile
-from sklearn.linear_model import Ridge
+
+import torch
+from hetero_config import input_description_list, input_shape_list, output_description_list, user_description_list
 from sklearn.datasets import make_regression
+from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error
 
 import learnware
-from learnware.market import instantiate_learnware_market, BaseUserInfo
+from learnware.market import BaseUserInfo, instantiate_learnware_market
+from learnware.reuse import AveragingReuser, EnsemblePruningReuser, HeteroMapAlignLearnware
 from learnware.specification import RKMETableSpecification, generate_rkme_table_spec, generate_semantic_spec
-from learnware.reuse import HeteroMapAlignLearnware, AveragingReuser, EnsemblePruningReuser
 from learnware.tests.templates import LearnwareTemplate, PickleModelTemplate, StatSpecTemplate
-
-from hetero_config import input_shape_list, input_description_list, output_description_list, user_description_list
 
 learnware.init(logging_level=logging.WARNING)
 curr_root = os.path.dirname(os.path.abspath(__file__))

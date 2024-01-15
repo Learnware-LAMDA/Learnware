@@ -1,16 +1,16 @@
 import os
 import warnings
+
 import numpy as np
-
-from learnware.market import BaseUserInfo
-from learnware.logger import get_module_logger
-from learnware.specification import generate_stat_spec
-from learnware.reuse import AveragingReuser, JobSelectorReuser
-
-from methods import loss_func_rmse
 from base import TableWorkflow
 from config import homo_n_labeled_list, homo_n_repeat_list
+from methods import loss_func_rmse
 from utils import Recorder, plot_performance_curves
+
+from learnware.logger import get_module_logger
+from learnware.market import BaseUserInfo
+from learnware.reuse import AveragingReuser, JobSelectorReuser
+from learnware.specification import generate_stat_spec
 
 warnings.filterwarnings("ignore")
 logger = get_module_logger("homo_table", level="INFO")

@@ -1,6 +1,5 @@
 from learnware.tests.benchmarks import BenchmarkConfig
 
-
 text_benchmark_config = BenchmarkConfig(
     name="20-Newsgroups",
     user_num=10,

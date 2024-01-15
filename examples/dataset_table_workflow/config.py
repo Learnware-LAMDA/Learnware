@@ -1,6 +1,5 @@
 from learnware.tests.benchmarks import BenchmarkConfig
 
-
 homo_n_labeled_list = [100, 200, 500, 1000, 2000, 4000, 6000, 8000, 10000]
 homo_n_repeat_list = [10, 10, 10, 3, 3, 3, 3, 3, 3]
 hetero_n_labeled_list = [10, 30, 50, 75, 100, 200, 500, 1000, 2000]

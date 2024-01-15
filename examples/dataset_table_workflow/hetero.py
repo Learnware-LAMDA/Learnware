@@ -2,15 +2,15 @@ import os
 import warnings
 
 import numpy as np
+from base import TableWorkflow
+from config import align_model_params, hetero_n_labeled_list, hetero_n_repeat_list, user_semantic
+from methods import loss_func_rmse
+from utils import Recorder, plot_performance_curves, set_seed
+
 from learnware.logger import get_module_logger
-from learnware.specification import generate_stat_spec
 from learnware.market import BaseUserInfo
 from learnware.reuse import AveragingReuser, FeatureAlignLearnware
-
-from methods import loss_func_rmse
-from base import TableWorkflow
-from config import align_model_params, user_semantic, hetero_n_labeled_list, hetero_n_repeat_list
-from utils import Recorder, plot_performance_curves, set_seed
+from learnware.specification import generate_stat_spec
 
 warnings.filterwarnings("ignore")
 logger = get_module_logger("hetero_test", level="INFO")

@@ -1,8 +1,8 @@
 import lightgbm as lgb
+from config import user_model_params
 from lightgbm import early_stopping
 
 from learnware.logger import get_module_logger
-from config import user_model_params
 
 logger = get_module_logger("train_table", level="INFO")
 

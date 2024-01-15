@@ -1,10 +1,10 @@
 import numpy as np
+from config import align_model_params
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
+from train import train_model
 
 from learnware.reuse import AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser, HeteroMapAlignLearnware
-from config import align_model_params
-from train import train_model
 
 
 def loss_func_rmse(y_true, y_pred):

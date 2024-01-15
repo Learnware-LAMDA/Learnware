@@ -1,24 +1,25 @@
 import os
-import fire
-import time
-import torch
 import pickle
 import random
 import tempfile
-import numpy as np
-import matplotlib.pyplot as plt
-from torch.utils.data import TensorDataset
+import time
 
-from learnware.utils import choose_device
+import fire
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from config import image_benchmark_config
+from model import ConvModel
+from torch.utils.data import TensorDataset
+from utils import evaluate, train_model
+
 from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
+from learnware.market import BaseUserInfo, instantiate_learnware_market
+from learnware.reuse import AveragingReuser, EnsemblePruningReuser, JobSelectorReuser
 from learnware.specification import generate_stat_spec
 from learnware.tests.benchmarks import LearnwareBenchmark
-from learnware.market import instantiate_learnware_market, BaseUserInfo
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser
-from model import ConvModel
-from utils import train_model, evaluate
-from config import image_benchmark_config
+from learnware.utils import choose_device
 
 logger = get_module_logger("image_workflow", level="INFO")
 

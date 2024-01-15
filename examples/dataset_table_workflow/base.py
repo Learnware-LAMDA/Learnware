@@ -1,19 +1,20 @@
 import os
-import time
 import random
-import requests
 import tempfile
+import time
 import traceback
+
 import numpy as np
+import requests
+from config import market_mapping_params
+from methods import loss_func_rmse, test_methods
+from utils import set_seed
+
 from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
 from learnware.market import instantiate_learnware_market
 from learnware.reuse.utils import fill_data_with_mean
 from learnware.tests.benchmarks import LearnwareBenchmark
-
-from config import market_mapping_params
-from methods import loss_func_rmse, test_methods
-from utils import set_seed
 
 logger = get_module_logger("base_table", level="INFO")
 

@@ -1,6 +1,6 @@
 import os
-import unittest
 import tempfile
+import unittest
 
 from learnware.client import LearnwareClient
 

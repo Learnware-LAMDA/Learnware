@@ -1,18 +1,19 @@
-import unittest
-import os
 import logging
-import tempfile
+import os
 import pickle
+import tempfile
+import unittest
 import zipfile
+
 import numpy as np
 from sklearn import svm
 from sklearn.datasets import load_digits
 from sklearn.model_selection import train_test_split
 
 import learnware
-from learnware.market import instantiate_learnware_market, BaseUserInfo
+from learnware.market import BaseUserInfo, instantiate_learnware_market
+from learnware.reuse import AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser, JobSelectorReuser
 from learnware.specification import RKMETableSpecification, generate_rkme_table_spec, generate_semantic_spec
-from learnware.reuse import JobSelectorReuser, AveragingReuser, EnsemblePruningReuser, FeatureAugmentReuser
 from learnware.tests.templates import LearnwareTemplate, PickleModelTemplate, StatSpecTemplate
 
 learnware.init(logging_level=logging.WARNING)

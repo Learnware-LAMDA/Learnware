@@ -1,14 +1,14 @@
-import os
 import json
+import os
 import random
-
-import torch
-import numpy as np
-import matplotlib.pyplot as plt
 from collections import defaultdict
 
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from config import labels, styles
+
 from learnware.logger import get_module_logger
-from config import styles, labels
 
 logger = get_module_logger("base_table", level="INFO")
 
