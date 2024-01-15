@@ -69,6 +69,16 @@ In the following figure, we present the loss curves for the user's self-trained 
 
 ## Reproduction
 
+### Installation
+
+To reproduce the above experiment, you need to install the necessary dependencies on top of the environment of `learnware` package. The specific commands are as follows:
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+### Run the code
+
 Run the following command to get the table results in `Homogeneous Cases`:
 
 ```bash
