@@ -316,8 +316,8 @@ In this experimental setup, we examine various data-free reusers. The results in
 |-----------------------------------|--------|
 | Mean in Market (Single)           | 1.149  |
 | Best in Market (Single)           | 1.038  |
-| Top-1 Reuse (Single)              | 1.105  |
-| Average Ensemble Reuse (Multiple) | 1.081  |
+| Top-1 Reuse (Single)              | 1.075  |
+| Average Ensemble Reuse (Multiple) | 1.064  |
 
 </div>
 
