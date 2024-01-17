@@ -3,10 +3,10 @@
 Specification
 ================================
 
-Learnware specification is the core component of the learnware paradigm, linking all processes about learnwares, including uploading, organizing, searching, deploying and reusing. 
+Learnware specification is the core component of the learnware paradigm, linking all processes about learnwares, including uploading, organizing, searching, deploying, and reusing. 
 
 In this section, we will introduce the concept and design of learnware specification in the ``learnware`` package.
-We will then explore ``regular specification``\ s tailored for different data types such as tables, images and texts.
+We will then explore ``regular specification``\ s tailored for different data types such as tables, images, and texts.
 Lastly, we cover a ``system specification`` specifically assigned to table learnwares by the learnware market, aimed at accommodating all available table learnwares into a unified "specification world" despite their heterogeneity.
 
 Concepts & Types
@@ -19,7 +19,7 @@ The ``learnware`` package employs a highly extensible specification design, whic
 - **Statistical specification** characterizes the statistical information contained in the model using various machine learning techniques. It plays a crucial role in locating the appropriate place for the model within the specification island.
 
 When searching in the learnware market, the system first locates specification islands based on the semantic specification of the user's task, 
-then pinpoints highly beneficial learnwares on theses islands based on the statistical specification of the user's task.
+then pinpoints highly beneficial learnwares on these islands based on the statistical specification of the user's task.
 
 Statistical Specification
 ---------------------------
@@ -28,8 +28,8 @@ We employ the ``Reduced Kernel Mean Embedding (RKME) Specification`` as the foun
 with adjustments made according to the characteristics of each data type. 
 The RKME specification is a recent development in learnware specification design, which represents the distribution of a model's training data in a privacy-preserving manner.
 
-Within the ``learnware`` package, you'll find two types of statistical specifications: ``regular specification`` and ``system specification``. The former is generated locally
-by users to express their model's statistical information, while the latter is assigned by the learnware market to accommodate and organize heterogeneous learnwares. 
+Within the ``learnware`` package, you will find two types of statistical specifications: ``regular specification`` and ``system specification``. The former is generated locally
+by users to express their model's statistical information, while the learnware market assigns the latter to accommodate and organize heterogeneous learnwares. 
 
 Semantic Specification
 -----------------------
@@ -56,7 +56,7 @@ as shown in the following code:
    regular_spec = generate_stat_spec(type=data_type, x=train_x)
    regular_spec.save("stat.json")
 
-It's worth noting that the above code only runs on user's local computer and does not interact with any cloud servers or leak any local private data.
+It is worth noting that the above code only runs on the user's local computer and does not interact with cloud servers or leak local private data.
 
 .. note:: 
 
@@ -72,7 +72,7 @@ Image Specification
 
 Image data lives in a higher dimensional space than other data types. Unlike lower dimensional spaces, metrics defined based on Euclidean distances (or similar distances) will fail in higher dimensional spaces. This means that measuring the similarity between image samples becomes difficult. 
 
-To address these issues, we use the Neural Tangent Kernel (NTK) based on Convolutional Neural Networks (CNN) to measure the similarity of image samples.  As we all know, CNN has greatly advanced the field of computer vision and is still a mainstream deep learning technique. 
+To address these issues, we use the Neural Tangent Kernel (NTK) based on Convolutional Neural Networks (CNN) to measure the similarity of image samples. As we all know, CNN has greatly advanced the field of computer vision and is still a mainstream deep-learning technique. 
 
 Usage & Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -82,7 +82,7 @@ Note that the Image Specification is generated on a subset of the CIFAR-10 datas
 Then, it is saved to file "cifar10.json" using ``spec.save``. 
 
 In many cases, it is difficult to construct Image Specification on the full dataset. 
-By randomly sampling a subset of the dataset, we can construct Image Specification based on it efficiently, with a strong enough statistical description of the full dataset.
+By randomly sampling a subset of the dataset, we can efficiently construct Image Specification based on it, with a strong enough statistical description of the full dataset.
 
 .. tip::
    Typically, sampling 3,000 to 10,000 images is sufficient to generate the Image Specification.
@@ -105,11 +105,11 @@ By randomly sampling a subset of the dataset, we can construct Image Specificati
 Privacy Protection
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the third row of the figure, we show the eight pseudo-data with the largest weights :math:`\beta` in the Image Specification generated on the CIFAR-10 dataset.
+In the third row of the figure, we show the eight pseudo-data with the largest weights`\beta` in the Image Specification generated on the CIFAR-10 dataset.
 Notice that the Image Specification generated based on Neural Tangent Kernel (NTK) protects the user's privacy very well.
 
-In contrast, we show the performance of the RBF kernel on image dat in the first row of the figure below. 
-The RBF not only exposes the real data (plotted in the corresponding position in the second row), but also fails to fully utilise the weights :math:`\beta`.
+In contrast, we show the performance of the RBF kernel on image data in the first row of the figure below. 
+The RBF not only exposes the real data (plotted in the corresponding position in the second row) but also fails to fully utilize the weights :math:`\beta`.
 
 .. image:: ../_static/img/image_spec.png
    :align: center
@@ -117,18 +117,18 @@ The RBF not only exposes the real data (plotted in the corresponding position in
 Text Specification
 --------------------------
 
-Different from tabular data, each text input is a string of different length, so we should first transform them to equal-length arrays. Sentence embedding is used here to complete this transformation. We choose the model ``paraphrase-multilingual-MiniLM-L12-v2``, a lightweight multilingual embedding model. Then, we calculate the RKME specification on the embedding,  just like we do with tabular data. Besides, we use the package ``langdetect`` to detect and store the language of the text inputs for further search. We hope to search for the learnware which supports the language of the user task.
+Different from tabular data, each text input is a string of different length, so we should first transform them to equal-length arrays. Sentence embedding is used here to complete this transformation. We choose the model ``paraphrase-multilingual-MiniLM-L12-v2``, a lightweight multilingual embedding model. Then, we calculate the RKME specification on the embedding,  just like we do with tabular data. Besides, we use the package ``langdetect`` to detect and store the language of the text inputs for further search. We hope to search for the learnware that supports the language of the user task.
 
 System Specification
 ======================================
 
-In contrast to ``regular specification``\ s which are generated solely by users,
+In contrast to ``regular specification``\ s, which are generated solely by users,
 ``system specification``\ s are higher-level statistical specifications assigned by learnware markets 
 to effectively accommodate and organize heterogeneous learnwares. 
 This implies that ``regular specification``\ s are usually applicable across different markets, while ``system specification``\ s are generally closely associated
 with particular learnware market implementations.
 
-``system specification`` play a critical role in heterogeneous markets such as the ``Hetero Market``:
+``system specification`` plays a critical role in heterogeneous markets such as the ``Hetero Market``:
 
 - Learnware organizers use these specifications to connect isolated specification islands into unified "specification world"s.
 - Learnware searchers perform helpful learnware recommendations among all table learnwares in the market, leveraging the ``system specification``\ s generated for users.
