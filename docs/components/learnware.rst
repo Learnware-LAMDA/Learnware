@@ -19,7 +19,7 @@ In our implementation, the class ``Learnware`` has three important member variab
 Learnware for Hetero Reuse
 =======================================================================
 
-In the Hetero Market (refer to `COMPONENTS: Hetero Market  <./market.html#hetero-market>`_ for more details), ``HeteroSearcher`` identifies and recommends valuable learnwares from the entire market. This includes learnwares with different feature/label spaces compared to the user's task requirements, known as "heterogeneous learnwares."
+In the Hetero Market (refer to `COMPONENTS: Hetero Market  <./market.html#hetero-market>`_ for more details), ``HeteroSearcher`` identifies and recommends valuable learnwares from the entire market. This includes learnwares with different feature/label spaces compared to the user's task requirements, known as "heterogeneous learnwares".
 
 To enable the reuse of these heterogeneous learnwares, we have developed ``FeatureAlignLearnware`` and ``HeteroMapLearnware``. 
 These components expand the capabilities of standard ``Learnware`` by aligning the feature and label spaces to match the user's task requirements. 
@@ -127,7 +127,7 @@ FeatureAugmentReuser
 
 ``FeatureAugmentReuser`` helps users reuse learnwares by augmenting features. In this method, 
 outputs of the learnwares from ``learnware_list`` on the user's validation data ``val_X`` are taken as augmented features and are concatenated with original features ``val_X``.
-The augmented data(concatenated features combined with validation labels ``val_y``) are then used to train a simple model ``augment_reuser``, which gives the final prediction
+The augmented data (concatenated features combined with validation labels ``val_y``) are then used to train a simple model ``augment_reuser``, which gives the final prediction
 on ``user_data``.
 
 - **fit**: Trains the ``augment_reuser`` using augmented user validation data. For classification tasks, ``mode`` should be set to ``classification``, and ``augment_reuser`` is a ``LogisticRegression`` model. For regression tasks, the mode should be set to ``classification``, and ``augment_reuser`` is a ``RidgeCV`` model. 

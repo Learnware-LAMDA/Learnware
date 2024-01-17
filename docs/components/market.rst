@@ -95,7 +95,7 @@ In these two searchers, each learnware in the ``learnware_list`` is compared wit
 
   - For keys ``Data``, ``Task``, ``Library`` and ``license``, two``semantic_spec`` keys are matched only if these values(only one value foreach key) of learnware ``semantic_spec`` exists in values(may be muliplevalues for one key) of user ``semantic_spec``.
   - For the key ``Scenario``, two ``semantic_spec`` keys are matched iftheir values have nonempty intersections.
-  - For keys ``Name`` and ``Description``, the values are strings and caseis ignored. In ``EasyExactSemanticSearcher``, two ``semantic_spec`` keys are matched if these values of learnware ``semantic_spec`` is a substring of user ``semantic_spec``; In ``EasyFuzzSemanticSearcher``, first the exact semantic searcher is conducted like ``EasyExactSemanticSearcher``.If the result is empty, the fuzz semantic searcher is activated:  the ``learnware_list`` is sorted according to the fuzz score function ``fuzzpartial_ratio`` in ``rapidfuzz``.
+  - For keys ``Name`` and ``Description``, the values are strings and caseis ignored. In ``EasyExactSemanticSearcher``, two ``semantic_spec`` keys are matched if these values of learnware ``semantic_spec`` is a substring of user ``semantic_spec``. In ``EasyFuzzSemanticSearcher``, it starts with the same kind of exact semantic search as ``EasyExactSemanticSearcher``. If the result is empty, the fuzz semantic searcher is activated:  the ``learnware_list`` is sorted according to the fuzz score function ``fuzzpartial_ratio`` in ``rapidfuzz``.
 
 The results are returned and stored in ``single_results`` of ``SearchResults``.
 
@@ -108,9 +108,9 @@ If the user's statistical specification ``stat_info`` is provided,  the learnwar
 - **EasyStatSearcher.__call__(self, learnware_list: List[Learnware], user_info: BaseUserInfo, max_search_num: int = 5, search_method: str = "greedy",) -> SearchResults**
  
   - It searches for helpful learnwares from ``learnware_list`` based on the ``stat_info`` in ``user_info``.
-  - The result ``SingleSearchItem`` and ``MultipleSearchItem`` are both stored in ``SearchResults``. In ``SingleSearchItem``, it searches for single learnwares that could solve the user task; scores are also provided to represent the fitness of each single learnware and user task. In ``MultipleSearchItem``, it searches for a mixture of learnwares that could solve the user task better; the mixture learnware list and a score for the mixture are returned.
+  - The result ``SingleSearchItem`` and ``MultipleSearchItem`` are both stored in ``SearchResults``. In ``SingleSearchItem``, it searches for individual learnware solutions for the user's task, and it also assigns scores to indicate the compatibility of each learnware with the user's task. In ``MultipleSearchItem``, it searches for a mixture of learnwares that could solve the user task better; the mixture learnware list and a score for the mixture are returned.
   - The parameter ``search_method`` provides two choice of search strategies for mixture learnwares: ``greedy`` and ``auto``. For the search method ``greedy``, each time it chooses a learnware to make their mixture closer to the user's ``stat_info``; for the search method ``auto``, it directly calculates the best mixture weight for the ``learnware_list``.
-  - For single learnware search, we only return the learnwares with a score larger than 0.6; For multiple learnware search, the parameter ``max_search_num`` specifies the maximum length of the returned mixture learnware list. 
+  - For single learnware search, we only return the learnwares with a score larger than 0.6. For multiple learnware search, the parameter ``max_search_num`` specifies the maximum length of the returned mixture learnware list. 
 
 
 ``Easy Checker``
