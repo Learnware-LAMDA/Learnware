@@ -91,7 +91,7 @@ if __name__ == "__main__":
         name=NAME,
         version=VERSION,
         license="Apache-2.0 Licence",
-        url="https://gitee.com/beimingwu/learnware",
+        url="https://www.gitlink.org.cn/beimingwu/learnware",
         packages=find_packages(),
         include_package_data=True,
         description=DESCRIPTION,

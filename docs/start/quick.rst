@@ -192,4 +192,4 @@ Auto Workflow Example
 
 The ``Learnware`` also offers automated workflow examples. 
 This includes preparing learnwares, uploading and deleting learnwares from the market, and searching for learnwares using both semantic and statistical specifications. 
-To experience the basic workflow of the Learnware Market, please refer to `Learnware Examples <https://github.com/Learnware-LAMDA/Learnware/tree/main/examples>`_.
+To experience the basic workflow of the Learnware Market, please refer to `Learnware Examples <https://www.gitlink.org.cn/beimingwu/learnware/tree/main/examples>`_.
