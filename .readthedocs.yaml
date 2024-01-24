@@ -20,4 +20,4 @@ formats: all
 python:
   install:
     - method: pip
-      path: .[dev]
+      path: .[full, dev]
