@@ -45,8 +45,7 @@ In addition, the `learnware` package serves as the engine for the [Beimingwu Sys
 
 ## Learnware Paradigm
 
-A learnware consists of a high-performance machine learning model and specifications that characterize the model, i.e., "Learnware = Model + Specification".
-These specifications, encompassing both semantic and statistical aspects, detail the model's functionality and statistical information, making it easier for future users to identify and reuse these models.
+A learnware consists of a high-performance machine learning model and specifications that characterize the model, i.e., "Learnware = Model + Specification". These specifications, encompassing both semantic and statistical aspects, detail the model's functionality and statistical information, making it easier for future users to identify and reuse these models.
 
 <div align="center">
   <img src="./docs/_static/img/learnware_market.svg" width="700" height="auto" style="max-width: 100%;" />
@@ -369,8 +368,7 @@ Finally, we evaluate our algorithms on text datasets. Text data naturally exhibi
 
 ### Settings
 
-We conduct experiments on the well-known text classification dataset: [20-newsgroup](http://qwone.com/~jason/20Newsgroups/), which consists approximately 20000 newsgroup documents partitioned across 20 different newsgroups.
-Similar to the image experiments, a total of 50 learnwares are uploaded. Each learnware is trained on a subset that includes only half of the samples from three superclasses and the model in it is a tf-idf feature extractor combined with a naive Bayes classifier. We define 10 user tasks, and each of them encompasses two superclasses.
+We conduct experiments on the well-known text classification dataset: [20-newsgroup](http://qwone.com/~jason/20Newsgroups/), which consists approximately 20000 newsgroup documents partitioned across 20 different newsgroups. Similar to the image experiments, a total of 50 learnwares are uploaded. Each learnware is trained on a subset that includes only half of the samples from three superclasses and the model in it is a tf-idf feature extractor combined with a naive Bayes classifier. We define 10 user tasks, and each of them encompasses two superclasses.
 
 ### Results
 
@@ -420,5 +418,4 @@ Learnware is still young and may contain bugs and issues. We highly value and en
 
 ## About Us
 
-The Learnware repository is developed and maintained by the LAMDA Beimingwu R&D Team.
-To learn more about our team, please visit the [Team Overview](https://docs.bmwu.cloud/en/about-us.html).
+The Learnware repository is developed and maintained by the LAMDA Beimingwu R&D Team. To learn more about our team, please visit the [Team Overview](https://docs.bmwu.cloud/en/about-us.html).
