@@ -34,7 +34,7 @@
 
 # Introduction
 
-The _learnware_ paradigm was proposed by Professor Zhi-Hua Zhou in 2016 [1, 2]. In this paradigm, developers worldwide can share models with the _learnware dock system_, which effectively searches for and reuse learnware(s) to help users solve machine learning tasks efficiently without starting from scratch.
+_Learnware_ paradigm was proposed by Professor Zhi-Hua Zhou in 2016 [1, 2]. In the _learnware paradigm_, developers worldwide can share models with the _learnware dock system_, which effectively searches for and reuse learnware(s) to help users solve machine learning tasks efficiently without starting from scratch.
 
 The `learnware` package provides a fundamental implementation of the central concepts and procedures within the learnware paradigm. Its well-structured design ensures high scalability and facilitates the seamless integration of additional features and techniques in the future.
 
