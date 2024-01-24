@@ -118,9 +118,8 @@ autodoc_member_order = "bysource"
 autodoc_default_flags = ["members"]
 autodoc_default_options = {
     "members": True,
-    'private-members': True,
-    'special-members': True,
-    'show-inheritance': True,
+    "private-members": True,
+    "special-members": "__init__, __call__",
+    "show-inheritance": True,
     "member-order": "bysource",
-    "special-members": ["__init__", "__call__"],
 }
