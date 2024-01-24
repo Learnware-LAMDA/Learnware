@@ -9,7 +9,7 @@
         <img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/learnware.svg?logo=python&logoColor=white">
     </a>
     <a href="https://pypi.org/project/learnware/#files">
-        <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey">
+        <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey">
     </a>
     <a href="https://pypi.org/project/learnware/#history">
         <img alt="PypI Versions" src="https://img.shields.io/pypi/v/learnware">
