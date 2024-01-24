@@ -120,8 +120,7 @@ autodoc_default_options = {
     "members": True,
     'private-members': True,
     'special-members': True,
-    'undoc-members': True,
     'show-inheritance': True,
     "member-order": "bysource",
-    "special-members": "__init__",
+    "special-members": ["__init__", "__call__"],
 }
