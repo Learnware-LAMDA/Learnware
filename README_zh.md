@@ -45,8 +45,7 @@
 
 ## 学件范式
 
-学件由性能优良的机器学习模型和描述模型的**规约**构成，即「学件 = 模型 + 规约」。
-学件的规约由「语义规约」和「统计规约」两部分组成：
+学件由性能优良的机器学习模型和描述模型的**规约**构成，即「学件 = 模型 + 规约」。学件的规约由「语义规约」和「统计规约」两部分组成：
 
 - 语义规约通过文本对模型的类型及功能进行描述；
 - 统计规约则通过各类机器学习技术，刻画模型所蕴含的统计信息。
@@ -68,8 +67,7 @@
   <img src="./docs/_static/img/learnware_framework.svg" width="700" height="auto" style="max-width: 100%;"/>
 </div>
 
-架构设计的原则包括：解耦 (Decoupling)、自治 (Autonomy)、可重用性 (Reusability) 以及可扩展性 (Scalability)。
-上图从模块和工作流程的角度对整个架构进行了阐述。
+架构设计的原则包括：解耦 (Decoupling)、自治 (Autonomy)、可重用性 (Reusability) 以及可扩展性 (Scalability)。上图从模块和工作流程的角度对整个架构进行了阐述。
 
 - 针对工作流程 (Workflow)，`learnware` 包括「提交阶段」和「部署阶段」。
 
@@ -125,8 +123,7 @@ pip install learnware[full]
 - `stat.json`：学件的统计规约，其文件名可自定义并记录在 learnware.yaml 中；
 - `environment.yaml` 或 `requirements.txt`：指明模型的运行环境。
 
-为方便大家构建学件，我们提供了「[学件模板](https://www.bmwu.cloud/static/learnware-template.zip)」，大家可在其基础上构建自己的学件。
-关于学件 `zip` 包中各文件的详细描述可参考文档：[学件准备](https://learnware.readthedocs.io/en/latest/workflows/upload.html#prepare-learnware)。
+为方便大家构建学件，我们提供了「[学件模板](https://www.bmwu.cloud/static/learnware-template.zip)」，大家可在其基础上构建自己的学件。关于学件 `zip` 包中各文件的详细描述可参考文档：[学件准备](https://learnware.readthedocs.io/en/latest/workflows/upload.html#prepare-learnware)。
 
 ## 工作流程
 
@@ -188,8 +185,7 @@ print(single_result)
 
 ### 统计规约查搜
 
-如果提供统计规约文件 `stat.json`，学件市场可以基于上述查搜结果进一步进行更准确的查搜。
-此阶段的查搜将利用统计信息来识别一个或多个对你的任务有帮助的学件。
+如果提供统计规约文件 `stat.json`，学件市场可以基于上述查搜结果进一步进行更准确的查搜。此阶段的查搜将利用统计信息来识别一个或多个对你的任务有帮助的学件。
 
 以下代码展示了使用 Reduced Kernel Mean Embedding (RKME) 作为统计规约进行查搜的例子：
 
@@ -237,8 +233,7 @@ reuse_ensemble = AveragingReuser(learnware_list=mixture_item.learnwares)
 ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
 ```
 
-我们还提供了两种方法，可基于用户的有标记数据来复用给定的学件集合：`EnsemblePruningReuser` 和 `FeatureAugmentReuser`。
-参考下述代码，其中 `test_x` 为测试数据，`train_x, train_y` 为有标记的训练数据：
+我们还提供了两种方法，可基于用户的有标记数据来复用给定的学件集合：`EnsemblePruningReuser` 和 `FeatureAugmentReuser`。参考下述代码，其中 `test_x` 为测试数据，`train_x, train_y` 为有标记的训练数据：
 
 ```python
 from learnware.reuse import EnsemblePruningReuser, FeatureAugmentReuser
@@ -256,8 +251,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ### 自动工作流程示例
 
-`learnware` 包提供了自动化的工作流程示例，包括准备学件、在学件市场中上传和删除学件，以及使用语义和统计规约查搜学件。
-工作流程示例可参考 `test/test_workflow/test_workflow.py` 文件。
+`learnware` 包提供了自动化的工作流程示例，包括准备学件、在学件市场中上传和删除学件，以及使用语义和统计规约查搜学件。工作流程示例可参考 `test/test_workflow/test_workflow.py` 文件。
 
 # 实验示例
 
@@ -350,8 +344,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ### 实验设置
 
-我们选择了经典的图像分类数据集 [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)，其中包含 10 个类别的 60000 张 32x32 的彩色图像。总共上传了 50 个学件：每个学件包含一个卷积神经网络，该网络在一个不平衡的子集上进行训练，包括来自四个类别的 12000 个样本，采样比例为 `0.4:0.4:0.1:0.1`。
-总共测试了 100 个用户任务，每个用户任务包含 3000 个 CIFAR-10 样本，分为六个类别，采样比例为 `0.3:0.3:0.1:0.1:0.1:0.1`。
+我们选择了经典的图像分类数据集 [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)，其中包含 10 个类别的 60000 张 32x32 的彩色图像。总共上传了 50 个学件：每个学件包含一个卷积神经网络，该网络在一个不平衡的子集上进行训练，包括来自四个类别的 12000 个样本，采样比例为 `0.4:0.4:0.1:0.1`。总共测试了 100 个用户任务，每个用户任务包含 3000 个 CIFAR-10 样本，分为六个类别，采样比例为 `0.3:0.3:0.1:0.1:0.1:0.1`。
 
 ### 实验结果
 
@@ -379,8 +372,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ### 实验设置
 
-我们在经典的文本分类数据集上进行了实验：[20-newsgroup](http://qwone.com/~jason/20Newsgroups/)，该数据集包含大约 20000 份新闻文档，包含 20 个不同的新闻组。
-与图像实验类似，我们一共上传了 50 个学件。每个学件都是在一个子集上进行训练，该子集仅包括三个超类中一半样本的数据，其中的模型为 `tf-idf` 特征提取器与朴素贝叶斯分类器的结合。我们定义了 10 个用户任务，每个任务包括两个超类。
+我们在经典的文本分类数据集上进行了实验：[20-newsgroup](http://qwone.com/~jason/20Newsgroups/)，该数据集包含大约 20000 份新闻文档，包含 20 个不同的新闻组。与图像实验类似，我们一共上传了 50 个学件。每个学件都是在一个子集上进行训练，该子集仅包括三个超类中一半样本的数据，其中的模型为 `tf-idf` 特征提取器与朴素贝叶斯分类器的结合。我们定义了 10 个用户任务，每个任务包括两个超类。
 
 ### 实验结果
 
@@ -424,9 +416,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ## 如何贡献
 
-`learnware` 还很年轻，可能存在错误和问题。我们非常欢迎大家为 `learnware` 做出贡献。
-我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。
-非常感谢大家的贡献！
+`learnware` 还很年轻，可能存在错误和问题。我们非常欢迎大家为 `learnware` 做出贡献。我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。非常感谢大家的贡献！
 
 ## 关于我们
 
