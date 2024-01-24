@@ -4,7 +4,7 @@
   <br/>
 </div>
 
-<p align="center">
+<div align="center">
     <a href="https://pypi.org/project/learnware/#files">
         <img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/learnware.svg?logo=python&logoColor=white">
     </a>
@@ -23,14 +23,14 @@
     <a href="LICENSE">
         <img alt="License" src="https://img.shields.io/pypi/l/learnware">
     </a>
-</p>
+</div>
 
-<p>
+<div>
     <h3 align="center">
         <a href="README_zh.md">中文</a> |
         <b>English</b>
     </h3>
-</p>
+</div>
 
 # Introduction
 
