@@ -425,8 +425,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 ## 如何贡献
 
 `learnware` 还很年轻，可能存在错误和问题。我们非常欢迎大家为 `learnware` 做出贡献。
-我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。
-非常感谢大家的贡献！
+我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。非常感谢大家的贡献！
 
 ## 关于我们
 
