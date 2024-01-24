@@ -122,5 +122,5 @@ autodoc_default_options = {
     'special-members': True,
     'show-inheritance': True,
     "member-order": "bysource",
-    "special-members": ["__init__", "__call__"],
+    "special-members": "__init__, __call__",
 }
