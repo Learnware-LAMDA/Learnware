@@ -52,8 +52,8 @@ A learnware consists of a high-performance machine learning model and specificat
 </div>
 
 The above diagram illustrates the learnware paradigm, which consists of two distinct stages:
-- `Submitting Stage`: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
-- `Deploying Stage`: When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it’s a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
+- `Submitting Stage`: Developers voluntarily submit various learnwares to the learnware doc system, and the system conducts quality checks and further organization of these learnwares.
+- `Deploying Stage`: When users submit task requirements, the learnware doc system automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it’s a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
 
 ## Framework and Infrastructure Design 
 
@@ -126,7 +126,7 @@ Users can start a `learnware` workflow according to the following steps:
 
 ### Initialize a Learnware Market
 
-The `EasyMarket` class provides the core functions of a `Learnware Market`. You can initialize a basic `Learnware Market` named "demo" using the code snippet below:
+You can initialize a basic `Learnware Market` named "demo" using the code snippet below:
 
 ```python
 from learnware.market import instantiate_learnware_market
@@ -137,7 +137,7 @@ demo_market = instantiate_learnware_market(market_id="demo", name="easy", rebuil
 
 ### Upload Learnware
 
-Before uploading your learnware to the `Learnware Market`, you'll need to create a semantic specification, `semantic_spec`. This involves selecting or inputting values for predefined semantic tags to describe the features of your task and model.
+Before uploading your learnware to the `Learnware Market`, you'll need to create a semantic specification, `semantic_spec`. This involves selecting or inputting values for semantic tags to describe the features of your task and model.
 
 For instance, the following code illustrates the semantic specification for a Scikit-Learn type model. This model is tailored for education scenarios and performs classification tasks on tabular data:
 
@@ -154,7 +154,7 @@ semantic_spec = generate_semantic_spec(
 )
 ```
 
-After defining the semantic specification, you can upload your learnware using a single line of code:
+After preparing the semantic specification, you can insert your learnware into the learnware market using a single line of code:
 
 ```python
 demo_market.add_learnware(zip_path, semantic_spec)
@@ -164,14 +164,14 @@ Here, `zip_path` is the file path of your learnware `zip` package.
 
 ### Semantic Specification Search
 
-To find learnwares that align with your task's purpose, you'll need to provide a semantic specification, `user_semantic`, that outlines your task's characteristics. The `Learnware Market` will then perform an initial search using `user_semantic`, identifying potentially useful learnwares with models that solve tasks similar to your requirements.
+To identify learnwares that align with your task's purpose, you'll need to provide a semantic specification, `user_semantic`, that outlines your task's characteristics. The `Learnware Market` will then perform an initial search based on `user_semantic`, which filters learnwares by considering the semantic information of your task.
 
 ```python
 # construct user_info, which includes a semantic specification
 user_info = BaseUserInfo(id="user", semantic_spec=semantic_spec)
 
 # search_learnware: performs semantic specification search when user_info doesn't include a statistical specification
-search_result = easy_market.search_learnware(user_info) 
+search_result = demo_market.search_learnware(user_info) 
 single_result = search_results.get_single_results()
 
 # single_result: the List of Tuple[Score, Learnware] returned by semantic specification search
@@ -180,10 +180,9 @@ print(single_result)
 
 ### Statistical Specification Search
 
-If you decide in favor of providing your own statistical specification file, `stat.json`, the `Learnware Market` can further refine the selection of learnwares from the previous step. This second-stage search leverages statistical information to identify one or more learnwares that are most likely to be beneficial for your task.
+If you generate and provide a statistical specification file `rkme.json`, the `Learnware Market` will conduct learnware identification based on statistical information, and return more targeted models. Using the API we provided, you can easily generate this statistical specification locally.
 
-For example, the code below executes learnware search when using Reduced Kernel Mean Embedding as the statistical specification:
-
+For example, the code below executes learnware search when using Reduced Kernel Mean Embedding (RKME) as the statistical specification:
 ```python
 import learnware.specification as specification
 
@@ -194,7 +193,7 @@ user_spec.load(os.path.join(unzip_path, "rkme.json"))
 user_info = BaseUserInfo(
     semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec}
 )
-search_result = easy_market.search_learnware(user_info)
+search_result = demo_market.search_learnware(user_info)
 
 single_result = search_results.get_single_results()
 multiple_result = search_results.get_multiple_results()
@@ -214,12 +213,12 @@ for mixture_item in multiple_result:
 
 ### Reuse Learnwares
 
-With the list of learnwares, `mixture_learnware_list`, returned from the previous step, you can readily apply them to make predictions on your own data, bypassing the need to train a model from scratch. We provide two methods for reusing a given list of learnwares: `JobSelectorReuser` and `AveragingReuser`. Substitute `test_x` in the code snippet below with your testing data, and you're all set to reuse learnwares:
+We offer two data-free methods `JobSelectorReuser` and `AveragingReuser` for reusing a given list of learnwares. Please substitute ``test_x`` in the code snippet below with your own testing data:
 
 ```python
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 
-# using jobselector reuser to reuse the searched learnwares to make prediction
+# using job selector reuser to reuse the searched learnwares to make prediction
 reuse_job_selector = JobSelectorReuser(learnware_list=mixture_item.learnwares)
 job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
 
@@ -228,12 +227,14 @@ reuse_ensemble = AveragingReuser(learnware_list=mixture_item.learnwares)
 ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
 ```
 
-We also provide two methods when the user has labeled data for reusing a given list of learnwares: `EnsemblePruningReuser` and `FeatureAugmentReuser`. Substitute `test_x` in the code snippet below with your testing data, and substitute `train_x, train_y` with your training labeled data, and you're all set to reuse learnwares:
+We also provide two data-dependent methods: `EnsemblePruningReuser` and `FeatureAugmentReuser`, when the user has minor labeled data for refining a given list of learnwares. Here's an example for adopting multiple returned learnwares by labeled data to solve classification tasks: 
 
 ```python
 from learnware.reuse import EnsemblePruningReuser, FeatureAugmentReuser
 
 # Use ensemble pruning reuser to reuse the searched learnwares to make prediction
+# (train_x, train_y) is the small amount of labeled data
+# `mode` has two options "classification" and "regression"
 reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_item.learnwares, mode="classification")
 reuse_ensemble.fit(train_x, train_y)
 ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=test_x)

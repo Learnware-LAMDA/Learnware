@@ -4,7 +4,7 @@
 Experiments and Examples
 ================================
 
-This chapter will introduce related experiments to illustrate the search and reuse performance of our learnware system.
+In this section, we build various types of experimental scenarios and conduct extensive empirical study to evaluate the baseline algorithms, implemented and refined in the ``learnware`` package, for specification generation, learnware identification, and reuse on tabular, image, and text data.
 
 Environment
 ====================

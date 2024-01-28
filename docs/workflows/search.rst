@@ -2,75 +2,81 @@
 Learnwares Search
 ============================================================
 
-``Learnware Searcher`` is a key component of ``Learnware Market`` that identifies and recommends helpful learnwares to users according to their ``UserInfo``. Based on whether the returned learnware dimensions are consistent with user tasks, the searchers can be divided into two categories: homogeneous searchers and heterogeneous searchers. 
+``Learnware Searcher`` is a key module within the ``Learnware Market`` that identifies and recommends helpful learnwares to users according to their user information. The ``learnware`` package currently provide two types of learnware searchers: 
 
-All the searchers are implemented as a subclass of ``BaseSearcher``. When initializing, you should assign a ``organizer`` to it. The introduction of ``organizer`` is shown in `COMPONENTS: Market - Framework <../components/market.html>`_. Then these searchers can be called with ``UserInfo`` and return ``SearchResults``.
+- homogeneous searchers conduct homogeneous learnware identification and return helpful learnware(s) within the same feature space as the user's task;
+- heterogenous searchers preliminarily support heterogenous learnware identification for tabular tasks, which broaden the search scope and return targeted learnware(s) from different feature spaces.
+
+All the searchers are implemented as a subclass of ``BaseSearcher``. When initializing, an ``organizer`` should be assigned to it. 
+The introduction of ``organizer`` is shown in `COMPONENTS: Market - Framework <../components/market.html>`_. 
+Then, these searchers can be invoked with user information provided in ``BaseUserInfo``, and they will return ``SearchResults`` containing identification results.
 
 Homo Search
 ======================
 
-The homogeneous search of helpful learnwares can be divided into two stages: semantic specification search and statistical specification search. Both of them needs ``BaseUserInfo`` as input. The following codes shows how to use the searcher to search for helpful learnwares from a market ``easy_market`` for a user. The introduction of ``EasyMarket`` is in `COMPONENTS: Market <../components/market.html>`_.
+The homogeneous search of helpful learnwares can be divided into two stages: semantic specification search and statistical specification search. Both of them needs ``BaseUserInfo`` as input. 
+The following codes shows how to use the searcher to search for helpful learnwares from a market ``easy_market`` for a user. 
+The introduction of ``EasyMarket`` is in `COMPONENTS: Market <../components/market.html>`_.
 
 .. code-block:: python
 
-    # generate BaseUserInfo(semantic_spec + stat_info)
-    user_semantic = {
-        "Data": {"Values": ["Table"], "Type": "Class"},
-        "Task": {"Values": ["Regression"], "Type": "Class"},
-        "Library": {"Values": ["Scikit-learn"], "Type": "Class"},
-        "Scenario": {"Values": ["Business"], "Type": "Tag"},
-        "Description": {"Values": "", "Type": "String"},
-        "Name": {"Values": "", "Type": "String"},
-        "Input": {"Dimension": 82, "Description": {},},
-        "Output": {"Dimension": 1, "Description": {},}, 
-        "License": {"Values": ["MIT"], "Type": "Class"},
-    }
-    user_spec = generate_rkme_table_spec(X=x)
-    user_info = BaseUserInfo(
-        semantic_spec=user_semantic, 
-        stat_info={"RKMETableSpecification": user_spec}
-    )
+    from learnware.market import BaseUserInfo, instantiate_learnware_market
+    from learnware.specification import generate_semantic_spec, generate_stat_spec
 
-    # search the market for the user
+    easy_market = instantiate_learnware_market(market_id="demo", name="easy", rebuild=True)
+
+    # generate BaseUserInfo(semantic_spec + stat_info)
+    user_semantic = generate_semantic_spec(
+        task_type="Classification",
+        scenarios=["Business"],
+    )
+    rkme_table = generate_stat_spec(type="table", X=train_x)
+    user_info = BaseUserInfo(
+        semantic_spec=user_semantic, stat_info={rkme_table.type: rkme_table}
+    )
     search_result = easy_market.search_learnware(user_info)
 
-    # search result: single_result
-    single_result = search_result.get_single_results()
-    print(f"single model num: {len(single_result)}, 
-        max_score: {single_result[0].score}, 
-        min_score: {single_result[-1].score}"
-    )
-    
-    # search result: multiple_result
-    multiple_result = search_result.get_multiple_results()
-    mixture_id = " ".join([learnware.id for learnware in multiple_result[0].learnwares])
-    print(f"mixture_score: {multiple_result[0].score}, mixture_learnwares: {mixture_id}")
+In the above code, ``search_result`` is of type dict, with the following specific structure (``"single"`` and ``"multiple"`` correspond to the search results for a single learnware and multiple learnwares, respectively):
+
+.. code-block:: python
+
+    search_result = {
+        "single": {
+            "learnware_ids": List[str],
+            "semantic_specifications": List[dict],
+            "matching": List[float],
+        },
+        "multiple": {
+            "learnware_ids": List[str],
+            "semantic_specifications": List[dict],
+            "matching": float,
+        },
+    }
 
 Hetero Search
 ======================
 
-For table-based user tasks, 
-homogeneous searchers like ``EasySearcher`` fail to recommend learnwares when no table learnware matches the user task's feature dimension, returning empty results.
-To enhance functionality, the ``learnware`` package includes the heterogeneous learnware search feature, whose processions is as follows: 
+For tabular tasks, homogeneous searchers like ``EasySearcher`` may fail to recommend learnwares if no table learnware shares the same feature space as the user's task, resulting in empty returns. The ``learnware`` package preliminarily supports the search of learnwares from different feature spaces through heterogeneous searchers. The process is as follows:
 
-- Learnware markets such as ``Hetero Market`` integrate different specification islands into a unified "specification world" by assigning system-level specifications to all learnwares. This allows heterogeneous searchers like ``HeteroSearcher`` to find helpful learnwares from all available table learnwares.
-- Searchers assign system-level specifications to users based on ``UserInfo``'s statistical specification, using methods provided by corresponding organizers. In ``Hetero Market``, for example, ``HeteroOrganizer.generate_hetero_map_spec`` generates system-level specifications for users.
-- Finally searchers conduct statistical specification search across the "specification world". User's system-level specification will guide the searcher in pinpointing helpful heterogeneous learnwares.
+- Learnware markets such as ``Hetero Market`` integrate different tabular specification islands into a unified "specification world" by generating new system specifications for learnwares. This allows heterogeneous searchers like ``HeteroSearcher`` to recommend tabular learnwares from the entire learnware collection.
+- Based on their statistical specifications, users receive new specifications assigned by searchers, which employ methods from the respective organizers. For instance, in ``Hetero Market``, ``HeteroOrganizer.generate_hetero_map_spec`` is used to generate new specifications for users.
+- Finally searchers conduct statistical specification search across the unified "specification world" based on users' new specifications and return potentially targeted heterogeneous learnwares.
 
-To activate heterogeneous learnware search, ``UserInfo`` should contain both semantic and statistical specifications. What's more, the semantic specification should meet the following requirements: 
+To activate heterogeneous learnware search, ``UserInfo`` needs to include both semantic and statistical specifications. Furthermore, the semantic specification should meet the following requirements: 
 
 - The task type should be ``Classification`` or ``Regression``.
 - The data type should be ``Table``.
-- It should include description for at least one feature dimension.
-- The feature dimension stated here should match with the feature dimension in the statistical specification.
+- There should be a description for at least one feature dimension.
+- The feature dimension mentioned here must align with that in the statistical specification.
 
-The following codes shows how to search for helpful heterogeneous learnwares from a market 
-``hetero_market`` for a user. The introduction of ``HeteroMarket`` is in `COMPONENTS: Hetero Market <../components/market.html#hetero-market>`_.
+The code below demonstrates how to search for potentially useful heterogeneous learnwares from a market ``hetero_market`` for a user. 
+For more information about ``HeteroMarket``, see `COMPONENTS: Hetero Market <../components/market.html#hetero-market>`_.
+
 
 .. code-block:: python
 
   # initiate a Hetero Market
-  hetero_market = initiate_learnware_market(market_id="test_hetero", name="hetero")
+  hetero_market = initiate_learnware_market(market_id="demo", name="hetero", rebuild=True)
   
   # user_semantic should meet the above requirements
   input_description = {
