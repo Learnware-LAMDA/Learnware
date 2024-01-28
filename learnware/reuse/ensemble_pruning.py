@@ -15,7 +15,7 @@ class EnsemblePruningReuser(BaseReuser):
     """
     Baseline Multiple Learnware Reuser uing Marign Distribution guided multi-objective evolutionary Ensemble Pruning (MDEP) Method.
 
-    References: [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective Evolutionary Ensemble Pruning Guided by Margin Distribution. In: Proceedings of the 17th International Conference on Parallel Problem Solving from Nature (PPSN'22), Dortmund, Germany, 2022.
+    References: [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective evolutionary ensemble pruning guided by margin distribution. In: Proceedings of the 17th International Conference on Parallel Problem Solving from Nature (PPSN'22), 2022, pp.427-441.
     """
 
     def __init__(self, learnware_list: List[Learnware] = None, mode: str = "classification"):

@@ -56,7 +56,7 @@ They share the same ``checker`` module and have different implementations of ``o
 Easy Market
 -------------
 
-Easy market is a basic realization of the learnware doc system. It consists of ``EasyOrganizer``, ``EasySearcher``, and the checker list ``[EasySemanticChecker, EasyStatChecker]``.
+Easy market is a basic realization of the learnware market. It consists of ``EasyOrganizer``, ``EasySearcher``, and the checker list ``[EasySemanticChecker, EasyStatChecker]``.
 
 
 ``Easy Organizer``

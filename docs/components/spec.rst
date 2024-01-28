@@ -137,4 +137,4 @@ Please refer to `COMPONENTS: Hetero Market  <../components/market.html#hetero-ma
 References
 -----------
 
-.. [1] Adrià Garriga-Alonso, Laurence Aitchison, and Carl Edward Rasmussen. Deep convolutional networks as shallow gaussian processes. In *International Conference on Learning Representations*, 2019.
+.. [1] Adrià Garriga-Alonso, Laurence Aitchison, and Carl Edward Rasmussen. Deep convolutional networks as shallow gaussian processes. In: *International Conference on Learning Representations (ICLR'19)*, 2019.

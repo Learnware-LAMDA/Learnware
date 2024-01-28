@@ -137,4 +137,4 @@ on ``user_data``.
 References
 -----------
 
-.. [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective evolutionary ensemble pruning guided by margin distribution. In *Proceedings of the 17th International Conference on Parallel Problem Solving from Nature*, 2022.
+.. [1] Yu-Chang Wu, Yi-Xiao He, Chao Qian, and Zhi-Hua Zhou. Multi-objective evolutionary ensemble pruning guided by margin distribution. In: *Proceedings of the 17th International Conference on Parallel Problem Solving from Nature (PPSN'22)*, 2022, pp.427-441.
