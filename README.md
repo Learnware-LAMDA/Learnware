@@ -407,6 +407,13 @@ If you use our project in your research or work, we kindly request that you cite
   number = {1},
   pages = {1--12},
 }
+
+@article{tan2024beimingwu,
+  author = {Zhi-Hao Tan and Jian-Dong Liu and Xiao-Dong Bi and Peng Tan and Qin-Cheng Zheng and Hai-Tian Liu and Yi Xie and Xiao-Chuan Zou and Yang Yu and Zhi-Hua Zhou},
+  title = {Beimingwu: A Learnware Dock System},
+  journal = {arXiv:2401.14427},
+  year = {2024}
+}
 ```
 
 Please acknowledge the use of our project by citing these papers in your work. Thank you for your support!
@@ -415,8 +422,8 @@ Please acknowledge the use of our project by citing these papers in your work. T
 
 ## How to Contribute
 
-Learnware is still young and may contain bugs and issues. We highly value and encourage contributions from the community. For detailed development guidelines, please consult our [Developer Guide](https://learnware.readthedocs.io/en/latest/about/dev.html). We kindly request that contributors adhere to the provided commit format and pre-commit configuration when participating in the project. Your valuable contributions are greatly appreciated.
+`learnware` is still in its early stages and may contain bugs and issues. We highly value and encourage contributions from the community, and we sincerely invite everyone to research and improve learnware algorithms, develop and explore within the learnware paradigm. For detailed development guidelines, please consult our [Developer Guide](https://learnware.readthedocs.io/en/latest/about/dev.html). We kindly request that contributors adhere to the provided commit format and pre-commit configuration when participating in the project. Your valuable contributions are greatly appreciated.
 
 ## About Us
 
-The Learnware repository is developed and maintained by the LAMDA Beimingwu R&D Team. To learn more about our team, please visit the [Team Overview](https://docs.bmwu.cloud/en/about-us.html).
+The `learnware` repository is developed and maintained by the LAMDA Beimingwu R&D (Research and Development) Team. To learn more about our team, please visit the [Team Overview](https://docs.bmwu.cloud/en/about-us.html).

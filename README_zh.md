@@ -401,7 +401,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 # 引用
 
-如果你在研究或工作中使用了我们的项目，请引用下述论文，感谢你的支持！
+如果您在研究或工作中使用了我们的项目，请引用下述论文，感谢你的支持！
 
 ```bibtex
 @article{zhou2022learnware,
@@ -413,13 +413,20 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
   number = {1},
   pages = {1--12},
 }
+
+@article{tan2024beimingwu,
+  author = {Zhi-Hao Tan and Jian-Dong Liu and Xiao-Dong Bi and Peng Tan and Qin-Cheng Zheng and Hai-Tian Liu and Yi Xie and Xiao-Chuan Zou and Yang Yu and Zhi-Hua Zhou},
+  title = {Beimingwu: A Learnware Dock System},
+  journal = {arXiv:2401.14427},
+  year = {2024}
+}
 ```
 
 # 关于
 
 ## 如何贡献
 
-`learnware` 还很年轻，可能存在错误和问题。我们非常欢迎大家为 `learnware` 做出贡献。我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。非常感谢大家的参与和支持！
+`learnware` 还很年轻，可能存在错误和问题。我们非常欢迎大家为 `learnware` 做出贡献，研究和改进学件相关算法，或是围绕学件范式进行开发和探索。我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。非常感谢大家的参与和支持！
 
 ## 关于我们
 
