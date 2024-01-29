@@ -409,7 +409,7 @@ If you use our project in your research or work, we kindly request that you cite
 }
 
 @article{tan2024beimingwu,
-  author = {Zhi-Hao Tan and Jian-Dong Liu and Xiao-Dong Bi and Peng Tan and Qin-Cheng Zheng and Hai-Tian Liu and Yi Xie and Xiao-Chuan Zou and Yang Yu and Zhi-Hua Zhou},
+  author = {Tan, Zhi-Hao and Liu, Jian-Dong and Bi, Xiao-Dong and Tan, Peng and Zheng, Qin-Cheng and Liu, Hai-Tian and Xie, Yi and Zou, Xiao-Chuan and Yu, Yang and Zhou, Zhi-Hua},
   title = {Beimingwu: A Learnware Dock System},
   journal = {arXiv:2401.14427},
   year = {2024}
