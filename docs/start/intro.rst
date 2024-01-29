@@ -30,7 +30,7 @@ Why do we need Learnware?
 The Benefits of Learnware Paradigm
 -------------------------------------
 
-Machine learning has achieved great success in many fields but still faces various challenges, such as the need for extensive training data and advanced training techniques, the difficulty of continuous learning, the risk of catastrophic forgetting, and the leakage of data privacy.
+Machine learning has achieved great success in many fields but still faces various challenges, such as the need for extensive training data and advanced training techniques, the difficulty of continuous learning, the risk of catastrophic forgetting, and the risk of data privacy breach.
 
 Although many efforts focus on one of these issues separately, these efforts pay less attention to the fact that most issues are entangled in practice. The learnware paradigm aims to tackle many of these challenges through a unified framework:
 
