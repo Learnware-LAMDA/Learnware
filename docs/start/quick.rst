@@ -180,5 +180,5 @@ We also provide two data-dependent methods: ``EnsemblePruningReuser`` and ``Feat
 Auto Workflow Example
 ============================
 
-The ``Learnware`` also offers automated workflow examples. This includes preparing learnwares, uploading and deleting learnwares from the market, and searching for learnwares using both semantic and statistical specifications. 
-To experience the basic workflow of the Learnware Market, please refer to `Learnware Examples <https://www.gitlink.org.cn/beimingwu/learnware/tree/main/examples>`_.
+The `learnware` package also offers automated workflow examples. This includes preparing learnwares, uploading and deleting learnwares from the market, and searching for learnwares using both semantic and statistical specifications. 
+To experience the basic workflow of the `learnware` package, the users can run `test/test_workflow/test_workflow.py` to try the basic workflow of `learnware`.
