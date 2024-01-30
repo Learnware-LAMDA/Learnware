@@ -404,16 +404,16 @@ If you use our project in your research or work, we kindly request that you cite
   year = {2024},
   volume = {67},
   number = {1},
-  pages = {1--12},
+  pages = {1--12}
 }
 
 @misc{tan2024beimingwu,
-      title={Beimingwu: A Learnware Dock System}, 
-      author={Zhi-Hao, Tan and Jian-Dong, Liu and Xiao-Dong, Bi and Peng, Tan and Qin-Cheng, Zheng and Hai-Tian, Liu and Yi, Xie and Xiao-Chuan, Zou and Yang, Yu and Zhi-Hua, Zhou},
-      year={2024},
-      eprint={2401.14427},
-      archivePrefix={arXiv},
-      primaryClass={cs.SE}
+  title={Beimingwu: A Learnware Dock System}, 
+  author={Zhi-Hao, Tan and Jian-Dong, Liu and Xiao-Dong, Bi and Peng, Tan and Qin-Cheng, Zheng and Hai-Tian, Liu and Yi, Xie and Xiao-Chuan, Zou and Yang, Yu and Zhi-Hua, Zhou},
+  year={2024},
+  eprint={2401.14427},
+  archivePrefix={arXiv},
+  primaryClass={cs.SE}
 }
 ```
 
