@@ -401,14 +401,21 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 如果你在研究或工作中使用了我们的项目，请引用下述论文，感谢你的支持！
 
 ```bibtex
-@article{zhou2022learnware,
+@article{zhou2024learnware,
+  title = {Learnware: Small models do big},
   author = {Zhou, Zhi-Hua and Tan, Zhi-Hao},
-  title = {Learnware: Small Models Do Big},
-  journal = {SCIENCE CHINA Information Sciences},
-  year = {2024},
+  journal = {Science China Information Sciences},
   volume = {67},
   number = {1},
-  pages = {1--12},
+  pages = {112102},
+  year = {2024}
+}
+
+@article{tan2024beimingwu,
+  title = {Beimingwu: A learnware dock system}, 
+  author = {Tan, Zhi-Hao and Liu, Jian-Dong and Bi, Xiao-Dong and Tan, Peng and Zheng, Qin-Cheng and Liu, Hai-Tian and Xie, Yi and Zou, Xiao-Chuan and Yu, Yang and Zhou, Zhi-Hua},
+  journal = {arXiv preprint arXiv:2401.14427},
+  year = {2024}
 }
 ```
 
