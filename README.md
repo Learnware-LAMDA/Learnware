@@ -398,7 +398,7 @@ If you use our project in your research or work, we kindly request that you cite
 
 ```bibtex
 @article{zhou2024learnware,
-  title = {Learnware: small models do big},
+  title = {Learnware: Small models do big},
   author = {Zhou, Zhi-Hua and Tan, Zhi-Hao},
   journal = {Science China Information Sciences},
   volume = {67},
@@ -408,7 +408,7 @@ If you use our project in your research or work, we kindly request that you cite
 }
 
 @article{tan2024beimingwu,
-  title = {Beimingwu: A Learnware Dock System}, 
+  title = {Beimingwu: A learnware dock system}, 
   author = {Tan, Zhi-Hao and Liu, Jian-Dong and Bi, Xiao-Dong and Tan, Peng and Zheng, Qin-Cheng and Liu, Hai-Tian and Xie, Yi and Zou, Xiao-Chuan and Yu, Yang and Zhou, Zhi-Hua},
   journal = {arXiv preprint arXiv:2401.14427},
   year = {2024}
