@@ -11,7 +11,7 @@ With this package, we are able to accurately and efficiently compute the kernel 
 
 Github Repository: https://github.com/cambridge-mlg/cnn-gp
 
-References: [1] A. Garriga-Alonso, L. Aitchison, and C. E. Rasmussen. Deep Convolutional Networks as shallow Gaussian Processes. In: International Conference on Learning Representations (ICLR'19), 2019.
+References: [1] Adrià Garriga-Alonso, Laurence Aitchison, and Carl Edward Rasmussen. Deep convolutional networks as shallow gaussian processes. In: International Conference on Learning Representations (ICLR'19), 2019.
 """
 
 
