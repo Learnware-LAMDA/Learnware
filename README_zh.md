@@ -420,13 +420,6 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
   journal = {arXiv preprint arXiv:2401.14427},
   year = {2024}
 }
-
-@article{tan2024beimingwu,
-  author = {Tan, Zhi-Hao and Liu, Jian-Dong and Bi, Xiao-Dong and Tan, Peng and Zheng, Qin-Cheng and Liu, Hai-Tian and Xie, Yi and Zou, Xiao-Chuan and Yu, Yang and Zhou, Zhi-Hua},
-  title = {Beimingwu: A Learnware Dock System},
-  journal = {arXiv:2401.14427},
-  year = {2024}
-}
 ```
 
 # 关于
