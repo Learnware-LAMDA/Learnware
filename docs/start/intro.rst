@@ -3,11 +3,11 @@
 Introduction
 ================
 
-The *learnware* paradigm, proposed by Professor Zhi-Hua Zhou in 2016 [1, 2], aims to build a vast model platform system, i.e., a *learnware dock system*, which systematically accommodates and organizes models shared by machine learning developers worldwide, and can efficiently identify and assemble existing helpful model(s) to solve future tasks in a unified way.
+*Learnware* was proposed by Professor Zhi-Hua Zhou in 2016 [1, 2]. In the *learnware paradigm*, developers worldwide can share models with the *learnware dock system*, which effectively searches for and reuse learnware(s) to help users solve machine learning tasks efficiently without starting from scratch.
 
-The ``learnware`` package provides a fundamental implementation of the central concepts and procedures within the learnware paradigm. Its well-structured design ensures high scalability and facilitates the seamless integration of additional features and techniques in the future.
+The ``learnware`` package provides a fundamental implementation of the central concepts and procedures and encompasses all processes within the *learnware paradigm*, including the submitting, usability testing, organization, identification, deployment and reuse of learnwares. Its well-structured design ensures high scalability and facilitates the seamless integration of additional features and techniques in the future.
 
-In addition, the ``learnware`` package serves as the engine for the `Beimingwu System <https://bmwu.cloud/#/>`_ and can be effectively employed for conducting experiments related to learnware.
+In addition, the ``learnware`` package serves as the core engine for the `Beimingwu System <https://bmwu.cloud>`_, which supports the computational and algorithmic aspects of ``Beimingwu`` and offers rich algorithmic interfaces for learnware-related tasks and research experiments.
 
 | [1] Zhi-Hua Zhou. Learnware: on the future of machine learning. *Frontiers of Computer Science*, 2016, 10(4): 589–590
 | [2] Zhi-Hua Zhou. Machine Learning: Development and Future. *Communications of CCF*, 2017, vol.13, no.1 (2016 CNCC keynote)
@@ -30,33 +30,32 @@ Why do we need Learnware?
 The Benefits of Learnware Paradigm
 -------------------------------------
 
-Machine learning has achieved great success in many fields but still faces various challenges, such as the need for extensive training data and advanced training techniques, the difficulty of continuous learning, the risk of catastrophic forgetting, and the leakage of data privacy.
+Machine learning has achieved great success in many fields but still faces various challenges, such as the need for extensive training data and advanced training techniques, the difficulty of continuous learning, the risk of catastrophic forgetting, and the risk of data privacy breach.
 
-Although there are many efforts focusing on one of these issues separately, they are entangled, and solving one problem may exacerbate others. The learnware paradigm aims to address many of these challenges through a unified framework.
+Although many efforts focus on one of these issues separately, these efforts pay less attention to the fact that most issues are entangled in practice. The learnware paradigm aims to tackle many of these challenges through a unified framework:
 
-+-----------------------+-----------------------------------------------------------------------------------------------+
-| Benefit               | Description                                                                                   |
-+=======================+===============================================================================================+
-| Lack of training data | Strong models can be built with small data by adapting well-performed learnwares.             |
-+-----------------------+-----------------------------------------------------------------------------------------------+
-| Lack of training      | Ordinary users can obtain strong models by leveraging well-performed learnwares instead of    |
-| skills                | building models from scratch.                                                                 |
-+-----------------------+-----------------------------------------------------------------------------------------------+
-| Catastrophic          | Accepted learnwares are always stored in the learnware market, retaining old knowledge.       |
-| forgetting            |                                                                                               |
-+-----------------------+-----------------------------------------------------------------------------------------------+
-| Continual learning    | The learnware market continually enriches its knowledge with constant submissions of          |
-|                       | well-performed learnwares.                                                                    |
-+-----------------------+-----------------------------------------------------------------------------------------------+
-| Data privacy/         | Developers only submit models, not data, preserving data privacy/proprietary.                 |
-| proprietary           |                                                                                               |
-+-----------------------+-----------------------------------------------------------------------------------------------+
-| Unplanned tasks       | Open to all legal developers, the learnware market can accommodate helpful learnwares for     |
-|                       | various tasks.                                                                                |
-+-----------------------+-----------------------------------------------------------------------------------------------+
-| Carbon emission       | Assembling small models may offer good-enough performance, reducing interest in training      |
-|                       | large models and the carbon footprint.                                                        |
-+-----------------------+-----------------------------------------------------------------------------------------------+
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|      Challenges       |                                                                          Learnware Paradigm Solutions                                                                          |
++=======================+================================================================================================================================================================================+
+| Lack of training data | Strong models can be built with a small amount of data by refining well-performing learnwares.                                                                                 |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Lack of training      | Users across all levels of expertise can adequately utilize numerous high-quality and potentially helpful learnwares                                                           |
+| skills                | identified by the system for their specific tasks.                                                                                                                             |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Catastrophic          | Learnwares which pass the usability checks are always stored in the learnware doc system, retaining old knowledge.                                                             |
+| forgetting            |                                                                                                                                                                                |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Continual learning    | The learnware doc system continually expands its knowledge base with constant submissions of                                                                                   |
+|                       | well-performed learnwares.                                                                                                                                                     |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Data privacy/         | Developers worldwide freely share their high-performing models, without revealing their training data.                                                                         |
+| proprietary           |                                                                                                                                                                                |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Unplanned tasks       | Open to all legal developers, the learnware doc system  accommodate helpful learnwares for                                                                                     |
+|                       | various tasks, especially for unplanned, specialized, data-sensitive scenarios.                                                                                                |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Carbon emission       | By assembling the most suitable small learnwares, local deployment becomes feasible, offering a practical alternative to large cloud-based models and their carbon footprints. |
++-----------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 
 How to Solve Future Tasks with Learnware Paradigm?
 ----------------------------------------------------
@@ -64,13 +63,13 @@ How to Solve Future Tasks with Learnware Paradigm?
 .. image:: ../_static/img/learnware_paradigm.jpg
    :align: center
 
-Instead of building a model from scratch, users can submit their requirements to the learnware market, which then identifies and deploys helpful learnware(s) based on the specifications. Users can apply the learnware directly, adapt it using their data, or exploit it in other ways to improve their models. This process is more efficient and less expensive than building a model from scratch.
+When a user is going to solve a new machine learning task, she can submit her requirements to the learnware doc system, and then the system will identify and assemble some helpful learnware(s) from numerous learnwares to return to the user based on the learnware specifications. She can apply the learnware(s) directly, adapt them by her own data, or exploit it in other ways to improve her own model. No matter which learnware reuse mechanism is adopted, the whole process can be much less expensive and more efficient than building a model from scratch by herself.
 
 
 Procedure of Learnware Paradigm
 ==================================
-- ``Submitting Stage``: Developers voluntarily submit various learnwares to the learnware market, and the system conducts quality checks and further organization of these learnwares.
-- ``Deploying Stage``: When users submit task requirements, the learnware market automatically selects whether to recommend a single learnware or a combination of multiple learnwares and provides efficient deployment methods. Whether it's a single learnware or a combination of multiple learnwares, the system offers convenient learnware reuse interfaces.
+- ``Submitting Stage``: Developers voluntarily submit various learnwares to the learnware doc system, and the system conducts quality checks and further organization of these learnwares.
+- ``Deploying Stage``: The user submits her task requirement to the learnware doc system, and the system will identify and return some helpful learnwares to the user based on specifications, which can be further reused on user data.
 
 .. image:: ../_static/img/learnware_market.svg
    :align: center
@@ -86,15 +85,15 @@ The architecture is designed based on the guidelines including *decoupling*, *au
 
 - At the workflow level, the ``learnware`` package consists of ``Submitting Stage`` and ``Deploying Stage``.
 
-+---------------------+-------------------------------------------------------------------------------------------------------------------+
-|      Module         |                                          Workflow                                                                 |
-+=====================+===================================================================================================================+
-| ``Submitting Stage``| The learnware developers submit learnwares to the learnware market, which conducts usability checks and further   |
-|                     | organization of these learnwares.                                                                                 |
-+---------------------+-------------------------------------------------------------------------------------------------------------------+
-| ``Deploying Stage`` | The `learnware` package identifies learnwares according to users’ task requirements and provides efficient        |
-|                     | reuse and deployment methods.                                                                                     |
-+---------------------+-------------------------------------------------------------------------------------------------------------------+
++----------------------+---------------------------------------------------------------------------------------------------------------------+
+|        Module        |                                                      Workflow                                                       |
++======================+=====================================================================================================================+
+| ``Submitting Stage`` | The learnware developers submit learnwares to the learnware doc system, which conducts usability checks and further |
+|                      | organization of these learnwares.                                                                                   |
++----------------------+---------------------------------------------------------------------------------------------------------------------+
+| ``Deploying Stage``  | The `learnware` package identifies learnwares according to users’ task requirements and provides efficient          |
+|                      | reuse and deployment methods.                                                                                       |
++----------------------+---------------------------------------------------------------------------------------------------------------------+
 
 - At the module level, the ``learnware`` package is a platform that consists of ``Learnware``, ``Market``, ``Specification``, ``Model``, ``Reuse``, and ``Interface`` modules.
 

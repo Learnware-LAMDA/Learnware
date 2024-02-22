@@ -2,9 +2,10 @@
 Learnwares Reuse
 ==========================================
 
-``Learnware Reuser`` is a ``Python API`` that offers a variety of convenient tools for learnware reuse. Users can reuse a single learnware, combination of multiple learnwares,
-and heterogeneous learnwares using these tools efficiently, thereby saving the laborious time and effort of building models from scratch. There are mainly two types of 
-reuse tools, based on whether user has gathered a small amount of labeled data beforehand: (1) data-free reuser and (2) data-dependent reuser.
+``Learnware Reuser`` is a core module providing various basic reuse methods for convenient learnware reuse. 
+Users can efficiently reuse a single learnware, combination of multiple learnwares,
+and heterogeneous learnwares using these methods. 
+There are two main categories of reuse methods: (1) data-free reusers which reuse learnwares directly and (2) data-dependent reusers which reuse learnwares with a small amount of labeled data.
 
 .. note:: 
 
@@ -40,7 +41,7 @@ Data-Free Reuser
     # predict_y is the prediction result of the reused learnwares
     predict_y = reuse_job_selector.predict(user_data=test_x)
 
-- ``AveragingReuser`` uses an ensemble method to make predictions. The ``mode`` parameter specifies the specific ensemble method:
+- ``AveragingReuser`` uses an ensemble method to make predictions. The ``mode`` parameter specifies the type of ensemble method:
 
 .. code:: python
 
@@ -61,9 +62,9 @@ Data-Free Reuser
 Data-Dependent Reuser
 ------------------------------------
 
-When users have a small amount of labeled data, they can also adapt/polish the received learnware(s) by reusing them with the labeled data, gaining even better performance. 
+When users have minor labeled data, they can also adapt the received learnware(s) by reusing them with the labeled data. 
 
-- ``EnsemblePruningReuser`` selectively ensembles a subset of learnwares to choose the ones that are most suitable for the user's task:
+- ``EnsemblePruningReuser`` selects a subset of suitable learnwares using a multi-objective evolutionary algorithm and uses an average ensemble for prediction:
 
 .. code:: python
 
@@ -79,7 +80,7 @@ When users have a small amount of labeled data, they can also adapt/polish the r
     reuse_ensemble_pruning.fit(val_X, val_y)
     predict_y = reuse_job_selector.predict(user_data=test_x)
 
-- ``FeatureAugmentReuser`` helps users reuse learnwares by augmenting features. This reuser regards each received learnware as a feature augmentor, taking its output as a new feature and then build a simple model on the augmented feature set(``logistic regression`` for classification tasks and ``ridge regression`` for regression tasks):
+- ``FeatureAugmentReuser`` assists in reusing learnwares by augmenting features. It concatenates the output of the original learnware with the user's task features, creating enhanced labeled data, on which a simple model is then trained (logistic regression for classification tasks and ridge regression for regression tasks):
 
 .. code:: python
 
@@ -99,12 +100,14 @@ When users have a small amount of labeled data, they can also adapt/polish the r
 Hetero Reuse
 ====================
 
-When heterogeneous learnware search is activated(see `WORKFLOWS: Hetero Search <../workflows/search.html#hetero-search>`_), users would receive heterogeneous learnwares which are identified from the whole "specification world". 
-Though these recommended learnwares are trained from tasks with different feature/label spaces from the user's task, they can still be helpful and perform well beyond their original purpose.
-Normally these learnwares are hard to be used, leave alone polished by users, due to the feature/label space heterogeneity. However with the help of ``HeteroMapAlignLearnware`` class which align heterogeneous learnware
-with the user's task, users can easily reuse them with the same set of reuse methods mentioned above.
+When heterogeneous learnware search is activated, 
+users receive potentially helpful heterogeneous learnwares which are identified from the whole "specification world"(see `WORKFLOWS: Hetero Search <../workflows/search.html#hetero-search>`_). 
+Normally, these learnwares cannot be directly applied to their tasks due to discrepancies in input and prediction spaces. 
+Nevertheless, the ``learnware`` package facilitates the reuse of heterogeneous learnwares through ``HeteroMapAlignLearnware``, 
+which aligns the input and output domain of learnwares to match those of the users' tasks. 
+These feature-aligned learnwares can then be utilized with either data-free reusers or data-dependent reusers.
 
-During the alignment process of heterogeneous learnware, the statistical specifications of the learnware and the user's task ``(user_spec)`` are used for input space alignment, 
+During the alignment process of a heterogeneous learnware, the statistical specifications of the learnware and the user's task ``(user_spec)`` are used for input space alignment, 
 and a small amount of labeled data ``(val_x, val_y)`` is mandatory to be used for output space alignment. This can be done by the following code:
 
 .. code:: python
@@ -120,7 +123,7 @@ and a small amount of labeled data ``(val_x, val_y)`` is mandatory to be used fo
     predict_y = hetero_learnware.predict(user_data=test_x)
 
 To reuse multiple heterogeneous learnwares, 
-combine ``HeteroMapAlignLearnware`` with the homogeneous reuse methods ``AveragingReuser`` and ``EnsemblePruningReuser`` mentioned above will do the trick:
+combine ``HeteroMapAlignLearnware`` with the homogeneous reuse methods ``AveragingReuser`` and ``EnsemblePruningReuser`` mentioned above:
 
 .. code:: python
 
@@ -157,7 +160,7 @@ Run the following codes to try run a learnware with ``Model Container``:
         learnware = env_container.get_learnwares_with_container()[0]
         print(learnware.predict(test_x))
 
-The ``mode`` parameter has two options, each for a specific learnware environment loading method:
+The ``mode`` parameter includes two options, each corresponding to a specific learnware environment loading method:
 
 - ``'conda'``: Install a separate conda virtual environment for each learnware (automatically deleted after execution); run each learnware independently within its virtual environment.
 - ``'docker'``: Install a conda virtual environment inside a Docker container (automatically destroyed after execution); run each learnware independently within the container (requires Docker privileges).

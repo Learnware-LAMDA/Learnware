@@ -26,7 +26,7 @@ Model Invocation File ``__init__.py``
 
 To ensure that the uploaded learnware can be used by subsequent users, you need to provide interfaces for model fitting ``fit(X, y)``, prediction ``predict(X)``, and fine-tuning ``finetune(X, y)`` in ``__init__.py``. Among these interfaces, only the ```predict(X)``` interface is mandatory, while the others depend on the functionality of your model. 
 
-Below is a reference template for the ```__init__.py``` file. Please make sure that the input parameter format (the number of parameters and parameter names) for each interface in your model invocation file matches the template below.
+Below is a reference template for the ``__init__.py`` file. Please make sure that the input parameter format (the number of parameters and parameter names) for each interface in your model invocation file matches the template below.
 
 .. code-block:: python
 
@@ -250,7 +250,7 @@ For more details, please refer to :ref:`semantic specification<components/spec:S
 Uploading
 --------------
 
-you can effortlessly upload your learnware to the ``Learnware Market`` as follows.
+You can effortlessly upload your learnware to the ``Learnware Market`` as follows.
 
 .. code-block:: python
 

@@ -96,7 +96,7 @@ html_theme_options = {
     # "display_version": False,
     "navigation_depth": 4,
 }
-html_logo = "_static/img/logo/logo1.png"
+html_logo = "_static/img/logo/logo.svg"
 
 
 # These folders are copied to the documentation's HTML output
@@ -118,6 +118,8 @@ autodoc_member_order = "bysource"
 autodoc_default_flags = ["members"]
 autodoc_default_options = {
     "members": True,
+    "private-members": True,
+    "special-members": "__init__, __call__",
+    "show-inheritance": True,
     "member-order": "bysource",
-    "special-members": "__init__",
 }

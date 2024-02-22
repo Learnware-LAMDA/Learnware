@@ -10,7 +10,7 @@ As a developer, you often want make changes to ``learnware`` and hope it would r
 
 .. code-block:: bash
     
-    $ git clone https://github.com/Learnware-LAMDA/Learnware.git && cd Learnware
+    $ git clone https://gitlink.org.cn/beimingwu/learnware.git && cd Learnware
     $ pip install -e .[dev]
 
 .. note::

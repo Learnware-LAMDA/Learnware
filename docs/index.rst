@@ -7,9 +7,11 @@
 ``Learnware`` Documentation
 ============================================================
 
-The ``learnware`` package provides a fundamental implementation of the central concepts and procedures for the learnware paradigm.
-A learnware is a well-performed trained machine learning model with a specification that enables it to be adequately identified to reuse according to the requirement of future users who may know nothing about the learnware in advance.
-The learnware paradigm is a new paradigm aimed at enabling users to reuse existed well-trained models to solve their AI tasks instead of starting from scratch.
+The ``learnware`` package provides a fundamental implementation of the central concepts and procedures and encompasses all processes within the *learnware paradigm*,
+including the submitting, usability testing, organization, identification, deployment and reuse of learnwares.
+Its well-structured design ensures high scalability and facilitates the seamless integration of additional features and techniques in the future.
+In addition, the ``learnware`` package serves as the core engine for the `Beimingwu System <https://bmwu.cloud>`_, which supports the computational and algorithmic aspects of ``Beimingwu`` 
+and offers rich algorithmic interfaces for learnware-related tasks and research experiments.
 
 .. _user_guide:
 

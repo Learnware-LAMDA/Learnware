@@ -4,12 +4,12 @@
   <br/>
 </div>
 
-<p align="center">
+<div align="center">
     <a href="https://pypi.org/project/learnware/#files">
         <img alt="Python Versions" src="https://img.shields.io/pypi/pyversions/learnware.svg?logo=python&logoColor=white">
     </a>
     <a href="https://pypi.org/project/learnware/#files">
-        <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20windows%20%7C%20macos-lightgrey">
+        <img alt="Platform" src="https://img.shields.io/badge/platform-linux%20%7C%20windows-lightgrey">
     </a>
     <a href="https://pypi.org/project/learnware/#history">
         <img alt="PypI Versions" src="https://img.shields.io/pypi/v/learnware">
@@ -23,18 +23,18 @@
     <a href="LICENSE">
         <img alt="License" src="https://img.shields.io/pypi/l/learnware">
     </a>
-</p>
+</div>
 
-<p>
+<div>
     <h3 align="center">
         <b>中文</b> |
         <a href="README.md">English</a>
     </h3>
-</p>
+</div>
 
 # 简介
 
-学件范式由周志华教授在2016年提出 [1, 2]，旨在构建一个巨大的模型平台系统：即学件基座系统，系统地组织管理世界各地的机器学习开发者分享的模型，并通过统一的方式识别、利用已有模型的能力快速解决新的机器学习任务。
+学件由周志华教授在 2016 年提出 [1, 2]。在学件范式下，世界各地的开发者可分享模型至学件基座系统，系统通过有效查搜和复用学件帮助用户高效解决机器学习任务，而无需从零开始构建机器学习模型。
 
 本项目开发的 `learnware` 包对学件范式中的核心组件和算法进行了实现，全流程地支持学件上传、检测、组织、查搜、部署和复用等功能。基于良好的结构设计，`learnware` 包具有高度可扩展性，为后续相关算法和功能的开发打下坚实基础。
 
@@ -45,8 +45,7 @@
 
 ## 学件范式
 
-学件由性能优良的机器学习模型和描述模型的**规约**构成，即「学件 = 模型 + 规约」。
-学件的规约由「语义规约」和「统计规约」两部分组成：
+学件由性能优良的机器学习模型和描述模型的**规约**构成，即「学件 = 模型 + 规约」。学件的规约由「语义规约」和「统计规约」两部分组成：
 
 - 语义规约通过文本对模型的类型及功能进行描述；
 - 统计规约则通过各类机器学习技术，刻画模型所蕴含的统计信息。
@@ -68,8 +67,7 @@
   <img src="./docs/_static/img/learnware_framework.svg" width="700" height="auto" style="max-width: 100%;"/>
 </div>
 
-架构设计的原则包括：解耦 (Decoupling)、自治 (Autonomy)、可重用性 (Reusability) 以及可扩展性 (Scalability)。
-上图从模块和工作流程的角度对整个架构进行了阐述。
+架构设计的原则包括：解耦 (Decoupling)、自治 (Autonomy)、可重用性 (Reusability) 以及可扩展性 (Scalability)。上图从模块和工作流程的角度对整个架构进行了阐述。
 
 - 针对工作流程 (Workflow)，`learnware` 包括「提交阶段」和「部署阶段」。
 
@@ -77,8 +75,8 @@
 
 |  阶段 | 描述  |
 |  ----  | ----  |
-| 提交阶段  | 开发者自发地将学件提交到学件市场中，随后市场会进行学件检测并对这些学件进行相应地组织。 |
-| 部署阶段 | 学件市场根据用户的任务需求推荐学件，并提供高效的学件部署和复用的方法。 |
+| 提交阶段  | 开发者将学件提交到学件市场中，随后市场会进行学件检测并对这些学件进行相应地组织。 |
+| 部署阶段 | 学件市场根据用户的任务需求推荐学件，并提供统一的学件部署和复用的方法。 |
 
 </div>
 
@@ -125,8 +123,7 @@ pip install learnware[full]
 - `stat.json`：学件的统计规约，其文件名可自定义并记录在 learnware.yaml 中；
 - `environment.yaml` 或 `requirements.txt`：指明模型的运行环境。
 
-为方便大家构建学件，我们提供了「[学件模板](https://www.bmwu.cloud/static/learnware-template.zip)」，大家可在其基础上构建自己的学件。
-关于学件 `zip` 包中各文件的详细描述可参考文档：[学件准备](https://learnware.readthedocs.io/en/latest/workflows/upload.html#prepare-learnware)。
+为方便大家构建学件，我们提供了「[学件模板](https://www.bmwu.cloud/static/learnware-template.zip)」，大家可在其基础上构建自己的学件。关于学件 `zip` 包中各文件的详细描述可参考文档：[学件准备](https://learnware.readthedocs.io/en/latest/workflows/upload.html#prepare-learnware)。
 
 ## 工作流程
 
@@ -145,7 +142,7 @@ demo_market = instantiate_learnware_market(market_id="demo", name="easy", rebuil
 
 ### 上传学件
 
-在将学件上传到「学件市场」之前，需要创建相应的语义规约，即 `semantic_spec`。这涉及选择或输入预定义的语义标签的值，以描述你的任务和模型的特性。
+在将学件上传到「学件市场」之前，首先需要创建相应的语义规约 `semantic_spec`。这一过程包括选择或输入预定义的语义标签的值，以描述你的任务和模型的特性。
 
 例如，以下代码示例生成了适用于教育场景的 `Scikit-Learn` 类型模型的语义规约。该模型用于对表格数据执行分类任务：
 
@@ -172,14 +169,14 @@ demo_market.add_learnware(zip_path, semantic_spec)
 
 ### 语义规约查搜
 
-为了找到与你的任务目标相符的学件，你需要提供一个名为 `user_semantic` 的语义规约，来概述你的任务特点。随后，学件市场将通过 `user_semantic` 进行语义查搜，识别与你的任务需求相近的学件。
+为了匹配适合你的任务目标的学件，你需要提供一个名为 `user_semantic` 的语义规约，来描述你的任务特性。随后，学件市场将通过 `user_semantic` 进行语义查搜，识别与你的任务需求相近的学件。
 
 ```python
 # 构造包含语义规约的 user_info
 user_info = BaseUserInfo(id="user", semantic_spec=semantic_spec)
 
 # search_learnware: 当 user_info 不包含统计规约时，仅执行语义规约查搜
-search_result = easy_market.search_learnware(user_info)
+search_result = demo_market.search_learnware(user_info)
 single_result = search_results.get_single_results()
 
 # single_result: 语义规约查搜返回的 Tuple[Score, Learnware] 列表
@@ -188,8 +185,7 @@ print(single_result)
 
 ### 统计规约查搜
 
-如果提供统计规约文件 `stat.json`，学件市场可以基于上述查搜结果进一步进行更准确的查搜。
-此阶段的查搜将利用统计信息来识别一个或多个对你的任务有帮助的学件。
+如果提供统计规约文件 `stat.json`，学件市场可以在语义规约查搜之外、利用统计信息来为你进一步匹配和推荐模型。这些模型往往具有更好的针对性。
 
 以下代码展示了使用 Reduced Kernel Mean Embedding (RKME) 作为统计规约进行查搜的例子：
 
@@ -203,7 +199,7 @@ user_spec.load(os.path.join(unzip_path, "rkme.json"))
 user_info = BaseUserInfo(
     semantic_spec=user_semantic, stat_info={"RKMETableSpecification": user_spec}
 )
-search_result = easy_market.search_learnware(user_info)
+search_result = demo_market.search_learnware(user_info)
 
 single_result = search_results.get_single_results()
 multiple_result = search_results.get_multiple_results()
@@ -223,12 +219,12 @@ for mixture_item in multiple_result:
 
 ### 多学件复用
 
-使用上一步中返回的学件列表 `mixture_learnware_list`，你可以轻松地复用它们对自己的数据进行预测，而无需从头开始训练模型。我们提供了两种方法来重用学件集合：`JobSelectorReuser` 和 `AveragingReuser`。将以下代码片段中的 `test_x` 替换为你的测试数据，即可实现学件复用：
+我们提供了两种数据无关的方法来重用学件集合：`JobSelectorReuser` 和 `AveragingReuser`。将以下代码片段中的 `test_x` 替换为你的测试数据，即可实现学件复用：
 
 ```python
 from learnware.reuse import JobSelectorReuser, AveragingReuser
 
-# 使用 jobselector reuser 复用查搜到的学件, 并对 text_x 进行预测
+# 使用 job selector reuser 复用查搜到的学件, 并对 text_x 进行预测
 reuse_job_selector = JobSelectorReuser(learnware_list=mixture_item.learnwares)
 job_selector_predict_y = reuse_job_selector.predict(user_data=test_x)
 
@@ -237,13 +233,14 @@ reuse_ensemble = AveragingReuser(learnware_list=mixture_item.learnwares)
 ensemble_predict_y = reuse_ensemble.predict(user_data=test_x)
 ```
 
-我们还提供了两种方法，可基于用户的有标记数据来复用给定的学件集合：`EnsemblePruningReuser` 和 `FeatureAugmentReuser`。
-参考下述代码，其中 `test_x` 为测试数据，`train_x, train_y` 为有标记的训练数据：
+我们还提供了两种数据相关的方法，`EnsemblePruningReuser` 和 `FeatureAugmentReuser`，可基于用户的有标记数据复用指定的学件集合。以下代码展示了如何使用这些方法来处理分类任务，其中 `test_x` 是测试数据，`train_x, train_y`为有标记的训练数据：
 
 ```python
 from learnware.reuse import EnsemblePruningReuser, FeatureAugmentReuser
 
 # 使用 ensemble pruning reuser 复用查搜到的学件, 并对 text_x 进行预测
+# (train_x, train_y) 是有标记的训练数据
+# `mode` 提供两种模式 "classification" 和 "regression"
 reuse_ensemble = EnsemblePruningReuser(learnware_list=mixture_item.learnwares, mode="classification")
 reuse_ensemble.fit(train_x, train_y)
 ensemble_pruning_predict_y = reuse_ensemble.predict(user_data=test_x)
@@ -256,8 +253,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ### 自动工作流程示例
 
-`learnware` 包提供了自动化的工作流程示例，包括准备学件、在学件市场中上传和删除学件，以及使用语义和统计规约查搜学件。
-工作流程示例可参考 `test/test_workflow/test_workflow.py` 文件。
+`learnware` 包提供了自动化的工作流程示例，包括准备学件、在学件市场中上传和删除学件，以及使用语义和统计规约查搜学件。工作流程示例可参考 `test/test_workflow/test_workflow.py` 文件。
 
 # 实验示例
 
@@ -277,25 +273,25 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ## 表格场景实验
 
-在各种表格数据集上，我们首先评估了从学件市场中识别和复用与用户任务具有相同特征空间的学件的性能。另外，由于表格任务通常来自异构的特征空间，我们还评估了从不同特征空间中识别和复用学件的性能。
+在各种表格数据集上，我们首先评估了从学件市场中识别和复用与用户任务具有相同特征空间的学件的性能。鉴于表格任务通常来自异构的特征空间，我们也对从不同特征空间中识别和复用学件的性能进行了评估。
 
 ### 实验设置
 
-我们的实验利用了销量预测领域的三个公共数据集：[Predict Future Sales (PFS)](https://www.kaggle.com/c/competitive-data-science-predict-future-sales/data)，[M5 Forecasting (M5)](https://www.kaggle.com/competitions/m5-forecasting-accuracy/data) 和 [Corporacion](https://www.kaggle.com/competitions/favorita-grocery-sales-forecasting/data)。为了扩大实验规模，我们对这些数据集应用了多种特征工程方法。然后，我们将每个数据集按店铺划分，并进一步将每个店铺的数据划分为训练集和测试集。我们在每个 Corporacion 和 PFS 训练集上训练了一个 LightGBM 模型，而测试集和 M5 数据集被用于构建用户任务。基于上述方式，我们构建了一个包含 265 个学件的学件市场，涵盖了五种特征空间和两种标签空间。所有这些学件都已上传至[北冥坞学件基座系统](https://bmwu.cloud/)。
+我们的实验使用了三个公开的销量预测数据集：[Predict Future Sales (PFS)](https://www.kaggle.com/c/competitive-data-science-predict-future-sales/data)，[M5 Forecasting (M5)](https://www.kaggle.com/competitions/m5-forecasting-accuracy/data) 和 [Corporacion](https://www.kaggle.com/competitions/favorita-grocery-sales-forecasting/data)。为了增加实验的多样性，我们对这些数据集应用了多种特征工程方法。接着，我们将每个数据集按店铺划分，并将每个店铺的数据进一步划分为训练集和测试集。我们在 Corporacion 和 PFS 的每个训练集上训练了 LightGBM 模型，同时使用相应的测试集和 M5 数据集构建用户任务。基于这些实验设置，我们构建了一个包含 265 个学件的学件市场，覆盖了五种不同的特征空间和两种标记空间。所有这些学件都已上传至[北冥坞学件基座系统](https://bmwu.cloud/)。
 
 ### 基线算法
 
-复用学件的最基本方式是 Top-1 复用 (Top-1 reuser)，即直接使用由 RKME 规约选择的单个学件。此外，我们实现了两种数据无关复用器和两种数据相关复用器，它们可用于复用从市场中识别出的单个或多个有用的学件。当用户无标记的数据时，JobSelector 复用器通过训练一个任务选择器为不同的样本选择不同的学件；AverageEnsemble 复用器使用集成方法进行预测。在用户有测试数据和少量有标记训练数据的情况下，EnsemblePruning 复用器有选择地集成一组学件，选择最适合用户任务的学件；FeatureAugment 复用器将每个接收到的学件视为特征增强器，将其输出视为新特征，然后在增强的特征集上构建一个简单的模型。JobSelector 和 FeatureAugment 只对表格数据有效，而其他方法也适用于文本和图像数据。
+最基础的学件复用方式是 Top-1 复用 (Top-1 reuser)，它直接使用根据 RKME 规约查搜得到的单个学件。此外，我们实现了两种数据无关的复用方法和两种数据相关的复方法，它们可用于复用从市场中识别出的单个或多个有用的学件。当用户无标记的数据时，JobSelectorReuser 通过训练一个任务选择器为不同的样本选择合适的学件；AverageEnsembleReuser 使用集成方法进行预测。在用户有测试数据和少量有标记训练数据的情况下，EnsemblePruningReuser 通过多目标演化算法挑选一组适合用户任务的学件，然后进行平均集成；FeatureAugmentReuser 将每个学件的预测输出视为新特征，并在增强后的特征集上构建一个简单模型。需要注意的是，JobSelectorReuser 和 FeatureAugmentReuser 只对表格数据有效，而其他方法也适用于文本和图像数据。
 
 ### 同构场景
 
-在同构场景中，PFS 数据集中的 53 家商店被视为 53 个独立的用户。每个商店使用自己的测试数据作为用户数据，并应用与学件市场相同的特征工程方法。这些用户随后可以在市场内搜索与其任务具有相同特征空间的同构学件。
+在同构场景实验中，PFS 数据集中的 53 家商店被视为 53 个独立的用户。每个商店使用自己的测试数据作为用户数据，并采用与学件市场相同的特征工程方法。这些用户随后可以在市场内查搜与其任务具有相同特征空间的同构学件。
 
-当用户没有标记的数据或只有少量有标记数据时，我们对不同的基线算法进行了比较。下表显示了所有用户的平均损失。结果表明，我们提供的方法远远优于从市场中随机选择一个学件的结果。
+当用户没有标记的数据或只有少量有标记数据时，我们对不同的基线算法进行了比较。下表总结了所有用户的平均损失。结果表明，我们提供的方法优于从市场中随机选择学件的效果。
 
 <div align=center>
 
-| Setting                           | MSE    |
+| Setting                           | RMSE   |
 |-----------------------------------|--------|
 | Mean in Market (Single)           | 0.897  |
 | Best in Market (Single)           | 0.756  |
@@ -305,7 +301,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 </div>
 
-下图展示了当用户提供不同数量有标记数据的结果；对于每个用户，我们进行了多次实验，并计算了损失的均值和标准差；图中展示了所有用户的平均损失。其表明，当用户只有有限的训练数据时，识别和复用单个或多个学件相对于用户自己训练的模型表现出更好的性能。
+我们还探索了用户提供不同数量标记数据的情况。对于每个用户，我们进行了多次实验，并记录了损失的均值和标准差。下图展示了所有用户上的平均损失曲线。实验结果显示，当用户只有有限的训练数据时，识别和复用单个或多个学件相比于用户自行训练的模型表现出更好的性能。
 
 <div align=center>
   <img src="./docs/_static/img/Homo_labeled_curves.svg"  width="500" height="auto" style="max-width: 100%;"/>
@@ -313,17 +309,17 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ### 异构场景
 
-基于学件市场中学件与用户任务之间的相似性，异构情况可以进一步分为不同的特征工程和不同的任务场景。
+根据学件市场中学件与用户任务之间的相似性，异构场景的实验进一步分为两类：一类是特征空间异构但任务相同的情况，另一类则是任务本身不同的情况。
 
 #### 不同特征工程的场景
 
-我们将 PFS 数据集中的 41 家商店视为用户，采用与市场中学件不同的特征工程方法生成他们的用户数据。因此，尽管市场上的某些学件也是为 PFS 数据集设计的，但特征空间并不完全一致。
+我们将 PFS 数据集中的 41 家商店作为用户，采用与市场中学件不同的特征工程方法生成他们的用户数据。因此，尽管市场上的某些学件也是为 PFS 数据集设计的，但特征空间并不完全一致。
 
-在这个实验设置中，我们研究了各种数据无关复用器。下表中的结果表明，即使用户缺乏标记数据，市场也能表现出较强的性能，特别是使用多学件复用方法 AverageEnsemble 时。
+在这种实验设定下，我们主要关注数据无关复用方法的表现。下表中的结果表明，即使用户没有标记数据，通过复用市场中的学件也能取得良好的性能，特别是使用多学件复用方法 AverageEnsemble 时。
 
 <div align=center>
 
-| Setting                           | MSE    |
+| Setting                           | RMSE   |
 |-----------------------------------|--------|
 | Mean in Market (Single)           | 1.149  |
 | Best in Market (Single)           | 1.038  |
@@ -335,9 +331,9 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 #### 不同的任务场景
 
-我们在 M5 数据集的所有十家商店上采用了三种不同的特征工程方法，总共生成了 30 个用户。尽管销量预测的总体任务与市场上的学件所处理的任务相符，但没有一个学件是为 M5 销量预测任务专门设计的。
+我们对 M5 数据集的十家商店采用三种不同的特征工程方法，设定了 30 个用户任务。尽管市场上的学件都用于销量预测任务，但它们并非专门为 M5 数据集的销量预测任务设计。
 
-在下图中，我们展示了用户自行训练的模型和几种学件复用方法的损失曲线。显然，异构学件在用户标记数据有限的情况下表现出了对用户任务的有效性。
+下图展示了用户自行训练的模型与几种学件复用方法的损失曲线对比。结果显示，异构学件能通过有限的标记数据，有效适应特定用户任务。
 
 <div align=center>
   <img src="./docs/_static/img/Hetero_labeled_curves.svg"  width="500" height="auto" style="max-width: 100%;"/>
@@ -346,16 +342,15 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ## 图像场景实验
 
-其次，我们在图像数据集上评估了我们的算法。值得注意的是，不同尺寸的图像可以通过调整大小进行标准化，无需考虑异构特征情况。
+接下来，我们对图像数据集进行了算法评估。由于图像尺寸的差异可以通过调整大小来标准化处理，因此不需要考虑特征异构的情况。
 
 ### 实验设置
 
-我们选择了经典的图像分类数据集 [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)，其中包含 10 个类别的 60000 张 32x32 的彩色图像。总共上传了 50 个学件：每个学件包含一个卷积神经网络，该网络在一个不平衡的子集上进行训练，包括来自四个类别的 12000 个样本，采样比例为 `0.4:0.4:0.1:0.1`。
-总共测试了 100 个用户任务，每个用户任务包含 3000 个 CIFAR-10 样本，分为六个类别，采样比例为 `0.3:0.3:0.1:0.1:0.1:0.1`。
+我们选用了经典的 [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html) 图像分类数据集进行实验，该数据集包括 10 个类别的 60000 张 32x32 彩色图像。我们上传了 50 个学件，每个学件包含一个在不平衡子集上训练的卷积神经网络模型，这个子集由四个类别的 12000 个样本组成，其采样比例为 `0.4:0.4:0.1:0.1`。我们设定了 100 个用户任务，每个任务由 CIFAR-10 的 3,000 个样本组成，这些样本涵盖六个类别，采样比例为 `0.3:0.3:0.1:0.1:0.1:0.1`。
 
 ### 实验结果
 
-我们使用 `1 - Accuracy` 作为损失度量来评估各种方法的平均性能。下述实验结果显示，当用户面临标记数据的稀缺或仅拥有有限数量的标记数据（少于 2000 个实例）时，利用学件市场可以获得更好的性能。
+我们使用 `1 - Accuracy` 作为损失度量来评估各种方法的平均性能。实验结果表明，在标记数据稀缺或仅有限数量（不超过 2000 个实例）的情况下，通过利用学件市场的资源，可以实现更优的性能表现。
 
 <div align=center>
 
@@ -375,16 +370,16 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ## 文本场景实验
 
-最后，我们在文本数据集上对我们的算法进行了评估。文本数据的特征天然异构，但这个问题可以通过使用句子嵌入提取器 (Sentence Embedding Extractor) 来解决。
+最后，我们在文本数据集上对我们的算法进行了评估。由于文本数据的特征天然异构，我们通过使用句子嵌入提取器（Sentence Embedding Extractor）来统一处理这一问题。
 
 ### 实验设置
 
-我们在经典的文本分类数据集上进行了实验：[20-newsgroup](http://qwone.com/~jason/20Newsgroups/)，该数据集包含大约 20000 份新闻文档，包含 20 个不同的新闻组。
-与图像实验类似，我们一共上传了 50 个学件。每个学件都是在一个子集上进行训练，该子集仅包括三个超类中一半样本的数据，其中的模型为 `tf-idf` 特征提取器与朴素贝叶斯分类器的结合。我们定义了 10 个用户任务，每个任务包括两个超类。
+我们在经典的文本分类数据集 [20-newsgroup](http://qwone.com/~jason/20Newsgroups/) 上进行了实验，该数据集包含约 20000 篇新闻文档，涵盖 20 个不同的新闻组。与图像实验类似，我们一共上传了 50 个学件。每个学件的模型组合了 tf-idf 特征提取器与朴素贝叶斯分类器，在一个样本子集上进行训练。这些样本子集仅包括三个超类中一半的样本数据。我们设置了 10 个用户任务，每个任务包括两个超类。
+
 
 ### 实验结果
 
-结果如下表和图所示。同样地，即使没有提供标记数据，通过学件的识别和复用所达到的性能可以与市场上最佳学件相匹敌。此外，利用学件市场相对于从头训练模型可以减少约 2000 个样本。
+结果如下表和图所示。同样地，即使没有提供标记数据，通过学件的识别和复用所达到的性能可以与市场上最佳学件相匹敌。此外，相比于从头训练模型，利用学件市场可以节省大约 2000 个样本。
 
 <div align=center>
 
@@ -406,17 +401,24 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 # 引用
 
-如果你在研究或工作中使用了我们的项目，请引用下述论文，感谢你的支持！
+如果您在研究或工作中使用了我们的项目，请引用下述论文，感谢你的支持！
 
 ```bibtex
-@article{zhou2022learnware,
+@article{zhou2024learnware,
+  title = {Learnware: Small models do big},
   author = {Zhou, Zhi-Hua and Tan, Zhi-Hao},
-  title = {Learnware: Small Models Do Big},
-  journal = {SCIENCE CHINA Information Sciences},
-  year = {2024},
+  journal = {Science China Information Sciences},
   volume = {67},
   number = {1},
-  pages = {1--12},
+  pages = {112102},
+  year = {2024}
+}
+
+@article{tan2024beimingwu,
+  title = {Beimingwu: A learnware dock system}, 
+  author = {Tan, Zhi-Hao and Liu, Jian-Dong and Bi, Xiao-Dong and Tan, Peng and Zheng, Qin-Cheng and Liu, Hai-Tian and Xie, Yi and Zou, Xiao-Chuan and Yu, Yang and Zhou, Zhi-Hua},
+  journal = {arXiv preprint arXiv:2401.14427},
+  year = {2024}
 }
 ```
 
@@ -424,9 +426,7 @@ feature_augment_predict_y = reuse_feature_augment.predict(user_data=test_x)
 
 ## 如何贡献
 
-`learnware` 还很年轻，可能存在错误和问题。我们非常欢迎大家为 `learnware` 做出贡献。
-我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。
-非常感谢大家的贡献！
+`learnware` 还很年轻，可能存在错误和问题。我们非常欢迎大家为 `learnware` 做出贡献，研究和改进学件相关算法，或是围绕学件范式进行开发和探索。我们为所有的开发者提供了详细的[项目开发指南](https://learnware.readthedocs.io/en/latest/about/dev.html)，并设置了相应的 commit 格式和 pre-commit 配置，请大家遵守。非常感谢大家的参与和支持！
 
 ## 关于我们
 

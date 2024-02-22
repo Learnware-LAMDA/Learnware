@@ -2,7 +2,7 @@
 About Us
 ================
 
-The R&D Team of ``learnware`` is from `Nanjing University's LAMDA Research Institute <https://www.lamda.nju.edu.cn/MainPage.ashx>`_, with Prof. `Zhi-Hua Zhou <http://cs.nju.edu.cn/zhouzh>`_ serving as the Founding Director.
+The R&D (Research and Development) Team of ``learnware`` is from `Nanjing University's LAMDA Research Institute <https://www.lamda.nju.edu.cn/MainPage.ashx>`_, with Prof. `Zhi-Hua Zhou <http://cs.nju.edu.cn/zhouzh>`_ serving as the Founding Director.
 
 LAMDA is affiliated with the National Key Laboratory for Novel Software Technology, the Department of Computer Science & Technology and the School of Artificial Intelligence, Nanjing University, China. It locates at Computer Science and Technology Building in the Xianlin campus of Nanjing University, mainly in Rm910.
 
@@ -13,6 +13,6 @@ The ``learnware`` package is currently maintained by the LAMDA Beimingwu R&D Tea
 Contact
 ==========
 
-``learnware`` is still young. It may contain bugs and issues. Contributions are welcome. If you encounter any problems or have any suggestions while using the ``learnware`` package, please contact us:
+``learnware`` is still in its early stages and may contain bugs and issues. Contributions are welcome. If you encounter any problems or have any suggestions while using the ``learnware`` package, please contact us:
 
 - Email: bmwu-support@lamda.nju.edu.cn

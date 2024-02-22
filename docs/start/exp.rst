@@ -4,7 +4,7 @@
 Experiments and Examples
 ================================
 
-This chapter will introduce related experiments to illustrate the search and reuse performance of our learnware system.
+In this section, we build various types of experimental scenarios and conduct extensive empirical study to evaluate the baseline algorithms, implemented and refined in the ``learnware`` package, for specification generation, learnware identification, and reuse on tabular, image, and text data.
 
 Environment
 ====================
@@ -168,7 +168,7 @@ The results are depicted in the following table and figure. Similarly, even when
 
 Get Start Examples
 =========================
-Examples for `Tabular, Text` and `Image` data sets are available at `Learnware Examples <https://github.com/Learnware-LAMDA/Learnware/tree/main/examples>`_. You can run { workflow.py } directly to reproduce related experiments.
+Examples for `Tabular, Text` and `Image` data sets are available at `Learnware Examples <https://www.gitlink.org.cn/beimingwu/learnware/tree/main/examples>`_. You can run { workflow.py } directly to reproduce related experiments.
 We utilize the `fire` module to construct our experiments.
 
 Table Examples

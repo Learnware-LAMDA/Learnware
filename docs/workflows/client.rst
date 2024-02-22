@@ -6,7 +6,7 @@ Learnware Client
 Introduction
 ====================
 
-``Learnware Client`` is a ``Python API`` that provides a convenient interface for interacting with the ``BeimingWu`` system. You can easily use the client to upload, download, delete, update, and search learnwares.
+``Learnware Client`` is a ``Python API`` that provides a convenient interface for interacting with the ``Beimingwu`` system. You can easily use the client to upload, download, delete, update, and search learnwares.
 
 
 Prepare access token
@@ -36,9 +36,11 @@ Where email is the registered mailbox of the system and token is the token obtai
 Upload Leanware
 -------------------------------
 
-Before uploading a learnware, you'll need to prepare the semantic specification of your learnware. Let's take the classification task for tabular data as an example. You can create a semantic specification by a helper function ``create_semantic_specification``.
+Before uploading a learnware, you'll need to prepare the semantic specification of your learnware. Let's take the classification task for tabular data as an example. You can create a semantic specification by a helper function ``generate_semantic_spec``.
 
 .. code-block:: python
+
+    from learnware.specification import generate_semantics_spec
 
     # Prepare input description when data_type="Table"
     input_description = {
@@ -63,7 +65,7 @@ Before uploading a learnware, you'll need to prepare the semantic specification 
     }
 
     # Create semantic specification
-    semantic_spec = client.create_semantic_specification(
+    semantic_spec = generate_semantic_spec(
         name="learnware_example",
         description="Just a example for uploading a learnware",
         data_type="Table",
@@ -75,7 +77,7 @@ Before uploading a learnware, you'll need to prepare the semantic specification 
         output_description=output_description,
     )
     
-Ensure that the input parameters for the semantic specification fall within the specified ranges provided by ``client.list_semantic_specification_values(key)``:
+Please ensure that the input parameters for the semantic specification fall within the specified ranges provided by ``client.list_semantic_specification_values(key)``:
 
 * "data_type" must be within the range of ``key=SemanticSpecificationKey.DATA_TYPE``.
 * "task_type" must be within the range of ``key=SemanticSpecificationKey.TASK_TYPE``.
@@ -87,7 +89,7 @@ Ensure that the input parameters for the semantic specification fall within the 
 
 Finally, the semantic specification and the zip package path of the learnware were filled in to upload the learnware.
 
-Remember to verify the learnware before uploading it, as shown in the following code example:
+Remember to validate your learnware before uploading it, as shown in the following code example:
 
 .. code-block:: python
 
@@ -104,7 +106,7 @@ Remember to verify the learnware before uploading it, as shown in the following 
         learnware_zip_path=zip_path, semantic_specification=semantic_spec
     )
 
-After uploading the learnware successfully, you can see it in ``My Learnware``, the background will check it. Click on the learnware, which can be viewed in the ``Verify Status``. After the check passes, the Unverified tag of the learnware will disappear, and the uploaded learnware will appear in the system.
+After uploading the learnware successfully, you can see it in ``Personal Information - My Learnware``, the background will check it. Click on the learnware, which can be viewed in the ``Verify Status``. After the check passes, the Unverified tag of the learnware will disappear, and the uploaded learnware will appear in the system.
 
 Update Learnware
 -------------------------------
@@ -153,37 +155,40 @@ The ``delete_learnware`` method is used to delete a learnware from the server.
 Semantic Specification Search
 -------------------------------
 
-You can search the learnware in the system through the semantic specification, and all the learnware conforming to the semantic specification will be returned through the API. For example, the following code will give you all the learnware in the system whose task type is classified:
+You can search for learnware(s) in the system through semantic specifications, and all learnwares that meet the semantic specifications will be returned via the API. For example, the following code retrieves all learnware in the system with a task type of "Classification":
 
 .. code-block:: python
 
     from learnware.market import BaseUserInfo
 
-    user_semantic = client.create_semantic_specification(
+    user_semantic = generate_semantic_spec(
         task_type="Classification"
     )
     user_info = BaseUserInfo(semantic_spec=user_semantic)
-    learnware_list = client.search_learnware(user_info, page_size=None)
-    
+    search_result = client.search_learnware(user_info)
+
 
 Statistical Specification Search
 ---------------------------------
 
-You can also search the learnware in the system through the statistical specification, and all the learnware with similar distribution will be returned through the API. Using the ``generate_stat_spec`` function mentioned above, you can easily get the ``stat_spec`` for your current task, and then get the learnware that meets the statistical specification for the same type of data in the system by using the following code:
+Moreover, you can also search for learnware(s) in the learnware dock system through statistical specifications, and more targeted learnwares for your task will be returned through the API. Using the ``generate_stat_spec`` function mentioned above, you can generate your task's statistical specification ``stat_spec``. Then, you can use the following code to easily obtain suitable learnware(s) identified by the system for your specific task:
 
 .. code-block:: python
 
     user_info = BaseUserInfo(stat_info={stat_spec.type: stat_spec})
-    learnware_list = client.search_learnware(user_info, page_size=None)
+    search_result = client.search_learnware(user_info)
 
 
 Combine Semantic and Statistical Search
 ----------------------------------------
-By combining statistical and semantic specifications, you can perform more detailed searches, such as the following code that searches tabular data for pieces of learnware that satisfy your semantic specifications:
+
+By combining both semantic and statistical specifications, you can perform more accurate searches. For instance, the code below demonstrates how to search for learnware(s) in tabular data that satisfy both the semantic and statistical specifications:
 
 .. code-block:: python
 
-    user_semantic = client.create_semantic_specification(
+    from learnware.specification import generate_stat_spec
+
+    user_semantic = generate_semantic_spec(
         task_type="Classification",
         scenarios=["Business"],
     )
@@ -191,11 +196,12 @@ By combining statistical and semantic specifications, you can perform more detai
     user_info = BaseUserInfo(
         semantic_spec=user_semantic, stat_info={rkme_table.type: rkme_table}
     )
-    learnware_list = client.search_learnware(user_info, page_size=None)
+    search_result = client.search_learnware(user_info)
+
 
 Heterogeneous Table Search
 ----------------------------------------
-When you provide a statistical specification for tabular data, the task type is "Classification" or "Regression", and your semantic specification includes descriptions for each dimension, the system will automatically enable heterogeneous table search. It won't only search in the tabular learnwares with same dimensions. The following code will perform heterogeneous table search through the API:
+For tabular tasks, if the task type is "Classification" or "Regression", and you have provided a statistical specification along with descriptions for each feature dimension in the semantic specification, the system will enable heterogeneous table search. This is designed to support searching models from different feature spaces preliminarily. The following code example shows how to perform a heterogeneous table search via the API:
 
 .. code-block:: python
 
@@ -206,7 +212,7 @@ When you provide a statistical specification for tabular data, the task type is 
             "1": "leaf length",
         },
     }
-    user_semantic = client.create_semantic_specification(
+    user_semantic = generate_semantic_spec(
         task_type="Classification",
         scenarios=["Business"],
         input_description=input_description,
@@ -215,19 +221,18 @@ When you provide a statistical specification for tabular data, the task type is 
     user_info = BaseUserInfo(
         semantic_spec=user_semantic, stat_info={rkme_table.type: rkme_table}
     )
-    learnware_list = client.search_learnware(user_info)
+    search_result = client.search_learnware(user_info)
 
 
 Download and Use Learnware
 -------------------------------
-When the search is complete, you can download the learnware and configure the environment through the following code:
+After the learnware search is completed, you can locally load and use the learnwares through the learnware IDs in ``search_result``, as shown in the following example:
 
 .. code-block:: python
 
-    for temp_learnware in learnware_list:
-        learnware_id = temp_learnware["learnware_id"]
-
-        # you can use the learnware to make prediction now
-        learnware = client.load_learnware(
-            learnware_id=learnware_id, runnable_option="conda"
-        )
+    learnware_id = search_result["single"]["learnware_ids"][0]
+    learnware = client.load_learnware(
+        learnware_id=learnware_id, runnable_option="conda"
+    )
+    # test_x is the user's data for prediction
+    predict_y = learnware.predict(test_x)
