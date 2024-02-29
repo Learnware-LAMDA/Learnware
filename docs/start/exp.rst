@@ -168,7 +168,7 @@ The results are depicted in the following table and figure. Similarly, even when
 
 Get Start Examples
 =========================
-Examples for `Tabular, Text` and `Image` data sets are available at `Learnware Examples <https://www.gitlink.org.cn/beimingwu/learnware/tree/main/examples>`_. You can run { workflow.py } directly to reproduce related experiments.
+Examples for `Tabular, Text` and `Image` data sets are available at `Learnware Examples <https://github.com/Learnware-LAMDA/Learnware/tree/main/examples>`_. You can run { workflow.py } directly to reproduce related experiments.
 We utilize the `fire` module to construct our experiments.
 
 Table Examples

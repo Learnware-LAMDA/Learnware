@@ -36,7 +36,7 @@ Also, Users can install ``learnware`` by the source code according to the follow
 
     .. code-block:: bash
         
-        $ git clone https://gitlink.org.cn/beimingwu/learnware.git && cd Learnware
+        $ git clone https://github.com/Learnware-LAMDA/Learnware.git && cd Learnware
         $ pip install -e .[dev]
 
 .. note::
