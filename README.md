@@ -348,7 +348,7 @@ We assess the average performance of various methods using 1 - Accuracy as the l
 
 <div align=center>
 
-| Setting                           | Accuracy |
+| Setting                           | Error |
 |-----------------------------------|----------|
 | Mean in Market (Single)           | 0.655    |
 | Best in Market (Single)           | 0.304    |
