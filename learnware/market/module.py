@@ -2,7 +2,7 @@ from .base import LearnwareMarket
 from .classes import CondaChecker
 from .easy import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
 from .heterogeneous import HeteroMapTableOrganizer, HeteroSearcher
-
+from .llm import LLMSearcher
 
 def get_market_component(
     name, market_id, rebuild, organizer_kwargs=None, searcher_kwargs=None, checker_kwargs=None, conda_checker=False
@@ -35,6 +35,19 @@ def get_market_component(
             "organizer": hetero_organizer,
             "searcher": hetero_searcher,
             "checker_list": hetero_checker_list,
+        }
+    elif name == "llm":
+        llm_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
+        llm_searcher = LLMSearcher(organizer=llm_organizer)
+        llm_checker_list = [
+            EasySemanticChecker(),
+            EasyStatChecker() if conda_checker is False else CondaChecker(EasyStatChecker()),
+        ]
+
+        market_component = {
+            "organizer": llm_organizer,
+            "searcher": llm_searcher,
+            "checker_list": llm_checker_list,
         }
     else:
         raise ValueError(f"name {name} is not supported for market")
