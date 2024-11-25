@@ -182,3 +182,19 @@ class LearnwareBenchmark:
             train_y_paths=train_y_paths,
             extra_info_path=extra_info_path,
         )
+
+
+class LLMBenchmark:
+    def __init__(self):
+        self.benchmark_configs = benchmark_configs
+
+    def list_general_capability_benchmarks(self) -> Dict:
+        pass
+
+    def list_specific_capability_benchmarks(self) -> Dict:
+        pass
+
+    def get_benchmark(self, benchmark_name: str) -> Dict[str, List[str]]:
+        # preprocess hugging face datasets into list of strings
+        # need to specify hugging face save path with root dir C.cache_dir
+        pass
