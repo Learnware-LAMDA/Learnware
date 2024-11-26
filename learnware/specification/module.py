@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from .regular import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification
+from .regular import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification, TaskVectorSpecification
 from .utils import convert_to_numpy
 from ..config import C
 
@@ -173,6 +173,21 @@ def generate_rkme_text_spec(
     rkme_text_spec = RKMETextSpecification(gamma=gamma, cuda_idx=cuda_idx)
     rkme_text_spec.generate_stat_spec_from_data(X, reduced_set_size, step_size, steps, nonnegative_beta, reduce)
     return rkme_text_spec
+
+
+def generate_task_vector_spec(
+    X: List[str],
+    verbose: bool = True,
+    **kwargs   
+) -> TaskVectorSpecification:
+    # Check input type
+    if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
+        raise TypeError("Input data must be a list of strings.")
+    
+    # Generate task vector spec
+    task_vector_spec = TaskVectorSpecification()
+    task_vector_spec.generate_stat_spec_from_data(X, verbose, **kwargs)
+    return task_vector_spec
 
 
 def generate_stat_spec(
