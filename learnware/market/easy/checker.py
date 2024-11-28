@@ -133,7 +133,7 @@ class EasyStatChecker(BaseChecker):
                     return self.INVALID_LEARNWARE, message
                 inputs = np.random.randn(10, *input_shape)
 
-            elif spec_type == "RKMETextSpecification":
+            elif spec_type == "RKMETextSpecification" or spec_type == "TaskVectorSpecification":
                 inputs = EasyStatChecker._generate_random_text_list(10)
 
             elif spec_type == "RKMEImageSpecification":
