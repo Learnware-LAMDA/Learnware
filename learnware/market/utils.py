@@ -5,6 +5,8 @@ def parse_specification_type(
         "RKMETableSpecification",
         "RKMETextSpecification",
         "RKMEImageSpecification",
+        "LLMGeneralCapabilitySpecification",
+        "TaskVectorSpecification"
     ],
 ):
     for spec in spec_list:
