@@ -37,7 +37,7 @@ def get_market_component(
             "checker_list": hetero_checker_list,
         }
     elif name == "llm":
-        llm_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
+        llm_organizer = EasyOrganizer(market_id=market_id, rebuild=rebuild)
         llm_searcher = LLMSearcher(organizer=llm_organizer)
         llm_checker_list = [
             EasySemanticChecker(),
