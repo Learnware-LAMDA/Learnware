@@ -1,15 +1,13 @@
-import os
-import torch
 import numpy as np
 from torch import nn
+
 
 class TorchModel:
     def __init__(
         self,
         model: nn.Module,
-        input_shape,
-        output_shape,
-        device=None,
+        input_shape: tuple,
+        output_shape: tuple,
     ):
         self._model = model
         self.input_shape = input_shape

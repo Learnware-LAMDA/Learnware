@@ -1,8 +1,16 @@
 from .base import LearnwareMarket
 from .classes import CondaChecker
-from .easy import EasyOrganizer, EasySearcher, EasySemanticChecker, EasyStatChecker
-from .heterogeneous import HeteroMapTableOrganizer, HeteroSearcher
-from .llm import LLMSearcher
+from .easy import (
+    EasyOrganizer,
+    EasyFuzzSemanticSearcher,
+    EasyStatSearcher,
+    CombinedSearcher,
+    EasySemanticChecker,
+    EasyStatChecker,
+)
+from .heterogeneous import HeteroMapTableOrganizer, HeteroStatSearcher
+from .llm import LLMStatSearcher
+
 
 def get_market_component(
     name, market_id, rebuild, organizer_kwargs=None, searcher_kwargs=None, checker_kwargs=None, conda_checker=False
@@ -13,19 +21,37 @@ def get_market_component(
 
     if name == "easy":
         easy_organizer = EasyOrganizer(market_id=market_id, rebuild=rebuild)
-        easy_searcher = EasySearcher(organizer=easy_organizer)
+
+        semantic_searcher_list = [EasyFuzzSemanticSearcher(organizer=easy_organizer)]
+        stat_searcher_list = [EasyStatSearcher(organizer=easy_organizer)]
+        easy_searcher = CombinedSearcher(
+            organizer=easy_organizer,
+            semantic_searcher_list=semantic_searcher_list,
+            stat_searcher_list=stat_searcher_list,
+        )
+
         easy_checker_list = [
             EasySemanticChecker(),
             EasyStatChecker() if conda_checker is False else CondaChecker(EasyStatChecker()),
         ]
+
         market_component = {
             "organizer": easy_organizer,
             "searcher": easy_searcher,
             "checker_list": easy_checker_list,
         }
+
     elif name == "hetero":
         hetero_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
-        hetero_searcher = HeteroSearcher(organizer=hetero_organizer)
+
+        semantic_searcher_list = [EasyFuzzSemanticSearcher(organizer=hetero_organizer)]
+        stat_searcher_list = [HeteroStatSearcher(organizer=hetero_organizer)]
+        hetero_searcher = CombinedSearcher(
+            organizer=hetero_organizer,
+            semantic_searcher_list=semantic_searcher_list,
+            stat_searcher_list=stat_searcher_list,
+        )
+
         hetero_checker_list = [
             EasySemanticChecker(),
             EasyStatChecker() if conda_checker is False else CondaChecker(EasyStatChecker()),
@@ -36,9 +62,18 @@ def get_market_component(
             "searcher": hetero_searcher,
             "checker_list": hetero_checker_list,
         }
+
     elif name == "llm":
-        llm_organizer = EasyOrganizer(market_id=market_id, rebuild=rebuild)
-        llm_searcher = LLMSearcher(organizer=llm_organizer)
+        llm_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
+
+        semantic_searcher_list = [EasyFuzzSemanticSearcher(organizer=llm_organizer)]
+        stat_searcher_list = [LLMStatSearcher(organizer=llm_organizer)]
+        llm_searcher = CombinedSearcher(
+            organizer=llm_organizer,
+            semantic_searcher_list=semantic_searcher_list,
+            stat_searcher_list=stat_searcher_list,
+        )
+
         llm_checker_list = [
             EasySemanticChecker(),
             EasyStatChecker() if conda_checker is False else CondaChecker(EasyStatChecker()),
@@ -49,6 +84,7 @@ def get_market_component(
             "searcher": llm_searcher,
             "checker_list": llm_checker_list,
         }
+
     else:
         raise ValueError(f"name {name} is not supported for market")
 

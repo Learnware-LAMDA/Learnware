@@ -5,16 +5,16 @@ from ...utils import is_torch_available
 logger = get_module_logger("market_easy")
 
 if not is_torch_available(verbose=False):
-    EasySearcher = None
     EasySemanticChecker = None
     EasyStatChecker = None
     EasyExactSemanticSearcher = None
     EasyFuzzSemanticSearcher = None
     EasyStatSearcher = None
+    CombinedSearcher = None
     logger.error("EasySeacher and EasyChecker are not available because 'torch' is not installed!")
 else:
     from .checker import EasySemanticChecker, EasyStatChecker
-    from .searcher import EasyExactSemanticSearcher, EasyFuzzSemanticSearcher, EasySearcher, EasyStatSearcher
+    from .searcher import EasyExactSemanticSearcher, EasyFuzzSemanticSearcher, EasyStatSearcher, CombinedSearcher
 
 __all__ = [
     "EasyOrganizer",
@@ -22,6 +22,6 @@ __all__ = [
     "EasyStatChecker",
     "EasyExactSemanticSearcher",
     "EasyFuzzSemanticSearcher",
-    "EasySearcher",
     "EasyStatSearcher",
+    "CombinedSearcher",
 ]

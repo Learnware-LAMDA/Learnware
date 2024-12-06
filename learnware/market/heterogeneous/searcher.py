@@ -1,15 +1,54 @@
 from typing import Optional
 
-from .utils import is_hetero
 from ..base import BaseUserInfo, SearchResults
-from ..easy import EasySearcher
-from ..utils import parse_specification_type
+from ..easy import EasyStatSearcher
 from ...logger import get_module_logger
 
 logger = get_module_logger("hetero_searcher")
 
 
-class HeteroSearcher(EasySearcher):
+class HeteroStatSearcher(EasyStatSearcher):
+    SPEC_TYPES = ["HeteroMapTableSpecification"]
+
+    def is_applicable_user(self, user_info: BaseUserInfo, verbose: bool = True) -> bool:
+        stat_specs = user_info.stat_info
+        semantic_spec = user_info.semantic_spec
+        try:
+            table_stat_spec = stat_specs["RKMETableSpecification"]
+            table_input_shape = table_stat_spec.get_z().shape[1]
+
+            semantic_data_type = semantic_spec["Data"]["Values"]
+            if len(semantic_data_type) > 0 and semantic_data_type != ["Table"]:
+                logger.warning("User doesn't provide correct data type, it must be Table.")
+                return False
+
+            semantic_task_type = semantic_spec["Task"]["Values"]
+            if len(semantic_task_type) > 0 and semantic_task_type not in [["Classification"], ["Regression"]]:
+                logger.warning(
+                    "User doesn't provide correct task type, it must be either Classification or Regression."
+                )
+                return False
+
+            semantic_input_description = semantic_spec["Input"]
+            semantic_description_dim = int(semantic_input_description["Dimension"])
+            semantic_decription_feature_num = len(semantic_input_description["Description"])
+
+            if semantic_decription_feature_num <= 0:
+                if verbose:
+                    logger.warning("At least one of Input.Description in semantic spec should be provides.")
+                return False
+
+            if table_input_shape != semantic_description_dim:
+                if verbose:
+                    logger.warning("User data feature dimensions mismatch with semantic specification.")
+                return False
+
+            return True
+        except Exception as err:
+            if verbose:
+                logger.warning("Invalid heterogeneous search information provided.")
+            return False
+
     def __call__(
         self,
         user_info: BaseUserInfo,
@@ -38,17 +77,7 @@ class HeteroSearcher(EasySearcher):
             the third is the score of Learnware (mixture)
             the fourth is the list of Learnware (mixture), the size is search_num
         """
-        learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
-        semantic_search_result = self.semantic_searcher(learnware_list, user_info)
+        user_hetero_spec = self.learnware_organizer.generate_hetero_map_spec(user_info)
+        user_info.update_stat_info(user_hetero_spec.type, user_hetero_spec)
 
-        learnware_list = [search_item.learnware for search_item in semantic_search_result.get_single_results()]
-        if len(learnware_list) == 0:
-            return SearchResults()
-
-        if parse_specification_type(stat_specs=user_info.stat_info) is not None:
-            if is_hetero(stat_specs=user_info.stat_info, semantic_spec=user_info.semantic_spec):
-                user_hetero_spec = self.learnware_organizer.generate_hetero_map_spec(user_info)
-                user_info.update_stat_info(user_hetero_spec.type, user_hetero_spec)
-            return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
-        else:
-            return semantic_search_result
+        return super().__call__(user_info, check_status, max_search_num, search_method)

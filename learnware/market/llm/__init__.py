@@ -4,9 +4,9 @@ from ...utils import is_torch_available
 logger = get_module_logger("market_llm")
 
 if not is_torch_available(verbose=False):
-    LLMSearcher = None
-    logger.error("LLMSearcher are not available because 'torch' is not installed!")
+    LLMStatSearcher = None
+    logger.error("LLMStatSearcher is not available because 'torch' is not installed!")
 else:
-    from .searcher import LLMSearcher
+    from .searcher import LLMStatSearcher
 
-__all__ = ["LLMSearcher"]
+__all__ = ["LLMStatSearcher"]

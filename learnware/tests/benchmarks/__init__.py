@@ -3,7 +3,7 @@ import pickle
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Dict
 
 import numpy as np
 
