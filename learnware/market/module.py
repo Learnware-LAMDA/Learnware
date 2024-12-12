@@ -4,7 +4,7 @@ from .easy import (
     EasyOrganizer,
     EasyFuzzSemanticSearcher,
     EasyStatSearcher,
-    CombinedSearcher,
+    SeqCombinedSearcher,
     EasySemanticChecker,
     EasyStatChecker,
 )
@@ -24,7 +24,7 @@ def get_market_component(
 
         semantic_searcher_list = [EasyFuzzSemanticSearcher()]
         stat_searcher_list = [EasyStatSearcher()]
-        easy_searcher = CombinedSearcher(
+        easy_searcher = SeqCombinedSearcher(
             organizer=easy_organizer,
             semantic_searcher_list=semantic_searcher_list,
             stat_searcher_list=stat_searcher_list,
@@ -46,7 +46,7 @@ def get_market_component(
 
         semantic_searcher_list = [EasyFuzzSemanticSearcher(organizer=hetero_organizer)]
         stat_searcher_list = [HeteroStatSearcher(), EasyStatSearcher()]
-        hetero_searcher = CombinedSearcher(
+        hetero_searcher = SeqCombinedSearcher(
             organizer=hetero_organizer,
             semantic_searcher_list=semantic_searcher_list,
             stat_searcher_list=stat_searcher_list,
@@ -66,9 +66,9 @@ def get_market_component(
     elif name == "llm":
         llm_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
 
-        semantic_searcher_list = [EasyFuzzSemanticSearcher(organizer=llm_organizer)]
+        semantic_searcher_list = [EasyFuzzSemanticSearcher()]
         stat_searcher_list = [LLMStatSearcher(), HeteroStatSearcher(), EasyStatSearcher()]
-        llm_searcher = CombinedSearcher(
+        llm_searcher = SeqCombinedSearcher(
             organizer=llm_organizer,
             semantic_searcher_list=semantic_searcher_list,
             stat_searcher_list=stat_searcher_list,

@@ -14,7 +14,7 @@ from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
 from learnware.market import instantiate_learnware_market
 from learnware.reuse.utils import fill_data_with_mean
-from learnware.tests.benchmarks import LearnwareBenchmark
+from learnware.tests.benchmarks import LearnwareBenchmarkManager
 
 logger = get_module_logger("base_table", level="INFO")
 
@@ -63,7 +63,7 @@ class TableWorkflow:
 
     def _prepare_market(self, benchmark_config, name, rebuild, retrain):
         client = LearnwareClient()
-        self.benchmark = LearnwareBenchmark().get_benchmark(benchmark_config)
+        self.benchmark = LearnwareBenchmarkManager().get_benchmark(benchmark_config)
         self.market = instantiate_learnware_market(
             market_id=self.benchmark.name,
             name=name,

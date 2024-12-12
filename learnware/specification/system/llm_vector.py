@@ -3,7 +3,7 @@ import numpy as np
 
 from .base import SystemStatSpecification
 from ...model import TorchModel
-from ...tests.benchmarks import LLMBenchmark
+from ...tests.benchmarks import LearnwareBenchmarkManager
 from ...logger import get_module_logger
 
 logger = get_module_logger("llm_general_capability_spec")
@@ -18,8 +18,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
 
     def generate_stat_spec_from_system(self, model: TorchModel) -> np.ndarray:
         # model: foundation model
-        # List[str]: each str is a dataset name
-        dataset_names = LLMBenchmark().get_general_capability_datasets()
+        dataset_names = LearnwareBenchmarkManager().list_benchmarks()
 
         pass
 

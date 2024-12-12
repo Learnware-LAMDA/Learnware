@@ -14,7 +14,7 @@ class TorchModel:
         self.output_shape = output_shape
 
     @property
-    def model(self) -> nn.Module:
+    def nn_model(self) -> nn.Module:
         """
         fetch the inner model
         """

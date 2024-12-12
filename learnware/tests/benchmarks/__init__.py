@@ -3,11 +3,11 @@ import pickle
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union, Dict
+from typing import List, Optional, Tuple, Union, Callable
 
 import numpy as np
 
-from .config import BenchmarkConfig, benchmark_configs
+from .config import BenchmarkConfig, LLMBenchmarkConfig, benchmark_configs
 from ..data import GetData
 from ...config import C
 
@@ -71,7 +71,19 @@ class Benchmark:
             return ret
 
 
-class LearnwareBenchmark:
+@dataclass
+class LLMBenchmark:
+    name: str
+    preprocess_function: Optional[Callable] = None
+
+    def get_train_val_data(self) -> List[str]:
+        pass
+
+    def get_test_data(self) -> List[str]:
+        pass
+
+
+class LearnwareBenchmarkManager:
     def __init__(self):
         self.benchmark_configs = benchmark_configs
 
@@ -148,53 +160,44 @@ class LearnwareBenchmark:
 
         return X_paths, y_paths
 
-    def get_benchmark(self, benchmark_config: Union[str, BenchmarkConfig]) -> Benchmark:
+    def get_benchmark(self, benchmark_config: Union[str, BenchmarkConfig, LLMBenchmarkConfig]) -> Benchmark:
         if isinstance(benchmark_config, str):
             benchmark_config = self.benchmark_configs[benchmark_config]
 
-        if not isinstance(benchmark_config, BenchmarkConfig):
+        if not isinstance(benchmark_config, (BenchmarkConfig, LLMBenchmarkConfig)):
             raise ValueError(
                 "benchmark_config must be a BenchmarkConfig object or a string in benchmark_configs.keys()!"
             )
 
-        # Load test data
-        test_X_paths, test_y_paths = self._load_cache_data(benchmark_config, "test")
+        if isinstance(benchmark_config, LLMBenchmarkConfig):
+            return LLMBenchmark(
+                name=benchmark_config.name,
+                preprocess_function=benchmark_config.preprocess_function,
+            )
 
-        # Load train data
-        train_X_paths, train_y_paths = None, None
-        if benchmark_config.train_data_path is not None:
-            train_X_paths, train_y_paths = self._load_cache_data(benchmark_config, "train")
+        elif isinstance(benchmark_config, BenchmarkConfig):
+            # Load test data
+            test_X_paths, test_y_paths = self._load_cache_data(benchmark_config, "test")
 
-        # Load extra info
-        extra_info_path = None
-        if benchmark_config.extra_info_path is not None:
-            extra_info_path = os.path.join(C.cache_path, benchmark_config.name, "extra_info")
-            if not os.path.exists(extra_info_path):
-                self._download_data(benchmark_config.extra_info_path, extra_info_path)
+            # Load train data
+            train_X_paths, train_y_paths = None, None
+            if benchmark_config.train_data_path is not None:
+                train_X_paths, train_y_paths = self._load_cache_data(benchmark_config, "train")
 
-        return Benchmark(
-            name=benchmark_config.name,
-            user_num=benchmark_config.user_num,
-            learnware_ids=benchmark_config.learnware_ids,
-            test_X_paths=test_X_paths,
-            test_y_paths=test_y_paths,
-            train_X_paths=train_X_paths,
-            train_y_paths=train_y_paths,
-            extra_info_path=extra_info_path,
-        )
+            # Load extra info
+            extra_info_path = None
+            if benchmark_config.extra_info_path is not None:
+                extra_info_path = os.path.join(C.cache_path, benchmark_config.name, "extra_info")
+                if not os.path.exists(extra_info_path):
+                    self._download_data(benchmark_config.extra_info_path, extra_info_path)
 
-
-class LLMBenchmark:
-    def __init__(self):
-        self.benchmark_configs = benchmark_configs
-
-    def list_general_capability_benchmarks(self) -> Dict:
-        pass
-
-    def list_specific_capability_benchmarks(self) -> Dict:
-        pass
-
-    def get_benchmark(self, benchmark_name: str) -> Dict[str, List[str]]:
-        # preprocess hugging face datasets into list of strings
-        # need to specify hugging face save path with root dir C.cache_dir
-        pass
+            return Benchmark(
+                name=benchmark_config.name,
+                user_num=benchmark_config.user_num,
+                learnware_ids=benchmark_config.learnware_ids,
+                test_X_paths=test_X_paths,
+                test_y_paths=test_y_paths,
+                train_X_paths=train_X_paths,
+                train_y_paths=train_y_paths,
+                extra_info_path=extra_info_path,
+            )

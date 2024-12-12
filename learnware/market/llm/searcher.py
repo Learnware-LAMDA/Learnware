@@ -1,12 +1,12 @@
 from typing import Optional
 
-from ..base import BaseUserInfo, SearchResults, BasicSearcher
+from ..base import BaseUserInfo, SearchResults, AtomicSearcher
 from ...logger import get_module_logger
 
 logger = get_module_logger("llm_searcher")
 
 
-class LLMStatSearcher(BasicSearcher):
+class LLMStatSearcher(AtomicSearcher):
     SPEC_TYPES = ["TaskVectorSpecification"]
 
     def is_applicable_user(self, user_info: BaseUserInfo, verbose: bool = True) -> bool:

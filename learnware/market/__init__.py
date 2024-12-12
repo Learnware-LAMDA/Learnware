@@ -6,7 +6,7 @@ from .easy import (
     EasyExactSemanticSearcher,
     EasyFuzzSemanticSearcher,
     EasyStatSearcher,
-    CombinedSearcher,
+    SeqCombinedSearcher,
     EasySemanticChecker,
     EasyStatChecker,
 )
@@ -30,7 +30,7 @@ __all__ = [
     "EasyExactSemanticSearcher",
     "EasyFuzzSemanticSearcher",
     "EasyStatSearcher",
-    "CombinedSearcher",
+    "SeqCombinedSearcher",
     "EasySemanticChecker",
     "EasyStatChecker",
     "EvolvedOrganizer",

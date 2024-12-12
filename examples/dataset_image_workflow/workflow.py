@@ -18,7 +18,7 @@ from learnware.logger import get_module_logger
 from learnware.market import BaseUserInfo, instantiate_learnware_market
 from learnware.reuse import AveragingReuser, EnsemblePruningReuser, JobSelectorReuser
 from learnware.specification import generate_stat_spec
-from learnware.tests.benchmarks import LearnwareBenchmark
+from learnware.tests.benchmarks import LearnwareBenchmarkManager
 from learnware.utils import choose_device
 
 logger = get_module_logger("image_workflow", level="INFO")
@@ -57,7 +57,7 @@ class ImageDatasetWorkflow:
 
     def _prepare_market(self, rebuild=False):
         client = LearnwareClient()
-        self.image_benchmark = LearnwareBenchmark().get_benchmark(image_benchmark_config)
+        self.image_benchmark = LearnwareBenchmarkManager().get_benchmark(image_benchmark_config)
         self.image_market = instantiate_learnware_market(market_id=self.image_benchmark.name, rebuild=rebuild)
         self.user_semantic = client.get_semantic_specification(self.image_benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""

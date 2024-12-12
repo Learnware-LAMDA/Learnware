@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Callable, Union
 
 
 @dataclass
@@ -12,4 +12,10 @@ class BenchmarkConfig:
     extra_info_path: Optional[str] = None
 
 
-benchmark_configs: Dict[str, BenchmarkConfig] = {}
+@dataclass
+class LLMBenchmarkConfig:
+    name: str
+    preprocess_function: Optional[Callable] = None
+
+
+benchmark_configs: Dict[str, Union[BenchmarkConfig, LLMBenchmarkConfig]] = {}

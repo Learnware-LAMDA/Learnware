@@ -8,7 +8,7 @@ from rapidfuzz import fuzz
 from ..base import (
     BaseOrganizer,
     BaseSearcher,
-    BasicSearcher,
+    AtomicSearcher,
     BaseUserInfo,
     MultipleSearchItem,
     SearchResults,
@@ -22,12 +22,14 @@ from ...specification import RKMEImageSpecification, RKMETableSpecification, RKM
 logger = get_module_logger("easy_seacher")
 
 
-class EasyExactSemanticSearcher(BasicSearcher):
+class EasyExactSemanticSearcher(AtomicSearcher):
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        return True
+        learnware_semantic_spec = learnware.specification.get_semantic_spec
+        return learnware_semantic_spec
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        return True
+        user_semantic_spec = user_info.get_semantic_spec()
+        return user_semantic_spec
 
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []
@@ -91,12 +93,14 @@ class EasyExactSemanticSearcher(BasicSearcher):
         return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in match_learnwares])
 
 
-class EasyFuzzSemanticSearcher(BasicSearcher):
+class EasyFuzzSemanticSearcher(AtomicSearcher):
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        return True
+        learnware_semantic_spec = learnware.specification.get_semantic_spec
+        return learnware_semantic_spec
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        return True
+        user_semantic_spec = user_info.get_semantic_spec()
+        return user_semantic_spec
 
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []
@@ -222,7 +226,7 @@ class EasyFuzzSemanticSearcher(BasicSearcher):
         return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in final_result])
 
 
-class EasyStatSearcher(BasicSearcher):
+class EasyStatSearcher(AtomicSearcher):
     STAT_TYPES = ["RKMETableSpecification", "RKMEImageSpecification", "RKMETextSpecification"]
 
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
@@ -655,16 +659,16 @@ class EasyStatSearcher(BasicSearcher):
         return search_results
 
 
-class CombinedSearcher(BaseSearcher):
+class SeqCombinedSearcher(BaseSearcher):
     def __init__(
         self,
         organizer: BaseOrganizer,
-        semantic_searcher_list: List[BasicSearcher],
-        stat_searcher_list: List[BasicSearcher],
+        semantic_searcher_list: List[AtomicSearcher],
+        stat_searcher_list: List[AtomicSearcher],
     ):
         self.semantic_searcher_list = semantic_searcher_list
         self.stat_searcher_list = stat_searcher_list
-        super(CombinedSearcher, self).__init__(organizer)
+        super(SeqCombinedSearcher, self).__init__(organizer)
 
     def reset(self, organizer: BaseOrganizer):
         self.learnware_organizer = organizer
