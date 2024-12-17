@@ -44,6 +44,36 @@ class EasySemanticChecker(BaseChecker):
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
 
+                assert semantic_spec["Task"]["Values"][0] in [
+                    "Classification",
+                    "Regression",
+                    "Feature Extraction",
+                    "Others",
+                ]
+                
+                assert semantic_spec["Model Type"]["Values"][0] == "Others"
+
+            if semantic_spec["Data"]["Values"][0] == "Image":
+                assert semantic_spec["Task"]["Values"][0] in [
+                    "Classification",
+                    "Regression",
+                    "Feature Extraction",
+                    "Segmentation",
+                    "Object Detection",
+                    "Others",
+                ]
+                
+                assert semantic_spec["Model Type"]["Values"][0] == "Others"
+
+            if semantic_spec["Data"]["Values"][0] == "Text":
+                assert semantic_spec["Task"]["Values"][0] in [
+                    "Classification",
+                    "Regression",
+                    "Feature Extraction",
+                    "Text Generation",
+                    "Others",
+                ]
+
             if semantic_spec["Task"]["Values"][0] in ["Classification", "Regression"]:
                 assert semantic_spec["Output"] is not None, "Lack of output semantics"
                 dim = semantic_spec["Output"]["Dimension"]
@@ -134,7 +164,12 @@ class EasyStatChecker(BaseChecker):
                 inputs = np.random.randn(10, *input_shape)
 
             elif spec_type == "RKMETextSpecification" or spec_type == "TaskVectorSpecification":
-                inputs = EasyStatChecker._generate_random_text_list(10)
+
+                if semantic_spec["Model Type"]["Values"][0] != "Others":
+                    len = random.randint(10, 1000)
+                    inputs = EasyStatChecker._generate_random_text_list(10, "en", len, len)
+                else:
+                    inputs = EasyStatChecker._generate_random_text_list(10)
 
             elif spec_type == "RKMEImageSpecification":
                 if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
