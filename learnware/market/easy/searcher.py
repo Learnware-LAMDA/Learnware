@@ -227,13 +227,13 @@ class EasyFuzzSemanticSearcher(AtomicSearcher):
 
 
 class EasyStatSearcher(AtomicSearcher):
-    STAT_TYPES = ["RKMETableSpecification", "RKMEImageSpecification", "RKMETextSpecification"]
+    SPEC_TYPES = ["RKMETableSpecification", "RKMEImageSpecification", "RKMETextSpecification"]
 
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        return any(spec_type in learnware.specification.stat_spec for spec_type in self.STAT_TYPES)
+        return any(spec_type in learnware.specification.stat_spec for spec_type in self.SPEC_TYPES)
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        for spec_type in self.STAT_TYPES:
+        for spec_type in self.SPEC_TYPES:
             if spec_type in user_info.stat_info:
                 user_rkme = user_info.stat_info[spec_type]
 
@@ -468,6 +468,43 @@ class EasyStatSearcher(AtomicSearcher):
             idx = idx + 1
         return sorted_score_list[:idx], learnware_list[:idx]
 
+    def _filter_by_rkme_spec_metadata(
+        self,
+        learnware_list: List[Learnware],
+        user_rkme: Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification],
+    ) -> List[Learnware]:
+        """Filter learnwares whose rkme metadata different from user_rkme
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The list of learnwares whose mixture approximates the user's rkme
+        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
+            User RKME statistical specification
+
+        Returns
+        -------
+        List[Learnware]
+            Learnwares whose rkme dimensions equal user_rkme in user_info
+        """
+        filtered_learnware_list = []
+        user_rkme_dim = str(list(user_rkme.get_z().shape)[1:])
+
+        for learnware in learnware_list:
+            if self.stat_spec_type not in learnware.specification.stat_spec:
+                continue
+            rkme = learnware.specification.get_stat_spec_by_name(self.stat_spec_type)
+            if self.stat_spec_type == "RKMETextSpecification" and not set(user_rkme.language).issubset(
+                set(rkme.language)
+            ):
+                continue
+
+            rkme_dim = str(list(rkme.get_z().shape)[1:])
+            if rkme_dim == user_rkme_dim:
+                filtered_learnware_list.append(learnware)
+
+        return filtered_learnware_list
+
     def _search_by_rkme_spec_mixture_greedy(
         self,
         learnware_list: List[Learnware],
@@ -587,9 +624,11 @@ class EasyStatSearcher(AtomicSearcher):
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> SearchResults:
-        self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info, spec_list=self.STAT_TYPES)
+        self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info, spec_list=self.SPEC_TYPES)
+        print(self.stat_spec_type, self.SPEC_TYPES)
         user_rkme = user_info.stat_info[self.stat_spec_type]
 
+        learnware_list = self._filter_by_rkme_spec_metadata(learnware_list, user_rkme)
         logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
 
         sorted_dist_list, single_learnware_list = self._search_by_rkme_spec_single(learnware_list, user_rkme)
@@ -698,8 +737,8 @@ class SeqCombinedSearcher(BaseSearcher):
         """
         learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
 
-        for semantic_searcher in self.semantic_searchers:
-            if semantic_searcher.is_applicable(user_info):
+        for semantic_searcher in self.semantic_searcher_list:
+            if semantic_searcher.is_applicable_user(user_info):
                 filtered_learnware_list = [
                     learnware for learnware in learnware_list if semantic_searcher.is_applicable_learnware(learnware)
                 ]
@@ -710,11 +749,12 @@ class SeqCombinedSearcher(BaseSearcher):
         if len(learnware_list) == 0:
             return SearchResults()
 
-        for stat_searcher in self.stat_searchers:
-            if stat_searcher.is_applicable(user_info):
+        for stat_searcher in self.stat_searcher_list:
+            if stat_searcher.is_applicable_user(user_info):
                 filtered_learnware_list = [
                     learnware for learnware in learnware_list if stat_searcher.is_applicable_learnware(learnware)
                 ]
+                # print(f"Using searcher: {stat_searcher.__class__}, filtered learnware_list: {len(filtered_learnware_list)}")
                 return stat_searcher(filtered_learnware_list, user_info, max_search_num, search_method)
 
         return semantic_search_result
