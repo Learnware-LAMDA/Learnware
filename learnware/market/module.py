@@ -9,7 +9,7 @@ from .easy import (
     EasyStatChecker,
 )
 from .heterogeneous import HeteroMapTableOrganizer, HeteroStatSearcher
-from .llm import LLMStatSearcher
+from .llm import LLMEasyOrganizer, LLMStatSearcher
 
 
 def get_market_component(
@@ -64,7 +64,7 @@ def get_market_component(
         }
 
     elif name == "llm":
-        llm_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
+        llm_organizer = LLMEasyOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
 
         semantic_searcher_list = [EasyFuzzSemanticSearcher(llm_organizer)]
         stat_searcher_list = [

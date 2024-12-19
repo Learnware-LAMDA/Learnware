@@ -13,7 +13,7 @@ from .easy import (
 from .evolve import EvolvedOrganizer
 from .evolve_anchor import EvolvedAnchoredOrganizer
 from .heterogeneous import HeteroMapTableOrganizer, HeteroStatSearcher
-from .llm import LLMStatSearcher
+from .llm import LLMEasyOrganizer, LLMStatSearcher
 from .module import instantiate_learnware_market
 
 __all__ = [
@@ -37,6 +37,7 @@ __all__ = [
     "EvolvedAnchoredOrganizer",
     "HeteroMapTableOrganizer",
     "HeteroStatSearcher",
+    "LLMEasyOrganizer",
     "LLMStatSearcher",
     "instantiate_learnware_market",
 ]
