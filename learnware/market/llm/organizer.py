@@ -24,11 +24,10 @@ class LLMEasyOrganizer(HeteroMapTableOrganizer):
         zip_path: str = None,
         semantic_spec: dict = None,
         check_status: int = None,
-        benchmark_configs: List[BenchmarkConfig] = None,
     ):
         final_status = super(LLMEasyOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
         if final_status == BaseChecker.USABLE_LEARNWARE and len(self._get_hetero_learnware_ids(id)):
-            self._update_learnware_general_capability_spec(ids=id, benchmark_configs=benchmark_configs)
+            self._update_learnware_general_capability_spec(id)
         return final_status
 
     def _update_learnware_general_capability_spec(
@@ -49,9 +48,7 @@ class LLMEasyOrganizer(HeteroMapTableOrganizer):
         for idx in ids:
             try:
                 general_capability_spec = LLMGeneralCapabilitySpecification()
-                general_capability_spec.generate_stat_spec_from_system(
-                    learnware=self.learnware_list[idx], benchmark_configs=benchmark_configs
-                )
+                general_capability_spec.generate_stat_spec_from_system(learnware=self.learnware_list[idx])
                 general_capability_spec_config = {
                     "module_path": "learnware.specification",
                     "class_name": general_capability_spec.type,

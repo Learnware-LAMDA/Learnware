@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import List
+from typing import List, Optional
 
-from .base import SystemStatSpecification
-from ...tests.benchmarks import LearnwareBenchmarkManager, BenchmarkConfig
-from ...logger import get_module_logger
-from ...learnware import Learnware
+from .config import general_capability_benchmark_configs
+from ..base import SystemStatSpecification
+from ....tests.benchmarks import BenchmarkConfig
+from ....logger import get_module_logger
+from ....learnware import Learnware
 
 logger = get_module_logger("llm_general_capability_spec")
 
@@ -12,13 +13,17 @@ logger = get_module_logger("llm_general_capability_spec")
 class LLMGeneralCapabilitySpecification(SystemStatSpecification):
     """Large Language Model General Capability Specification"""
 
+    benchmark_configs: List[BenchmarkConfig] = general_capability_benchmark_configs
+
     def __init__(self):
         super(LLMGeneralCapabilitySpecification, self).__init__(type=self.__class__.__name__)
 
-    def generate_stat_spec_from_system(self, learnware: Learnware, benchmark_configs: List[BenchmarkConfig]) -> dict:
-        # model: foundation model
-        dataset_names = LearnwareBenchmarkManager().list_benchmarks()
-
+    def generate_stat_spec_from_system(
+        self,
+        learnware: Learnware,
+        benchmark_configs: Optional[List[BenchmarkConfig]] = None,
+        update_existing: bool = False,
+    ) -> dict:
         pass
 
     def save(self, filepath: str):
