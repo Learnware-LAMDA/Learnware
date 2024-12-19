@@ -65,7 +65,7 @@ Easy market is a basic realization of the learnware market. It consists of ``Eas
 ``EasyOrganizer`` mainly has the following methods to store learnwares, which is an easy way to organize learnwares.
 
 - **reload_market**: Reload the learnware market when the server restarts and return a flag indicating whether the market is reloaded successfully.
-- **add_learnware**: Add a learnware with ``learnware_id``, ``semantic_spec`` and model files in ``zip_path`` into the market. Return the ``learnware_id`` and ``learnwere_status``. The ``learnwere_status`` is set to ``check_status`` if it is provided. Otherwise, the ``checker`` will be called to generate the ``learnwere_status``.
+- **add_learnware**: Add a learnware with ``learnware_id``, ``semantic_spec`` and model files in ``zip_path`` into the market. Return the ``learnware_id`` and ``learnware_status``. The ``learnware_status`` is set to ``check_status`` if it is provided. Otherwise, the ``checker`` will be called to generate the ``learnware_status``.
 - **delete_learnware**: Delete the learnware with ``id`` from the market and return a flag indicating whether the deletion is successful.
 - **update_learnware**: Update the learnware's ``zip_path``, ``semantic_spec``, ``check_status``. If None, the corresponding item is not updated. Return a flag indicating whether it passed the ``checker``.
 - **get_learnwares**: Similar to **get_learnware_ids**, but return list of learnwares instead of ids.
@@ -148,7 +148,7 @@ As more learnwares are submitted, this heterogeneous engine will continuously up
 
 - **reload_market**: Reloads the heterogeneous engine if there is one. Otherwise, initialize an engine with default configurations. Returns a flag indicating whether the market is reloaded successfully.
 - **reset**: Resets the heterogeneous market with specific settings regarding the heterogeneous engine such as ``auto_update``, ``auto_update_limit`` and ``training_args`` configurations.
-- **add_learnware**: Add a learnware into the market, meanwhile generating ``HeteroMapTableSpecification`` for the learnware using the heterogeneous engine. The engine's update process will be triggered if ``auto_update`` is set to True and the number of learnwares in the market with ``USABLE_LEARNWARE`` status exceeds ``auto_update_limit``. Return the ``learnware_id`` and ``learnwere_status``.
+- **add_learnware**: Add a learnware into the market, meanwhile generating ``HeteroMapTableSpecification`` for the learnware using the heterogeneous engine. The engine's update process will be triggered if ``auto_update`` is set to True and the number of learnwares in the market with ``USABLE_LEARNWARE`` status exceeds ``auto_update_limit``. Return the ``learnware_id`` and ``learnware_status``.
 - **delete_learnware**: Removes the learnware with ``id`` from the market and also removes its new specification if there is one. Return a flag of whether the deletion is successful.
 - **update_learnware**: Update the learnware's ``zip_path``, ``semantic_spec``, ``check_status`` and its new specification if there is one. Return a flag indicating whether it passed the ``checker``.
 - **generate_hetero_map_spec**: Generate ``HeteroMapTableSpecification`` for users based on the user's statistical specification provided in ``user_info``.

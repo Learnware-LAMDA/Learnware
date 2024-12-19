@@ -19,3 +19,5 @@ class LLMBenchmarkConfig:
 
 
 benchmark_configs: Dict[str, Union[BenchmarkConfig, LLMBenchmarkConfig]] = {}
+
+llm_general_capability_benchmark_configs: Dict[str, LLMBenchmarkConfig] = {}

@@ -32,9 +32,9 @@ def is_hetero(stat_specs: dict, semantic_spec: dict, verbose=True) -> bool:
 
         semantic_input_description = semantic_spec["Input"]
         semantic_description_dim = int(semantic_input_description["Dimension"])
-        semantic_decription_feature_num = len(semantic_input_description["Description"])
+        semantic_description_feature_num = len(semantic_input_description["Description"])
 
-        if semantic_decription_feature_num <= 0:
+        if semantic_description_feature_num <= 0:
             if verbose:
                 logger.warning("At least one of Input.Description in semantic spec should be provides.")
             return False
