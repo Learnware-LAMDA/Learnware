@@ -163,7 +163,7 @@ class EasyStatChecker(BaseChecker):
                     return self.INVALID_LEARNWARE, message
                 inputs = np.random.randn(10, *input_shape)
 
-            elif spec_type == "RKMETextSpecification" or spec_type == "TaskVectorSpecification":
+            elif spec_type == "RKMETextSpecification" or spec_type == "GenerativeModelSpecification":
 
                 if semantic_spec["Model Type"]["Values"][0] != "Others":
                     len = random.randint(10, 1000)

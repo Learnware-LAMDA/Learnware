@@ -5,7 +5,7 @@ from .regular import (
     RKMEStatSpecification,
     RKMETableSpecification,
     RKMETextSpecification,
-    TaskVectorSpecification,
+    GenerativeModelSpecification,
     rkme_solve_qp,
 )
 from .system import HeteroMapTableSpecification, LLMGeneralCapabilitySpecification
@@ -36,7 +36,7 @@ __all__ = [
     "RKMEStatSpecification",
     "RKMETableSpecification",
     "RKMETextSpecification",
-    "TaskVectorSpecification",
+    "GenerativeModelSpecification",
     "HeteroMapTableSpecification",
     "LLMGeneralCapabilitySpecification",
     "rkme_solve_qp",

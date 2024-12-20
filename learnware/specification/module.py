@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from .regular import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification, TaskVectorSpecification
+from .regular import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification, GenerativeModelSpecification
 from .utils import convert_to_numpy
 from ..config import C
 
@@ -179,13 +179,13 @@ def generate_task_vector_spec(
     X: List[str],
     verbose: bool = True,
     **kwargs   
-) -> TaskVectorSpecification:
+) -> GenerativeModelSpecification:
     # Check input type
     if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
         raise TypeError("Input data must be a list of strings.")
     
     # Generate task vector spec
-    task_vector_spec = TaskVectorSpecification()
+    task_vector_spec = GenerativeModelSpecification()
     task_vector_spec.generate_stat_spec_from_data(X, verbose, **kwargs)
     return task_vector_spec
 

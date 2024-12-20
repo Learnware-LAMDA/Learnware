@@ -7,15 +7,15 @@ logger = get_module_logger("llm_searcher")
 
 
 class LLMStatSearcher(AtomicSearcher):
-    SPEC_TYPES = ["TaskVectorSpecification"]
+    SPEC_TYPES = ["GenerativeModelSpecification"]
 
     def is_applicable_user(self, user_info: BaseUserInfo, verbose: bool = True) -> bool:
         stat_specs = user_info.stat_info
         semantic_spec = user_info.semantic_spec
         try:
-            if "TaskVectorSpecification" not in stat_specs:
+            if "GenerativeModelSpecification" not in stat_specs:
                 if verbose:
-                    logger.warning("TaskVectorSpecification is not provided in stat_info.")
+                    logger.warning("GenerativeModelSpecification is not provided in stat_info.")
                 return False
 
             semantic_data_type = semantic_spec["Data"]["Values"]
