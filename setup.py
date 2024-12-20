@@ -48,7 +48,7 @@ REQUIRED = [
     "docker>=6.1.3",
     "rapidfuzz>=3.4.0",
     "langdetect>=1.0.9",
-    "huggingface-hub<0.18",
+    "huggingface-hub",
     "transformers>=4.34.1",
     "portalocker>=2.0.0",
     "qpsolvers[clarabel]>=4.0.1",

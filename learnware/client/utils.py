@@ -92,6 +92,8 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
             raise Exception("Environment.yaml or requirements.txt not found in the learnware folder.")
 
     logger.info(f"install learnware package for conda env [{conda_env}]")
+    learnware_package = os.environ.get("LEARNWARE_PACKAGE_LOCATION", "learnware")
+
     system_execute(
         args=[
             "conda",
@@ -104,6 +106,6 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
             "-m",
             "pip",
             "install",
-            "learnware",
+            learnware_package,
         ]
     )
