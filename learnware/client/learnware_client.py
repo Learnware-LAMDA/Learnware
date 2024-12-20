@@ -57,7 +57,7 @@ class SemanticSpecificationKey(Enum):
 
 
 class LearnwareClient:
-    def __init__(self, host=None):
+    def __init__(self, host=None, timeout=None):
         self.headers = None
 
         if host is None:
@@ -68,7 +68,24 @@ class LearnwareClient:
         self.chunk_size = 1024 * 1024
         self.tempdir_list = []
         self.login_status = False
+        if timeout is None:
+            self.timeout = 60
+        else:
+            self.timeout = timeout
         atexit.register(self.cleanup)
+
+        self.storage_path = os.environ.get("LEARNWARE_STORAGE_PATH")
+        if self.storage_path is None:
+            self.storage_path = os.path.join(os.path.expanduser("~"), ".learnware", "default", "learnware_pool")
+            pass
+        self.default_zip_path = os.path.join(self.storage_path, "zips")
+        self.default_unzip_path = os.path.join(self.storage_path, "unzipped_learnwares")
+        if not os.path.exists(self.default_zip_path):
+            os.makedirs(self.default_zip_path, exist_ok=True)
+            pass
+        if not os.path.exists(self.default_unzip_path):
+            os.makedirs(self.default_unzip_path, exist_ok=True)
+            pass
 
     def is_connected(self):
         url = f"{self.host}/auth/login_by_token"
@@ -80,8 +97,7 @@ class LearnwareClient:
     def login(self, email, token):
         url = f"{self.host}/auth/login_by_token"
 
-        response = requests.post(url, json={"email": email, "token": token})
-
+        response = requests.post(url, json={"email": email, "token": token}, timeout=self.timeout)
         result = response.json()
         if result["code"] != 0:
             raise Exception("login failed: " + json.dumps(result))
@@ -189,7 +205,11 @@ class LearnwareClient:
 
         return result["data"]["learnware_info"]["semantic_specification"]
 
-    def download_learnware(self, learnware_id: str, save_path: str):
+    def download_learnware(self, learnware_id: str, save_path: str = None):
+        if save_path is None:
+            save_path = os.path.join(self.default_zip_path, learnware_id + ".zip")
+            pass
+
         url = f"{self.host}/engine/download_learnware"
 
         response = requests.get(
@@ -202,7 +222,7 @@ class LearnwareClient:
         )
 
         if response.status_code != 200:
-            raise Exception("download failed: " + json.dumps(response.json()))
+            raise Exception("download failed: " + response.text)
 
         num_chunks = int(response.headers["Content-Length"]) // CHUNK_SIZE + 1
         bar = tqdm(total=num_chunks, desc="Downloading", unit="MB")
@@ -272,6 +292,7 @@ class LearnwareClient:
                     "page": page_index,
                 },
                 headers=self.headers,
+                timeout=self.timeout
             )
             result = response.json()
             if result["code"] != 0:
@@ -308,6 +329,43 @@ class LearnwareClient:
         result = response.json()
         semantic_conf = result["data"]["semantic_specification"]
         return semantic_conf[key.value]["Values"]
+
+    def get_pretrained_path(self, learnware_id: str):
+        # get pretrained path from learnware id
+
+        # check learnware exists
+        if os.path.exists(os.path.join(self.default_unzip_path, learnware_id)):
+            pass
+        else:
+            # learnware not exist
+            if not os.path.exists(os.path.join(self.default_zip_path, learnware_id + ".zip")):
+                self.download_learnware(learnware_id)
+                pass
+            else:
+                # learnware exists
+                pass
+            self.unzip_learnware(learnware_id)
+            pass
+        
+        yaml_file = os.path.join(self.default_unzip_path, learnware_id, C.learnware_folder_config["yaml_file"])
+        with open(yaml_file, "r") as fin:
+            learnware_info = yaml.safe_load(fin)
+            pass
+        pretrained_path = learnware_info['model'].get("weights_file_path")
+        if pretrained_path is None:
+            raise FileNotFoundError(f"Pretrained path not found in learnware {learnware_id}")
+
+        return os.path.join(self.default_unzip_path, learnware_id, pretrained_path)
+        pass
+
+    def unzip_learnware(self, learnware_id: str):
+        if not os.path.exists(os.path.join(self.default_zip_path, learnware_id + ".zip")):
+            raise FileNotFoundError(f"Learnware {learnware_id} not found")
+        else:
+            with zipfile.ZipFile(os.path.join(self.default_zip_path, learnware_id + ".zip"), "r") as z_file:
+                z_file.extractall(os.path.join(self.default_unzip_path, learnware_id))
+            pass
+        pass
 
     def load_learnware(
         self,
