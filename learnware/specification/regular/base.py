@@ -5,7 +5,6 @@ from ..base import BaseStatSpecification
 from torch.nn.functional import cosine_similarity
 
 
-
 class RegularStatSpecification(BaseStatSpecification):
     def generate_stat_spec(self, **kwargs):
         self.generate_stat_spec_from_data(**kwargs)
@@ -19,11 +18,6 @@ class RegularStatSpecification(BaseStatSpecification):
 
 
 class TaskVectorSpecification(RegularStatSpecification):
-    
-    def _generate_models(self):
-        """Initialize foundational model (e.g. RoBERTa) used for task vector generation.
-        """
-        pass
     
     @property
     def task_vector(self):
