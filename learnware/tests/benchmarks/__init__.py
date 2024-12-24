@@ -4,6 +4,7 @@ import tempfile
 import zipfile
 from dataclasses import dataclass
 from typing import List, Optional, Tuple, Union, Callable
+from datasets import load_dataset, Dataset
 
 import numpy as np
 
@@ -74,13 +75,72 @@ class Benchmark:
 @dataclass
 class LLMBenchmark:
     name: str
+    # HF dataset options
+    dataset_path: Optional[str] = None
+    subset_name: Optional[str] = None
+    dataset_kwargs: Optional[dict] = None
+    train_split: Optional[str] = None
+    validation_split: Optional[str] = None
+    test_split: Optional[str] = None
+    # evaluation options
+    eval_metric: Optional[str] = None
+    # formatting / prompting options
     preprocess_function: Optional[Callable] = None
+    response_template: Optional[str] = None
 
-    def get_train_val_data(self) -> List[str]:
-        pass
+    def __post_init__(self) -> None:
+        self.prepare_dataset()
+
+    def prepare_dataset(self) -> None:
+        self.dataset = load_dataset(
+            path=self.dataset_path if self.dataset_path else self.name,
+            name=self.subset_name,
+            **self.dataset_kwargs if self.dataset_kwargs is not None else {},
+        )
+    
+    def get_train_dataset(self) -> Dataset:
+        if self.train_split:
+            train_dataset = self.dataset[self.train_split]
+            if self.dataset_path == "meta-math/GSM8K_zh": 
+                train_dataset = train_dataset.filter(lambda x: x['split']=='train')
+            if self.preprocess_function:
+                train_dataset = train_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+            return train_dataset
+    
+    def get_val_dataset(self) -> Dataset:
+        if self.validation_split:
+            val_dataset = self.dataset[self.validation_split]
+            if self.preprocess_function:
+                val_dataset = val_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+            return val_dataset
+
+    def get_test_dataset(self) -> Dataset:
+        if self.test_split:
+            test_dataset = self.dataset[self.test_split]
+            if self.preprocess_function:
+                test_dataset = test_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+            return test_dataset
+
+    def get_train_data(self) -> List[str]:
+        if not self.preprocess_function:
+            raise Exception("Must specify a preprocess function to get train data!")
+        train_dataset = self.get_train_dataset()
+        train_data = train_dataset["text"]
+        return train_data
+    
+    def get_val_data(self) -> List[str]:
+        if not self.preprocess_function:
+            raise Exception("Must specify a preprocess function to get validation data!")
+        val_dataset = self.get_val_dataset()
+        val_data = val_dataset["text"]
+        return val_data
 
     def get_test_data(self) -> List[str]:
-        pass
+        if not self.preprocess_function:
+            raise Exception("Must specify a preprocess function to get test data!")
+        test_dataset = self.get_test_dataset()
+        test_data = test_dataset["text"]
+        return test_data
 
 
 class LearnwareBenchmarkManager:
@@ -172,7 +232,15 @@ class LearnwareBenchmarkManager:
         if isinstance(benchmark_config, LLMBenchmarkConfig):
             return LLMBenchmark(
                 name=benchmark_config.name,
+                dataset_path=benchmark_config.dataset_path,
+                subset_name=benchmark_config.subset_name,
+                dataset_kwargs=benchmark_config.dataset_kwargs,
+                train_split=benchmark_config.train_split,
+                validation_split=benchmark_config.validation_split,
+                test_split=benchmark_config.test_split,
+                eval_metric=benchmark_config.eval_metric,
                 preprocess_function=benchmark_config.preprocess_function,
+                response_template=benchmark_config.response_template,
             )
 
         elif isinstance(benchmark_config, BenchmarkConfig):

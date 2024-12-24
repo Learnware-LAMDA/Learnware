@@ -15,7 +15,18 @@ class BenchmarkConfig:
 @dataclass
 class LLMBenchmarkConfig:
     name: str
+    # HF dataset options
+    dataset_path: Optional[str] = None
+    subset_name: Optional[str] = None
+    dataset_kwargs: Optional[dict] = None
+    train_split: Optional[str] = None
+    validation_split: Optional[str] = None
+    test_split: Optional[str] = None
+    # evaluation options
+    eval_metric: Optional[str] = None
+    # formatting / prompting options
     preprocess_function: Optional[Callable] = None
+    response_template: Optional[str] = None
 
 
 benchmark_configs: Dict[str, Union[BenchmarkConfig, LLMBenchmarkConfig]] = {}
