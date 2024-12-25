@@ -9,7 +9,7 @@ from .easy import (
     EasyStatChecker,
 )
 from .heterogeneous import HeteroMapTableOrganizer, HeteroStatSearcher
-from .llm import LLMStatSearcher
+from .llm import LLMEasyOrganizer, LLMStatSearcher
 
 
 def get_market_component(
@@ -22,8 +22,8 @@ def get_market_component(
     if name == "easy":
         easy_organizer = EasyOrganizer(market_id=market_id, rebuild=rebuild)
 
-        semantic_searcher_list = [EasyFuzzSemanticSearcher()]
-        stat_searcher_list = [EasyStatSearcher()]
+        semantic_searcher_list = [EasyFuzzSemanticSearcher(easy_organizer)]
+        stat_searcher_list = [EasyStatSearcher(easy_organizer)]
         easy_searcher = SeqCombinedSearcher(
             organizer=easy_organizer,
             semantic_searcher_list=semantic_searcher_list,
@@ -44,8 +44,8 @@ def get_market_component(
     elif name == "hetero":
         hetero_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
 
-        semantic_searcher_list = [EasyFuzzSemanticSearcher(organizer=hetero_organizer)]
-        stat_searcher_list = [HeteroStatSearcher(), EasyStatSearcher()]
+        semantic_searcher_list = [EasyFuzzSemanticSearcher(hetero_organizer)]
+        stat_searcher_list = [HeteroStatSearcher(hetero_organizer), EasyStatSearcher(hetero_organizer)]
         hetero_searcher = SeqCombinedSearcher(
             organizer=hetero_organizer,
             semantic_searcher_list=semantic_searcher_list,
@@ -64,10 +64,15 @@ def get_market_component(
         }
 
     elif name == "llm":
-        llm_organizer = HeteroMapTableOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
+        llm_organizer = LLMEasyOrganizer(market_id=market_id, rebuild=rebuild, **organizer_kwargs)
 
-        semantic_searcher_list = [EasyFuzzSemanticSearcher()]
-        stat_searcher_list = [LLMStatSearcher(), HeteroStatSearcher(), EasyStatSearcher()]
+        semantic_searcher_list = [EasyFuzzSemanticSearcher(llm_organizer)]
+        stat_searcher_list = [
+            LLMStatSearcher(llm_organizer),
+            HeteroStatSearcher(llm_organizer),
+            EasyStatSearcher(llm_organizer),
+        ]
+
         llm_searcher = SeqCombinedSearcher(
             organizer=llm_organizer,
             semantic_searcher_list=semantic_searcher_list,
