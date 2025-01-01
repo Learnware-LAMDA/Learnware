@@ -1,4 +1,9 @@
-from typing import Optional
+from typing import List, Optional, Tuple, Union
+
+import numpy as np
+
+from learnware.learnware.base import Learnware
+from learnware.specification.base import Specification
 
 from ..base import BaseUserInfo, SearchResults, AtomicSearcher
 from ...logger import get_module_logger
@@ -58,3 +63,45 @@ class LLMStatSearcher(AtomicSearcher):
             the second is the sorted list of Learnware (single) by the rkme dist
         """
         pass
+
+    def _search_by_taskvector_spec_single(
+        self,
+        learnware_list: List[Learnware],
+        user_spec: Union[Specification],
+        stat_spec_type: str = "GenerativeModelSpecification"
+    ) -> Tuple[List[float], List[Learnware]]:
+        """Calculate the distances between learnwares in the given learnware_list and user_spec
+
+        Parameters
+        ----------
+        learnware_list : List[Learnware]
+            The list of learnwares whose mixture approximates the user's rkme
+        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
+            user Task Vector statistical specification
+        stat_spec_type : str
+            GenerativeModelSpecification by default.
+
+        Returns
+        -------
+        Tuple[List[float], List[Learnware]]
+            the first is the list of cosine similarity
+            the second is the list of Learnware
+            both lists are sorted by cosine similarity
+        """
+        spec_list = [learnware.specification.get_stat_spec_by_name(stat_spec_type) for learnware in learnware_list]
+        filtered_idx_list, similarity_list = [], []
+        for idx, s in enumerate(spec_list):
+            similarity = float(s.similarity(user_spec))
+            if np.isfinite(similarity):
+                similarity_list.append(similarity)
+                filtered_idx_list.append(idx)
+            else:
+                logger.warning(
+                    f"The distance between user_spec and learnware_spec (id: {learnware_list[idx].id}) is not finite, where distance is {mmd_dist}"
+                )
+
+        sorted_idx_list = reversed(sorted(range(len(similarity_list)), key=lambda k: similarity_list[k]))
+        sorted_dist_list = [similarity_list[idx] for idx in sorted_idx_list]
+        sorted_learnware_list = [learnware_list[filtered_idx_list[idx]] for idx in sorted_idx_list]
+
+        return sorted_dist_list, sorted_learnware_list

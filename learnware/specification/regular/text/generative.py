@@ -93,9 +93,9 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         
     def generate_stat_spec_from_data(
         self,
-        X: List[str] = None,
         dataset: Optional[Dataset] = None,
         dataset_text_field="text",
+        X: List[str] = None,
         verbose: bool = True,
         **kwargs
     ):
