@@ -66,12 +66,12 @@ class TestGenerativeModelSpecification(unittest.TestCase):
             torch.testing.assert_close(task_vector, spec2.task_vector)
             assert spec2.type == "GenerativeModelSpecification"
 
-    # def test_generating_spec(self):
-    #     benchmark = Benchmark("medical")
-    #     train_dataset = benchmark.get_user_dataset("pubmedqa")
+    def test_generating_spec(self):
+        benchmark = Benchmark("medical")
+        train_dataset = benchmark.get_user_dataset("pubmedqa")
         
-    #     self._test_with_X(train_dataset["text"])
-    #     self._test_with_dataset(train_dataset)
+        self._test_with_X(train_dataset["text"])
+        self._test_with_dataset(train_dataset)
         
     def test_searching_spec(self):
         benchmark = Benchmark("medical")
