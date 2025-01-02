@@ -226,6 +226,7 @@ def generate_semantic_spec(
     description: Optional[str] = None,
     data_type: Optional[str] = None,
     task_type: Optional[str] = None,
+    model_type: Optional[str] = None,
     library_type: Optional[str] = None,
     scenarios: Optional[Union[str, List[str]]] = None,
     license: Optional[Union[str, List[str]]] = None,
@@ -235,6 +236,7 @@ def generate_semantic_spec(
     semantic_specification = dict()
     semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
     semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
+    semantic_specification["Model Type"] = {"Type": "Class", "Values": [model_type] if model_type is not None else ["Others"]}
     semantic_specification["Library"] = {
         "Type": "Class",
         "Values": [library_type] if library_type is not None else [],
