@@ -10,7 +10,7 @@ from .config import general_capability_benchmark_configs
 from ..base import SystemStatSpecification
 from ....tests.benchmarks import LLMBenchmarkConfig
 from ....logger import get_module_logger
-from ....learnware import Learnware
+# from learnware.learnware import Learnware # TODO
 
 logger = get_module_logger("llm_general_capability_spec")
 
@@ -25,7 +25,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         super(LLMGeneralCapabilitySpecification, self).__init__(type=self.__class__.__name__)
 
     @staticmethod
-    def _evaluate(learnware: Learnware, benchmark_configs: List[LLMBenchmarkConfig]):
+    def _evaluate(learnware, benchmark_configs: List[LLMBenchmarkConfig]):
         """Use [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) framework to evaluate learnware according to benchmark_configs.
 
         Parameters
@@ -35,7 +35,8 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         benchmark_configs : Optional[List[LLMBenchmarkConfig]]
             List of LLMBenchmarkConfig, set to self.benchmark_configs if None.
         """
-        base_model = learnware.get_model() # to be modified
+        learnware.instantiate_model()
+        base_model = learnware.get_model().get_model()
         task_list = [config.name for config in benchmark_configs]
         
         lm_obj = HFLM(pretrained=base_model, batch_size=16)
@@ -49,7 +50,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
 
     def generate_stat_spec_from_system(
         self,
-        learnware: Learnware,
+        learnware,
         benchmark_configs: Optional[List[LLMBenchmarkConfig]] = None,
         update_existing: bool = False,
     ):
@@ -64,21 +65,28 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         update_existing : bool
             A flag indicating whether to update existing General Capability Specification's scores dict, by default false.
         """
-        if not benchmark_configs:
+        if benchmark_configs:
+            for config in benchmark_configs:
+                if config.eval_metric == None:
+                    raise Exception("Must specify a evaluation metric in a LLMBenchmarkConfig object to evaluate learnware on it.")
+        else:
             benchmark_configs = self.benchmark_configs 
+        self.score_dict = {}
         if update_existing:
             results = self._evaluate(learnware, benchmark_configs)
-            self.score_dict = {}
             for config in benchmark_configs:
-                self.score_dict[config] = results['results'][config.name][f'{config.eval_metric},none']
+                self.score_dict[config.name] = results['results'][config.name][f'{config.eval_metric},none']
         else:
-            self.score_dict = learnware.get_specification().get_stat_spec_by_name("LLMGeneralCapabilitySpecification")
-            exist_config_list = list(self.score_dict.keys())
-            remain_config_list = [config for config in self.benchmark_configs if config not in exist_config_list]
+            exist_config_list = []
+            general_spec = learnware.get_specification().get_stat_spec_by_name("LLMGeneralCapabilitySpecification")
+            if general_spec:
+                exist_config_list = list(general_spec.score_dict.keys())
+                self.score_dict = general_spec.score_dict.copy()
+            remain_config_list = [config.name for config in benchmark_configs if config.name not in exist_config_list]
             if remain_config_list:
                 results = self._evaluate(learnware, remain_config_list)
                 for config in remain_config_list:
-                    self.score_dict[config] = results['results'][config.name][f'{config.eval_metric},none']
+                    self.score_dict[config.name] = results['results'][config.name][f'{config.eval_metric},none']
 
     def save(self, filepath: str):
         """Save the computed specification to a specified path in JSON format.
