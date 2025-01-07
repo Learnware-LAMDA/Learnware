@@ -10,7 +10,6 @@ from .config import general_capability_benchmark_configs
 from ..base import SystemStatSpecification
 from ....tests.benchmarks import LLMBenchmarkConfig
 from ....logger import get_module_logger
-# from learnware.learnware import Learnware # TODO
 
 logger = get_module_logger("llm_general_capability_spec")
 
@@ -25,7 +24,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         super(LLMGeneralCapabilitySpecification, self).__init__(type=self.__class__.__name__)
 
     @staticmethod
-    def _evaluate(learnware, benchmark_configs: List[LLMBenchmarkConfig]):
+    def _evaluate(learnware: Learnware, benchmark_configs: List[LLMBenchmarkConfig]):
         """Use [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) framework to evaluate learnware according to benchmark_configs.
 
         Parameters
@@ -50,7 +49,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
 
     def generate_stat_spec_from_system(
         self,
-        learnware,
+        learnware: Learnware,
         benchmark_configs: Optional[List[LLMBenchmarkConfig]] = None,
         update_existing: bool = False,
     ):
