@@ -149,7 +149,7 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         
         model = get_peft_model(model, peft_config)
         
-        # TODO: Load adpater weight from online
+        # TODO: Load adpater weight from Beimingwu
         
         for n, p in model.named_parameters():
             if "lora_A" in n:
@@ -168,6 +168,8 @@ class GenerativeModelSpecification(TaskVectorSpecification):
             weight_decay_l1=self.__extra_args["weight_decay_l1"],
             args=args,
         )
+        # Work around trl package bug with multi-GPU parallelism
+        trainer.args._n_gpu = 1
         
         return trainer
     

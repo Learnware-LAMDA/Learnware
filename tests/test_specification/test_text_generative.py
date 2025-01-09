@@ -33,7 +33,7 @@ class TestGenerativeModelSpecification(unittest.TestCase):
             spec2 = GenerativeModelSpecification()
             spec2.load(spec_path)
             
-            torch.testing.assert_close(task_vector, spec2.task_vector)
+            torch.testing.assert_close(task_vector.cpu(), spec2.task_vector.cpu())
             
             assert spec2.type == "GenerativeModelSpecification"
             
@@ -54,7 +54,7 @@ class TestGenerativeModelSpecification(unittest.TestCase):
             spec2 = GenerativeModelSpecification()
             spec2.load(spec_path)
             
-            torch.testing.assert_close(task_vector, spec2.task_vector)
+            torch.testing.assert_close(task_vector.cpu(), spec2.task_vector.cpu())
             assert spec2.type == "GenerativeModelSpecification"
 
     def test_generating_spec(self):
