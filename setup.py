@@ -53,6 +53,10 @@ REQUIRED = [
     "portalocker>=2.0.0",
     "qpsolvers[clarabel]>=4.0.1",
     "geatpy>=2.7.0;python_version<'3.11'",
+    "trl>=0.13.0",
+    "datasets>=3.2.0",
+    "peft>=0.14.0",
+    "lm_eval>=0.4.7"
 ]
 
 DEV_REQUIRED = [
