@@ -48,11 +48,15 @@ REQUIRED = [
     "docker>=6.1.3",
     "rapidfuzz>=3.4.0",
     "langdetect>=1.0.9",
-    "huggingface-hub<0.18",
+    "huggingface-hub",
     "transformers>=4.34.1",
     "portalocker>=2.0.0",
     "qpsolvers[clarabel]>=4.0.1",
     "geatpy>=2.7.0;python_version<'3.11'",
+    "trl>=0.13.0",
+    "datasets>=3.2.0",
+    "peft>=0.14.0",
+    "lm_eval>=0.4.7"
 ]
 
 DEV_REQUIRED = [

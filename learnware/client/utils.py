@@ -8,7 +8,7 @@ from ..logger import get_module_logger
 logger = get_module_logger(module_name="client_utils")
 
 
-def system_execute(args, timeout=None, env=None, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE):
+def system_execute(args, timeout=None, env=None, stdout=None, stderr=subprocess.PIPE):
     env = os.environ.copy() if env is None else env
     args = args if isinstance(args, str) else " ".join(args)
 
@@ -92,6 +92,8 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
             raise Exception("Environment.yaml or requirements.txt not found in the learnware folder.")
 
     logger.info(f"install learnware package for conda env [{conda_env}]")
+    learnware_package = os.environ.get("LEARNWARE_PACKAGE_LOCATION", "learnware")
+
     system_execute(
         args=[
             "conda",
@@ -104,6 +106,6 @@ def install_environment(learnware_dirpath, conda_env, conda_prefix=None):
             "-m",
             "pip",
             "install",
-            "learnware",
+            learnware_package,
         ]
     )
