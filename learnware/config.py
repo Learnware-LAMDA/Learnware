@@ -92,7 +92,7 @@ semantic_config = {
             "Feature Extraction",
             "Segmentation",
             "Object Detection",
-            "Text Generation"
+            "Text Generation",
             "Others",
         ],
         "Type": "Class",  # Choose only one class
