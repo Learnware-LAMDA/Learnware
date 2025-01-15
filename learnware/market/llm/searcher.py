@@ -4,14 +4,15 @@ import numpy as np
 
 from learnware.learnware.base import Learnware
 from learnware.specification.base import Specification
-
-from ..base import BaseUserInfo, SearchResults, AtomicSearcher
+from ..utils import parse_specification_type
+from ..base import BaseUserInfo, MultipleSearchItem, SearchResults, AtomicSearcher, SingleSearchItem
+from ..easy import EasyStatSearcher
 from ...logger import get_module_logger
 
 logger = get_module_logger("llm_searcher")
 
 
-class LLMStatSearcher(AtomicSearcher):
+class LLMStatSearcher(EasyStatSearcher):
     SPEC_TYPES = ["GenerativeModelSpecification"]
 
     def is_applicable_user(self, user_info: BaseUserInfo, verbose: bool = True) -> bool:
@@ -41,28 +42,37 @@ class LLMStatSearcher(AtomicSearcher):
 
     def __call__(
         self,
+        learnware_list: List[Learnware],
         user_info: BaseUserInfo,
-        check_status: Optional[int] = None,
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> SearchResults:
-        """Employ LLM learnware search based on user_info from learnwares with check_status.
+        self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info, spec_list=self.SPEC_TYPES)
 
-        Parameters
-        ----------
-        user_info : BaseUserInfo
-            user_info contains semantic_spec and stat_info
-        check_status : int, optional
-            - None: search from all learnwares
-            - Others: search from learnwares with check_status
+        user_spec = user_info.stat_info[self.stat_spec_type]
 
-        Returns
-        -------
-        Tuple[List[float], List[Learnware]]
-            the first is the sorted list of rkme dist
-            the second is the sorted list of Learnware (single) by the rkme dist
-        """
-        pass
+        sorted_dist_list, single_learnware_list = self._search_by_taskvector_spec_single(learnware_list, user_spec)
+        if len(single_learnware_list) == 0:
+            return SearchResults()
+
+        sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
+        
+        logger.info(
+            f"After search by user spec, learnware_list length is {len(learnware_list)}"
+        )
+
+        if len(single_learnware_list) == 1 and sorted_score_list[0] < 0.6:
+            sorted_score_list[0] = 0.6
+
+        search_results = SearchResults()
+        search_results.update_single_results(
+            [
+                SingleSearchItem(learnware=_learnware, score=_score)
+                for _score, _learnware in zip(sorted_score_list, single_learnware_list)
+            ]
+        )
+
+        return search_results
 
     def _search_by_taskvector_spec_single(
         self,
@@ -76,7 +86,7 @@ class LLMStatSearcher(AtomicSearcher):
         ----------
         learnware_list : List[Learnware]
             The list of learnwares whose mixture approximates the user's rkme
-        user_rkme : Union[RKMETableSpecification, RKMEImageSpecification, RKMETextSpecification]
+        user_spec : GenerativeModelSpecification
             user Task Vector statistical specification
         stat_spec_type : str
             GenerativeModelSpecification by default.

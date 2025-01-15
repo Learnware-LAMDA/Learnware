@@ -621,7 +621,7 @@ class EasyStatSearcher(AtomicSearcher):
         search_method: str = "greedy",
     ) -> SearchResults:
         self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info, spec_list=self.SPEC_TYPES)
-        print(self.stat_spec_type, self.SPEC_TYPES)
+
         user_rkme = user_info.stat_info[self.stat_spec_type]
 
         learnware_list = self._filter_by_rkme_spec_metadata(learnware_list, user_rkme)
@@ -750,7 +750,6 @@ class SeqCombinedSearcher(BaseSearcher):
                 filtered_learnware_list = [
                     learnware for learnware in learnware_list if stat_searcher.is_applicable_learnware(learnware)
                 ]
-                # print(f"Using searcher: {stat_searcher.__class__}, filtered learnware_list: {len(filtered_learnware_list)}")
                 return stat_searcher(filtered_learnware_list, user_info, max_search_num, search_method)
 
         return semantic_search_result
