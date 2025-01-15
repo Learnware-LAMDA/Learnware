@@ -24,12 +24,10 @@ logger = get_module_logger("easy_seacher")
 
 class EasyExactSemanticSearcher(AtomicSearcher):
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        learnware_semantic_spec = learnware.specification.get_semantic_spec
-        return learnware_semantic_spec
+        return True
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        user_semantic_spec = user_info.get_semantic_spec()
-        return user_semantic_spec
+        return True
 
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []
@@ -95,12 +93,10 @@ class EasyExactSemanticSearcher(AtomicSearcher):
 
 class EasyFuzzSemanticSearcher(AtomicSearcher):
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        learnware_semantic_spec = learnware.specification.get_semantic_spec
-        return learnware_semantic_spec
+        return True
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        user_semantic_spec = user_info.get_semantic_spec()
-        return user_semantic_spec
+        return True
 
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []

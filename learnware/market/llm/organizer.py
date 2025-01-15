@@ -56,8 +56,8 @@ class LLMEasyOrganizer(HeteroMapTableOrganizer):
                     "kwargs": {},
                 }
 
-                zip_path = self.learnware_zip_list[id]
-                folder_dir = self.learnware_folder_list[id]
+                zip_path = self.learnware_zip_list[idx]
+                folder_dir = self.learnware_folder_list[idx]
                 self.learnware_list[idx].update_stat_spec(general_capability_spec.type, general_capability_spec)
 
                 with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
