@@ -107,7 +107,7 @@ class LLMStatSearcher(EasyStatSearcher):
                 filtered_idx_list.append(idx)
             else:
                 logger.warning(
-                    f"The distance between user_spec and learnware_spec (id: {learnware_list[idx].id}) is not finite, where distance is {mmd_dist}"
+                    f"The distance between user_spec and learnware_spec (id: {learnware_list[idx].id}) is not finite, where similarity is {similarity}"
                 )
 
         sorted_idx_list = reversed(sorted(range(len(similarity_list)), key=lambda k: similarity_list[k]))
