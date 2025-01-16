@@ -81,7 +81,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
             if general_spec:
                 exist_config_list = list(general_spec.score_dict.keys())
                 self.score_dict = general_spec.score_dict.copy()
-            remain_config_list = [config.name for config in benchmark_configs if config.name not in exist_config_list]
+            remain_config_list = [config for config in benchmark_configs if config.name not in exist_config_list]
             if remain_config_list:
                 results = self._evaluate(learnware, remain_config_list)
                 for config in remain_config_list:
