@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import os
+import random
 import tempfile
 from typing import Any, Dict, List, Optional, Union
 
+import numpy as np
 import trl
 import torch
 
 from torch import nn
 
 from trl import SFTConfig
-from peft import LoraConfig
+from peft import LoraConfig, PeftModel
 from datasets import Dataset
 
 from transformers import (
@@ -97,6 +100,7 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         dataset_text_field="text",
         X: List[str] = None,
         verbose: bool = True,
+        beimingwu = True,
         **kwargs
     ):
         """Initializing Task Vector Specification's parameters.
@@ -113,7 +117,7 @@ class GenerativeModelSpecification(TaskVectorSpecification):
             dataset = Dataset.from_dict({dataset_text_field: X})
         
         with tempfile.TemporaryDirectory() as temp_dir:
-            tokenizer, model = self._init_tokenizer_model()
+            tokenizer, model = self._init_tokenizer_model(beimingwu)
             trainer_config = self._trainer_config(temp_dir, dataset_text_field)
             trainer = self._init_trainer(model, tokenizer, dataset, trainer_config)
                 
@@ -126,35 +130,46 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         ])
     
     
-    def _init_tokenizer_model(self):
+    def _init_tokenizer_model(self, beimingwu):
         """
         Initialize foundational model (e.g. Qwen) used for task vector generation.
         And, this method should not be overridden if the specification needs to be submitted to Beimingwu.
         """
-        tokenizer = Qwen2Tokenizer.from_pretrained("Qwen/Qwen2.5-0.5B")
+        if beimingwu:
+            base_model_path = os.path.expanduser("~/Meta/saved-learnwares/saved-PTM")
+        else:
+            base_model_path = "Qwen/Qwen2.5-0.5B"
+        
+        set_seed(3407)    
+        tokenizer = Qwen2Tokenizer.from_pretrained(base_model_path)
         model = Qwen2ForCausalLM.from_pretrained(
-            "Qwen/Qwen2.5-0.5B",
+            base_model_path,
             attn_implementation=self.attn_implementation,
             torch_dtype=torch.bfloat16,
         ).to(self._device)
         
-        peft_config = LoraConfig(
-            r=16,
-            lora_alpha=32,
-            lora_dropout=0.1,
-            bias="none",
-            task_type="CAUSAL_LM",
-            target_modules=["q_proj", "k_proj", "v_proj"]
-        )
-        
-        model = get_peft_model(model, peft_config)
-        
-        # TODO: Load adpater weight from Beimingwu
-        
-        for n, p in model.named_parameters():
-            if "lora_A" in n:
-                p.requires_grad = False
-        
+        if beimingwu:
+            adapter_path = os.path.expanduser("~/Meta/saved-learnwares/saved-adapter")
+            model = PeftModel.from_pretrained(model, adapter_path)
+            
+            for n, p in model.named_parameters():
+                if "lora_B" in n:
+                    p.requires_grad = True
+        else:
+            peft_config = LoraConfig(
+                r=16,
+                lora_alpha=32,
+                lora_dropout=0.1,
+                bias="none",
+                task_type="CAUSAL_LM",
+                target_modules=["q_proj", "k_proj", "v_proj"]
+            )        
+            model = get_peft_model(model, peft_config)
+            
+            for n, p in model.named_parameters():
+                if "lora_A" in n:
+                    p.requires_grad = False
+            
         return tokenizer, model
 
         
@@ -263,3 +278,13 @@ class CustomSFTTrainer(trl.SFTTrainer):
         
         return (loss, outputs) if return_outputs else loss
     
+
+def set_seed(seed):
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
