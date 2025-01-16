@@ -167,6 +167,7 @@ _DEFAULT_CONFIG = {
     "learnware_folder_config": {
         "yaml_file": "learnware.yaml",
         "module_file": "__init__.py",
+        "weights_file_path" : "weights",
     },
     "database_url": f"sqlite:///{DATABASE_PATH}",
     "max_reduced_set_size": 1310720,

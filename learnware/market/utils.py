@@ -3,7 +3,7 @@ def parse_specification_type(
     spec_list=[
         "HeteroMapTableSpecification",
         "RKMETableSpecification",
-        "GenerativeModelSpecification"
+        "GenerativeModelSpecification",
         "RKMETextSpecification",
         "RKMEImageSpecification",
         "LLMGeneralCapabilitySpecification",

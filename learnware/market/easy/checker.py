@@ -168,8 +168,8 @@ class EasyStatChecker(BaseChecker):
             elif spec_type == "RKMETextSpecification" or spec_type == "GenerativeModelSpecification":
 
                 if semantic_spec["Model Type"]["Values"][0] != "Others":
-                    len = random.randint(10, 1000)
-                    inputs = EasyStatChecker._generate_random_text_list(10, "en", len, len)
+                    len_ = random.randint(10, 1000)
+                    inputs = EasyStatChecker._generate_random_text_list(10, "en", len_, len_)
                 else:
                     inputs = EasyStatChecker._generate_random_text_list(10)
 

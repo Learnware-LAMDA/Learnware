@@ -24,12 +24,10 @@ logger = get_module_logger("easy_seacher")
 
 class EasyExactSemanticSearcher(AtomicSearcher):
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        learnware_semantic_spec = learnware.specification.get_semantic_spec
-        return learnware_semantic_spec
+        return True
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        user_semantic_spec = user_info.get_semantic_spec()
-        return user_semantic_spec
+        return True
 
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []
@@ -95,12 +93,10 @@ class EasyExactSemanticSearcher(AtomicSearcher):
 
 class EasyFuzzSemanticSearcher(AtomicSearcher):
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        learnware_semantic_spec = learnware.specification.get_semantic_spec
-        return learnware_semantic_spec
+        return True
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        user_semantic_spec = user_info.get_semantic_spec()
-        return user_semantic_spec
+        return True
 
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []
@@ -625,7 +621,7 @@ class EasyStatSearcher(AtomicSearcher):
         search_method: str = "greedy",
     ) -> SearchResults:
         self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info, spec_list=self.SPEC_TYPES)
-        print(self.stat_spec_type, self.SPEC_TYPES)
+
         user_rkme = user_info.stat_info[self.stat_spec_type]
 
         learnware_list = self._filter_by_rkme_spec_metadata(learnware_list, user_rkme)
@@ -754,7 +750,6 @@ class SeqCombinedSearcher(BaseSearcher):
                 filtered_learnware_list = [
                     learnware for learnware in learnware_list if stat_searcher.is_applicable_learnware(learnware)
                 ]
-                # print(f"Using searcher: {stat_searcher.__class__}, filtered learnware_list: {len(filtered_learnware_list)}")
                 return stat_searcher(filtered_learnware_list, user_info, max_search_num, search_method)
 
         return semantic_search_result

@@ -50,8 +50,8 @@ def prepare_data(dataset_name_str):
         subset_name = temp_list[1]
     dataset_name = temp_list[0]
     if subset_name:
-        test_dataset = load_dataset(dataset_name, subset_name, split="test") 
+        test_dataset = load_dataset(dataset_name, subset_name, split="test", trust_remote_code=True) 
     else:
-        test_dataset = load_dataset(dataset_name, split="test") 
+        test_dataset = load_dataset(dataset_name, split="test", trust_remote_code=True) 
     test_dataset = test_dataset.map(lambda x: {"text": PROCESS_FUNC[dataset_name](x)})
     return test_dataset
