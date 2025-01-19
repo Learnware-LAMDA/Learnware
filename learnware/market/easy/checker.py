@@ -10,7 +10,7 @@ from ..utils import parse_specification_type
 from ...config import C
 from ...logger import get_module_logger
 from ...specification import LLMGeneralCapabilitySpecification
-from ...specification.system.llm_general_capability_spec.config import general_capability_benchmark_configs
+from ...specification.system.llm_general_capability_spec.config import test_benchmark_configs
 
 logger = get_module_logger("easy_checker", "INFO")
 
@@ -258,7 +258,7 @@ class EasyStatChecker(BaseChecker):
                 try:
                     general_capability_spec = LLMGeneralCapabilitySpecification()
                     general_capability_spec.generate_stat_spec_from_system(
-                        learnware=learnware, benchmark_configs=general_capability_benchmark_configs[:2]
+                        learnware=learnware, benchmark_configs=test_benchmark_configs
                     )
                     learnware.update_stat_spec(general_capability_spec.type, general_capability_spec)
                 except Exception:

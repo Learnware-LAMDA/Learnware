@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import List, Optional
+from typing import List, Dict, Optional
 import lm_eval
 from lm_eval.models.huggingface import HFLM 
 import codecs
@@ -24,28 +24,43 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         super(LLMGeneralCapabilitySpecification, self).__init__(type=self.__class__.__name__)
 
     @staticmethod
-    def _evaluate(learnware: Learnware, benchmark_configs: List[LLMBenchmarkConfig]):
-        """Use [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) framework to evaluate learnware according to benchmark_configs.
+    def _get_scores(learnware: Learnware, benchmark_configs: List[LLMBenchmarkConfig]) -> Dict:
+        """Use [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) framework to evaluate learnware according to benchmark_configs and compute score dict.
 
         Parameters
         ----------
         learnware : Learnware
             Learnware to generate General Capability Specification.
         benchmark_configs : Optional[List[LLMBenchmarkConfig]]
-            List of LLMBenchmarkConfig, set to self.benchmark_configs if None.
+            List of LLMBenchmarkConfig.
+        
+        Returns
+        -------
+        Dict[LLMBenchmarkConfig, float]
+            Scores of all benchmark_configs.
         """
         learnware.instantiate_model()
         base_model = learnware.get_model().get_model()
-        task_list = [config.name for config in benchmark_configs]
-        
-        lm_obj = HFLM(pretrained=base_model, batch_size=16)
+        lm_obj = HFLM(pretrained=base_model, batch_size="auto")
         task_manager = lm_eval.tasks.TaskManager()
-        results = lm_eval.simple_evaluate(
-            model=lm_obj,
-            tasks=task_list,
-            task_manager=task_manager,
-        )
-        return results
+
+        score_dict = {}
+        for config in benchmark_configs:
+            results = lm_eval.simple_evaluate(
+                model=lm_obj,
+                tasks=[config.name],
+                task_manager=task_manager,
+            )
+            
+            if config.score_function:
+                score = config.score_function(results)
+            else:
+                score = results['results'][config.name][f'{config.eval_metric},none'] * 100
+                score = round(score, 2)
+            logger.info(f"Name: {config.name}, Score: {score}")
+            score_dict[config.name] = score
+        
+        return score_dict
 
     def generate_stat_spec_from_system(
         self,
@@ -66,26 +81,30 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         """
         if benchmark_configs:
             for config in benchmark_configs:
-                if config.eval_metric == None:
-                    raise Exception("Must specify a evaluation metric in a LLMBenchmarkConfig object to evaluate learnware on it.")
+                if config.eval_metric == None and config.score_function == None:
+                    raise Exception("Must specify an evaluation metric or a score computing function in a LLMBenchmarkConfig object to get the evaluation score.")
         else:
+            logger.info("No passed benchmark_configs. Set benchmark_configs by default.")
             benchmark_configs = self.benchmark_configs 
-        self.score_dict = {}
         if update_existing:
-            results = self._evaluate(learnware, benchmark_configs)
-            for config in benchmark_configs:
-                self.score_dict[config.name] = results['results'][config.name][f'{config.eval_metric},none']
+            logger.info("Update existing LLMGeneralCapabilitySpecification.")
+            self.score_dict = self._get_scores(learnware, benchmark_configs)
         else:
-            exist_config_list = []
+            existing_config_names = []
+            self.score_dict = {}
             general_spec = learnware.get_specification().get_stat_spec_by_name("LLMGeneralCapabilitySpecification")
             if general_spec:
-                exist_config_list = list(general_spec.score_dict.keys())
+                existing_config_names = list(general_spec.score_dict.keys())
                 self.score_dict = general_spec.score_dict.copy()
-            remain_config_list = [config for config in benchmark_configs if config.name not in exist_config_list]
-            if remain_config_list:
-                results = self._evaluate(learnware, remain_config_list)
-                for config in remain_config_list:
-                    self.score_dict[config.name] = results['results'][config.name][f'{config.eval_metric},none']
+                logger.info("LLMGeneralCapabilitySpecification exists in learnware. Try to update...")
+                for k, v in general_spec.score_dict.items():
+                    logger.info(f"Existing scores: Name: {k}, Score: {v}")
+            new_configs = [config for config in benchmark_configs if config.name not in existing_config_names]
+            if new_configs:
+                new_score_dict = self._get_scores(learnware, new_configs)
+                self.score_dict.update(new_score_dict)
+            else:
+                logger.info("All LLMBenchmarkConfig have been evaluated before. No update.")
 
     def save(self, filepath: str):
         """Save the computed specification to a specified path in JSON format.
