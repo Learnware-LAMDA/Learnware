@@ -41,11 +41,11 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         """
         learnware.instantiate_model()
         base_model = learnware.get_model().get_model()
-        lm_obj = HFLM(pretrained=base_model, batch_size="auto")
         task_manager = lm_eval.tasks.TaskManager()
 
         score_dict = {}
         for config in benchmark_configs:
+            lm_obj = HFLM(pretrained=base_model, batch_size="auto")
             results = lm_eval.simple_evaluate(
                 model=lm_obj,
                 tasks=[config.name],
