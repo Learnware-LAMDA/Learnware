@@ -39,14 +39,7 @@ def get_learnware_from_dirpath(
             "required_learnware_ids": [],
             "kwargs": {},
         },
-        "stat_specifications": [
-            {
-                "module_path": "learnware.specification",
-                "class_name": "RKMETableSpecification",
-                "file_name": "stat_spec.json",
-                "kwargs": {},
-            },
-        ],
+        "stat_specifications": [],
     }
 
     try:

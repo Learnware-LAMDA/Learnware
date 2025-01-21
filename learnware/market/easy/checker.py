@@ -10,7 +10,7 @@ from ..utils import parse_specification_type
 from ...config import C
 from ...logger import get_module_logger
 from ...specification import LLMGeneralCapabilitySpecification
-from ...specification.system.llm_general_capability_spec.config import general_capability_benchmark_configs
+from ...specification.system.llm_general_capability_spec.config import test_benchmark_configs
 
 logger = get_module_logger("easy_checker", "INFO")
 
@@ -138,6 +138,26 @@ class EasyStatChecker(BaseChecker):
                 logger.warning(message)
                 return self.INVALID_LEARNWARE, message
 
+            # check llm base model learnware general capability
+            if (
+                semantic_spec["Data"]["Values"] == ["Text"]
+                and semantic_spec["Task"]["Values"] == ["Text Generation"]
+                and semantic_spec["Model Type"]["Values"] == ["Base Model"]
+            ):
+                try:
+                    general_capability_spec = LLMGeneralCapabilitySpecification()
+                    general_capability_spec.generate_stat_spec_from_system(
+                        learnware=learnware, benchmark_configs=test_benchmark_configs
+                    )
+                    learnware.update_stat_spec(general_capability_spec.type, general_capability_spec)
+                except Exception:
+                    message = (
+                        f"The learnware [{learnware.id}] llm base model general capability evaluation is not available!"
+                    )
+                    logger.warning(message)
+                    message += "\r\n" + traceback.format_exc()
+                    return self.INVALID_LEARNWARE, message
+
             # Check statistical specification
             spec_type = parse_specification_type(learnware.get_specification().stat_spec)
             if spec_type is None:
@@ -146,12 +166,13 @@ class EasyStatChecker(BaseChecker):
                 return self.INVALID_LEARNWARE, message
 
             # Check if statistical specification is computable in dist()
-            stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
-            distance = float(stat_spec.dist(stat_spec))
-            if not np.isfinite(distance):
-                message = f"The distance between statistical specifications is not finite, where distance={distance}"
-                logger.warning(message)
-                return self.INVALID_LEARNWARE, message
+            if spec_type != "LLMGeneralCapabilitySpecification":
+                stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
+                distance = float(stat_spec.dist(stat_spec))
+                if not np.isfinite(distance):
+                    message = f"The distance between statistical specifications is not finite, where distance={distance}"
+                    logger.warning(message)
+                    return self.INVALID_LEARNWARE, message
 
             if spec_type == "RKMETableSpecification":
                 if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
@@ -165,7 +186,7 @@ class EasyStatChecker(BaseChecker):
                     return self.INVALID_LEARNWARE, message
                 inputs = np.random.randn(10, *input_shape)
 
-            elif spec_type == "RKMETextSpecification" or spec_type == "GenerativeModelSpecification":
+            elif spec_type in ["RKMETextSpecification", "GenerativeModelSpecification", "LLMGeneralCapabilitySpecification"]:
 
                 if semantic_spec["Model Type"]["Values"][0] != "Others":
                     len_ = random.randint(10, 1000)
@@ -248,26 +269,6 @@ class EasyStatChecker(BaseChecker):
                             message = f"The learnware [{learnware.id}] output dimension mismatch, where model_shape={learnware_model.output_shape}, semantic_shape={(semantic_output_shape, )}"
                             logger.warning(message)
                             return self.INVALID_LEARNWARE, message
-
-            # check llm base model learnware general capability
-            if (
-                semantic_spec["Data"]["Values"] == ["Text"]
-                and semantic_spec["Task"]["Values"] == ["Text Generation"]
-                and semantic_spec["Model Type"]["Values"] == ["Base Model"]
-            ):
-                try:
-                    general_capability_spec = LLMGeneralCapabilitySpecification()
-                    general_capability_spec.generate_stat_spec_from_system(
-                        learnware=learnware, benchmark_configs=general_capability_benchmark_configs[:2]
-                    )
-                    learnware.update_stat_spec(general_capability_spec.type, general_capability_spec)
-                except Exception:
-                    message = (
-                        f"The learnware [{learnware.id}] llm base model general capability evaluation is not available!"
-                    )
-                    logger.warning(message)
-                    message += "\r\n" + traceback.format_exc()
-                    return self.INVALID_LEARNWARE, message
 
         except Exception as e:
             message = f"The learnware [{learnware.id}] is not valid! Due to {repr(e)}."
