@@ -185,7 +185,7 @@ def generate_generative_model_spec(
     **kwargs   
 ) -> GenerativeModelSpecification:
     # Check input type
-    if X is not None and not isinstance(X, list) or not all(isinstance(item, str) for item in X):
+    if X is not None and (not isinstance(X, list) or not all(isinstance(item, str) for item in X)):
         raise TypeError("Input data must be a list of strings.")
     
     # Generate generative model spec
