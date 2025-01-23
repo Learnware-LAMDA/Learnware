@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 import torch
 
+from datasets import Dataset
+
 from .regular import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification, GenerativeModelSpecification
 from .utils import convert_to_numpy
 from ..config import C
@@ -175,18 +177,21 @@ def generate_rkme_text_spec(
     return rkme_text_spec
 
 
-def generate_task_vector_spec(
-    X: List[str],
+def generate_generative_model_spec(
+    dataset: Optional[Dataset] = None,
+    dataset_text_field="text",
+    X: List[str] = None,
     verbose: bool = True,
     **kwargs   
 ) -> GenerativeModelSpecification:
     # Check input type
-    if not isinstance(X, list) or not all(isinstance(item, str) for item in X):
+    if X is not None and (not isinstance(X, list) or not all(isinstance(item, str) for item in X)):
         raise TypeError("Input data must be a list of strings.")
     
-    # Generate task vector spec
+    # Generate generative model spec
     task_vector_spec = GenerativeModelSpecification()
-    task_vector_spec.generate_stat_spec_from_data(X, verbose, **kwargs)
+    task_vector_spec.generate_stat_spec_from_data(dataset=dataset, dataset_text_field=dataset_text_field, X=X, verbose=verbose, **kwargs)
+    
     return task_vector_spec
 
 

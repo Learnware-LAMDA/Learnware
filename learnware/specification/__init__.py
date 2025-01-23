@@ -16,14 +16,14 @@ if not is_torch_available(verbose=False):
     generate_rkme_table_spec = None
     generate_rkme_image_spec = None
     generate_rkme_text_spec = None
-    generate_task_vector_spec = None
+    generate_generative_model_spec = None
     generate_semantic_spec = None
 else:
     from .module import (
         generate_rkme_image_spec,
         generate_rkme_table_spec,
         generate_rkme_text_spec,
-        generate_task_vector_spec,
+        generate_generative_model_spec,
         generate_semantic_spec,
         generate_stat_spec,
     )
@@ -43,7 +43,7 @@ __all__ = [
     "generate_rkme_image_spec",
     "generate_rkme_table_spec",
     "generate_rkme_text_spec",
-    "generate_task_vector_spec",
+    "generate_generative_model_spec",
     "generate_semantic_spec",
     "generate_stat_spec",
 ]

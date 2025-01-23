@@ -31,7 +31,7 @@ class LLMEasyOrganizer(HeteroMapTableOrganizer):
         return final_status
 
     def _update_learnware_general_capability_spec(
-        self, ids: Union[str, List[str]], benchmark_configs: List[BenchmarkConfig]
+        self, ids: Union[str, List[str]]
     ):
         """Update learnware by ids, attempting to generate LLMGeneralCapabilitySpecification for them.
 

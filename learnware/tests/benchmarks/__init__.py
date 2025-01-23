@@ -84,6 +84,7 @@ class LLMBenchmark:
     test_split: Optional[str] = None
     # evaluation options
     eval_metric: Optional[str] = None
+    score_function: Optional[Callable] = None
     # formatting / prompting options
     preprocess_function: Optional[Callable] = None
     response_template: Optional[str] = None
@@ -239,6 +240,7 @@ class LearnwareBenchmarkManager:
                 validation_split=benchmark_config.validation_split,
                 test_split=benchmark_config.test_split,
                 eval_metric=benchmark_config.eval_metric,
+                score_function=benchmark_config.score_function,
                 preprocess_function=benchmark_config.preprocess_function,
                 response_template=benchmark_config.response_template,
             )

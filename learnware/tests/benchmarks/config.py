@@ -24,6 +24,7 @@ class LLMBenchmarkConfig:
     test_split: Optional[str] = None
     # evaluation options
     eval_metric: Optional[str] = None
+    score_function: Optional[Callable] = None
     # formatting / prompting options
     preprocess_function: Optional[Callable] = None
     response_template: Optional[str] = None
