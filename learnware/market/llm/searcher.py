@@ -1,6 +1,7 @@
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+import torch
 
 from learnware.learnware.base import Learnware
 from learnware.specification.base import Specification
@@ -8,6 +9,8 @@ from ..utils import parse_specification_type
 from ..base import BaseUserInfo, MultipleSearchItem, SearchResults, AtomicSearcher, SingleSearchItem
 from ..easy import EasyStatSearcher
 from ...logger import get_module_logger
+
+from torch.nn.functional import softmax
 
 logger = get_module_logger("llm_searcher")
 
@@ -51,11 +54,14 @@ class LLMStatSearcher(EasyStatSearcher):
 
         user_spec = user_info.stat_info[self.stat_spec_type]
 
-        sorted_dist_list, single_learnware_list = self._search_by_taskvector_spec_single(learnware_list, user_spec)
+        sorted_metric_list, single_learnware_list = self._search_by_taskvector_spec_single(learnware_list, user_spec)
         if len(single_learnware_list) == 0:
             return SearchResults()
 
-        sorted_score_list = self._convert_dist_to_score(sorted_dist_list)
+        if self.stat_spec_type == "GenerativeModelSpecification":
+            sorted_score_list = self._convert_similarity_to_score(sorted_metric_list)
+        else:
+            sorted_score_list = self._convert_dist_to_score(sorted_metric_list)
         
         logger.info(
             f"After search by user spec, learnware_list length is {len(learnware_list)}"
@@ -110,8 +116,17 @@ class LLMStatSearcher(EasyStatSearcher):
                     f"The distance between user_spec and learnware_spec (id: {learnware_list[idx].id}) is not finite, where similarity is {similarity}"
                 )
 
-        sorted_idx_list = reversed(sorted(range(len(similarity_list)), key=lambda k: similarity_list[k]))
+        sorted_idx_list = list(reversed(sorted(range(len(similarity_list)), key=lambda k: similarity_list[k])))
         sorted_dist_list = [similarity_list[idx] for idx in sorted_idx_list]
         sorted_learnware_list = [learnware_list[filtered_idx_list[idx]] for idx in sorted_idx_list]
 
         return sorted_dist_list, sorted_learnware_list
+    
+    def _convert_similarity_to_score(self, sorted_similarity_list, temperature=0.05):
+        sorted_similarity = torch.asarray(sorted_similarity_list)
+        sorted_similarity = torch.stack([
+            sorted_similarity, torch.zeros_like(sorted_similarity)
+        ])
+        
+        scores = softmax(sorted_similarity / temperature, dim=0)[0].tolist()
+        return scores * 100
