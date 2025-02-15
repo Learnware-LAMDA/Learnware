@@ -1,4 +1,5 @@
 from __future__ import annotations
+import traceback
 from typing import List, Dict, Optional
 import lm_eval
 from lm_eval.models.huggingface import HFLM 
@@ -13,6 +14,7 @@ from ....logger import get_module_logger
 
 logger = get_module_logger("llm_general_capability_spec")
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 class LLMGeneralCapabilitySpecification(SystemStatSpecification):
     """Large Language Model General Capability Specification"""
@@ -45,21 +47,27 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
 
         score_dict = {}
         for config in benchmark_configs:
-            lm_obj = HFLM(pretrained=base_model, batch_size="auto")
-            results = lm_eval.simple_evaluate(
-                model=lm_obj,
-                tasks=[config.name],
-                task_manager=task_manager,
-            )
+            try:
+                lm_obj = HFLM(pretrained=base_model, batch_size="auto")
+                results = lm_eval.simple_evaluate(
+                    model=lm_obj,
+                    tasks=[config.name],
+                    task_manager=task_manager,
+                )
+                
+                if config.score_function:
+                    score = config.score_function(results)
+                else:
+                    score = results['results'][config.name][f'{config.eval_metric},none'] * 100
+                    score = round(score, 2)
+                logger.info(f"Name: {config.name}, Score: {score}")
+                score_dict[config.name] = score
             
-            if config.score_function:
-                score = config.score_function(results)
-            else:
-                score = results['results'][config.name][f'{config.eval_metric},none'] * 100
-                score = round(score, 2)
-            logger.info(f"Name: {config.name}, Score: {score}")
-            score_dict[config.name] = score
-        
+            except Exception as e:
+                traceback.print_exc()
+                message = f"Evaluation of {config.name} failed! Due to {repr(e)}."
+                logger.warning(message)
+            
         return score_dict
 
     def generate_stat_spec_from_system(
