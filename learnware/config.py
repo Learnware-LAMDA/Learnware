@@ -97,9 +97,14 @@ semantic_config = {
         ],
         "Type": "Class",  # Choose only one class
     },
-    "Model Type" :{
-        "Values": ["Base Model", "Fully Fine-tuned Model", "PEFT Model", "Others"],
-        "Type": "Class",        
+    "Model": {
+        "Values": [
+            "Base Model",
+            "Fine-tuned Model",
+            "Adapter Model",
+            "Others",
+        ],
+        "Type": "Optional",
     },
     "Library": {
         "Values": ["Scikit-learn", "PyTorch", "TensorFlow", "Others"],

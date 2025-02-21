@@ -20,11 +20,16 @@ class EasySemanticChecker(BaseChecker):
     def check_semantic_spec(semantic_spec):
         try:
             for key in C["semantic_specs"]:
+                if C["semantic_specs"][key]["Type"] == "Optional":
+                    if key not in semantic_spec:
+                        continue
+                    pass
+
                 value = semantic_spec[key]["Values"]
                 valid_type = C["semantic_specs"][key]["Type"]
                 assert semantic_spec[key]["Type"] == valid_type, f"{key} type mismatch"
 
-                if valid_type == "Class":
+                if valid_type == "Class" or valid_type == "Optional":
                     valid_list = C["semantic_specs"][key]["Values"]
                     assert len(value) == 1, f"{key} must be unique"
                     assert value[0] in valid_list, f"{key} must be in {valid_list}"
