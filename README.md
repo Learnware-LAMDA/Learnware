@@ -409,11 +409,11 @@ If you use our project in your research or work, we kindly request that you cite
 }
 
 @inproceedings{tan2024beimingwu,
-  title   = {Beimingwu: A Learnware Dock System},
-  author  = {Tan, Zhi-Hao and Liu, Jian-Dong and Bi, Xiao-Dong and Tan, Peng and Zheng, Qin-Cheng and Liu, Hai-Tian and Xie, Yi and Zou, Xiao-Chuan and Yu, Yang and Zhou, Zhi-Hua},
+  title = {Beimingwu: A Learnware Dock System},
+  author = {Tan, Zhi-Hao and Liu, Jian-Dong and Bi, Xiao-Dong and Tan, Peng and Zheng, Qin-Cheng and Liu, Hai-Tian and Xie, Yi and Zou, Xiao-Chuan and Yu, Yang and Zhou, Zhi-Hua},
   booktitle = {Proceedings of the 30th ACM SIGKDD Conference on Knowledge Discovery and Data Mining (KDD)},
-  pages  = {5773--5782},
-  year    = {2024}
+  pages = {5773--5782},
+  year = {2024}
 }
 ```
 
