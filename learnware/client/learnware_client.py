@@ -52,7 +52,7 @@ class SemanticSpecificationKey(Enum):
     DATA_TYPE = "Data"
     TASK_TYPE = "Task"
     LIBRARY_TYPE = "Library"
-    MODEL_TYPE = "Model Type"
+    MODEL_TYPE = "Model"
     SENARIOES = "Scenario"
     LICENSE = "License"
 

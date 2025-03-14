@@ -58,7 +58,7 @@ class EasySemanticChecker(BaseChecker):
                     "Others",
                 ]
 
-                assert semantic_spec["Model Type"]["Values"][0] == "Others"
+                assert semantic_spec["Model"]["Values"][0] == "Others"
 
             if semantic_spec["Data"]["Values"][0] == "Image":
                 assert semantic_spec["Task"]["Values"][0] in [
@@ -70,7 +70,7 @@ class EasySemanticChecker(BaseChecker):
                     "Others",
                 ]
 
-                assert semantic_spec["Model Type"]["Values"][0] == "Others"
+                assert semantic_spec["Model"]["Values"][0] == "Others"
 
             if semantic_spec["Data"]["Values"][0] == "Text":
                 assert semantic_spec["Task"]["Values"][0] in [
@@ -147,7 +147,7 @@ class EasyStatChecker(BaseChecker):
             if (
                 semantic_spec["Data"]["Values"] == ["Text"]
                 and semantic_spec["Task"]["Values"] == ["Text Generation"]
-                and semantic_spec["Model Type"]["Values"] == ["Base Model"]
+                and semantic_spec["Model"]["Values"] == ["Base Model"]
             ):
                 try:
                     general_capability_spec = LLMGeneralCapabilitySpecification()
@@ -193,7 +193,7 @@ class EasyStatChecker(BaseChecker):
 
             elif spec_type in ["RKMETextSpecification", "GenerativeModelSpecification", "LLMGeneralCapabilitySpecification"]:
 
-                if semantic_spec["Model Type"]["Values"][0] != "Others":
+                if semantic_spec["Model"]["Values"][0] != "Others":
                     len_ = random.randint(10, 1000)
                     inputs = EasyStatChecker._generate_random_text_list(10, "en", len_, len_)
                 else:

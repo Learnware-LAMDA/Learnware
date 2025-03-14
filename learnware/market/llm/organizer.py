@@ -17,18 +17,6 @@ logger = get_module_logger("llm_easy_organizer")
 
 
 class LLMEasyOrganizer(HeteroMapTableOrganizer):
-    # update base model learnware when llm benchmark list updates
-    def update_learnware(
-        self,
-        id: str,
-        zip_path: str = None,
-        semantic_spec: dict = None,
-        check_status: int = None,
-    ):
-        final_status = super(LLMEasyOrganizer, self).update_learnware(id, zip_path, semantic_spec, check_status)
-        if final_status == BaseChecker.USABLE_LEARNWARE and len(self._get_hetero_learnware_ids(id)):
-            self._update_learnware_general_capability_spec(id)
-        return final_status
 
     def _update_learnware_general_capability_spec(
         self, ids: Union[str, List[str]]
@@ -69,6 +57,9 @@ class LLMEasyOrganizer(HeteroMapTableOrganizer):
                     yaml_config = read_yaml_to_dict(learnware_yaml_path)
                     if "stat_specifications" in yaml_config:
                         yaml_config["stat_specifications"].append(general_capability_spec_config)
+                    else:
+                        yaml_config["stat_specifications"] = [general_capability_spec_config]
+                        pass
                     save_dict_to_yaml(yaml_config, learnware_yaml_path)
 
                     with zipfile.ZipFile(zip_path, "a") as z_file:
@@ -112,7 +103,7 @@ class LLMEasyOrganizer(HeteroMapTableOrganizer):
             if (
                 semantic_spec["Data"]["Values"] == ["Text"]
                 and semantic_spec["Task"]["Values"] == ["Text Generation"]
-                and semantic_spec["Model Type"]["Values"] == ["Base Model"]
+                and semantic_spec["Model"]["Values"] == ["Base Model"]
             ):
                 ret.append(idx)
         return ret

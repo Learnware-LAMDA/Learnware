@@ -114,6 +114,11 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
             else:
                 logger.info("All LLMBenchmarkConfig have been evaluated before. No update.")
 
+
+    def __str__(self):
+        spec_to_save = self.get_states()
+        return json.dumps(spec_to_save, separators=(",", ":"))
+    
     def save(self, filepath: str):
         """Save the computed specification to a specified path in JSON format.
 
