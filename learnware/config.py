@@ -101,7 +101,7 @@ semantic_config = {
         "Values": [
             "Base Model",
             "Fine-tuned Model",
-            "Adapter Model",
+            "PEFT Model",
             "Others",
         ],
         "Type": "Optional",

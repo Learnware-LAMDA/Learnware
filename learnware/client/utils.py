@@ -8,7 +8,7 @@ from ..logger import get_module_logger
 logger = get_module_logger(module_name="client_utils")
 
 
-def system_execute(args, timeout=None, env=None, stdout=None, stderr=subprocess.PIPE):
+def system_execute(args, timeout=None, env=None, stdout=None, stderr=None):
     env = os.environ.copy() if env is None else env
     args = args if isinstance(args, str) else " ".join(args)
 

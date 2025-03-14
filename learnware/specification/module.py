@@ -241,7 +241,7 @@ def generate_semantic_spec(
     semantic_specification = dict()
     semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
     semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
-    semantic_specification["Model Type"] = {"Type": "Class", "Values": [model_type] if model_type is not None else ["Others"]}
+    semantic_specification["Model"] = {"Type": "Optional", "Values": [model_type] if model_type is not None else ["Others"]}
     semantic_specification["Library"] = {
         "Type": "Class",
         "Values": [library_type] if library_type is not None else [],

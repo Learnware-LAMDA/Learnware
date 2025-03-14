@@ -89,7 +89,10 @@ class GenerativeModelSpecification(TaskVectorSpecification):
             raise Exception("Call generate_stat_spec_from_data first!")
         
         return self._task_vector
-        
+    
+    @task_vector.setter
+    def task_vector(self, value):
+        self._task_vector = value
         
     def generate_stat_spec_from_data(
         self,

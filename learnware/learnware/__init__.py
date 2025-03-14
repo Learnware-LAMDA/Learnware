@@ -72,7 +72,7 @@ def get_learnware_from_dirpath(
                 learnware_weights_path
             ), f"Weights are not found for the Text Generation Model learnware_{id}, please check the learnware.yaml or zipfile."
             
-            if semantic_spec["Model Type"]["Values"] == ["PEFT Model"]:
+            if semantic_spec["Model"]["Values"] == ["PEFT Model"]:
                 assert "required_learnware_ids" in learnware_config["model"], f"'required_learnware_ids' is not found for the PEFT Model learnware_{id}, please check the learnware.yaml."
                 assert len(learnware_config["model"]["required_learnware_ids"]) != 0, f"'required_learnware_ids' can't be empty for the PEFT Model learnware_{id}, please check the learnware.yaml."           
 
