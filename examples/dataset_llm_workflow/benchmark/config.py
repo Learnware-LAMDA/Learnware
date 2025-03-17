@@ -1,0 +1,117 @@
+LEARNWARE_MATH = {
+    "MWP-Instruct": "Macropodus/MWP-Instruct",
+    # "goat": "tiedong/goat",
+    "school_math_0.25M": "BelleGroup/school_math_0.25M",
+    "MathInstruct": "TIGER-Lab/MathInstruct",
+    "MetaMathQA": "meta-math/MetaMathQA",
+    "orca-math-word-problems-200k": "microsoft/orca-math-word-problems-200k",
+    "Arithmo-Data": "akjindal53244/Arithmo-Data",
+    # "MATH-K-100-train": "Dahoas/MATH-K-100-train",
+    "MATH_train": "ScalableMath/MATH_train-cleaned_processed",
+    "MetaMath-GSM240K": "fxmeng/MetaMath-GSM240K",
+    "GSM8K_zh": "meta-math/GSM8K_zh",
+}
+
+LEARNWARE_MED = {
+    "AlpaCare": "lavita/AlpaCare-MedInstruct-52k", 
+    "ChatDoctor": "lavita/ChatDoctor-HealthCareMagic-100k",
+    "medalpaca_cleaned": "medalpaca/medical_meadow_wikidoc,medalpaca/medical_meadow_medical_flashcards,medalpaca/medical_meadow_wikidoc_patient_information,medalpaca/medical_meadow_pubmed_causal,medalpaca/medical_meadow_mediqa,medalpaca/medical_meadow_health_advice",
+    # "medical_flashcards": "medalpaca/medical_meadow_medical_flashcards",
+    "medqa_train": "medalpaca/medical_meadow_medqa",
+    "pubmed_causal": "medalpaca/medical_meadow_pubmed_causal",
+    "medmcqa_train": "chenhaodev/medmcqa_instruct",
+    "medqa_train&pubmed_causal": "medalpaca/medical_meadow_medqa,medalpaca/medical_meadow_pubmed_causal",
+    "AlpaCare&ChatDoctor": "LinhDuong/chatdoctor-5k,lavita/ChatDoctor-HealthCareMagic-100k,lavita/AlpaCare-MedInstruct-52k",
+    "medalpaca_cleaned&AlpaCare&ChatDoctor": "medalpaca/medical_meadow_wikidoc,medalpaca/medical_meadow_medical_flashcards,medalpaca/medical_meadow_wikidoc_patient_information,medalpaca/medical_meadow_pubmed_causal,medalpaca/medical_meadow_mediqa,medalpaca/medical_meadow_health_advice,LinhDuong/chatdoctor-5k,lavita/ChatDoctor-HealthCareMagic-100k,lavita/AlpaCare-MedInstruct-52k",
+    "medqa_train&medmcqa_train": "medalpaca/medical_meadow_medqa,chenhaodev/medmcqa_instruct",
+}
+
+LEARNWARE_FIN = {
+    "australian": "ChanceFocus/flare-australian",
+    "cra_lendingclub": "ChanceFocus/cra-lendingclub",
+    "fiqasa": "ChanceFocus/flare-fiqasa",
+    "fpb": "ChanceFocus/en-fpb",
+    "german": "ChanceFocus/flare-german",
+    "headlines": "ChanceFocus/flare-headlines",
+    "ner": "ChanceFocus/flare-ner",
+    "sm_acl": "ChanceFocus/flare-sm-acl",
+    "sm_bigdata": "TheFinAI/en-forecasting-bigdata",
+    "sm_cikm": "ChanceFocus/flare-sm-cikm",
+    # "convfinqa": "ChanceFocus/flare-convfinqa",
+    # "finqa": "ChanceFocus/flare-finqa",
+    # "cra_ccf": "ChanceFocus/cra-ccf",
+    # "cra_ccfraud": "ChanceFocus/cra-ccfraud",
+    # "cra_polish": "ChanceFocus/cra-polish",
+    # "cra_taiwan": "TheFinAI/cra-taiwan",
+}
+
+USER_MED = {
+    "medmcqa": "openlifescienceai/medmcqa",
+    "medqa_4options": "GBaker/MedQA-USMLE-4-options-hf",
+    "anatomy": "hails/mmlu_no_train,anatomy",
+    "college_biology": "hails/mmlu_no_train,college_biology",
+    "clinical_knowledge": "hails/mmlu_no_train,clinical_knowledge",
+    "college_medicine": "hails/mmlu_no_train,college_medicine",
+    "medical_genetics": "hails/mmlu_no_train,medical_genetics",
+    "professional_medicine": "hails/mmlu_no_train,professional_medicine",
+    "pubmedqa": "bigbio/pubmed_qa,pubmed_qa_labeled_fold0_source",
+}
+
+USER_MATH = {
+    "agieval_aqua_rat": "hails/agieval-aqua-rat",
+    "agieval_gaokao_mathcloze": "hails/agieval-gaokao-mathcloze",
+    "agieval_gaokao_mathqa": "hails/agieval-gaokao-mathqa",
+    "agieval_math": "hails/agieval-math",
+    "agieval_sat_math": "hails/agieval-sat-math",
+    "cmmlu_college_mathematics": "haonan-li/cmmlu,college_mathematics",
+    "cmmlu_elementary_mathematics": "haonan-li/cmmlu,elementary_mathematics",
+    "cmmlu_high_school_mathematics": "haonan-li/cmmlu,high_school_mathematics",
+    "gsm8k": "gsm8k,main",
+    "mathqa": "allenai/math_qa",
+    "mgsm_native_cot_zh": "juletxara/mgsm,zh",
+    # "minerva_math_algebra": "EleutherAI/hendrycks_math,algebra",
+    # "minerva_math_counting_and_prob": "EleutherAI/hendrycks_math,counting_and_probability",
+    # "minerva_math_geometry": "EleutherAI/hendrycks_math,geometry",
+    # "minerva_math_intermediate_algebra": "EleutherAI/hendrycks_math,intermediate_algebra",
+    # "minerva_math_num_theory": "EleutherAI/hendrycks_math,number_theory",
+    # "minerva_math_prealgebra": "EleutherAI/hendrycks_math,prealgebra",
+    # "minerva_math_precalculus": "EleutherAI/hendrycks_math,precalculus",
+    "minerva_math": "lighteval/MATH,all",
+    "abstract_algebra": "hails/mmlu_no_train,abstract_algebra",
+    "college_mathematics": "hails/mmlu_no_train,college_mathematics",
+    "elementary_mathematics": "hails/mmlu_no_train,elementary_mathematics",
+    "high_school_mathematics": "hails/mmlu_no_train,high_school_mathematics",
+}
+
+USER_FIN = {
+    "australian": "ChanceFocus/flare-australian",
+    "cra_lendingclub": "ChanceFocus/cra-lendingclub",
+    "fiqasa": "ChanceFocus/flare-fiqasa",
+    "fpb": "ChanceFocus/en-fpb",
+    "german": "ChanceFocus/flare-german",
+    "headlines": "ChanceFocus/flare-headlines",
+    "ner": "ChanceFocus/flare-ner",
+    "sm_acl": "ChanceFocus/flare-sm-acl",
+    "sm_bigdata": "TheFinAI/en-forecasting-bigdata",
+    "sm_cikm": "ChanceFocus/flare-sm-cikm",
+    "causal20_sc": "ChanceFocus/flare-causal20-sc",
+    "finarg_ecc_arc": "ChanceFocus/flare-finarg-ecc-arc",
+    "finarg_ecc_auc": "ChanceFocus/flare-finarg-ecc-auc",
+    "fomc": "ChanceFocus/flare-fomc",
+    "ma": "ChanceFocus/flare-ma",
+    "mlesg": "ChanceFocus/flare-mlesg",
+    "multifin_en": "ChanceFocus/flare-multifin-en",
+}
+
+LEARNWARE_MED_IDS = [
+    "00010000"
+]
+
+LEARNWARE_MATH_IDS = [
+    "00010001"
+]
+
+
+LEARNWARE_FIN_IDS = [
+    "00010002"
+]
