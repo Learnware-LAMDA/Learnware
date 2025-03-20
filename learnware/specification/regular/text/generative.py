@@ -77,8 +77,8 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         self.max_seq_length = max_seq_length
         
         self.__extra_args = {
-            "weight_decay_l1": 1.5,
-            "weight_decay_l2": .0,
+            "weight_decay_l1": 1.0,
+            "weight_decay_l2": 0.5,
             "max_steps": 400,
             "lr": 1e-5,
             "max_grad_norm": 1.0,

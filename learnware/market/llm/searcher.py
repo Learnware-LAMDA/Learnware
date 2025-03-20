@@ -122,7 +122,7 @@ class LLMStatSearcher(EasyStatSearcher):
 
         return sorted_dist_list, sorted_learnware_list
     
-    def _convert_similarity_to_score(self, sorted_similarity_list, temperature=0.05):
+    def _convert_similarity_to_score(self, sorted_similarity_list, temperature=0.1):
         sorted_similarity = torch.asarray(sorted_similarity_list)
         sorted_similarity = torch.stack([
             sorted_similarity, torch.zeros_like(sorted_similarity)
