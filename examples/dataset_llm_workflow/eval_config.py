@@ -127,28 +127,60 @@ finance_eval_configs: List[LLMBenchmarkConfig] = [
         eval_metric="acc",
     ),
     LLMBenchmarkConfig(
-        name="mmlu_clinical_knowledge",
+        name="german",
         eval_metric="acc",
     ),
     LLMBenchmarkConfig(
-        name="mmlu_college_biology",
+        name="headlines",
+        eval_metric="avg_f1",
+    ),
+    LLMBenchmarkConfig(
+        name="ner",
+        eval_metric="entity_f1",
+    ),
+    LLMBenchmarkConfig(
+        name="sm_acl",
         eval_metric="acc",
     ),
     LLMBenchmarkConfig(
-        name="mmlu_college_medicine",
+        name="sm_bigdata",
         eval_metric="acc",
     ),
     LLMBenchmarkConfig(
-        name="mmlu_medical_genetics",
+        name="sm_cikm",
         eval_metric="acc",
     ),
     LLMBenchmarkConfig(
-        name="mmlu_professional_medicine",
+        name="causal20_sc",
+        eval_metric="acc",
+    ),
+    LLMBenchmarkConfig(
+        name="finarg_ecc_arc",
+        eval_metric="acc",
+    ),
+    LLMBenchmarkConfig(
+        name="finarg_ecc_auc",
+        eval_metric="acc",
+    ),
+    LLMBenchmarkConfig(
+        name="fomc",
+        eval_metric="acc",
+    ),
+    LLMBenchmarkConfig(
+        name="ma",
+        eval_metric="acc",
+    ),
+    LLMBenchmarkConfig(
+        name="mlesg",
+        eval_metric="acc",
+    ),
+    LLMBenchmarkConfig(
+        name="multifin_en",
         eval_metric="acc",
     ),
 ]
 
-eval_configs = {
+CONFIG = {
     "medical": medical_eval_configs,
     "math": math_eval_configs,
     "finance": finance_eval_configs

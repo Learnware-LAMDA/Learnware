@@ -6,25 +6,21 @@ import copy
 import pandas as pd
 import torch
 import shutil
+import json
 import re
 import numpy as np
 import matplotlib.pyplot as plt
-from typing import List, Dict
 import lm_eval
 from lm_eval.models.huggingface import HFLM 
 
 from learnware.client import LearnwareClient
 from learnware.logger import get_module_logger
 from learnware.market import BaseUserInfo, instantiate_learnware_market
-from learnware.learnware import Learnware
-from learnware.specification import generate_semantic_spec
-from learnware.specification import RKMETextSpecification
 from learnware.specification import GenerativeModelSpecification
-from learnware.tests.benchmarks import LLMBenchmarkConfig
 
 from benchmark import Benchmark
 from benchmark.config import USER_FIN, USER_MATH, USER_MED
-from eval_config import eval_configs
+from eval_config import CONFIG
 
 logger = get_module_logger("llm_workflow", level="INFO")
 
@@ -132,7 +128,7 @@ class LLMWorkflow:
             ax.legend(loc="lower left", fontsize=8, bbox_to_anchor=(0.85, 0.9))
 
         plt.tight_layout()
-        os.makedirs("results/figs", exist_ok=True)
+        # os.makedirs("results/figs", exist_ok=True)
         # plt.savefig(f"results/figs/llm-{benchmark_name}.pdf")
 
     def _anlysis_table(self, benchmark_name, table, score_results):
@@ -264,18 +260,58 @@ class LLMWorkflow:
         
         return generative_spec
 
-    def _get_scores(self, base_model: str, adapter_path, benchmark_configs: List[LLMBenchmarkConfig], batch_size='auto'):
-        # learnware.instantiate_model()
-        # model = learnware.get_model().get_model()
+    def _get_scores(self, benchmark_name, base_model: str, adapter_path, batch_size='auto'):
+        benchmark_configs = CONFIG[benchmark_name][6:7]
         task_manager = lm_eval.tasks.TaskManager()
         task_names = [config.name for config in benchmark_configs]
 
-        lm_obj = HFLM(pretrained=base_model, peft=adapter_path, batch_size=batch_size)
-        results = lm_eval.simple_evaluate(
-            model=lm_obj,
-            tasks=task_names,
-            task_manager=task_manager,
-        )
+        if benchmark_name == "medical":
+            lm_obj = HFLM(pretrained=base_model, peft=adapter_path, batch_size=batch_size)
+            results = lm_eval.simple_evaluate(
+                model=lm_obj,
+                tasks=task_names,
+                task_manager=task_manager,
+            )
+        else:
+            if benchmark_name == "finance":
+                batch_size = 32
+            results_dir = f"./eval_results/{benchmark_name}"
+            adapter_id = adapter_path.split("/")[-2] if adapter_path else None
+            task_names_str = ",".join(task_names)
+            if adapter_path:
+                os.system(f"CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch -m lm_eval --model hf \
+                --model_args pretrained={base_model},peft={adapter_path} \
+                --tasks {task_names_str} \
+                --batch_size {batch_size} \
+                --output_path ./eval_results/{benchmark_name}")
+            elif base_model in ["Qwen/Qwen1.5-110B", "Qwen/Qwen2.5-72B", "NousResearch/Meta-Llama-3.1-70B-Instruct"]:
+                os.system(f"CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 1 -m lm_eval --model hf \
+                --model_args pretrained={base_model},parallelize=True \
+                --tasks {task_names_str} \
+                --batch_size {batch_size} \
+                --output_path ./eval_results/{benchmark_name}")
+            else:
+                os.system(f"CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch -m lm_eval --model hf \
+                --model_args pretrained={base_model} \
+                --tasks {task_names_str} \
+                --batch_size {batch_size} \
+                --output_path ./eval_results/{benchmark_name}")
+
+            if adapter_id:
+                for dir_name in os.listdir(results_dir):
+                    if adapter_id in dir_name:
+                        results_dir_path = os.path.join(results_dir, dir_name)
+                        results_path = os.path.join(results_dir_path, sorted(os.listdir(results_dir_path))[-1])
+                        break
+            else:
+                for dir_name in os.listdir(results_dir):
+                    if dir_name == base_model.replace("/", "__"):
+                        results_dir_path = os.path.join(results_dir, dir_name)
+                        results_path = os.path.join(results_dir_path, sorted(os.listdir(results_dir_path))[-1])
+                        break
+
+            with open(results_path, "r", encoding="utf-8") as f:
+                results = json.load(f)
 
         score_list = []
         for config in benchmark_configs:
@@ -328,23 +364,38 @@ class LLMWorkflow:
                 score_results["Similarity"].append(v)
 
         if not skip_eval:
-            configs = eval_configs[benchmark_name]
             all_learnwares_ids = self.llm_market.get_learnware_ids()
             if benchmark_name == "medical":
-                score_list = self._get_scores("Qwen/Qwen2.5-7B", None, configs)
                 performance_table = {
-                    "Qwen2.5-7B": score_list,
+                    "Qwen2.5-7B": self._get_scores(benchmark_name, "Qwen/Qwen2.5-7B", None),
                     "Flan-PaLM-540B": [57.60, 67.60, 63.70, 80.40, 88.90, 76.30, 75.00, 83.80, 79.00] # copied from Open Medical LLM Leaderboard
                 }
-            datasets = [config.name for config in configs]
+            elif benchmark_name == "math":
+                performance_table = {
+                    "Qwen2.5-7B": self._get_scores(benchmark_name, "Qwen/Qwen2.5-7B", None),
+                    "Qwen1.5-110B": self._get_scores(benchmark_name, "Qwen/Qwen1.5-110B", None)
+                }
+            elif benchmark_name == "finance":
+                performance_table = {
+                    "Qwen2.5-7B": self._get_scores(benchmark_name, "Qwen/Qwen2.5-7B", None),
+                    "Llama3.1-8B-Instruct": self._get_scores(benchmark_name, "NousResearch/Meta-Llama-3.1-8B-Instruct", None),
+                    "Llama3.1-8B": self._get_scores(benchmark_name, "NousResearch/Meta-Llama-3.1-8B", None),
+                    "Qwen1.5-110B": self._get_scores(benchmark_name, "Qwen/Qwen1.5-110B", None),
+                    "Qwen2.5-72B": self._get_scores(benchmark_name, "Qwen/Qwen2.5-72B", None),
+                    "Llama3.1-70B-Instruct": self._get_scores(benchmark_name, "NousResearch/Meta-Llama-3.1-70B-Instruct", None),
+                }
+
             for learnware_id in all_learnwares_ids[:1]:
                 learnware = self.llm_market.get_learnware_by_ids(learnware_id)
                 base_model = learnware.specification.semantic_spec["Description"]["Values"].split(' ')[-1]
                 adapter_path = os.path.join(self.llm_market.get_learnware_dir_path_by_ids(learnware_id), "adapter")
-                score_list = self._get_scores(base_model, adapter_path, configs) # medical batch_size 不影响
+                score_list = self._get_scores(benchmark_name, base_model, adapter_path)
                 performance_table[learnware.specification.semantic_spec["Name"]["Values"]] = score_list
+
             performance_table = pd.DataFrame(performance_table)
             performance_table = performance_table._append(performance_table.mean().round(2), ignore_index=True)
+            configs = CONFIG[benchmark_name]
+            datasets = [config.name for config in configs]
             performance_table.insert(0, "Dataset", datasets+['Avg'])
             performance_table.to_csv(f"model_performance/{benchmark_name}-new.csv", index=False)
         else:
@@ -353,7 +404,7 @@ class LLMWorkflow:
         results_table = self._anlysis_table(benchmark_name, performance_table, score_results)
         self._plot_radar_chart(benchmark_name, results_table[:-4])
 
-        pd.DataFrame(score_results).to_csv(f"{benchmark_name}_test.csv", index=False)
+        # pd.DataFrame(score_results).to_csv(f"{benchmark_name}_test.csv", index=False)
 
 
 if __name__ == "__main__":
