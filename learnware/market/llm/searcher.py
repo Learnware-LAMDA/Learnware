@@ -107,6 +107,7 @@ class LLMStatSearcher(EasyStatSearcher):
         spec_list = [learnware.specification.get_stat_spec_by_name(stat_spec_type) for learnware in learnware_list]
         filtered_idx_list, similarity_list = [], []
         for idx, s in enumerate(spec_list):
+            user_spec.task_vector = user_spec.task_vector.to(s.task_vector.device)
             similarity = float(s.similarity(user_spec))
             if np.isfinite(similarity):
                 similarity_list.append(similarity)
