@@ -3,11 +3,12 @@ import pickle
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Callable
+from datasets import load_dataset, Dataset
 
 import numpy as np
 
-from .config import BenchmarkConfig, benchmark_configs
+from .config import BenchmarkConfig, LLMBenchmarkConfig, benchmark_configs
 from ..data import GetData
 from ...config import C
 
@@ -71,7 +72,79 @@ class Benchmark:
             return ret
 
 
-class LearnwareBenchmark:
+@dataclass
+class LLMBenchmark:
+    name: str
+    # HF dataset options
+    dataset_path: Optional[str] = None
+    subset_name: Optional[str] = None
+    dataset_kwargs: Optional[dict] = None
+    train_split: Optional[str] = None
+    validation_split: Optional[str] = None
+    test_split: Optional[str] = None
+    # evaluation options
+    eval_metric: Optional[str] = None
+    score_function: Optional[Callable] = None
+    # formatting / prompting options
+    preprocess_function: Optional[Callable] = None
+    response_template: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        self.prepare_dataset()
+
+    def prepare_dataset(self) -> None:
+        self.dataset = load_dataset(
+            path=self.dataset_path if self.dataset_path else self.name,
+            name=self.subset_name,
+            **self.dataset_kwargs if self.dataset_kwargs is not None else {},
+        )
+    
+    def get_train_dataset(self) -> Dataset:
+        if self.train_split:
+            train_dataset = self.dataset[self.train_split]
+            if self.dataset_path == "meta-math/GSM8K_zh": 
+                train_dataset = train_dataset.filter(lambda x: x['split']=='train')
+            if self.preprocess_function:
+                train_dataset = train_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+            return train_dataset
+    
+    def get_val_dataset(self) -> Dataset:
+        if self.validation_split:
+            val_dataset = self.dataset[self.validation_split]
+            if self.preprocess_function:
+                val_dataset = val_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+            return val_dataset
+
+    def get_test_dataset(self) -> Dataset:
+        if self.test_split:
+            test_dataset = self.dataset[self.test_split]
+            if self.preprocess_function:
+                test_dataset = test_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+            return test_dataset
+
+    def get_train_data(self) -> List[str]:
+        if not self.preprocess_function:
+            raise Exception("Must specify a preprocess function to get train data!")
+        train_dataset = self.get_train_dataset()
+        train_data = train_dataset["text"]
+        return train_data
+    
+    def get_val_data(self) -> List[str]:
+        if not self.preprocess_function:
+            raise Exception("Must specify a preprocess function to get validation data!")
+        val_dataset = self.get_val_dataset()
+        val_data = val_dataset["text"]
+        return val_data
+
+    def get_test_data(self) -> List[str]:
+        if not self.preprocess_function:
+            raise Exception("Must specify a preprocess function to get test data!")
+        test_dataset = self.get_test_dataset()
+        test_data = test_dataset["text"]
+        return test_data
+
+
+class LearnwareBenchmarkManager:
     def __init__(self):
         self.benchmark_configs = benchmark_configs
 
@@ -148,37 +221,53 @@ class LearnwareBenchmark:
 
         return X_paths, y_paths
 
-    def get_benchmark(self, benchmark_config: Union[str, BenchmarkConfig]) -> Benchmark:
+    def get_benchmark(self, benchmark_config: Union[str, BenchmarkConfig, LLMBenchmarkConfig]) -> Benchmark:
         if isinstance(benchmark_config, str):
             benchmark_config = self.benchmark_configs[benchmark_config]
 
-        if not isinstance(benchmark_config, BenchmarkConfig):
+        if not isinstance(benchmark_config, (BenchmarkConfig, LLMBenchmarkConfig)):
             raise ValueError(
                 "benchmark_config must be a BenchmarkConfig object or a string in benchmark_configs.keys()!"
             )
 
-        # Load test data
-        test_X_paths, test_y_paths = self._load_cache_data(benchmark_config, "test")
+        if isinstance(benchmark_config, LLMBenchmarkConfig):
+            return LLMBenchmark(
+                name=benchmark_config.name,
+                dataset_path=benchmark_config.dataset_path,
+                subset_name=benchmark_config.subset_name,
+                dataset_kwargs=benchmark_config.dataset_kwargs,
+                train_split=benchmark_config.train_split,
+                validation_split=benchmark_config.validation_split,
+                test_split=benchmark_config.test_split,
+                eval_metric=benchmark_config.eval_metric,
+                score_function=benchmark_config.score_function,
+                preprocess_function=benchmark_config.preprocess_function,
+                response_template=benchmark_config.response_template,
+            )
 
-        # Load train data
-        train_X_paths, train_y_paths = None, None
-        if benchmark_config.train_data_path is not None:
-            train_X_paths, train_y_paths = self._load_cache_data(benchmark_config, "train")
+        elif isinstance(benchmark_config, BenchmarkConfig):
+            # Load test data
+            test_X_paths, test_y_paths = self._load_cache_data(benchmark_config, "test")
 
-        # Load extra info
-        extra_info_path = None
-        if benchmark_config.extra_info_path is not None:
-            extra_info_path = os.path.join(C.cache_path, benchmark_config.name, "extra_info")
-            if not os.path.exists(extra_info_path):
-                self._download_data(benchmark_config.extra_info_path, extra_info_path)
+            # Load train data
+            train_X_paths, train_y_paths = None, None
+            if benchmark_config.train_data_path is not None:
+                train_X_paths, train_y_paths = self._load_cache_data(benchmark_config, "train")
 
-        return Benchmark(
-            name=benchmark_config.name,
-            user_num=benchmark_config.user_num,
-            learnware_ids=benchmark_config.learnware_ids,
-            test_X_paths=test_X_paths,
-            test_y_paths=test_y_paths,
-            train_X_paths=train_X_paths,
-            train_y_paths=train_y_paths,
-            extra_info_path=extra_info_path,
-        )
+            # Load extra info
+            extra_info_path = None
+            if benchmark_config.extra_info_path is not None:
+                extra_info_path = os.path.join(C.cache_path, benchmark_config.name, "extra_info")
+                if not os.path.exists(extra_info_path):
+                    self._download_data(benchmark_config.extra_info_path, extra_info_path)
+
+            return Benchmark(
+                name=benchmark_config.name,
+                user_num=benchmark_config.user_num,
+                learnware_ids=benchmark_config.learnware_ids,
+                test_X_paths=test_X_paths,
+                test_y_paths=test_y_paths,
+                train_X_paths=train_X_paths,
+                train_y_paths=train_y_paths,
+                extra_info_path=extra_info_path,
+            )

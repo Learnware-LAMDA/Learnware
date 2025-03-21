@@ -1,14 +1,14 @@
 from typing import Any, List, Tuple
 
 from .user_info import AnchoredUserInfo
-from ..easy.searcher import EasySearcher
+from ..base import AtomicSearcher
 from ...learnware import Learnware
 from ...logger import get_module_logger
 
 logger = get_module_logger("anchor_searcher")
 
 
-class AnchoredSearcher(EasySearcher):
+class AnchoredSearcher(AtomicSearcher):
     def search_anchor_learnware(self, user_info: AnchoredUserInfo) -> Tuple[Any, List[Learnware]]:
         """Search anchor Learnwares from anchor_learnware_list based on user_info
 

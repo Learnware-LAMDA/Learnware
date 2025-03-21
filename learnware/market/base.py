@@ -203,6 +203,8 @@ class LearnwareMarket:
         SearchResults
             Search results
         """
+        # searcher = self.searcher_selector.select_searcher(user_info)
+        # return searcher(user_info, check_status, **kwargs)
         return self.learnware_searcher(user_info, check_status, **kwargs)
 
     def delete_learnware(self, id: str, **kwargs) -> bool:
@@ -499,6 +501,54 @@ class BaseSearcher:
             - Others: search from learnwares with check_status
         """
         raise NotImplementedError("'__call__' method is not implemented in BaseSearcher")
+
+
+class AtomicSearcher(BaseSearcher):
+    def __init__(self, organizer: BaseOrganizer, **kwargs):
+        super(AtomicSearcher, self).__init__(organizer, **kwargs)
+
+    def is_applicable_user(self, user_info: BaseUserInfo, **kwargs) -> bool:
+        """Check if the user_info is applicable for this searcher
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            user_info contains semantic_spec and stat_info
+
+        Returns
+        -------
+        bool
+            A flag indicating whether the user_info is applicable for this searcher
+        """
+        raise NotImplementedError("'is_applicable_user' method is not implemented in AtomicSearcher")
+
+    def is_applicable_learnware(self, learnware: Learnware, **kwargs) -> bool:
+        """Check if the learnware is applicable for this searcher
+
+        Parameters
+        ----------
+        learnware : Learnware
+            learnware to be checked
+
+        Returns
+        -------
+        bool
+            A flag indicating whether the learnware is applicable for this searcher
+        """
+        raise NotImplementedError("'is_applicable_learnware' method is not implemented in AtomicSearcher")
+
+    def __call__(self, user_info: BaseUserInfo, check_status: int = None) -> SearchResults:
+        """Search learnwares based on user_info from learnwares with check_status
+
+        Parameters
+        ----------
+        user_info : BaseUserInfo
+            user_info contains semantic_spec and stat_info
+        check_status : int, optional
+            - None: search from all learnwares
+            - Others: search from learnwares with check_status
+        """
+        raise NotImplementedError("'__call__' method is not implemented in AtomicSearcher")
 
 
 class BaseChecker:

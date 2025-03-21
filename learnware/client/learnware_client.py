@@ -52,6 +52,7 @@ class SemanticSpecificationKey(Enum):
     DATA_TYPE = "Data"
     TASK_TYPE = "Task"
     LIBRARY_TYPE = "Library"
+    MODEL_TYPE = "Model"
     SENARIOES = "Scenario"
     LICENSE = "License"
 
@@ -491,7 +492,7 @@ class LearnwareClient:
                 name="test",
                 description="test",
                 data_type="Text",
-                task_type="Segmentation",
+                task_type="Text Generation",
                 scenarios="Financial",
                 library_type="Scikit-learn",
                 license="Apache-2.0",
@@ -506,7 +507,7 @@ class LearnwareClient:
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             with zipfile.ZipFile(learnware_zip_path, mode="r") as z_file:
                 z_file.extractall(tempdir)
-
+                pass
             learnware = get_learnware_from_dirpath(
                 id="test", semantic_spec=semantic_specification, learnware_dirpath=tempdir, ignore_error=False
             )

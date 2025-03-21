@@ -89,11 +89,11 @@ class HeteroMapTableOrganizer(EasyOrganizer):
             - str indicating model_id
             - int indicating the final learnware check_status
         """
-        learnware_id, learnwere_status = super(HeteroMapTableOrganizer, self).add_learnware(
+        learnware_id, learnware_status = super(HeteroMapTableOrganizer, self).add_learnware(
             zip_path, semantic_spec, check_status, learnware_id
         )
 
-        if learnwere_status == BaseChecker.USABLE_LEARNWARE and len(self._get_hetero_learnware_ids(learnware_id)):
+        if learnware_status == BaseChecker.USABLE_LEARNWARE and len(self._get_hetero_learnware_ids(learnware_id)):
             self._update_learnware_hetero_spec(learnware_id)
 
             if self.auto_update:
@@ -115,7 +115,7 @@ class HeteroMapTableOrganizer(EasyOrganizer):
 
                     self.count_down = self.auto_update_limit
 
-        return learnware_id, learnwere_status
+        return learnware_id, learnware_status
 
     def delete_learnware(self, id: str) -> bool:
         """Delete learnware from heterogeneous learnware market.

@@ -3,8 +3,10 @@ def parse_specification_type(
     spec_list=[
         "HeteroMapTableSpecification",
         "RKMETableSpecification",
+        "GenerativeModelSpecification",
         "RKMETextSpecification",
         "RKMEImageSpecification",
+        "LLMGeneralCapabilitySpecification",
     ],
 ):
     for spec in spec_list:

@@ -53,6 +53,10 @@ REQUIRED = [
     "portalocker>=2.0.0",
     "qpsolvers[clarabel]>=4.0.1",
     "geatpy>=2.7.0;python_version<'3.11'",
+    "trl>=0.11.4",
+    "datasets>=3.1.0",
+    "peft>=0.13.2",
+    "lm_eval>=0.4.7"
 ]
 
 DEV_REQUIRED = [
@@ -77,7 +81,7 @@ FULL_REQUIRED = [
     "torchvision==0.15.2",
     "torch-optimizer>=0.3.0",
     "lightgbm>=3.3.0",
-    "sentence_transformers==2.2.2",
+    "sentence_transformers==3.2.1",
     "fast_pytorch_kmeans==0.2.0.1",
 ]
 

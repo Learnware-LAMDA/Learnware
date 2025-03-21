@@ -17,7 +17,7 @@ from learnware.logger import get_module_logger
 from learnware.market import BaseUserInfo, instantiate_learnware_market
 from learnware.reuse import AveragingReuser, EnsemblePruningReuser, JobSelectorReuser
 from learnware.specification import RKMETextSpecification
-from learnware.tests.benchmarks import LearnwareBenchmark
+from learnware.tests.benchmarks import LearnwareBenchmarkManager
 
 logger = get_module_logger("text_workflow", level="INFO")
 
@@ -72,7 +72,7 @@ class TextDatasetWorkflow:
 
     def _prepare_market(self, rebuild=False):
         client = LearnwareClient()
-        self.text_benchmark = LearnwareBenchmark().get_benchmark(text_benchmark_config)
+        self.text_benchmark = LearnwareBenchmarkManager().get_benchmark(text_benchmark_config)
         self.text_market = instantiate_learnware_market(market_id=self.text_benchmark.name, rebuild=rebuild)
         self.user_semantic = client.get_semantic_specification(self.text_benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""

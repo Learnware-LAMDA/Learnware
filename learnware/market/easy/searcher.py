@@ -5,8 +5,15 @@ import numpy as np
 import torch
 from rapidfuzz import fuzz
 
-from .organizer import EasyOrganizer
-from ..base import BaseSearcher, BaseUserInfo, MultipleSearchItem, SearchResults, SingleSearchItem
+from ..base import (
+    BaseOrganizer,
+    BaseSearcher,
+    AtomicSearcher,
+    BaseUserInfo,
+    MultipleSearchItem,
+    SearchResults,
+    SingleSearchItem,
+)
 from ..utils import parse_specification_type
 from ...learnware import Learnware
 from ...logger import get_module_logger
@@ -15,7 +22,13 @@ from ...specification import RKMEImageSpecification, RKMETableSpecification, RKM
 logger = get_module_logger("easy_seacher")
 
 
-class EasyExactSemanticSearcher(BaseSearcher):
+class EasyExactSemanticSearcher(AtomicSearcher):
+    def is_applicable_learnware(self, learnware: Learnware) -> bool:
+        return True
+
+    def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
+        return True
+
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []
         for learnware in learnware_list:
@@ -78,7 +91,13 @@ class EasyExactSemanticSearcher(BaseSearcher):
         return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in match_learnwares])
 
 
-class EasyFuzzSemanticSearcher(BaseSearcher):
+class EasyFuzzSemanticSearcher(AtomicSearcher):
+    def is_applicable_learnware(self, learnware: Learnware) -> bool:
+        return True
+
+    def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
+        return True
+
     def _learnware_id_search(self, learnware_id: str, learnware_list: List[Learnware]) -> List[Learnware]:
         match_learnwares = []
         for learnware in learnware_list:
@@ -203,7 +222,22 @@ class EasyFuzzSemanticSearcher(BaseSearcher):
         return SearchResults(single_results=[SingleSearchItem(learnware=_learnware) for _learnware in final_result])
 
 
-class EasyStatSearcher(BaseSearcher):
+class EasyStatSearcher(AtomicSearcher):
+    SPEC_TYPES = ["RKMETableSpecification", "RKMEImageSpecification", "RKMETextSpecification"]
+
+    def is_applicable_learnware(self, learnware: Learnware) -> bool:
+        return any(spec_type in learnware.specification.stat_spec for spec_type in self.SPEC_TYPES)
+
+    def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
+        for spec_type in self.SPEC_TYPES:
+            if spec_type in user_info.stat_info:
+                user_rkme = user_info.stat_info[spec_type]
+
+                if np.isfinite(float(user_rkme.dist(user_rkme))):
+                    return True
+
+        return False
+
     def _convert_dist_to_score(
         self, dist_list: List[float], dist_ratio: float = 0.1, min_score: float = 0.92, improve_score: float = 0.7
     ) -> List[float]:
@@ -586,13 +620,9 @@ class EasyStatSearcher(BaseSearcher):
         max_search_num: int = 5,
         search_method: str = "greedy",
     ) -> SearchResults:
-        self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info)
-        if self.stat_spec_type is None:
-            raise KeyError("No supported stat specification is given in the user info")
+        self.stat_spec_type = parse_specification_type(stat_specs=user_info.stat_info, spec_list=self.SPEC_TYPES)
 
         user_rkme = user_info.stat_info[self.stat_spec_type]
-        if not np.isfinite(float(user_rkme.dist(user_rkme))):
-            raise ValueError("The distance between uploaded statistical specifications is not finite!")
 
         learnware_list = self._filter_by_rkme_spec_metadata(learnware_list, user_rkme)
         logger.info(f"After filter by rkme dimension, learnware_list length is {len(learnware_list)}")
@@ -664,48 +694,62 @@ class EasyStatSearcher(BaseSearcher):
         return search_results
 
 
-class EasySearcher(BaseSearcher):
-    def __init__(self, organizer: EasyOrganizer):
-        self.semantic_searcher = EasyFuzzSemanticSearcher(organizer)
-        self.stat_searcher = EasyStatSearcher(organizer)
-        super(EasySearcher, self).__init__(organizer)
+class SeqCombinedSearcher(BaseSearcher):
+    def __init__(
+        self,
+        organizer: BaseOrganizer,
+        semantic_searcher_list: List[AtomicSearcher],
+        stat_searcher_list: List[AtomicSearcher],
+    ):
+        self.semantic_searcher_list = semantic_searcher_list
+        self.stat_searcher_list = stat_searcher_list
+        super(SeqCombinedSearcher, self).__init__(organizer)
 
-    def reset(self, organizer):
+    def reset(self, organizer: BaseOrganizer):
         self.learnware_organizer = organizer
-        self.semantic_searcher.reset(organizer)
-        self.stat_searcher.reset(organizer)
+        for searcher in self.semantic_searcher_list + self.stat_searcher_list:
+            searcher.reset(organizer)
 
     def __call__(
         self, user_info: BaseUserInfo, check_status: int = None, max_search_num: int = 5, search_method: str = "greedy"
     ) -> SearchResults:
-        """Search learnwares based on user_info from learnwares with check_status
+        """
+        Search learnwares based on user_info, iterating over semantic and stat searchers to find applicable results.
 
         Parameters
         ----------
         user_info : BaseUserInfo
-            user_info contains semantic_spec and stat_info
-        max_search_num : int
-            The maximum number of the returned learnwares
+            The user information for searching learnwares.
+        max_search_num : int, optional
+            The maximum number of the returned learnwares.
         check_status : int, optional
             - None: search from all learnwares
-            - Others: search from learnwares with check_status
+            - Others: search from learnwares with check_status.
 
         Returns
         -------
-        Tuple[List[float], List[Learnware], float, List[Learnware]]
-            the first is the sorted list of rkme dist
-            the second is the sorted list of Learnware (single) by the rkme dist
-            the third is the score of Learnware (mixture)
-            the fourth is the list of Learnware (mixture), the size is search_num
+        SearchResults
+            The search results, including sorted lists of learnwares and associated scores.
         """
         learnware_list = self.learnware_organizer.get_learnwares(check_status=check_status)
-        semantic_search_result = self.semantic_searcher(learnware_list, user_info)
 
-        learnware_list = [search_item.learnware for search_item in semantic_search_result.get_single_results()]
+        for semantic_searcher in self.semantic_searcher_list:
+            if semantic_searcher.is_applicable_user(user_info):
+                filtered_learnware_list = [
+                    learnware for learnware in learnware_list if semantic_searcher.is_applicable_learnware(learnware)
+                ]
+                semantic_search_result = semantic_searcher(filtered_learnware_list, user_info)
+                learnware_list = [search_item.learnware for search_item in semantic_search_result.get_single_results()]
+                break
+
         if len(learnware_list) == 0:
             return SearchResults()
 
-        if parse_specification_type(stat_specs=user_info.stat_info) is not None:
-            return self.stat_searcher(learnware_list, user_info, max_search_num, search_method)
-        else:
-            return semantic_search_result
+        for stat_searcher in self.stat_searcher_list:
+            if stat_searcher.is_applicable_user(user_info):
+                filtered_learnware_list = [
+                    learnware for learnware in learnware_list if stat_searcher.is_applicable_learnware(learnware)
+                ]
+                return stat_searcher(filtered_learnware_list, user_info, max_search_num, search_method)
+
+        return semantic_search_result

@@ -9,6 +9,8 @@ from ..base import BaseChecker
 from ..utils import parse_specification_type
 from ...config import C
 from ...logger import get_module_logger
+from ...specification import LLMGeneralCapabilitySpecification
+from ...specification.system.llm_general_capability_spec.config import test_benchmark_configs
 
 logger = get_module_logger("easy_checker", "INFO")
 
@@ -48,6 +50,36 @@ class EasySemanticChecker(BaseChecker):
                 for k, v in semantic_spec["Input"]["Description"].items():
                     assert int(k) >= 0 and int(k) < dim, f"Dimension number in [0, {dim})"
                     assert isinstance(v, str), "Description must be string"
+
+                assert semantic_spec["Task"]["Values"][0] in [
+                    "Classification",
+                    "Regression",
+                    "Feature Extraction",
+                    "Others",
+                ]
+
+                assert semantic_spec["Model"]["Values"][0] == "Others"
+
+            if semantic_spec["Data"]["Values"][0] == "Image":
+                assert semantic_spec["Task"]["Values"][0] in [
+                    "Classification",
+                    "Regression",
+                    "Feature Extraction",
+                    "Segmentation",
+                    "Object Detection",
+                    "Others",
+                ]
+
+                assert semantic_spec["Model"]["Values"][0] == "Others"
+
+            if semantic_spec["Data"]["Values"][0] == "Text":
+                assert semantic_spec["Task"]["Values"][0] in [
+                    "Classification",
+                    "Regression",
+                    "Feature Extraction",
+                    "Text Generation",
+                    "Others",
+                ]
 
             if semantic_spec["Task"]["Values"][0] in ["Classification", "Regression"]:
                 assert semantic_spec["Output"] is not None, "Lack of output semantics"
@@ -111,6 +143,26 @@ class EasyStatChecker(BaseChecker):
                 logger.warning(message)
                 return self.INVALID_LEARNWARE, message
 
+            # check llm base model learnware general capability
+            if (
+                semantic_spec["Data"]["Values"] == ["Text"]
+                and semantic_spec["Task"]["Values"] == ["Text Generation"]
+                and semantic_spec["Model"]["Values"] == ["Base Model"]
+            ):
+                try:
+                    general_capability_spec = LLMGeneralCapabilitySpecification()
+                    general_capability_spec.generate_stat_spec_from_system(
+                        learnware=learnware, benchmark_configs=test_benchmark_configs
+                    )
+                    learnware.update_stat_spec(general_capability_spec.type, general_capability_spec)
+                except Exception:
+                    message = (
+                        f"The learnware [{learnware.id}] llm base model general capability evaluation is not available!"
+                    )
+                    logger.warning(message)
+                    message += "\r\n" + traceback.format_exc()
+                    return self.INVALID_LEARNWARE, message
+
             # Check statistical specification
             spec_type = parse_specification_type(learnware.get_specification().stat_spec)
             if spec_type is None:
@@ -119,12 +171,13 @@ class EasyStatChecker(BaseChecker):
                 return self.INVALID_LEARNWARE, message
 
             # Check if statistical specification is computable in dist()
-            stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
-            distance = float(stat_spec.dist(stat_spec))
-            if not np.isfinite(distance):
-                message = f"The distance between statistical specifications is not finite, where distance={distance}"
-                logger.warning(message)
-                return self.INVALID_LEARNWARE, message
+            if spec_type != "LLMGeneralCapabilitySpecification":
+                stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
+                distance = float(stat_spec.dist(stat_spec))
+                if not np.isfinite(distance):
+                    message = f"The distance between statistical specifications is not finite, where distance={distance}"
+                    logger.warning(message)
+                    return self.INVALID_LEARNWARE, message
 
             if spec_type == "RKMETableSpecification":
                 if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
@@ -138,8 +191,13 @@ class EasyStatChecker(BaseChecker):
                     return self.INVALID_LEARNWARE, message
                 inputs = np.random.randn(10, *input_shape)
 
-            elif spec_type == "RKMETextSpecification":
-                inputs = EasyStatChecker._generate_random_text_list(10)
+            elif spec_type in ["RKMETextSpecification", "GenerativeModelSpecification", "LLMGeneralCapabilitySpecification"]:
+
+                if semantic_spec["Model"]["Values"][0] != "Others":
+                    len_ = random.randint(10, 1000)
+                    inputs = EasyStatChecker._generate_random_text_list(10, "en", len_, len_)
+                else:
+                    inputs = EasyStatChecker._generate_random_text_list(10)
 
             elif spec_type == "RKMEImageSpecification":
                 if not isinstance(input_shape, tuple) or not all(isinstance(item, int) for item in input_shape):
@@ -155,14 +213,14 @@ class EasyStatChecker(BaseChecker):
             try:
                 outputs = learnware.predict(inputs)
             except Exception:
-                message = f"The learnware {learnware.id} prediction is not avaliable!"
+                message = f"The learnware [{learnware.id}] prediction is not available!"
                 logger.warning(message)
                 message += "\r\n" + traceback.format_exc()
                 return self.INVALID_LEARNWARE, message
 
             # Check length of input and output
             if len(inputs) != len(outputs):
-                message = f"The learnware {learnware.id} output length must be equal to input length!"
+                message = f"The learnware [{learnware.id}] output length must be equal to input length!"
                 logger.warning(message)
                 return self.INVALID_LEARNWARE, message
 
@@ -175,7 +233,7 @@ class EasyStatChecker(BaseChecker):
                 if isinstance(outputs, torch.Tensor):
                     outputs = outputs.detach().cpu().numpy()
                 if not isinstance(outputs, np.ndarray):
-                    message = f"The learnware {learnware.id} output must be np.ndarray or torch.Tensor!"
+                    message = f"The learnware [{learnware.id}] output must be np.ndarray or torch.Tensor!"
                     logger.warning(message)
                     return self.INVALID_LEARNWARE, message
 
