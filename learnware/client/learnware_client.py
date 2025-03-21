@@ -52,7 +52,7 @@ class SemanticSpecificationKey(Enum):
     DATA_TYPE = "Data"
     TASK_TYPE = "Task"
     LIBRARY_TYPE = "Library"
-    MODEL_TYPE = "Model Type"
+    MODEL_TYPE = "Model"
     SENARIOES = "Scenario"
     LICENSE = "License"
 
@@ -62,9 +62,17 @@ class LearnwareClient:
         self.headers = None
 
         if host is None:
-            self.host = C.backend_host
+            host = os.environ.get("LEARNWARE_BACKEND_HOST")
+            if host is None:
+                self.host = C.backend_host
+                pass
+            else:
+                self.host = host
+                pass
+            pass
         else:
             self.host = host
+            pass
 
         self.chunk_size = 1024 * 1024
         self.tempdir_list = []
