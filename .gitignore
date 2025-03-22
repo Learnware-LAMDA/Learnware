@@ -49,3 +49,4 @@ PFS/
 data/
 examples/results/
 examples/*/results/
+examples/*/user_specs/

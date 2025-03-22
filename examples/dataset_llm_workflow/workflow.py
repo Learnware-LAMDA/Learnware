@@ -25,27 +25,6 @@ from eval_config import CONFIG
 logger = get_module_logger("llm_workflow", level="INFO")
 
 
-def build_specification_from_cache(generative_spec_path, dataset_name):
-    print(f"Build PAVE from cache to {generative_spec_path}")
-    if dataset_name in USER_FIN:
-        finetuned_checkpoint = torch.load(f"/home/shihy/drive/LLM-finance-GridSearch-qwen/condidate-{1}/user-{dataset_name}/finetuned.pt", weights_only=False)
-    elif dataset_name in USER_MED:
-        finetuned_checkpoint = torch.load(f"/home/shihy/drive/LLM-med-GridSearch-qwen-backup/condidate-{0}/{dataset_name}/finetuned.pt", weights_only=False)
-    elif dataset_name in USER_MATH:
-        finetuned_checkpoint = torch.load(f"/home/shihy/drive/LLM-math-GridSearch-qwen/condidate-{0}/{dataset_name}/finetuned.pt", weights_only=False)
-    else:
-        raise NotImplementedError("Invalid dataset_name")
-    
-    finetuned_state_dict = finetuned_checkpoint["state_dict"]["model"]
-    task_vector = torch.concatenate([
-        p.reshape(-1) for n, p in finetuned_state_dict.items()
-    ])
-    torch.save({
-        "type": "GenerativeModelSpecification",
-        "task_vector": task_vector.detach().cpu()
-    }, generative_spec_path)
-
-
 class LLMWorkflow:
     def _plot_radar_chart(self, benchmark_name, results_table):
         labels = list(results_table.index)
@@ -128,8 +107,8 @@ class LLMWorkflow:
             ax.legend(loc="lower left", fontsize=8, bbox_to_anchor=(0.85, 0.9))
 
         plt.tight_layout()
-        # os.makedirs("results/figs", exist_ok=True)
-        # plt.savefig(f"results/figs/llm-{benchmark_name}.pdf")
+        os.makedirs("results/figs", exist_ok=True)
+        plt.savefig(f"results/figs/llm-{benchmark_name}.pdf")
 
     def _anlysis_table(self, benchmark_name, table, score_results):
         if benchmark_name == 'finance':
@@ -202,9 +181,9 @@ class LLMWorkflow:
         adaptation_table.loc["PAVE (win/tie/loss)"] = win_tie_loss
         adaptation_table.loc["Oracle (win/tie/loss)"] = win_tie_loss_o
 
+        print(adaptation_table.to_markdown())
         os.makedirs("results/tables", exist_ok=True)
-        # adaptation_table.to_csv(f"results/tables/llm-{benchmark_name}.csv")
-        print(adaptation_table)
+        adaptation_table.to_csv(f"results/tables/llm-{benchmark_name}.csv")
 
         return adaptation_table
 
@@ -232,16 +211,6 @@ class LLMWorkflow:
                             continue
 
         logger.info("Total Item: %d" % (len(self.llm_market)))
-    
-    def _prepare_market_from_disk(self, benchmark: Benchmark, rebuild=False):
-        self.llm_benchmark = benchmark
-        self.llm_market = instantiate_learnware_market(market_id=f"llm_{self.llm_benchmark.name}", name="llm", rebuild=rebuild)
-        self.user_semantic = copy.deepcopy(self.llm_market.get_learnwares()[0].specification.semantic_spec)
-        self.user_semantic["Name"]["Values"] = ""
-        self.user_semantic["Description"]["Values"] = ""
-        self.user_semantic["License"]["Values"] = ['Apache-2.0', 'Others']
-        logger.info("Total Item: %d" % (len(self.llm_market)))
-    
 
     def build_specification_and_cache(self, name, saved_folder, benchmark: Benchmark):
         generative_spec = GenerativeModelSpecification()
@@ -252,8 +221,6 @@ class LLMWorkflow:
         if os.path.exists(generative_spec_path):
             generative_spec.load(generative_spec_path)
         else:
-            # build_specification_from_cache(generative_spec_path, name)
-            # generative_spec.load(generative_spec_path)
             train_dataset = benchmark.get_user_dataset(name)
             generative_spec.generate_stat_spec_from_data(dataset=train_dataset)
             generative_spec.save(generative_spec_path)
@@ -261,7 +228,7 @@ class LLMWorkflow:
         return generative_spec
 
     def _get_scores(self, benchmark_name, base_model: str, adapter_path, batch_size='auto'):
-        benchmark_configs = CONFIG[benchmark_name][6:7]
+        benchmark_configs = CONFIG[benchmark_name]
         task_manager = lm_eval.tasks.TaskManager()
         task_names = [config.name for config in benchmark_configs]
 
@@ -273,8 +240,6 @@ class LLMWorkflow:
                 task_manager=task_manager,
             )
         else:
-            if benchmark_name == "finance":
-                batch_size = 32
             results_dir = f"./eval_results/{benchmark_name}"
             adapter_id = adapter_path.split("/")[-2] if adapter_path else None
             task_names_str = ",".join(task_names)
@@ -324,8 +289,7 @@ class LLMWorkflow:
 
     def llm_example(self, benchmark_name, rebuild=False, skip_eval=True):
         benchmark = Benchmark(benchmark_name)
-        # self._prepare_market(benchmark, rebuild) # online
-        self._prepare_market_from_disk(benchmark, rebuild)
+        self._prepare_market(benchmark, rebuild)
         user_names = benchmark.get_user_names()
         
         score_results = {
@@ -338,8 +302,7 @@ class LLMWorkflow:
             title = "=" * 20 + name + "=" * 20
             print(title)
         
-            # generative_spec = self.build_specification_and_cache(name, "users", benchmark)
-            generative_spec = self.build_specification_and_cache(name, "users_updated", benchmark)
+            generative_spec = self.build_specification_and_cache(name, "user_specs", benchmark)
 
             user_info = BaseUserInfo(
                 semantic_spec=self.user_semantic, stat_info={"GenerativeModelSpecification": generative_spec}
@@ -355,8 +318,6 @@ class LLMWorkflow:
                 match = re.match(r"(.+)-(\d+)", learnware_name)
                 dataset_name = match.group(1)
                 scores[dataset_name] = result.score
-                
-            # scores = {r.learnware.specification.semantic_spec["Name"]["Values"]: r.score for r in single_result} 
 
             for k, v in scores.items():
                 score_results["User"].append(name)
@@ -385,7 +346,7 @@ class LLMWorkflow:
                     "Llama3.1-70B-Instruct": self._get_scores(benchmark_name, "NousResearch/Meta-Llama-3.1-70B-Instruct", None),
                 }
 
-            for learnware_id in all_learnwares_ids[:1]:
+            for learnware_id in all_learnwares_ids:
                 learnware = self.llm_market.get_learnware_by_ids(learnware_id)
                 base_model = learnware.specification.semantic_spec["Description"]["Values"].split(' ')[-1]
                 adapter_path = os.path.join(self.llm_market.get_learnware_dir_path_by_ids(learnware_id), "adapter")
@@ -394,17 +355,14 @@ class LLMWorkflow:
 
             performance_table = pd.DataFrame(performance_table)
             performance_table = performance_table._append(performance_table.mean().round(2), ignore_index=True)
-            configs = CONFIG[benchmark_name]
-            datasets = [config.name for config in configs]
+            datasets = benchmark.get_user_names()
             performance_table.insert(0, "Dataset", datasets+['Avg'])
             performance_table.to_csv(f"model_performance/{benchmark_name}-new.csv", index=False)
         else:
-            performance_table = pd.read_csv(f"model_performance/{benchmark_name}.csv")
+            performance_table = pd.read_csv(f"model_performance/{benchmark_name}-new.csv")
 
         results_table = self._anlysis_table(benchmark_name, performance_table, score_results)
         self._plot_radar_chart(benchmark_name, results_table[:-4])
-
-        # pd.DataFrame(score_results).to_csv(f"{benchmark_name}_test.csv", index=False)
 
 
 if __name__ == "__main__":

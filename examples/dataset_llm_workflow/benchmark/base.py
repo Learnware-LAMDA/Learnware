@@ -48,11 +48,11 @@ class Benchmark:
         test_dataset = prepare_test_data(self.user_dict[dataset_name])
         return test_dataset
     
-    # def get_learnwares(self):
-    #     return self.learnware_dict
+    def get_learnwares(self):
+        return self.learnware_dict
     
-    # def get_users(self):
-    #     return self.user_dict
+    def get_users(self):
+        return self.user_dict
     
     def get_learnware_names(self) -> List[str]:
         return list(self.learnware_dict.keys())
