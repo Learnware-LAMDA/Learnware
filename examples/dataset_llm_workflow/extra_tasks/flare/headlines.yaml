@@ -1,0 +1,2 @@
+task: headlines
+class: !function flare.Headlines

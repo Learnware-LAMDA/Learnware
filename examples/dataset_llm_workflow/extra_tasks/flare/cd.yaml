@@ -1,0 +1,2 @@
+task: cd
+class: !function flare.CD

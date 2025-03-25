@@ -1,0 +1,2 @@
+task: edtsum
+class: !function flare.EDTSUM

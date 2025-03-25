@@ -1,0 +1,2 @@
+task: finer_ord
+class: !function flare.FinerOrd

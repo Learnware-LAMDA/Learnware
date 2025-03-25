@@ -1,0 +1,2 @@
+task: fpb
+class: !function flare.FPB

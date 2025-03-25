@@ -1,0 +1,2 @@
+task: fomc
+class: !function flare.FOMC

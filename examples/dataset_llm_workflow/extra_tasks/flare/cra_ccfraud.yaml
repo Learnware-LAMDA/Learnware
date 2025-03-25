@@ -1,0 +1,2 @@
+task: cra_ccfraud
+class: !function flare.ccfraud

@@ -1,0 +1,2 @@
+task: sm_acl
+class: !function flare.StockMovementACL

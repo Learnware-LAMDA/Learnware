@@ -1,0 +1,2 @@
+task: finarg_ecc_arc
+class: !function flare.FINARGECCARC

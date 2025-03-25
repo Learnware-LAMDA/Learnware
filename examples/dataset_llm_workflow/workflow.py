@@ -359,7 +359,7 @@ class LLMWorkflow:
             performance_table.insert(0, "Dataset", datasets+['Avg'])
             performance_table.to_csv(f"model_performance/{benchmark_name}-new.csv", index=False)
         else:
-            performance_table = pd.read_csv(f"model_performance/{benchmark_name}-new.csv")
+            performance_table = pd.read_csv(f"model_performance/{benchmark_name}.csv")
 
         results_table = self._anlysis_table(benchmark_name, performance_table, score_results)
         self._plot_radar_chart(benchmark_name, results_table[:-4])

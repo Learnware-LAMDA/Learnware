@@ -1,0 +1,2 @@
+task: causal20_sc
+class: !function flare.Causal20SC

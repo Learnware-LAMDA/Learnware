@@ -2,11 +2,19 @@
 
 ## Introduction
 
-Learnware Retrieval with Parameter Vector Specification
+This workflow refers to Section 5 of our paper "Learnware Retrieval with Parameter Vector Specification". We build three learnware dock systems of 8B-level LLMs across three domains: finance, healthcare, and mathematics. We evaluate them on public evaluation benchmarks.
+
+We first train multiple models under different configurations by SFT on different datasets using LoRA. Qwen2.5-7B, Llama3.1-8B, Llama3.1-8B-Instruct are our base models. Then we generate specifications for each model and apply a retrieval algorithm to select the most suitable learnware based on user task requirements. The retrieved learnware is then evaluated on the corresponding task under the **Task-Level** evaluation setting using EleutherAI's [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness).
+
+We compare PAVE against several baselines, including the Random selection strategy, the Best-single model, base models used for fine-tuning, and well-known LLMs with over 70B parameters. Best-single refers to the model with the highest average score among the learnware candidates.
+
+We do not distinguish between different models fine-tuned with the same instruction dataset, so if our method select a learnware for solving a given task, the performance is actually calculated by the average of all the models with the selected instruction dataset.
 
 ## Run the code
 
-Run the following command to get results using the model performance table (skip evaluation) in medical/math/finance scenario. We recommend you to run these.
+Since the evaluation of LLM is a time-consuming process, we provide our evaluation results of all models in a table to help you quickly get the final system performance.
+
+Run the following command to get results using the performance  table of all models in medical/math/finance scenario (skip evaluation). **We recommend you to run these.**
 
 ```bash
 python workflow.py llm_example medical
@@ -14,17 +22,25 @@ python workflow.py llm_example math
 python workflow.py llm_example finance
 ```
 
-Run the following command to get results in medical/math/finance scenario.
+Run the following command to obtain results for medical, mathematical, and financial scenarios (including evaluation). In the medical scenario, it takes 3-4 hours to get the final results on one A100 GPU. For math and finance scenario, the process is significantly more time-consuming and requires at least four A100 GPUs.
 
 ```bash
 python workflow.py llm_example medical --skip_eval False
 python workflow.py llm_example math --skip_eval False
-python workflow.py llm_example fianance --skip_eval False
+python workflow.py llm_example finance --skip_eval False
+```
+
+Following [FinBen](https://github.com/The-FinAI/PIXIU), for evaluation in finance scenario, you need to first copy the folder ```extra_tasks/flare``` into the ```tasks``` directory within the installation path of ```lm_eval```. For example, run the following command:
+
+```bash
+cp -r extra_tasks/flare ~/anaconda3/envs/{env_name}/lib/python3.11/site-packages/lm_eval/tasks/
 ```
 
 ## Results
 
 ### Finance
+
+The table below shows the performance value of different methods or language models in finance scenario.
 
 | User                  | Qwen2.5-7B   | Llama3.1-8B-Instruct   | Llama3.1-8B   | Qwen1.5-110B   | Qwen2.5-72B   | Llama3.1-70B-Instruct   | Random   | Best-single   | PAVE   | Oracle   |
 |:----------------------|:-------------|:-----------------------|:--------------|:---------------|:--------------|:------------------------|:---------|:--------------|:-------|:---------|
@@ -50,7 +66,13 @@ python workflow.py llm_example fianance --skip_eval False
 | PAVE (win/tie/loss)   | 13/0/4       | 15/0/2                 | 16/0/1        | 14/0/3         | 12/0/5        | 11/0/6                  | 16/0/1   | 12/1/4        | nan    | 0/11/6   |
 | Oracle (win/tie/loss) | 17/0/0       | 17/0/0                 | 17/0/0        | 15/0/2         | 13/0/4        | 12/0/5                  | 17/0/0   | 14/3/0        | 6/11/0 | nan      |
 
+Our method, PAVE, demonstrates strong performance across financial tasks, achieving the highest average score among all methods, delivering an nearly 14\% improvement compared with the best large-scale model Qwen2.5-72B. It ranks first among learnware retrieval methods in 13 out of 17 tasks, retrieves the optimal learnware (tied with Oracle) on 11 and outperforms all contenders in 8. 
+
+These results shows that our system can match or surpass large-scale models with over 70B parameters under the Task-Level evaluation setting, while requiring only the memory for models under 8B efficiently.
+
 ### Medical
+
+The table below shows the performance value of different methods or language models in medical scenario.
 
 | User                  | Qwen2.5-7B   | Flan-PaLM-540B   | Random   | Best-single   | PAVE   | Oracle   |
 |:----------------------|:-------------|:-----------------|:---------|:--------------|:-------|:---------|
@@ -68,7 +90,13 @@ python workflow.py llm_example fianance --skip_eval False
 | PAVE (win/tie/loss)   | 6/3/0        | 3/0/6            | 9/0/0    | 6/1/2         | nan    | 0/3/6    |
 | Oracle (win/tie/loss) | 9/0/0        | 3/0/6            | 9/0/0    | 6/3/0         | 6/3/0  | nan      |
 
+As shown, PAVE achieves the highest average score across 9 tasks, even surpassing the large-scale model Flan-PaLM-540B. This demonstrates that our system, leveraging multiple models with fewer than 8B parameters, can outperform a single large-scale model in task-specific scenarios. Among learnware retrieval methods, PAVE performs best in 7 out of 9 tasks, tied with Oracle in 6.
+
+Furthermore, PAVE outperforming Best-single suggests that its effectiveness comes not from a single exceptionally strong model but from its retrieval mechanism and the collective strength of all candidate models.
+
 ### Math
+
+The table below shows the performance value of different methods or language models in math scenario.
 
 | User                          | Qwen2.5-7B   | Qwen1.5-110B   | Random   | Best-single   | PAVE   | Oracle   |
 |:------------------------------|:-------------|:---------------|:---------|:--------------|:-------|:---------|
@@ -93,3 +121,4 @@ python workflow.py llm_example fianance --skip_eval False
 | PAVE (win/tie/loss)           | 10/1/5       | 5/2/9          | 11/0/5   | 10/0/6        | nan    | 0/6/10   |
 | Oracle (win/tie/loss)         | 15/1/0       | 7/0/9          | 16/0/0   | 14/2/0        | 10/6/0 | nan      |
 
+PAVE achieves optimal retrieval performance (tied with Oracle) in 10 out of 16 tasks and even outperforms all other contenders in 5. However, the large-scale model achieves the highest average score and even beats Oracle (which denotes the optimal performance using one of our 8B-level models). This is likely due to their strong reasoning abilities that lack in smaller models, rather than a shortcoming of our method, as evidenced by the minimal difference in the "win/tie/loss" of PAVE and Oracle on Qwen1.5-110B.

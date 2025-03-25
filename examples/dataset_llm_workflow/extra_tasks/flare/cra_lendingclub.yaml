@@ -1,0 +1,2 @@
+task: cra_lendingclub
+class: !function flare.lendingclub

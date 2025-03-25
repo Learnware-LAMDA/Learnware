@@ -1,0 +1,2 @@
+task: australian
+class: !function flare.Australian

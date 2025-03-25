@@ -1,0 +1,2 @@
+task: ectsum
+class: !function flare.ECTSUM
