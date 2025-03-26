@@ -139,7 +139,7 @@ class EasyFuzzSemanticSearcher(AtomicSearcher):
                     # user input contains some key that is not in database
                     return False
 
-                if semantic_spec1[key]["Type"] == "Class":
+                if semantic_spec1[key]["Type"] in ("Class", "Optional"):
                     if isinstance(v2, list):
                         v2 = v2[0]
                     if v2 not in v1:
