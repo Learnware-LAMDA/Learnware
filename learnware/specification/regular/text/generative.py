@@ -139,7 +139,10 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         And, this method should not be overridden if the specification needs to be submitted to Beimingwu.
         """
         if beimingwu:
-            base_model_path = os.path.expanduser("~/Meta/saved-learnwares/saved-PTM")
+            from ....client import LearnwareClient
+
+            client = LearnwareClient()
+            base_model_path = client.get_pretrained_path("00002890")
         else:
             base_model_path = "Qwen/Qwen2.5-0.5B"
         
@@ -152,7 +155,8 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         ).to(self._device)
         
         if beimingwu:
-            adapter_path = os.path.expanduser("~/Meta/saved-learnwares/saved-adapter")
+            client = LearnwareClient()
+            adapter_path = client.get_pretrained_path("00002891")
             model = PeftModel.from_pretrained(model, adapter_path)
             
             for n, p in model.named_parameters():
