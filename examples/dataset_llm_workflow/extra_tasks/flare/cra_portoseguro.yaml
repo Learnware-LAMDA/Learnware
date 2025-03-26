@@ -1,0 +1,2 @@
+task: cra_portoseguro
+class: !function flare.portoseguro

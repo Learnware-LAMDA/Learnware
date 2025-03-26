@@ -1,0 +1,2 @@
+task: convfinqa
+class: !function flare.ConvFinQA

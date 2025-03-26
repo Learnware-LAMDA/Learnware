@@ -27,6 +27,7 @@ class TaskVectorSpecification(RegularStatSpecification):
         """Compute cosine similarity between two task vectors.
         """
         v1, v2 = self.task_vector, other.task_vector
+        
         return cosine_similarity(v1, v2, dim=0)
 
     def dist(self, other: BaseStatSpecification):

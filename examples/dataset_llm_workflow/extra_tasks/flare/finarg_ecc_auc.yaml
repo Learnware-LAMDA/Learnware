@@ -1,0 +1,2 @@
+task: finarg_ecc_auc
+class: !function flare.FINARGECCAUC

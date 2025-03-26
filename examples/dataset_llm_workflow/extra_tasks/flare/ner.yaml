@@ -1,0 +1,2 @@
+task: ner
+class: !function flare.NER

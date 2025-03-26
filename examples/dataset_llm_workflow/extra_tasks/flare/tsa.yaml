@@ -1,0 +1,2 @@
+task: tsa
+class: !function flare.TSA

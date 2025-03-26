@@ -1,0 +1,2 @@
+task: finqa
+class: !function flare.FinQA

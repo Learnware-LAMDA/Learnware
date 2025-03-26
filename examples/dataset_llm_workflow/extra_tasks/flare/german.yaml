@@ -1,0 +1,2 @@
+task: german
+class: !function flare.German

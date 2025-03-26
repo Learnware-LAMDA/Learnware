@@ -1,0 +1,2 @@
+task: sm_bigdata
+class: !function flare.StockMovementBigData

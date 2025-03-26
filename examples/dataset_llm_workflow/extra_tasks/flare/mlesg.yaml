@@ -1,0 +1,2 @@
+task: mlesg
+class: !function flare.MLESG

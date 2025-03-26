@@ -19,7 +19,7 @@ from text_generative_utils import DATASET, prepare_data
 class TestGenerativeModelSpecification(unittest.TestCase):
     @staticmethod
     def _test_with_X(X):
-        spec = GenerativeModelSpecification(max_steps=5)
+        spec = GenerativeModelSpecification()
         spec.generate_stat_spec_from_data(X=X, dataset_text_field="txt")
         
         task_vector = spec.task_vector
@@ -40,7 +40,7 @@ class TestGenerativeModelSpecification(unittest.TestCase):
             
     @staticmethod
     def _test_with_dataset(dataset):
-        spec = GenerativeModelSpecification(max_steps=5)
+        spec = GenerativeModelSpecification()
         spec.generate_stat_spec_from_data(dataset=dataset)
         
         task_vector = spec.task_vector
@@ -76,19 +76,29 @@ class TestGenerativeModelSpecification(unittest.TestCase):
             
             torch.testing.assert_close(task_vector.cpu(), spec2.task_vector.cpu())
             assert spec2.type == "GenerativeModelSpecification"
+            
+    def test_loading_from_bwm(self):
+        spec = GenerativeModelSpecification()
+        _, model1 = spec._init_tokenizer_model(True)
+        _, model2 = spec._init_tokenizer_model(False)
+        
+        params1, params2 = dict(model1.named_parameters()), dict(model2.named_parameters())
+        for k in model1.state_dict():
+            torch.testing.assert_close(params1[k].cpu(), params2[k].cpu())
 
     def test_generating_spec(self):
         train_dataset = prepare_data(DATASET["pubmedqa"])
         
         self._test_with_X(train_dataset["text"])
         self._test_with_dataset(train_dataset)
+        self._test_with_dataset(train_dataset, beimingwu=False)
         
     def test_searching_spec(self):
         specs, learnwares = [], []
         for i, dataset_name in enumerate(["pubmedqa", "medmcqa"]):
             train_dataset = prepare_data(DATASET[dataset_name])
         
-            spec = GenerativeModelSpecification(max_steps=5)
+            spec = GenerativeModelSpecification()
             spec.generate_stat_spec_from_data(dataset=train_dataset)
         
             specs.append(spec)

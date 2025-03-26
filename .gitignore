@@ -14,6 +14,9 @@ dist/
 *.pkl
 *.hd5
 *.csv
+!/examples/dataset_llm_workflow/model_performance/medical.csv
+!/examples/dataset_llm_workflow/model_performance/math.csv
+!/examples/dataset_llm_workflow/model_performance/finance.csv
 *.out
 *.html
 *.dot
@@ -46,3 +49,4 @@ PFS/
 data/
 examples/results/
 examples/*/results/
+examples/*/user_specs/

@@ -1,0 +1,2 @@
+task: cra_ccf
+class: !function flare.ccf
