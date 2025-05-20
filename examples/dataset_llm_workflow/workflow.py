@@ -30,9 +30,9 @@ class LLMWorkflow:
         labels = list(results_table.index)
         if benchmark_name == "finance":
             column_split = [
-                ["PAVE", "Qwen2.5-7B", "Llama3.1-8B-Instruct", "Llama3.1-8B"],
-                ["PAVE", "Qwen1.5-110B", "Qwen2.5-72B", "Llama3.1-70B-Instruct"],
-                ["PAVE", "Random", "Best-single", "Oracle"]
+                ["Learnware", "Qwen2.5-7B", "Llama3.1-8B-Instruct", "Llama3.1-8B"],
+                ["Learnware", "Qwen1.5-110B", "Qwen2.5-72B", "Llama3.1-70B-Instruct"],
+                ["Learnware", "Random", "Best-single", "Oracle"]
             ]
             YTICKS = [0.2, 0.4, 0.6, 0.8, 1.0]
             ylim = (0, 1.15)
@@ -44,18 +44,18 @@ class LLMWorkflow:
             ]
         elif benchmark_name == "math":
             column_split = [
-                ["PAVE", "Qwen2.5-7B"],
-                ["PAVE", "Qwen1.5-110B"],
-                ["PAVE", "Random", "Best-single", "Oracle"]
+                ["Learnware", "Qwen2.5-7B"],
+                ["Learnware", "Qwen1.5-110B"],
+                ["Learnware", "Random", "Best-single", "Oracle"]
             ]
             YTICKS = [0.4, 0.6, 0.8, 1.0]
             ylim = (0.3, 1.3)
             x_label_fontsize = 5
         elif benchmark_name == "medical":
             column_split = [
-                ["PAVE", "Qwen2.5-7B"],
-                ["PAVE", "Flan-PaLM-540B"],
-                ["PAVE", "Random", "Best-single", "Oracle"]
+                ["Learnware", "Qwen2.5-7B"],
+                ["Learnware", "Flan-PaLM-540B"],
+                ["Learnware", "Random", "Best-single", "Oracle"]
             ]
             YTICKS = [0.8, 0.9, 1.0]
             ylim = (0.75, 1.1)
@@ -69,9 +69,9 @@ class LLMWorkflow:
         fig, axes = plt.subplots(1, 3, figsize=(16, 5), subplot_kw=dict(polar=True))
 
         model_names = [
-            "PAVE vs Base Model",
-            "PAVE vs Large-scale Model",
-            "Retrieve Learnware"
+            "Learnware vs Base Model",
+            "Learnware vs Large-scale Model",
+            "Specialized SLMs"
         ]
 
         colors = [
@@ -135,14 +135,14 @@ class LLMWorkflow:
         oracle_value = (adaptation_info[["User", "value"]]
             .groupby(['User']).max()).rename(columns={"value": "Oracle"})
         pave_value = (adaptation_info[adaptation_info["Rank-PAVE"] < 1][["User", "value"]]
-            .groupby(['User']).mean()).rename(columns={"value": "PAVE"})
+            .groupby(['User']).mean()).rename(columns={"value": "Learnware"})
         
         # Best-single
         perf_pivot = perf_merged.pivot(index="User", columns="Learnware", values="value")
         best_column = perf_pivot.mean().idxmax()
         best_single = perf_pivot[[best_column]].rename(columns={best_column: 'Best-single'})
 
-        adaptation_table = pd.concat([random_value, best_single, pave_value, oracle_value], axis=1)
+        adaptation_table = pd.concat([random_value, pave_value, best_single, oracle_value], axis=1)
         
         # join performance_extra
         adaptation_table = performance_extra.join(adaptation_table)
@@ -152,11 +152,11 @@ class LLMWorkflow:
         avg_rank = ranks.mean()
 
         # PAVE win/tie/loss
-        pave_scores = adaptation_table["PAVE"]
+        pave_scores = adaptation_table["Learnware"]
         win_tie_loss = {}
 
         for col in adaptation_table.columns:
-            if col == "PAVE":
+            if col == "Learnware":
                 continue
             win = (pave_scores > adaptation_table[col]).sum()
             tie = (pave_scores == adaptation_table[col]).sum()
@@ -178,7 +178,7 @@ class LLMWorkflow:
         adaptation_table.loc['Avg.'] = adaptation_table.mean()
         adaptation_table.loc["Avg. rank"] = avg_rank
         adaptation_table = adaptation_table.round(2)
-        adaptation_table.loc["PAVE (win/tie/loss)"] = win_tie_loss
+        adaptation_table.loc["Learnware (win/tie/loss)"] = win_tie_loss
         adaptation_table.loc["Oracle (win/tie/loss)"] = win_tie_loss_o
 
         print(adaptation_table.to_markdown())
