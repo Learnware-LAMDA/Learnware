@@ -392,6 +392,51 @@ The results are depicted in the following table and figure. Similarly, even when
   <img src="./docs/_static/img/text_labeled_curves.svg"  width="500" height="auto" style="max-width: 100%;"/>
 </div>
 
+# LLM Experimental Results (New)
+
+This section refers to Section 4 of our paper [*Learnware of Language Models: Specialized Small Language Models Can Do Big*](https://arxiv.org/abs/2505.13425). We simulate a learnware system comprising approximately 100 learnwares of specialized SLMs with 8B parameters, fine-tuned across finance, healthcare, and mathematics domains.
+
+Experimental results demonstrate promising performance: by selecting one suitable learnware for each task-specific inference, the system outperforms the base SLMs on all benchmarks. Compared to LLMs, the system outperforms Qwen1.5-110B, Qwen2.5-72B, and Llama3.1-70B-Instruct by at least 14% in finance domain tasks. Additionally, it surpasses Flan-PaLM-540B (ranked 7th on the [Open Medical LLM Leaderboard](https://huggingface.co/spaces/openlifescienceai/open_medical_llm_leaderboard)) in medical domain tasks.
+
+The figure and table below show the performance value in finance scenario.
+
+<div align=center>
+  <img src="./docs/_static/img/llm-finance.svg"  width="800" height="auto" style="max-width: 100%;"/>
+</div>
+
+<div align=center>
+
+| User                     | Qwen2.5-7B   | Llama3.1-8B-Instruct   | Llama3.1-8B   | Qwen1.5-110B   | Qwen2.5-72B   | Llama3.1-70B-Instruct   | Random   | Learnware   | Best-single   | Oracle   |
+|:-------------------------|:-------------|:-----------------------|:--------------|:---------------|:--------------|:------------------------|:---------|:------------|:--------------|:---------|
+| australian               | 43.17        | 44.6                   | 43.17         | 43.17          | 43.17         | 47.48                   | 44.45    | 56.83       | 42.21         | 56.83    |
+| cra_lendingclub          | 80.82        | 76.33                  | 57.34         | 80.82          | 47.01         | 53.07                   | 81.52    | 92.07       | 80.82         | 92.07    |
+| fiqasa                   | 38.3         | 40.43                  | 56.17         | 63.4           | 64.26         | 68.51                   | 46.53    | 76.38       | 32.06         | 76.38    |
+| fpb                      | 76.08        | 32.78                  | 30.72         | 70.72          | 78.35         | 78.04                   | 67.95    | 84.25       | 77.73         | 84.25    |
+| german                   | 65.0         | 49.5                   | 66.0          | 66.0           | 66.5          | 43.5                    | 51.5     | 67.06       | 65.33         | 67.06    |
+| headlines                | 74.81        | 59.95                  | 59.95         | 62.96          | 77.84         | 77.53                   | 72.43    | 95.61       | 95.61         | 95.61    |
+| ner                      | 21.75        | 0.62                   | 9.01          | 17.89          | 9.36          | 9.52                    | 24.99    | 52.79       | 23.98         | 52.79    |
+| sm_acl                   | 51.1         | 51.4                   | 51.34         | 49.3           | 51.56         | 49.38                   | 51.42    | 52.82       | 50.71         | 53.63    |
+| sm_bigdata               | 55.3         | 55.57                  | 52.79         | 51.02          | 50.27         | 47.76                   | 53.86    | 52.4        | 55.52         | 55.88    |
+| sm_cikm                  | 58.44        | 54.24                  | 54.07         | 44.01          | 58.27         | 47.86                   | 55.89    | 55.99       | 57.98         | 58.52    |
+| causal20_sc              | 65.14        | 88.48                  | 79.45         | 83.75          | 76.17         | 87.16                   | 74.71    | 84.17       | 88.61         | 88.61    |
+| finarg_ecc_arc           | 64.78        | 46.67                  | 60.0          | 62.32          | 63.04         | 44.64                   | 62.27    | 64.31       | 57.87         | 68.36    |
+| finarg_ecc_auc           | 48.3         | 51.81                  | 49.85         | 55.01          | 61.71         | 65.02                   | 52.08    | 58.08       | 48.68         | 58.08    |
+| fomc                     | 60.48        | 29.44                  | 34.68         | 58.47          | 57.66         | 66.13                   | 56.05    | 62.7        | 61.36         | 62.7     |
+| ma                       | 79.2         | 56.4                   | 51.0          | 81.4           | 84.6          | 83.2                    | 73.64    | 79.81       | 79.27         | 79.81    |
+| mlesg                    | 35.67        | 32.67                  | 20.0          | 34.67          | 38.67         | 42.33                   | 31.99    | 33.42       | 38.33         | 38.33    |
+| multifin_en              | 60.99        | 31.32                  | 28.39         | 65.38          | 63.55         | 68.5                    | 54.96    | 63.46       | 58.61         | 63.46    |
+| Avg.                     | 57.61        | 47.19                  | 47.29         | 58.25          | 58.35         | 57.63                   | 56.25    | 66.6        | 59.69         | 67.79    |
+| Avg. rank                | 5.94         | 7.35                   | 7.82          | 5.94           | 4.71          | 5.24                    | 6.47     | 2.88        | 5.47          | 1.65     |
+| Learnware (win/tie/loss) | 13/0/4       | 15/0/2                 | 16/0/1        | 14/0/3         | 12/0/5        | 11/0/6                  | 16/0/1   | nan         | 12/1/4        | 0/11/6   |
+| Oracle (win/tie/loss)    | 17/0/0       | 17/0/0                 | 17/0/0        | 15/0/2         | 13/0/4        | 12/0/5                  | 17/0/0   | 6/11/0      | 14/3/0        | nan      |
+
+</div>
+
+Our system demonstrates strong performance across financial tasks, achieving the highest average score among all methods, delivering an nearly 14\% improvement compared with the best large-scale model Qwen2.5-72B. It ranks first strategies utilizing specialized SLMs except Oracle in 13 out of 17 tasks, identifies the optimal learnware (tied with Oracle) on 11 and outperforms all contenders in 8. 
+
+These results shows that our system can match or surpass large-scale models with over 70B parameters under the Task-Level evaluation setting, while requiring only the memory for models under 8B efficiently.
+
+**For more scenarios (medical and math) and details, please see [here](./examples/dataset_llm_workflow/README.md).**
 
 # Citation
 

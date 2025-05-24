@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This workflow refers to Section 4 of our paper [*Learnware of Language Models: Specialized Small Language Models Can Do Big*](https://arxiv.org/abs/2505.13425). We build three learnware dock systems of 8B-level LLMs across three domains: finance, healthcare, and mathematics. We evaluate them on public evaluation benchmarks.
+This workflow refers to Section 4 of our paper [*Learnware of Language Models: Specialized Small Language Models Can Do Big*](https://arxiv.org/abs/2505.13425). We simulate a learnware system comprising approximately 100 learnwares of specialized SLMs with 8B parameters, fine-tuned across finance, healthcare, and mathematics domains.
 
 We first train multiple models under different configurations by SFT on different datasets using LoRA. Qwen2.5-7B, Llama3.1-8B, Llama3.1-8B-Instruct are our base models. Then we generate specifications for each model and apply a identification algorithm to select the most suitable learnware based on user task requirements. The identified learnware is then evaluated on the corresponding task under the **Task-Level** evaluation setting using EleutherAI's [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness).
 
@@ -43,7 +43,13 @@ cp -r extra_tasks/flare ~/anaconda3/envs/{env_name}/lib/python3.11/site-packages
 
 ### Finance
 
-The table below shows the performance value of different methods or language models in finance scenario.
+The figure and table below show the performance value of different methods or language models in finance scenario.
+
+<div align=center>
+  <img src="../../docs/_static/img/llm-finance.svg"  width="800" height="auto" style="max-width: 100%;"/>
+</div>
+
+<div align=center>
 
 | User                     | Qwen2.5-7B   | Llama3.1-8B-Instruct   | Llama3.1-8B   | Qwen1.5-110B   | Qwen2.5-72B   | Llama3.1-70B-Instruct   | Random   | Learnware   | Best-single   | Oracle   |
 |:-------------------------|:-------------|:-----------------------|:--------------|:---------------|:--------------|:------------------------|:---------|:------------|:--------------|:---------|
@@ -69,13 +75,21 @@ The table below shows the performance value of different methods or language mod
 | Learnware (win/tie/loss) | 13/0/4       | 15/0/2                 | 16/0/1        | 14/0/3         | 12/0/5        | 11/0/6                  | 16/0/1   | nan         | 12/1/4        | 0/11/6   |
 | Oracle (win/tie/loss)    | 17/0/0       | 17/0/0                 | 17/0/0        | 15/0/2         | 13/0/4        | 12/0/5                  | 17/0/0   | 6/11/0      | 14/3/0        | nan      |
 
+</div>
+
 Our system demonstrates strong performance across financial tasks, achieving the highest average score among all methods, delivering an nearly 14\% improvement compared with the best large-scale model Qwen2.5-72B. It ranks first strategies utilizing specialized SLMs except Oracle in 13 out of 17 tasks, identifies the optimal learnware (tied with Oracle) on 11 and outperforms all contenders in 8. 
 
 These results shows that our system can match or surpass large-scale models with over 70B parameters under the Task-Level evaluation setting, while requiring only the memory for models under 8B efficiently.
 
 ### Medical
 
-The table below shows the performance value of different methods or language models in medical scenario.
+The figure and table below show the performance value of different methods or language models in medical scenario.
+
+<div align=center>
+  <img src="../../docs/_static/img/llm-medical.svg"  width="800" height="auto" style="max-width: 100%;"/>
+</div>
+
+<div align=center>
 
 | User                     | Qwen2.5-7B   | Flan-PaLM-540B   | Random   | Learnware   | Best-single   | Oracle   |
 |:-------------------------|:-------------|:-----------------|:---------|:------------|:--------------|:---------|
@@ -93,13 +107,21 @@ The table below shows the performance value of different methods or language mod
 | Learnware (win/tie/loss) | 6/3/0        | 3/0/6            | 9/0/0    | nan         | 6/1/2         | 0/3/6    |
 | Oracle (win/tie/loss)    | 9/0/0        | 3/0/6            | 9/0/0    | 6/3/0       | 6/3/0         | nan      |
 
+</div>
+
 As shown, Our system achieves the highest average score across 9 tasks, even surpassing the large-scale model Flan-PaLM-540B. This demonstrates that by leveraging multiple models with fewer than 8B parameters, our system can outperform a single large-scale model in task-specific scenarios. Among SLM utilization strategies, Learnware performs best in 7 out of 9 tasks, tied with Oracle in 6.
 
 Furthermore, the fact that our system surpasses Best-single highlights that its effectiveness comes not from a single exceptionally strong model but from its specification design, identification mechanism and the collective strength of all candidate models.
 
 ### Math
 
-The table below shows the performance value of different methods or language models in math scenario.
+The figure and table below show the performance value of different methods or language models in math scenario.
+
+<div align=center>
+  <img src="../../docs/_static/img/llm-math.svg"  width="800" height="auto" style="max-width: 100%;"/>
+</div>
+
+<div align=center>
 
 | User                          | Qwen2.5-7B   | Qwen1.5-110B   | Random   | Learnware   | Best-single   | Oracle   |
 |:------------------------------|:-------------|:---------------|:---------|:------------|:--------------|:---------|
@@ -123,5 +145,7 @@ The table below shows the performance value of different methods or language mod
 | Avg. rank                     | 4.31         | 2.56           | 4.56     | 3.19        | 4.0           | 1.56     |
 | Learnware (win/tie/loss)      | 10/1/5       | 5/2/9          | 11/0/5   | nan         | 10/0/6        | 0/6/10   |
 | Oracle (win/tie/loss)         | 15/1/0       | 7/0/9          | 16/0/0   | 10/6/0      | 14/2/0        | nan      |
+
+</div>
 
 Our system achieves optimal identification performance (tied with Oracle) in 10 out of 16 tasks and even outperforms all other contenders in 5. However, the large-scale model achieves the highest average score and even beats Oracle (which denotes the optimal performance using one of our 8B-level models). This is likely due to their strong mathematical reasoning abilities that lack in smaller models, rather than a shortcoming of our method, as evidenced by the minimal difference in the "win/tie/loss" of Learnware and Oracle on Qwen1.5-110B.
