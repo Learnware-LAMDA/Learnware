@@ -2,6 +2,11 @@
 FLARE
 """
 
+from typing import List
+from transformers import BartTokenizer, BartForConditionalGeneration
+import traceback
+import torch.nn as nn
+import torch
 from lm_eval.api.instance import Instance
 import numpy as np
 from seqeval.metrics import f1_score as entity_score
@@ -32,7 +37,7 @@ def process_text(entity_string, text):
     # Iterate over the entity list
     # print (entity_list)
     for entity, entity_type in entity_list:
-        entity_words = entity.split()
+        entity.split()
         entity_lower = entity
 
         # Find start and end index of each occurrence of the entity in the text
@@ -63,7 +68,7 @@ def process_text(entity_string, text):
 
 _CITATION = """
 @misc{xie2023pixiu,
-      title={PIXIU: A Large Language Model, Instruction Data and Evaluation Benchmark for Finance}, 
+      title={PIXIU: A Large Language Model, Instruction Data and Evaluation Benchmark for Finance},
       author={Qianqian Xie and Weiguang Han and Xiao Zhang and Yanzhao Lai and Min Peng and Alejandro Lopez-Lira and Jimin Huang},
       year={2023},
       eprint={2306.05443},
@@ -294,7 +299,7 @@ class SequentialLabeling(ConfigurableTask):
         for index, pre in enumerate(pred.split("\n")[: len(tokens)]):
             try:
                 word, label = pre.split(":")
-            except:
+            except BaseException:
                 continue
             if word == tokens[index] and label in self.LMAP.keys():
                 format_pred[index] = label
@@ -312,7 +317,7 @@ class SequentialLabeling(ConfigurableTask):
         for index, pre in enumerate(pred.split("\n")[: len(tokens)]):
             try:
                 word, label = pre.split(":")
-            except:
+            except BaseException:
                 continue
             if word == tokens[index]:
                 format_pred[index] = self.LMAP.get(label, -1)
@@ -1000,9 +1005,9 @@ class Headlines(Classification):
         preds = np.array(preds)
         golds = np.array(golds)
         all_f1s = []
-        for l in label_set:
-            pds = preds[labels == l]
-            gds = golds[labels == l]
+        for label_val in label_set:
+            pds = preds[labels == label_val]
+            gds = golds[labels == label_val]
             f1 = f1_score(gds, pds, average="weighted", labels=[0, 1])
             all_f1s.append(f1)
         return np.mean(all_f1s)
@@ -1273,14 +1278,15 @@ class FSRL(SequentialLabeling):
     }
 
 
-class CFA(Classification):
-    DATASET_PATH = "chancefocus/flare-cfa"
-
-    def has_training_docs(self):
-        return False
-
-    def has_validation_docs(self):
-        return False
+# This class is already defined above at line 1200
+# class CFA(Classification):
+#     DATASET_PATH = "chancefocus/flare-cfa"
+#
+#     def has_training_docs(self):
+#         return False
+#
+#     def has_validation_docs(self):
+#         return False
 
 
 # class FinargECCAUC(Classification):
@@ -1485,12 +1491,6 @@ class travelinsurace(Classification):
 ###############
 
 # %%
-import torch
-import torch.nn as nn
-import traceback
-from transformers import BartTokenizer, BartForConditionalGeneration
-from typing import List
-import numpy as np
 
 
 class BARTScorer:

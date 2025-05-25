@@ -3,10 +3,10 @@ import pickle
 import tempfile
 import zipfile
 from dataclasses import dataclass
-from typing import List, Optional, Tuple, Union, Callable
-from datasets import load_dataset, Dataset
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
+from datasets import Dataset, load_dataset
 
 from .config import BenchmarkConfig, LLMBenchmarkConfig, benchmark_configs
 from ..data import GetData

@@ -3,10 +3,9 @@ from typing import List, Optional, Union
 import numpy as np
 import pandas as pd
 import torch
-
 from datasets import Dataset
 
-from .regular import RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification, GenerativeModelSpecification
+from .regular import GenerativeModelSpecification, RKMEImageSpecification, RKMETableSpecification, RKMETextSpecification
 from .utils import convert_to_numpy
 from ..config import C
 

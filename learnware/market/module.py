@@ -1,12 +1,12 @@
 from .base import LearnwareMarket
 from .classes import CondaChecker
 from .easy import (
-    EasyOrganizer,
     EasyFuzzSemanticSearcher,
-    EasyStatSearcher,
-    SeqCombinedSearcher,
+    EasyOrganizer,
     EasySemanticChecker,
     EasyStatChecker,
+    EasyStatSearcher,
+    SeqCombinedSearcher,
 )
 from .heterogeneous import HeteroMapTableOrganizer, HeteroStatSearcher
 from .llm import LLMEasyOrganizer, LLMStatSearcher

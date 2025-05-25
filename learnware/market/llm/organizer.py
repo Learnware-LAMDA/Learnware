@@ -1,23 +1,20 @@
 import os
 import tempfile
-import zipfile
 import traceback
+import zipfile
 from shutil import copyfile
 from typing import List, Union
 
 from ..heterogeneous import HeteroMapTableOrganizer
-from ..base import BaseChecker
 from ...config import C
-from ...utils import read_yaml_to_dict, save_dict_to_yaml
 from ...logger import get_module_logger
 from ...specification import LLMGeneralCapabilitySpecification
-from ...tests.benchmarks import BenchmarkConfig
+from ...utils import read_yaml_to_dict, save_dict_to_yaml
 
 logger = get_module_logger("llm_easy_organizer")
 
 
 class LLMEasyOrganizer(HeteroMapTableOrganizer):
-
     def _update_learnware_general_capability_spec(self, ids: Union[str, List[str]]):
         """Update learnware by ids, attempting to generate LLMGeneralCapabilitySpecification for them.
 

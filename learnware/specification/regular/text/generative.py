@@ -6,18 +6,13 @@ import tempfile
 from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
-import trl
 import torch
-
-from torch import nn
-
-from trl import SFTConfig
-from peft import LoraConfig, PeftModel
+import trl
 from datasets import Dataset
-
-from transformers import PreTrainedModel, TrainingArguments, Qwen2ForCausalLM, Qwen2Tokenizer
-
-from peft import get_peft_model
+from peft import LoraConfig, PeftModel, get_peft_model
+from torch import nn
+from transformers import PreTrainedModel, Qwen2ForCausalLM, Qwen2Tokenizer, TrainingArguments
+from trl import SFTConfig
 
 from ..base import TaskVectorSpecification
 from ....logger import get_module_logger
@@ -173,7 +168,6 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         return tokenizer, model
 
     def _init_trainer(self, model, tokenizer, train_dataset, args):
-
         # TODO: set_seed(3407)
         trainer = CustomSFTTrainer(
             model=model,
@@ -224,7 +218,6 @@ class GenerativeModelSpecification(TaskVectorSpecification):
 
 
 class CustomSFTTrainer(trl.SFTTrainer):
-
     def __init__(self, weight_decay_l1=None, **kwargs):
         super().__init__(**kwargs)
         model: Union[PreTrainedModel, nn.Module] = kwargs["model"]
@@ -244,7 +237,7 @@ class CustomSFTTrainer(trl.SFTTrainer):
     def train(
         self,
         resume_from_checkpoint: Optional[Union[str, bool]] = None,
-        trial: Union["optuna.Trial", Dict[str, Any]] = None,
+        trial: Union["optuna.Trial", Dict[str, Any]] = None,  # noqa: F821
         ignore_keys_for_eval: Optional[List[str]] = None,
         **kwargs,
     ):
