@@ -1,16 +1,16 @@
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 import numpy as np
 import torch
+from torch.nn.functional import softmax
 
 from learnware.learnware.base import Learnware
 from learnware.specification.base import Specification
-from ..utils import parse_specification_type
-from ..base import BaseUserInfo, MultipleSearchItem, SearchResults, AtomicSearcher, SingleSearchItem
-from ..easy import EasyStatSearcher
-from ...logger import get_module_logger
 
-from torch.nn.functional import softmax
+from ..base import BaseUserInfo, SearchResults, SingleSearchItem
+from ..easy import EasyStatSearcher
+from ..utils import parse_specification_type
+from ...logger import get_module_logger
 
 logger = get_module_logger("llm_searcher")
 

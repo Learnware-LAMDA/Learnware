@@ -10,7 +10,7 @@ if not is_torch_available(verbose=False):
         "RKMETextSpecification and GenerativeModelSpecification are not available because 'torch' is not installed!"
     )
 else:
-    from .rkme import RKMETextSpecification
     from .generative import GenerativeModelSpecification
+    from .rkme import RKMETextSpecification
 
 __all__ = ["RKMETextSpecification", "GenerativeModelSpecification"]

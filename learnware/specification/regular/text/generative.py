@@ -6,18 +6,13 @@ import tempfile
 from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
-import trl
 import torch
-
-from torch import nn
-
-from trl import SFTConfig
-from peft import LoraConfig, PeftModel
+import trl
 from datasets import Dataset
-
-from transformers import PreTrainedModel, TrainingArguments, Qwen2ForCausalLM, Qwen2Tokenizer
-
-from peft import get_peft_model
+from peft import LoraConfig, PeftModel, get_peft_model
+from torch import nn
+from transformers import PreTrainedModel, Qwen2ForCausalLM, Qwen2Tokenizer, TrainingArguments
+from trl import SFTConfig
 
 from ..base import TaskVectorSpecification
 from ....logger import get_module_logger
@@ -173,7 +168,6 @@ class GenerativeModelSpecification(TaskVectorSpecification):
         return tokenizer, model
 
     def _init_trainer(self, model, tokenizer, train_dataset, args):
-
         # TODO: set_seed(3407)
         trainer = CustomSFTTrainer(
             model=model,
@@ -189,21 +183,21 @@ class GenerativeModelSpecification(TaskVectorSpecification):
 
     def _trainer_config(self, temp_dir, dataset_text_field):
         training_params = SFTConfig(
-            output_dir=temp_dir,  # 结果路径
+            output_dir=temp_dir,
             max_steps=self.__extra_args["max_steps"],
-            per_device_train_batch_size=self.per_device_train_batch_size,  # 这是每个GPU的训练批次大小
-            gradient_accumulation_steps=self.gradient_accumulation_steps,  # 累积多个步骤的梯度，以有效地增加批次大小
-            learning_rate=self.__extra_args["lr"],  # 初始学习率
-            weight_decay=self.__extra_args["weight_decay_l2"],  # 权重衰减率
-            optim="adamw_torch",  # 优化器
+            per_device_train_batch_size=self.per_device_train_batch_size,
+            gradient_accumulation_steps=self.gradient_accumulation_steps,
+            learning_rate=self.__extra_args["lr"],
+            weight_decay=self.__extra_args["weight_decay_l2"],
+            optim="adamw_torch",
             eval_strategy="no",
             save_strategy="no",
-            # fp16=True,  # 启用混合精度训练
-            # bf16=True,  # 启用BF16
-            max_grad_norm=self.__extra_args["max_grad_norm"],  # 裁剪梯度
-            warmup_ratio=self.__extra_args["warmup_ratio"],  # 训练开始时的预热样本比例
-            group_by_length=True,  # 将训练数据集中大致相同长度的样本分组到同一batch中，提升prefill效率
-            lr_scheduler_type="cosine",  # 学习率调度器衰减策略
+            # fp16=True,
+            # bf16=True,
+            max_grad_norm=self.__extra_args["max_grad_norm"],
+            warmup_ratio=self.__extra_args["warmup_ratio"],
+            group_by_length=True,
+            lr_scheduler_type="cosine",
             ddp_timeout=180000000,
             dataset_text_field=dataset_text_field,
             max_seq_length=self.max_seq_length,
@@ -224,7 +218,6 @@ class GenerativeModelSpecification(TaskVectorSpecification):
 
 
 class CustomSFTTrainer(trl.SFTTrainer):
-
     def __init__(self, weight_decay_l1=None, **kwargs):
         super().__init__(**kwargs)
         model: Union[PreTrainedModel, nn.Module] = kwargs["model"]
@@ -244,7 +237,7 @@ class CustomSFTTrainer(trl.SFTTrainer):
     def train(
         self,
         resume_from_checkpoint: Optional[Union[str, bool]] = None,
-        trial: Union["optuna.Trial", Dict[str, Any]] = None,
+        trial: Union["optuna.Trial", Dict[str, Any]] = None,  # noqa: F821
         ignore_keys_for_eval: Optional[List[str]] = None,
         **kwargs,
     ):

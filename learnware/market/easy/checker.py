@@ -198,7 +198,6 @@ class EasyStatChecker(BaseChecker):
                 "GenerativeModelSpecification",
                 "LLMGeneralCapabilitySpecification",
             ]:
-
                 if semantic_spec["Model"]["Values"][0] != "Others":
                     len_ = random.randint(10, 1000)
                     inputs = EasyStatChecker._generate_random_text_list(10, "en", len_, len_)

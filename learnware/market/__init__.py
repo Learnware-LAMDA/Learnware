@@ -2,13 +2,13 @@ from .anchor import AnchoredOrganizer, AnchoredSearcher, AnchoredUserInfo
 from .base import BaseChecker, BaseOrganizer, BaseSearcher, BaseUserInfo, LearnwareMarket
 from .classes import CondaChecker
 from .easy import (
-    EasyOrganizer,
     EasyExactSemanticSearcher,
     EasyFuzzSemanticSearcher,
-    EasyStatSearcher,
-    SeqCombinedSearcher,
+    EasyOrganizer,
     EasySemanticChecker,
     EasyStatChecker,
+    EasyStatSearcher,
+    SeqCombinedSearcher,
 )
 from .evolve import EvolvedOrganizer
 from .evolve_anchor import EvolvedAnchoredOrganizer

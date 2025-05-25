@@ -6,9 +6,9 @@ import torch
 from rapidfuzz import fuzz
 
 from ..base import (
+    AtomicSearcher,
     BaseOrganizer,
     BaseSearcher,
-    AtomicSearcher,
     BaseUserInfo,
     MultipleSearchItem,
     SearchResults,

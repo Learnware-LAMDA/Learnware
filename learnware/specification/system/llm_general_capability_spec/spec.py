@@ -1,16 +1,18 @@
 from __future__ import annotations
-import traceback
-from typing import List, Dict, Optional
-import lm_eval
-from lm_eval.models.huggingface import HFLM
+
 import codecs
 import json
 import os
+import traceback
+from typing import Dict, List, Optional
+
+import lm_eval
+from lm_eval.models.huggingface import HFLM
 
 from .config import general_capability_benchmark_configs
 from ..base import SystemStatSpecification
-from ....tests.benchmarks import LLMBenchmarkConfig
 from ....logger import get_module_logger
+from ....tests.benchmarks import LLMBenchmarkConfig
 
 logger = get_module_logger("llm_general_capability_spec")
 
@@ -27,7 +29,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         super(LLMGeneralCapabilitySpecification, self).__init__(type=self.__class__.__name__)
 
     @staticmethod
-    def _get_scores(learnware: Learnware, benchmark_configs: List[LLMBenchmarkConfig]) -> Dict:
+    def _get_scores(learnware, benchmark_configs: List[LLMBenchmarkConfig]) -> Dict:
         """Use [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness) framework to evaluate learnware according to benchmark_configs and compute score dict.
 
         Parameters
@@ -73,7 +75,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
 
     def generate_stat_spec_from_system(
         self,
-        learnware: Learnware,
+        learnware,
         benchmark_configs: Optional[List[LLMBenchmarkConfig]] = None,
         update_existing: bool = False,
     ):
@@ -90,7 +92,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         """
         if benchmark_configs:
             for config in benchmark_configs:
-                if config.eval_metric == None and config.score_function == None:
+                if config.eval_metric is None and config.score_function is None:
                     raise Exception(
                         "Must specify an evaluation metric or a score computing function in a LLMBenchmarkConfig object to get the evaluation score."
                     )

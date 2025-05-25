@@ -1,9 +1,8 @@
 import re
 import random
 from datasets import load_dataset, concatenate_datasets
-from typing import List
 
-from .config import LEARNWARE_FIN, LEARNWARE_MATH, LEARNWARE_MED, USER_FIN
+from .config import LEARNWARE_FIN, USER_FIN
 
 
 def preprocess_alpaca(docs):

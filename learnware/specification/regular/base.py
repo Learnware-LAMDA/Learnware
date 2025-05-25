@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from ..base import BaseStatSpecification
-
 from torch.nn.functional import cosine_similarity
+
+from ..base import BaseStatSpecification
 
 
 class RegularStatSpecification(BaseStatSpecification):
@@ -18,10 +18,9 @@ class RegularStatSpecification(BaseStatSpecification):
 
 
 class TaskVectorSpecification(RegularStatSpecification):
-
     @property
     def task_vector(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def similarity(self, other: TaskVectorSpecification) -> float:
         """Compute cosine similarity between two task vectors."""
