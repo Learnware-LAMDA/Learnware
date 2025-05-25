@@ -1,4 +1,3 @@
-from typing import List
 from datasets import load_dataset
 
 DATASET = {
