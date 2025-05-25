@@ -170,7 +170,7 @@ def preprocess_medmcqa_no_label(docs) -> List[str]:
         prompt = "Question: " + question + "\nChoices:\n"
         for choice, option in option_choices.items():
             prompt += f"{choice.upper()}. {option}\n"
-        prompt += f"Answer:"
+        prompt += "Answer:"
         texts.append(prompt)
     return texts
 
@@ -339,7 +339,7 @@ def preprocess_mathqa(docs) -> List[str]:
 
 def preprocess_mgsm_no_label(docs) -> List[str]:
     questions = docs["question"]
-    texts = [f"问题: " + question + "\n逐步解答:" for question in questions]
+    texts = ["问题: " + question + "\n逐步解答:" for question in questions]
     return texts
 
 

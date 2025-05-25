@@ -2,10 +2,7 @@ import fire
 import time
 import tempfile
 import os
-import copy
 import pandas as pd
-import torch
-import shutil
 import json
 import re
 import numpy as np
@@ -19,7 +16,6 @@ from learnware.market import BaseUserInfo, instantiate_learnware_market
 from learnware.specification import GenerativeModelSpecification
 
 from benchmark import Benchmark
-from benchmark.config import USER_FIN, USER_MATH, USER_MED
 from eval_config import CONFIG
 
 logger = get_module_logger("llm_workflow", level="INFO")
