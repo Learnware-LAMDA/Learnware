@@ -175,7 +175,9 @@ class EasyStatChecker(BaseChecker):
                 stat_spec = learnware.get_specification().get_stat_spec_by_name(spec_type)
                 distance = float(stat_spec.dist(stat_spec))
                 if not np.isfinite(distance):
-                    message = f"The distance between statistical specifications is not finite, where distance={distance}"
+                    message = (
+                        f"The distance between statistical specifications is not finite, where distance={distance}"
+                    )
                     logger.warning(message)
                     return self.INVALID_LEARNWARE, message
 
@@ -191,7 +193,11 @@ class EasyStatChecker(BaseChecker):
                     return self.INVALID_LEARNWARE, message
                 inputs = np.random.randn(10, *input_shape)
 
-            elif spec_type in ["RKMETextSpecification", "GenerativeModelSpecification", "LLMGeneralCapabilitySpecification"]:
+            elif spec_type in [
+                "RKMETextSpecification",
+                "GenerativeModelSpecification",
+                "LLMGeneralCapabilitySpecification",
+            ]:
 
                 if semantic_spec["Model"]["Values"][0] != "Others":
                     len_ = random.randint(10, 1000)

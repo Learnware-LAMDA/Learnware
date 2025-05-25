@@ -48,7 +48,7 @@ class BaseModel:
 
     def get_model(self):
         """Get the nn.Module object
-        
+
         Returns:
             nn.Module: The model object, such as a PreTrainedModel from the transformers library.
         """

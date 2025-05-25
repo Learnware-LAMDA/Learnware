@@ -98,28 +98,28 @@ class LLMBenchmark:
             name=self.subset_name,
             **self.dataset_kwargs if self.dataset_kwargs is not None else {},
         )
-    
+
     def get_train_dataset(self) -> Dataset:
         if self.train_split:
             train_dataset = self.dataset[self.train_split]
-            if self.dataset_path == "meta-math/GSM8K_zh": 
-                train_dataset = train_dataset.filter(lambda x: x['split']=='train')
+            if self.dataset_path == "meta-math/GSM8K_zh":
+                train_dataset = train_dataset.filter(lambda x: x["split"] == "train")
             if self.preprocess_function:
-                train_dataset = train_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+                train_dataset = train_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched=True)
             return train_dataset
-    
+
     def get_val_dataset(self) -> Dataset:
         if self.validation_split:
             val_dataset = self.dataset[self.validation_split]
             if self.preprocess_function:
-                val_dataset = val_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+                val_dataset = val_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched=True)
             return val_dataset
 
     def get_test_dataset(self) -> Dataset:
         if self.test_split:
             test_dataset = self.dataset[self.test_split]
             if self.preprocess_function:
-                test_dataset = test_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched = True)
+                test_dataset = test_dataset.map(lambda x: {"text": self.preprocess_function(x)}, batched=True)
             return test_dataset
 
     def get_train_data(self) -> List[str]:
@@ -128,7 +128,7 @@ class LLMBenchmark:
         train_dataset = self.get_train_dataset()
         train_data = train_dataset["text"]
         return train_data
-    
+
     def get_val_data(self) -> List[str]:
         if not self.preprocess_function:
             raise Exception("Must specify a preprocess function to get validation data!")

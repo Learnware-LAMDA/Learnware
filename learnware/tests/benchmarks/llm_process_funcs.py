@@ -136,7 +136,7 @@ def preprocess_finance(docs) -> List[str]:
     outputs = docs["answer"]
     texts = []
     for instruction, output in zip(instructions, outputs):
-        instruction.rstrip(' Answer:')
+        instruction.rstrip(" Answer:")
         text = alpaca_no_input_prompt.format(instruction, output)
         texts.append(text)
     return texts
@@ -151,7 +151,6 @@ def preprocess_math_train(docs) -> List[str]:
         text = alpaca_no_input_prompt.format(instruction, output)
         texts.append(text)
     return texts
-
 
 
 def preprocess_medmcqa_no_label(docs) -> List[str]:
@@ -245,11 +244,7 @@ def preprocess_mmlu_no_label(docs) -> List[str]:
     for question, options in zip(questions, choices):
         texts.append(
             "{}\nA. {}\nB. {}\nC. {}\nD. {}\nAnswer:".format(
-                question.strip(),
-                options[0],
-                options[1],
-                options[2],
-                options[3]
+                question.strip(), options[0], options[1], options[2], options[3]
             )
         )
     return texts
@@ -258,17 +253,12 @@ def preprocess_mmlu_no_label(docs) -> List[str]:
 def preprocess_mmlu(docs) -> List[str]:
     questions = docs["question"]
     choices = docs["choices"]
-    answers =  docs["answer"]
+    answers = docs["answer"]
     texts = []
     for question, options, answer in zip(questions, choices, answers):
         texts.append(
             "{}\nA. {}\nB. {}\nC. {}\nD. {}\nAnswer: {}".format(
-                question.strip(),
-                options[0],
-                options[1],
-                options[2],
-                options[3],
-                ["A", "B", "C", "D"][answer]
+                question.strip(), options[0], options[1], options[2], options[3], ["A", "B", "C", "D"][answer]
             )
         )
     return texts
@@ -307,9 +297,7 @@ def preprocess_cmmlu_no_label(docs) -> List[str]:
     ds = docs["D"]
     texts = []
     for question, a, b, c, d in zip(questions, as_, bs, cs, ds):
-        texts.append("{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：".format(
-            question.strip(), a, b, c, d
-        ))
+        texts.append("{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：".format(question.strip(), a, b, c, d))
     return texts
 
 
@@ -319,12 +307,10 @@ def preprocess_cmmlu(docs) -> List[str]:
     bs = docs["B"]
     cs = docs["C"]
     ds = docs["D"]
-    answers =  docs["Answer"]
+    answers = docs["Answer"]
     texts = []
     for question, a, b, c, d, answer in zip(questions, as_, bs, cs, ds, answers):
-        texts.append("{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：{}".format(
-            question.strip(), a, b, c, d, answer
-        ))
+        texts.append("{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：{}".format(question.strip(), a, b, c, d, answer))
     return texts
 
 
@@ -340,19 +326,20 @@ def preprocess_mathqa(docs) -> List[str]:
     options = docs["options"]
     texts = []
     for problem, correct, option in zip(problems, corrects, options):
-        choices = [
-            c[4:].rstrip(" ,")
-            for c in re.findall(r"[abcd] \) .*?, |e \) .*?$", option)
-        ]
-        
+        choices = [c[4:].rstrip(" ,") for c in re.findall(r"[abcd] \) .*?, |e \) .*?$", option)]
+
         # answer = ['a', 'b', 'c', 'd', 'e'].index(correct)
-        texts.append("Question: {}\na. {}\nb. {}\nc. {}\nd. {}\ne. {}\nAnswer: {}".format(problem, choices[0], choices[1], choices[2], choices[3], choices[4], correct))
+        texts.append(
+            "Question: {}\na. {}\nb. {}\nc. {}\nd. {}\ne. {}\nAnswer: {}".format(
+                problem, choices[0], choices[1], choices[2], choices[3], choices[4], correct
+            )
+        )
     return texts
 
 
 def preprocess_mgsm_no_label(docs) -> List[str]:
     questions = docs["question"]
-    texts = [f"问题: "+question+"\n逐步解答:" for question in questions]
+    texts = [f"问题: " + question + "\n逐步解答:" for question in questions]
     return texts
 
 
@@ -387,4 +374,3 @@ def preprocess_math_no_label(docs) -> List[str]:
 
 def preprocess_finance_no_label(docs) -> List[str]:
     return docs["query"]
-

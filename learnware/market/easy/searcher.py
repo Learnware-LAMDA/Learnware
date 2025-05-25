@@ -124,7 +124,7 @@ class EasyFuzzSemanticSearcher(AtomicSearcher):
             v1 = semantic_spec1[key].get("Values", "")
             if len(v1) == 0:
                 continue
-            
+
             if key not in semantic_spec2:
                 if "Others" in v1:
                     # v1 contains "Others" and key not in semantic_spec2
@@ -132,7 +132,7 @@ class EasyFuzzSemanticSearcher(AtomicSearcher):
                 else:
                     # user input contains some key that is not in database
                     return False
-            
+
             v2 = semantic_spec2[key].get("Values", "")
             if key not in ("Name", "Description"):
                 if len(v2) == 0:

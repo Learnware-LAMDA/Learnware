@@ -178,20 +178,18 @@ def generate_rkme_text_spec(
 
 
 def generate_generative_model_spec(
-    dataset: Optional[Dataset] = None,
-    dataset_text_field="text",
-    X: List[str] = None,
-    verbose: bool = True,
-    **kwargs   
+    dataset: Optional[Dataset] = None, dataset_text_field="text", X: List[str] = None, verbose: bool = True, **kwargs
 ) -> GenerativeModelSpecification:
     # Check input type
     if X is not None and (not isinstance(X, list) or not all(isinstance(item, str) for item in X)):
         raise TypeError("Input data must be a list of strings.")
-    
+
     # Generate generative model spec
     task_vector_spec = GenerativeModelSpecification()
-    task_vector_spec.generate_stat_spec_from_data(dataset=dataset, dataset_text_field=dataset_text_field, X=X, verbose=verbose, **kwargs)
-    
+    task_vector_spec.generate_stat_spec_from_data(
+        dataset=dataset, dataset_text_field=dataset_text_field, X=X, verbose=verbose, **kwargs
+    )
+
     return task_vector_spec
 
 
@@ -241,7 +239,10 @@ def generate_semantic_spec(
     semantic_specification = dict()
     semantic_specification["Data"] = {"Type": "Class", "Values": [data_type] if data_type is not None else []}
     semantic_specification["Task"] = {"Type": "Class", "Values": [task_type] if task_type is not None else []}
-    semantic_specification["Model"] = {"Type": "Optional", "Values": [model_type] if model_type is not None else ["Others"]}
+    semantic_specification["Model"] = {
+        "Type": "Optional",
+        "Values": [model_type] if model_type is not None else ["Others"],
+    }
     semantic_specification["Library"] = {
         "Type": "Class",
         "Values": [library_type] if library_type is not None else [],

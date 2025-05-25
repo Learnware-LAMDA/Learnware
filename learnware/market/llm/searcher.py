@@ -62,10 +62,8 @@ class LLMStatSearcher(EasyStatSearcher):
             sorted_score_list = self._convert_similarity_to_score(sorted_metric_list)
         else:
             sorted_score_list = self._convert_dist_to_score(sorted_metric_list)
-        
-        logger.info(
-            f"After search by user spec, learnware_list length is {len(learnware_list)}"
-        )
+
+        logger.info(f"After search by user spec, learnware_list length is {len(learnware_list)}")
 
         if len(single_learnware_list) == 1 and sorted_score_list[0] < 0.6:
             sorted_score_list[0] = 0.6
@@ -84,7 +82,7 @@ class LLMStatSearcher(EasyStatSearcher):
         self,
         learnware_list: List[Learnware],
         user_spec: Union[Specification],
-        stat_spec_type: str = "GenerativeModelSpecification"
+        stat_spec_type: str = "GenerativeModelSpecification",
     ) -> Tuple[List[float], List[Learnware]]:
         """Calculate the distances between learnwares in the given learnware_list and user_spec
 
@@ -122,12 +120,10 @@ class LLMStatSearcher(EasyStatSearcher):
         sorted_learnware_list = [learnware_list[filtered_idx_list[idx]] for idx in sorted_idx_list]
 
         return sorted_dist_list, sorted_learnware_list
-    
+
     def _convert_similarity_to_score(self, sorted_similarity_list, temperature=0.1):
         sorted_similarity = torch.asarray(sorted_similarity_list)
-        sorted_similarity = torch.stack([
-            sorted_similarity, torch.zeros_like(sorted_similarity)
-        ])
-        
+        sorted_similarity = torch.stack([sorted_similarity, torch.zeros_like(sorted_similarity)])
+
         scores = softmax(sorted_similarity / temperature, dim=0)[0].tolist()
         return scores * 100

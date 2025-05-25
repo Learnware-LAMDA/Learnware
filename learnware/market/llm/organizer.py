@@ -18,9 +18,7 @@ logger = get_module_logger("llm_easy_organizer")
 
 class LLMEasyOrganizer(HeteroMapTableOrganizer):
 
-    def _update_learnware_general_capability_spec(
-        self, ids: Union[str, List[str]]
-    ):
+    def _update_learnware_general_capability_spec(self, ids: Union[str, List[str]]):
         """Update learnware by ids, attempting to generate LLMGeneralCapabilitySpecification for them.
 
         Parameters

@@ -56,7 +56,7 @@ REQUIRED = [
     "trl>=0.11.4",
     "datasets>=2.16.0",
     "peft>=0.13.2",
-    "lm_eval>=0.4.7"
+    "lm_eval>=0.4.7",
 ]
 
 DEV_REQUIRED = [

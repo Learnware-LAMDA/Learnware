@@ -301,7 +301,7 @@ class LearnwareClient:
                     "page": page_index,
                 },
                 headers=self.headers,
-                timeout=self.timeout
+                timeout=self.timeout,
             )
             result = response.json()
             if result["code"] != 0:
@@ -355,12 +355,12 @@ class LearnwareClient:
                 pass
             self.unzip_learnware(learnware_id)
             pass
-        
+
         yaml_file = os.path.join(self.default_unzip_path, learnware_id, C.learnware_folder_config["yaml_file"])
         with open(yaml_file, "r") as fin:
             learnware_info = yaml.safe_load(fin)
             pass
-        pretrained_path = learnware_info['model'].get("weights_file_path")
+        pretrained_path = learnware_info["model"].get("weights_file_path")
         if pretrained_path is None:
             raise FileNotFoundError(f"Pretrained path not found in learnware {learnware_id}")
 

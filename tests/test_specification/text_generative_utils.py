@@ -6,6 +6,7 @@ DATASET = {
     "pubmedqa": "bigbio/pubmed_qa,pubmed_qa_labeled_fold0_source",
 }
 
+
 def preprocess_medmcqa(doc) -> str:
     """
     Question: <question>
@@ -30,6 +31,7 @@ def preprocess_medmcqa(doc) -> str:
     prompt += "Answer:"
     return prompt
 
+
 def preprocess_pubmedqa(doc) -> str:
     ctxs = "\n".join(doc["CONTEXTS"])
     return "Abstract: {}\nQuestion: {}\nAnswer:".format(
@@ -37,11 +39,13 @@ def preprocess_pubmedqa(doc) -> str:
         doc["QUESTION"],
     )
 
+
 PROCESS_FUNC = {
     # medical user
     "openlifescienceai/medmcqa": preprocess_medmcqa,
     "bigbio/pubmed_qa": preprocess_pubmedqa,
 }
+
 
 def prepare_data(dataset_name_str):
     temp_list = dataset_name_str.split(",")
@@ -50,8 +54,8 @@ def prepare_data(dataset_name_str):
         subset_name = temp_list[1]
     dataset_name = temp_list[0]
     if subset_name:
-        test_dataset = load_dataset(dataset_name, subset_name, split="test", trust_remote_code=True) 
+        test_dataset = load_dataset(dataset_name, subset_name, split="test", trust_remote_code=True)
     else:
-        test_dataset = load_dataset(dataset_name, split="test", trust_remote_code=True) 
+        test_dataset = load_dataset(dataset_name, split="test", trust_remote_code=True)
     test_dataset = test_dataset.map(lambda x: {"text": PROCESS_FUNC[dataset_name](x)})
     return test_dataset

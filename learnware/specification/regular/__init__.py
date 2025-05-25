@@ -10,5 +10,5 @@ __all__ = [
     "RKMETableSpecification",
     "rkme_solve_qp",
     "RKMETextSpecification",
-    "GenerativeModelSpecification"
+    "GenerativeModelSpecification",
 ]

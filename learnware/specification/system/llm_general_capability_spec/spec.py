@@ -2,7 +2,7 @@ from __future__ import annotations
 import traceback
 from typing import List, Dict, Optional
 import lm_eval
-from lm_eval.models.huggingface import HFLM 
+from lm_eval.models.huggingface import HFLM
 import codecs
 import json
 import os
@@ -15,6 +15,7 @@ from ....logger import get_module_logger
 logger = get_module_logger("llm_general_capability_spec")
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 class LLMGeneralCapabilitySpecification(SystemStatSpecification):
     """Large Language Model General Capability Specification"""
@@ -35,7 +36,7 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
             Learnware to generate General Capability Specification.
         benchmark_configs : Optional[List[LLMBenchmarkConfig]]
             List of LLMBenchmarkConfig.
-        
+
         Returns
         -------
         Dict[LLMBenchmarkConfig, float]
@@ -54,20 +55,20 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
                     tasks=[config.name],
                     task_manager=task_manager,
                 )
-                
+
                 if config.score_function:
                     score = config.score_function(results)
                 else:
-                    score = results['results'][config.name][f'{config.eval_metric},none'] * 100
+                    score = results["results"][config.name][f"{config.eval_metric},none"] * 100
                     score = round(score, 2)
                 logger.info(f"Name: {config.name}, Score: {score}")
                 score_dict[config.name] = score
-            
+
             except Exception as e:
                 traceback.print_exc()
                 message = f"Evaluation of {config.name} failed! Due to {repr(e)}."
                 logger.warning(message)
-            
+
         return score_dict
 
     def generate_stat_spec_from_system(
@@ -90,10 +91,12 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
         if benchmark_configs:
             for config in benchmark_configs:
                 if config.eval_metric == None and config.score_function == None:
-                    raise Exception("Must specify an evaluation metric or a score computing function in a LLMBenchmarkConfig object to get the evaluation score.")
+                    raise Exception(
+                        "Must specify an evaluation metric or a score computing function in a LLMBenchmarkConfig object to get the evaluation score."
+                    )
         else:
             logger.info("No passed benchmark_configs. Set benchmark_configs by default.")
-            benchmark_configs = self.benchmark_configs 
+            benchmark_configs = self.benchmark_configs
         if update_existing:
             logger.info("Update existing LLMGeneralCapabilitySpecification.")
             self.score_dict = self._get_scores(learnware, benchmark_configs)
@@ -114,11 +117,10 @@ class LLMGeneralCapabilitySpecification(SystemStatSpecification):
             else:
                 logger.info("All LLMBenchmarkConfig have been evaluated before. No update.")
 
-
     def __str__(self):
         spec_to_save = self.get_states()
         return json.dumps(spec_to_save, separators=(",", ":"))
-    
+
     def save(self, filepath: str):
         """Save the computed specification to a specified path in JSON format.
 

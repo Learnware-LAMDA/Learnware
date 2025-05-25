@@ -180,8 +180,4 @@ finance_eval_configs: List[LLMBenchmarkConfig] = [
     ),
 ]
 
-CONFIG = {
-    "medical": medical_eval_configs,
-    "math": math_eval_configs,
-    "finance": finance_eval_configs
-}
+CONFIG = {"medical": medical_eval_configs, "math": math_eval_configs, "finance": finance_eval_configs}

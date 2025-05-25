@@ -68,13 +68,15 @@ class TableWorkflow:
             market_id=self.benchmark.name,
             name=name,
             rebuild=rebuild,
-            organizer_kwargs={
-                "auto_update": True,
-                "auto_update_limit": len(self.benchmark.learnware_ids),
-                **market_mapping_params,
-            }
-            if retrain
-            else None,
+            organizer_kwargs=(
+                {
+                    "auto_update": True,
+                    "auto_update_limit": len(self.benchmark.learnware_ids),
+                    **market_mapping_params,
+                }
+                if retrain
+                else None
+            ),
         )
         self.user_semantic = client.get_semantic_specification(self.benchmark.learnware_ids[0])
         self.user_semantic["Name"]["Values"] = ""

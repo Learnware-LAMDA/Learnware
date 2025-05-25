@@ -1,6 +1,6 @@
 import re
 import random
-from datasets import load_dataset, concatenate_datasets  
+from datasets import load_dataset, concatenate_datasets
 from typing import List
 
 from .config import LEARNWARE_FIN, LEARNWARE_MATH, LEARNWARE_MED, USER_FIN
@@ -140,7 +140,7 @@ def preprocess_finance(docs) -> str:
     outputs = docs["answer"]
     texts = []
     for instruction, output in zip(instructions, outputs):
-        instruction.rstrip(' Answer:')
+        instruction.rstrip(" Answer:")
         text = alpaca_no_input_prompt.format(instruction, output)
         texts.append(text)
     return texts
@@ -240,29 +240,18 @@ def preprocess_medqa_val(docs):
 def preprocess_mmlu(doc) -> str:
     question = doc["question"].strip()
     choices = doc["choices"]
-    return "{}\nA. {}\nB. {}\nC. {}\nD. {}\nAnswer:".format(
-        question,
-        choices[0],
-        choices[1],
-        choices[2],
-        choices[3]
-    )
+    return "{}\nA. {}\nB. {}\nC. {}\nD. {}\nAnswer:".format(question, choices[0], choices[1], choices[2], choices[3])
 
 
 def preprocess_mmlu_val(docs):
     questions = docs["question"]
     choices = docs["choices"]
-    answers =  docs["answer"]
+    answers = docs["answer"]
     texts = []
     for question, options, answer in zip(questions, choices, answers):
         texts.append(
             "{}\nA. {}\nB. {}\nC. {}\nD. {}\nAnswer: {}".format(
-                question.strip(),
-                options[0],
-                options[1],
-                options[2],
-                options[3],
-                ["A", "B", "C", "D"][answer]
+                question.strip(), options[0], options[1], options[2], options[3], ["A", "B", "C", "D"][answer]
             )
         )
     return texts
@@ -293,13 +282,7 @@ def preprocess_agieval(doc) -> str:
 
 def preprocess_cmmlu(doc) -> str:
     question = doc["Question"].strip()
-    return "{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：".format(
-        question,
-        doc["A"],
-        doc["B"],
-        doc["C"],
-        doc["D"]
-    )
+    return "{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：".format(question, doc["A"], doc["B"], doc["C"], doc["D"])
 
 
 def preprocess_cmmlu_val(docs):
@@ -308,23 +291,19 @@ def preprocess_cmmlu_val(docs):
     bs = docs["B"]
     cs = docs["C"]
     ds = docs["D"]
-    answers =  docs["Answer"]
+    answers = docs["Answer"]
     texts = []
     for question, a, b, c, d, answer in zip(questions, as_, bs, cs, ds, answers):
-        texts.append("{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：{}".format(
-            question.strip(), a, b, c, d, answer
-        ))
+        texts.append("{}\nA. {}\nB. {}\nC. {}\nD. {}\n答案：{}".format(question.strip(), a, b, c, d, answer))
     return texts
 
 
 def preprocess_mathqa(doc) -> str:
-    return "Question: {}\nAnswer:".format(
-        doc["Problem"]
-    )
+    return "Question: {}\nAnswer:".format(doc["Problem"])
 
 
 def preprocess_mgsm(doc) -> str:
-    return "问题: "+doc["question"]+"\n逐步解答:"
+    return "问题: " + doc["question"] + "\n逐步解答:"
 
 
 def preprocess_gsm8k(doc) -> str:
@@ -337,14 +316,16 @@ def preprocess_mathqa_val(docs):
     options = docs["options"]
     texts = []
     for problem, correct, option in zip(problems, corrects, options):
-        choices = [
-            c[4:].rstrip(" ,")
-            for c in re.findall(r"[abcd] \) .*?, |e \) .*?$", option)
-        ]
-        
+        choices = [c[4:].rstrip(" ,") for c in re.findall(r"[abcd] \) .*?, |e \) .*?$", option)]
+
         # answer = ['a', 'b', 'c', 'd', 'e'].index(correct)
-        texts.append("Question: {}\na. {}\nb. {}\nc. {}\nd. {}\ne. {}\nAnswer: {}".format(problem, choices[0], choices[1], choices[2], choices[3], choices[4], correct))
+        texts.append(
+            "Question: {}\na. {}\nb. {}\nc. {}\nd. {}\ne. {}\nAnswer: {}".format(
+                problem, choices[0], choices[1], choices[2], choices[3], choices[4], correct
+            )
+        )
     return texts
+
 
 def preprocess_mgsm_val(docs):
     questions = docs["question"]
@@ -459,32 +440,34 @@ PROCESS_FUNC_WITH_LABEL = {
 def prepare_train_data(dataset_name_str):
     if dataset_name_str in list(PROCESS_FUNC_WITH_LABEL.keys()):
         dataset = load_dataset(dataset_name_str, split="train")
-        if dataset_name_str == "meta-math/GSM8K_zh": 
-            dataset = dataset.filter(lambda x: x['split']=='train')
-        dataset = dataset.map(lambda x: {"text": PROCESS_FUNC_WITH_LABEL[dataset_name_str](x)}, batched = True)
+        if dataset_name_str == "meta-math/GSM8K_zh":
+            dataset = dataset.filter(lambda x: x["split"] == "train")
+        dataset = dataset.map(lambda x: {"text": PROCESS_FUNC_WITH_LABEL[dataset_name_str](x)}, batched=True)
         split_dataset = dataset.train_test_split(test_size=0.1)
-        train_dataset = split_dataset['train']
-        val_dataset = split_dataset['test']
+        train_dataset = split_dataset["train"]
+        val_dataset = split_dataset["test"]
     elif dataset_name_str in list(LEARNWARE_FIN.values()):
-        train_dataset = load_dataset(dataset_name_str, split="train") 
+        train_dataset = load_dataset(dataset_name_str, split="train")
         if "cra" not in dataset_name_str:
-            val_dataset = load_dataset(dataset_name_str, split="valid") 
+            val_dataset = load_dataset(dataset_name_str, split="valid")
         else:
-            val_dataset = load_dataset(dataset_name_str, split="validation") 
-        train_dataset = train_dataset.map(lambda x: {"text": preprocess_finance(x)}, batched = True)
-        val_dataset = val_dataset.map(lambda x: {"text": preprocess_finance(x)}, batched = True)
+            val_dataset = load_dataset(dataset_name_str, split="validation")
+        train_dataset = train_dataset.map(lambda x: {"text": preprocess_finance(x)}, batched=True)
+        val_dataset = val_dataset.map(lambda x: {"text": preprocess_finance(x)}, batched=True)
     else:
-        dataset_list = dataset_name_str.split(',')
+        dataset_list = dataset_name_str.split(",")
         train_datasets = []
         for dataset_name in dataset_list:
-            dataset = load_dataset(dataset_name, split="train") 
-            dataset = dataset.remove_columns([col for col in dataset.column_names if col not in ['instruction', 'input', 'output']])
+            dataset = load_dataset(dataset_name, split="train")
+            dataset = dataset.remove_columns(
+                [col for col in dataset.column_names if col not in ["instruction", "input", "output"]]
+            )
             train_datasets.append(dataset)
         combined_dataset = concatenate_datasets(train_datasets)
-        combined_dataset = combined_dataset.map(lambda x: {"text": preprocess_alpaca(x)}, batched = True)
+        combined_dataset = combined_dataset.map(lambda x: {"text": preprocess_alpaca(x)}, batched=True)
         split_dataset = combined_dataset.train_test_split(test_size=0.1)
-        train_dataset = split_dataset['train']
-        val_dataset = split_dataset['test'] 
+        train_dataset = split_dataset["train"]
+        val_dataset = split_dataset["test"]
 
     return train_dataset, val_dataset
 
@@ -496,30 +479,20 @@ def prepare_test_data(dataset_name_str):
         subset_name = temp_list[1]
     dataset_name = temp_list[0]
     if subset_name:
-        test_dataset = load_dataset(dataset_name, subset_name, split="test") 
+        test_dataset = load_dataset(dataset_name, subset_name, split="test")
     else:
-        test_dataset = load_dataset(dataset_name, split="test") 
-    
+        test_dataset = load_dataset(dataset_name, split="test")
+
     if dataset_name == "gsm8k":
         rnd = random.Random(1234)
         train_dataset = load_dataset(dataset_name, "main", split="train")
         train_dataset = train_dataset.map(lambda x: {"text": preprocess_gsm8k_val(x)}, batched=True)
         train_docs = train_dataset["text"]
         fewshot_examples = rnd.sample(train_docs, 5)
-        fewshot_context = (
-                "\n\n".join(fewshot_examples) + "\n\n"
-            )
+        fewshot_context = "\n\n".join(fewshot_examples) + "\n\n"
         test_dataset = test_dataset.map(lambda x: {"text": fewshot_context + preprocess_gsm8k(x)})
     elif dataset_name == "lighteval/MATH":
-        fewshot_context = (
-                "\n\n".join(
-                    [
-                        math_fewshot_prompt(example)
-                        for example in math_fewshot_samples()
-                    ]
-                )
-                + "\n\n"
-            )
+        fewshot_context = "\n\n".join([math_fewshot_prompt(example) for example in math_fewshot_samples()]) + "\n\n"
         test_dataset = test_dataset.map(lambda x: {"text": fewshot_context + preprocess_math(x)})
     elif dataset_name in list(USER_FIN.values()):
         test_dataset = test_dataset.map(lambda x: {"text": preprocess_finance_test(x)})

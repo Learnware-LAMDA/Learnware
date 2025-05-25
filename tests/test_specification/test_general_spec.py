@@ -12,12 +12,13 @@ from learnware.market import LearnwareMarket
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
+
 class TestGeneralCapabilitySpec(unittest.TestCase):
     @staticmethod
     def _test_general_spec(learnware, benchmark_configs):
         spec = LLMGeneralCapabilitySpecification()
         spec.generate_stat_spec_from_system(learnware=learnware, benchmark_configs=benchmark_configs)
-        
+
         with tempfile.TemporaryDirectory(prefix="learnware_") as tempdir:
             spec_path = os.path.join(tempdir, "general_spec.json")
             spec.save(spec_path)
@@ -34,7 +35,7 @@ class TestGeneralCapabilitySpec(unittest.TestCase):
         client = LearnwareClient()
         learnware = client.load_learnware(learnware_id="00002681")
         self._test_general_spec(learnware, test_benchmark_configs)
-    
+
     @staticmethod
     def _prepare_learnware_market() -> LearnwareMarket:
         """initialize learnware market"""

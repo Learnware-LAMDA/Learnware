@@ -1,6 +1,7 @@
 """
 FLARE
 """
+
 from lm_eval.api.instance import Instance
 import numpy as np
 from seqeval.metrics import f1_score as entity_score
@@ -10,14 +11,16 @@ import re
 from lm_eval.api.task import ConfigurableTask
 import os
 
+
 def mean(arr):
     return sum(arr) / len(arr)
+
 
 def process_text(entity_string, text):
     # Initialize
     entity_list = [(", ".join(val.split(", ")[:-1]), val.split(", ")[-1]) for val in entity_string.split("\n")]
     text_words = text.split()
-    labels = ['O'] * len(text_words)
+    labels = ["O"] * len(text_words)
     # text_lower = text.lower()
     text_lower = text
 
@@ -36,7 +39,8 @@ def process_text(entity_string, text):
         start = 0
         while True:
             start = text_lower.find(entity_lower, start)
-            if not entity or start == -1: break  # No more occurrence
+            if not entity or start == -1:
+                break  # No more occurrence
             end = start + len(entity) - 1
 
             # Find the words included in this occurrence
@@ -45,9 +49,9 @@ def process_text(entity_string, text):
                 end_word = next(i for i, ind in enumerate(word_indices) if ind > end)
 
                 # Label the words
-                labels[start_word] = 'B-' + entity_type
-                for i in range(start_word+1, end_word):
-                    labels[i] = 'I-' + entity_type
+                labels[start_word] = "B-" + entity_type
+                for i in range(start_word + 1, end_word):
+                    labels[i] = "I-" + entity_type
 
                 # Move to the next character after the occurrence
             except Exception:
@@ -284,7 +288,7 @@ class SequentialLabeling(ConfigurableTask):
                 **kwargs,
             )
         ]
-    
+
     def process_result(self, pred, gold, tokens):
         format_pred = ["O"] * len(gold)
         for index, pre in enumerate(pred.split("\n")[: len(tokens)]):
@@ -299,10 +303,7 @@ class SequentialLabeling(ConfigurableTask):
     def entity_f1(self, items):
         golds, preds, tokens = zip(*items)
 
-        list_preds = [
-            self.process_result(pred, gold, token)
-            for pred, gold, token in zip(preds, golds, tokens)
-        ]
+        list_preds = [self.process_result(pred, gold, token) for pred, gold, token in zip(preds, golds, tokens)]
         f1 = entity_score(golds, list_preds)
         return f1
 
@@ -320,10 +321,7 @@ class SequentialLabeling(ConfigurableTask):
     def label_f1(self, items):
         golds, preds, tokens = zip(*items)
 
-        list_preds = [
-            self.process_label_result(pred, gold, token)
-            for pred, gold, token in zip(preds, golds, tokens)
-        ]
+        list_preds = [self.process_label_result(pred, gold, token) for pred, gold, token in zip(preds, golds, tokens)]
         list_preds = [item for sublist in list_preds for item in sublist]
         golds = [self.LMAP[item] for sublist in golds for item in sublist]
         f1 = f1_score(golds, list_preds, average="weighted")
@@ -551,11 +549,7 @@ class ExtractiveSummarization(ConfigurableTask):
         for label, text in zip(labels, texts):
             text = text.split("\n")
             new_text = "\n".join(
-                [
-                    text[index]
-                    for index in range(len(text))
-                    if index < len(label) and label[index] == 1
-                ]
+                [text[index] for index in range(len(text)) if index < len(label) and label[index] == 1]
             )
             summ.append(new_text)
         return summ
@@ -943,9 +937,7 @@ class StockMovement(Classification):
         for choice in doc["choices"]:
             if self.LOWER_CASE:
                 choice = choice.lower()
-            if choice in ini_result or any(
-                [val in ini_result for val in self.CHOICE_DICT[choice]]
-            ):
+            if choice in ini_result or any([val in ini_result for val in self.CHOICE_DICT[choice]]):
                 result = choice
                 break
         if result is None:
@@ -1054,7 +1046,7 @@ class FOMC(Classification):
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
 
@@ -1133,7 +1125,7 @@ class TSA(ConfigurableTask):
         return self.dataset["test"]
 
     def doc_to_text(self, doc):
-         # TODO: Format the query prompt portion of the document example.
+        # TODO: Format the query prompt portion of the document example.
         return doc["query"]
 
     def doc_to_target(self, doc):
@@ -1141,7 +1133,7 @@ class TSA(ConfigurableTask):
 
     def process_results(self, doc, results):
         pred = results[0].split("\n")[0]
-        pred = re.findall(r'[0-9]+(?:\.[0-9]+)?', pred)
+        pred = re.findall(r"[0-9]+(?:\.[0-9]+)?", pred)
         missing = 0
         if not pred:
             pred = -100.0
@@ -1149,17 +1141,14 @@ class TSA(ConfigurableTask):
         else:
             pred = pred[0]
         pred = float(pred)
-        return {
-                "rmse": (doc["answer"], pred),
-                "missing": missing
-        }
+        return {"rmse": (doc["answer"], pred), "missing": missing}
 
     def higher_is_better(self):
         return {
             "rmse": False,
         }
 
-    def construct_requests(self, doc, ctx,**kwargs):
+    def construct_requests(self, doc, ctx, **kwargs):
         """
         Uses RequestFactory to construct Requests and returns an iterable of
         Requests which will be sent to the LM.
@@ -1200,8 +1189,7 @@ class TSA(ConfigurableTask):
         return {
             "rmse": self.rmse,
             "missing": mean,
-         }
-
+        }
 
 
 class CFA(Classification):
@@ -1210,7 +1198,7 @@ class CFA(Classification):
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
 
@@ -1220,7 +1208,7 @@ class FINARGECCARC(Classification):
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
 
@@ -1230,7 +1218,7 @@ class FINARGECCAUC(Classification):
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
 
@@ -1244,23 +1232,56 @@ class MLESG(Classification):
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
 
 
 class FSRL(SequentialLabeling):
     DATASET_PATH = "chancefocus/flare-fsrl"
-    LMAP = {key: index for index, key in enumerate(['O', 'I-QUANT', 'B-QUANT', 'I-TIME', 'B-TIME', 'I-MANNER', 'B-MANNER', 'I-THEME', 'B-THEME', 'I-VALUE', 'B-VALUE', 'I-WHOLE', 'B-WHOLE', 'I-LOCATION', 'B-LOCATION', 'I-AGENT', 'B-AGENT', 'I-CAUSE', 'B-CAUSE', 'I-SOURCE', 'B-SOURCE', 'I-REF_TIME', 'B-REF_TIME', 'I-CONDITION', 'B-CONDITION'])}
+    LMAP = {
+        key: index
+        for index, key in enumerate(
+            [
+                "O",
+                "I-QUANT",
+                "B-QUANT",
+                "I-TIME",
+                "B-TIME",
+                "I-MANNER",
+                "B-MANNER",
+                "I-THEME",
+                "B-THEME",
+                "I-VALUE",
+                "B-VALUE",
+                "I-WHOLE",
+                "B-WHOLE",
+                "I-LOCATION",
+                "B-LOCATION",
+                "I-AGENT",
+                "B-AGENT",
+                "I-CAUSE",
+                "B-CAUSE",
+                "I-SOURCE",
+                "B-SOURCE",
+                "I-REF_TIME",
+                "B-REF_TIME",
+                "I-CONDITION",
+                "B-CONDITION",
+            ]
+        )
+    }
+
 
 class CFA(Classification):
     DATASET_PATH = "chancefocus/flare-cfa"
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
+
 
 # class FinargECCAUC(Classification):
 #     DATASET_PATH = "chancefocus/flare-finarg-ecc-auc"
@@ -1268,40 +1289,148 @@ class CFA(Classification):
 # class FinargECCARC(Classification):
 #     DATASET_PATH = "chancefocus/flare-finarg-ecc-arc"
 
+
 class CD(SequentialLabeling):
     DATASET_PATH = "chancefocus/flare-cd"
-    LMAP = {key: index for index, key in enumerate(['O', 'I-CAUSE', 'B-CAUSE', 'I-EFFECT', 'B-EFFECT'])}
+    LMAP = {key: index for index, key in enumerate(["O", "I-CAUSE", "B-CAUSE", "I-EFFECT", "B-EFFECT"])}
+
 
 class MultiFinEN(Classification):
     DATASET_PATH = "chancefocus/flare-multifin-en"
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
+
 
 class MA(Classification):
     DATASET_PATH = "chancefocus/flare-ma"
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
+
 
 class Causal20SC(Classification):
     DATASET_PATH = "chancefocus/flare-causal20-sc"
 
     def has_training_docs(self):
         return False
-    
+
     def has_validation_docs(self):
         return False
 
+
 class FNXL(SequentialLabeling):
     DATASET_PATH = "chancefocus/flare-fnxl"
-    LMAP = {'B-BusinessCombinationContingentConsiderationArrangementsRangeOfOutcomesValueHigh': 140, 'B-VariableInterestEntityOwnershipPercentage': 646, 'B-GainLossOnDispositionOfAssets1': 119, 'B-IndefiniteLivedIntangibleAssetsExcludingGoodwill': 46, 'B-MarketingAndAdvertisingExpense': 269, 'B-ReportingUnitPercentageOfFairValueInExcessOfCarryingAmount': 142, 'B-CapitalizedComputerSoftwareNet': 91, 'B-BusinessCombinationConsiderationTransferredEquityInterestsIssuedAndIssuable': 183, 'B-LitigationSettlementExpense': 115, 'B-DefinedBenefitPlanExpectedAmortizationOfGainLossNextFiscalYear': 639, 'B-DeferredCompensationArrangementWithIndividualCompensationExpense': 15, 'B-ReclassificationFromAociCurrentPeriodTax': 152, 'B-OtherComprehensiveIncomeLossBeforeReclassificationsTax': 694, 'B-PreferredStockDividendsPerShareDeclared': 236, 'B-CapitalExpendituresIncurredButNotYetPaid': 344, 'B-DeferredCompensationArrangementWithIndividualContributionsByEmployer': 560, 'B-SeveranceCosts1': 311, 'B-InterestExpense': 784, 'B-SaleOfStockConsiderationReceivedOnTransaction': 76, 'B-LineOfCreditFacilityInterestRateAtPeriodEnd': 822, 'B-SharesIssuedPricePerShare': 137, 'B-EquityMethodInvestmentDifferenceBetweenCarryingAmountAndUnderlyingEquity': 63, 'B-EquitySecuritiesFvNi': 30, 'B-RightOfUseAssetObtainedInExchangeForOperatingLeaseLiability': 118, 'B-DefinedBenefitPlanFundedStatusOfPlan': 547, 'B-SharebasedCompensationArrangementBySharebasedPaymentAwardPurchasePriceOfCommonStockPercent': 323, 'B-TaxCutsAndJobsActOf2017IncomeTaxExpenseBenefit': 256, 'B-LongtermDebtWeightedAverageInterestRate': 364, 'B-ImpairmentOfIntangibleAssetsFinitelived': 71, 'B-ProceedsFromLinesOfCredit': 496, 'B-LongTermPurchaseCommitmentAmount': 701, 'B-DebtInstrumentFairValue': 335, 'B-RestructuringAndRelatedCostCostIncurredToDate1': 52, 'B-ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsVestedInPeriod': 581, 'B-FiniteLivedIntangibleAssetsAccumulatedAmortization': 143, 'B-StockRepurchasedAndRetiredDuringPeriodValue': 330, 'B-BusinessCombinationProFormaInformationRevenueOfAcquireeSinceAcquisitionDateActual': 77, 'B-ClassOfWarrantOrRightExercisePriceOfWarrantsOrRights1': 361, 'B-BusinessAcquisitionPurchasePriceAllocationGoodwillExpectedTaxDeductibleAmount': 550, 'B-OperatingLossCarryforwardsValuationAllowance': 173, 'B-BusinessAcquisitionEquityInterestsIssuedOrIssuableNumberOfSharesIssued': 32, 'B-DefinedContributionPlanMaximumAnnualContributionsPerEmployeePercent': 45, 'B-ContractWithCustomerLiabilityCurrent': 2, 'B-IncomeLossFromContinuingOperationsBeforeIncomeTaxesForeign': 474, 'B-FiniteLivedIntangibleAssetsAmortizationExpenseYearThree': 1306, 'B-DefinedBenefitPlanUltimateHealthCareCostTrendRate1': 62, 'B-DefinedBenefitPlanRecognizedNetGainLossDueToSettlements1': 317, 'B-UnrecognizedTaxBenefitsInterestOnIncomeTaxesExpense': 448, 'B-ForeignCurrencyTransactionGainLossRealized': 132, 'B-DeferredTaxAssetsOperatingLossCarryforwardsSubjectToExpiration': 262, 'B-RetainedEarningsAccumulatedDeficit': 174, 'B-ProceedsFromIssuanceOfCommonStock': 209, 'B-EmployeeServiceShareBasedCompensationAllocationOfRecognizedPeriodCostsCapitalizedAmount': 29, 'B-OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansTax': 284, 'B-InventoryWriteDown': 465, 'B-RestructuringReserve': 234, 'B-LitigationSettlementAmountAwardedToOtherParty': 42, 'B-DerivativeGainLossOnDerivativeNet': 87, 'B-SharebasedCompensationArrangementBySharebasedPaymentAwardEquityInstrumentsOtherThanOptionsAggregateIntrinsicValueVested': 241, 'B-DerivativeFixedInterestRate': 589, 'B-CashAndCashEquivalentsAtCarryingValue': 257, 'B-ContractWithCustomerAssetNet': 245, 'B-RestructuringAndRelatedCostExpectedCost1': 107, 'B-IncomeTaxHolidayAggregateDollarAmount': 347, 'B-OperatingLeaseCost': 248, 'B-AllowanceForDoubtfulAccountsReceivable': 146, 'B-RepaymentsOfDebt': 416, 'B-InterestPaid': 110, 'B-DeferredFinanceCostsNet': 28, 'B-IncomeTaxExaminationPenaltiesAndInterestAccrued': 271, 'B-ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsNonvestedNumber': 92, 'B-CapitalizedContractCostNet': 155, 'B-CumulativeEffectOfNewAccountingPrincipleInPeriodOfAdoption': 17, 'B-IncomeTaxesPaid': 495, 'B-EquityMethodInvestmentOtherThanTemporaryImpairment': 22, 'B-InterestPaidNet': 225, 'B-EquitySecuritiesWithoutReadilyDeterminableFairValueAmount': 175, 'B-ImpairmentOfLongLivedAssetsHeldForUse': 313, 'B-GoodwillAcquiredDuringPeriod': 156, 'B-DecreaseInUnrecognizedTaxBenefitsIsReasonablyPossible': 363, 'B-RestructuringAndRelatedCostIncurredCost': 75, 'B-StockRepurchasedDuringPeriodValue': 254, 'B-IncomeTaxExaminationPenaltiesAndInterestExpense': 525, 'B-ImpairmentOfIntangibleAssetsIndefinitelivedExcludingGoodwill': 55, 'B-PreferredStockLiquidationPreference': 157, 'B-ImpairmentOfIntangibleAssetsExcludingGoodwill': 158, 'B-IncomeTaxesPaidNet': 456, 'B-DefinedContributionPlanEmployerMatchingContributionPercent': 332, 'B-CostOfGoodsAndServicesSold': 274, 'B-DepreciationDepletionAndAmortization': 338, 'B-InterestExpenseDebt': 191, 'B-LineOfCreditFacilityUnusedCapacityCommitmentFeePercentage': 442, 'B-DisposalGroupIncludingDiscontinuedOperationConsideration': 6, 'B-UnrecognizedTaxBenefitsInterestOnIncomeTaxesAccrued': 14, 'B-SaleOfStockPricePerShare': 278, 'B-DefinedContributionPlanEmployerMatchingContributionPercentOfMatch': 267, 'B-FinitelivedIntangibleAssetsAcquired1': 202, 'B-PaymentsForRepurchaseOfCommonStock': 486, 'B-BusinessCombinationContingentConsiderationLiability': 103, 'B-RelatedPartyTransactionAmountsOfTransaction': 180, 'O': 0}
+    LMAP = {
+        "B-BusinessCombinationContingentConsiderationArrangementsRangeOfOutcomesValueHigh": 140,
+        "B-VariableInterestEntityOwnershipPercentage": 646,
+        "B-GainLossOnDispositionOfAssets1": 119,
+        "B-IndefiniteLivedIntangibleAssetsExcludingGoodwill": 46,
+        "B-MarketingAndAdvertisingExpense": 269,
+        "B-ReportingUnitPercentageOfFairValueInExcessOfCarryingAmount": 142,
+        "B-CapitalizedComputerSoftwareNet": 91,
+        "B-BusinessCombinationConsiderationTransferredEquityInterestsIssuedAndIssuable": 183,
+        "B-LitigationSettlementExpense": 115,
+        "B-DefinedBenefitPlanExpectedAmortizationOfGainLossNextFiscalYear": 639,
+        "B-DeferredCompensationArrangementWithIndividualCompensationExpense": 15,
+        "B-ReclassificationFromAociCurrentPeriodTax": 152,
+        "B-OtherComprehensiveIncomeLossBeforeReclassificationsTax": 694,
+        "B-PreferredStockDividendsPerShareDeclared": 236,
+        "B-CapitalExpendituresIncurredButNotYetPaid": 344,
+        "B-DeferredCompensationArrangementWithIndividualContributionsByEmployer": 560,
+        "B-SeveranceCosts1": 311,
+        "B-InterestExpense": 784,
+        "B-SaleOfStockConsiderationReceivedOnTransaction": 76,
+        "B-LineOfCreditFacilityInterestRateAtPeriodEnd": 822,
+        "B-SharesIssuedPricePerShare": 137,
+        "B-EquityMethodInvestmentDifferenceBetweenCarryingAmountAndUnderlyingEquity": 63,
+        "B-EquitySecuritiesFvNi": 30,
+        "B-RightOfUseAssetObtainedInExchangeForOperatingLeaseLiability": 118,
+        "B-DefinedBenefitPlanFundedStatusOfPlan": 547,
+        "B-SharebasedCompensationArrangementBySharebasedPaymentAwardPurchasePriceOfCommonStockPercent": 323,
+        "B-TaxCutsAndJobsActOf2017IncomeTaxExpenseBenefit": 256,
+        "B-LongtermDebtWeightedAverageInterestRate": 364,
+        "B-ImpairmentOfIntangibleAssetsFinitelived": 71,
+        "B-ProceedsFromLinesOfCredit": 496,
+        "B-LongTermPurchaseCommitmentAmount": 701,
+        "B-DebtInstrumentFairValue": 335,
+        "B-RestructuringAndRelatedCostCostIncurredToDate1": 52,
+        "B-ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsVestedInPeriod": 581,
+        "B-FiniteLivedIntangibleAssetsAccumulatedAmortization": 143,
+        "B-StockRepurchasedAndRetiredDuringPeriodValue": 330,
+        "B-BusinessCombinationProFormaInformationRevenueOfAcquireeSinceAcquisitionDateActual": 77,
+        "B-ClassOfWarrantOrRightExercisePriceOfWarrantsOrRights1": 361,
+        "B-BusinessAcquisitionPurchasePriceAllocationGoodwillExpectedTaxDeductibleAmount": 550,
+        "B-OperatingLossCarryforwardsValuationAllowance": 173,
+        "B-BusinessAcquisitionEquityInterestsIssuedOrIssuableNumberOfSharesIssued": 32,
+        "B-DefinedContributionPlanMaximumAnnualContributionsPerEmployeePercent": 45,
+        "B-ContractWithCustomerLiabilityCurrent": 2,
+        "B-IncomeLossFromContinuingOperationsBeforeIncomeTaxesForeign": 474,
+        "B-FiniteLivedIntangibleAssetsAmortizationExpenseYearThree": 1306,
+        "B-DefinedBenefitPlanUltimateHealthCareCostTrendRate1": 62,
+        "B-DefinedBenefitPlanRecognizedNetGainLossDueToSettlements1": 317,
+        "B-UnrecognizedTaxBenefitsInterestOnIncomeTaxesExpense": 448,
+        "B-ForeignCurrencyTransactionGainLossRealized": 132,
+        "B-DeferredTaxAssetsOperatingLossCarryforwardsSubjectToExpiration": 262,
+        "B-RetainedEarningsAccumulatedDeficit": 174,
+        "B-ProceedsFromIssuanceOfCommonStock": 209,
+        "B-EmployeeServiceShareBasedCompensationAllocationOfRecognizedPeriodCostsCapitalizedAmount": 29,
+        "B-OtherComprehensiveIncomeLossPensionAndOtherPostretirementBenefitPlansTax": 284,
+        "B-InventoryWriteDown": 465,
+        "B-RestructuringReserve": 234,
+        "B-LitigationSettlementAmountAwardedToOtherParty": 42,
+        "B-DerivativeGainLossOnDerivativeNet": 87,
+        "B-SharebasedCompensationArrangementBySharebasedPaymentAwardEquityInstrumentsOtherThanOptionsAggregateIntrinsicValueVested": 241,
+        "B-DerivativeFixedInterestRate": 589,
+        "B-CashAndCashEquivalentsAtCarryingValue": 257,
+        "B-ContractWithCustomerAssetNet": 245,
+        "B-RestructuringAndRelatedCostExpectedCost1": 107,
+        "B-IncomeTaxHolidayAggregateDollarAmount": 347,
+        "B-OperatingLeaseCost": 248,
+        "B-AllowanceForDoubtfulAccountsReceivable": 146,
+        "B-RepaymentsOfDebt": 416,
+        "B-InterestPaid": 110,
+        "B-DeferredFinanceCostsNet": 28,
+        "B-IncomeTaxExaminationPenaltiesAndInterestAccrued": 271,
+        "B-ShareBasedCompensationArrangementByShareBasedPaymentAwardEquityInstrumentsOtherThanOptionsNonvestedNumber": 92,
+        "B-CapitalizedContractCostNet": 155,
+        "B-CumulativeEffectOfNewAccountingPrincipleInPeriodOfAdoption": 17,
+        "B-IncomeTaxesPaid": 495,
+        "B-EquityMethodInvestmentOtherThanTemporaryImpairment": 22,
+        "B-InterestPaidNet": 225,
+        "B-EquitySecuritiesWithoutReadilyDeterminableFairValueAmount": 175,
+        "B-ImpairmentOfLongLivedAssetsHeldForUse": 313,
+        "B-GoodwillAcquiredDuringPeriod": 156,
+        "B-DecreaseInUnrecognizedTaxBenefitsIsReasonablyPossible": 363,
+        "B-RestructuringAndRelatedCostIncurredCost": 75,
+        "B-StockRepurchasedDuringPeriodValue": 254,
+        "B-IncomeTaxExaminationPenaltiesAndInterestExpense": 525,
+        "B-ImpairmentOfIntangibleAssetsIndefinitelivedExcludingGoodwill": 55,
+        "B-PreferredStockLiquidationPreference": 157,
+        "B-ImpairmentOfIntangibleAssetsExcludingGoodwill": 158,
+        "B-IncomeTaxesPaidNet": 456,
+        "B-DefinedContributionPlanEmployerMatchingContributionPercent": 332,
+        "B-CostOfGoodsAndServicesSold": 274,
+        "B-DepreciationDepletionAndAmortization": 338,
+        "B-InterestExpenseDebt": 191,
+        "B-LineOfCreditFacilityUnusedCapacityCommitmentFeePercentage": 442,
+        "B-DisposalGroupIncludingDiscontinuedOperationConsideration": 6,
+        "B-UnrecognizedTaxBenefitsInterestOnIncomeTaxesAccrued": 14,
+        "B-SaleOfStockPricePerShare": 278,
+        "B-DefinedContributionPlanEmployerMatchingContributionPercentOfMatch": 267,
+        "B-FinitelivedIntangibleAssetsAcquired1": 202,
+        "B-PaymentsForRepurchaseOfCommonStock": 486,
+        "B-BusinessCombinationContingentConsiderationLiability": 103,
+        "B-RelatedPartyTransactionAmountsOfTransaction": 180,
+        "O": 0,
+    }
+
 
 class TATQA(QA):
     DATASET_PATH = "chancefocus/flare-tatqa"
@@ -1365,7 +1494,7 @@ import numpy as np
 
 
 class BARTScorer:
-    def __init__(self, device='cuda:0', max_length=1024, checkpoint='facebook/bart-large-cnn'):
+    def __init__(self, device="cuda:0", max_length=1024, checkpoint="facebook/bart-large-cnn"):
         # Set up model
         self.device = device
         self.max_length = max_length
@@ -1375,49 +1504,37 @@ class BARTScorer:
         self.model.to(device)
 
         # Set up loss
-        self.loss_fct = nn.NLLLoss(reduction='none', ignore_index=self.model.config.pad_token_id)
+        self.loss_fct = nn.NLLLoss(reduction="none", ignore_index=self.model.config.pad_token_id)
         self.lsm = nn.LogSoftmax(dim=1)
 
     def load(self, path=None):
-        """ Load model from paraphrase finetuning """
+        """Load model from paraphrase finetuning"""
         if path is None:
-            path = 'models/bart.pth'
+            path = "models/bart.pth"
         self.model.load_state_dict(torch.load(path, map_location=self.device))
 
     def score(self, srcs, tgts, batch_size=4):
-        """ Score a batch of examples """
+        """Score a batch of examples"""
         score_list = []
         for i in range(0, len(srcs), batch_size):
-            src_list = srcs[i: i + batch_size]
-            tgt_list = tgts[i: i + batch_size]
+            src_list = srcs[i : i + batch_size]
+            tgt_list = tgts[i : i + batch_size]
             try:
                 with torch.no_grad():
                     encoded_src = self.tokenizer(
-                        src_list,
-                        max_length=self.max_length,
-                        truncation=True,
-                        padding=True,
-                        return_tensors='pt'
+                        src_list, max_length=self.max_length, truncation=True, padding=True, return_tensors="pt"
                     )
                     encoded_tgt = self.tokenizer(
-                        tgt_list,
-                        max_length=self.max_length,
-                        truncation=True,
-                        padding=True,
-                        return_tensors='pt'
+                        tgt_list, max_length=self.max_length, truncation=True, padding=True, return_tensors="pt"
                     )
-                    src_tokens = encoded_src['input_ids'].to(self.device)
-                    src_mask = encoded_src['attention_mask'].to(self.device)
+                    src_tokens = encoded_src["input_ids"].to(self.device)
+                    src_mask = encoded_src["attention_mask"].to(self.device)
 
-                    tgt_tokens = encoded_tgt['input_ids'].to(self.device)
-                    tgt_mask = encoded_tgt['attention_mask']
+                    tgt_tokens = encoded_tgt["input_ids"].to(self.device)
+                    tgt_mask = encoded_tgt["attention_mask"]
                     tgt_len = tgt_mask.sum(dim=1).to(self.device)
 
-                    output = self.model(
-                        input_ids=src_tokens,
-                        attention_mask=src_mask,
-                        labels=tgt_tokens
-                    )
+                    output = self.model(input_ids=src_tokens, attention_mask=src_mask, labels=tgt_tokens)
                     logits = output.logits.view(-1, self.model.config.vocab_size)
                     loss = self.loss_fct(self.lsm(logits), tgt_tokens.view(-1))
                     loss = loss.view(tgt_tokens.shape[0], -1)
@@ -1427,8 +1544,8 @@ class BARTScorer:
 
             except RuntimeError:
                 traceback.print_exc()
-                print(f'source: {src_list}')
-                print(f'target: {tgt_list}')
+                print(f"source: {src_list}")
+                print(f"target: {tgt_list}")
                 exit(0)
         return score_list
 
@@ -1453,18 +1570,13 @@ class BARTScorer:
         return list(score_list)
 
     def test(self, batch_size=3):
-        """ Test """
+        """Test"""
         src_list = [
-            'This is a very good idea. Although simple, but very insightful.',
-            'Can I take a look?',
-            'Do not trust him, he is a liar.'
+            "This is a very good idea. Although simple, but very insightful.",
+            "Can I take a look?",
+            "Do not trust him, he is a liar.",
         ]
 
-        tgt_list = [
-            "That's stupid.",
-            "What's the problem?",
-            'He is trustworthy.'
-        ]
+        tgt_list = ["That's stupid.", "What's the problem?", "He is trustworthy."]
 
         print(self.score(src_list, tgt_list, batch_size))
-
