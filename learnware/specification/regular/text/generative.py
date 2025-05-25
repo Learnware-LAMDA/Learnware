@@ -189,21 +189,21 @@ class GenerativeModelSpecification(TaskVectorSpecification):
 
     def _trainer_config(self, temp_dir, dataset_text_field):
         training_params = SFTConfig(
-            output_dir=temp_dir,  # 结果路径
+            output_dir=temp_dir,
             max_steps=self.__extra_args["max_steps"],
-            per_device_train_batch_size=self.per_device_train_batch_size,  # 这是每个GPU的训练批次大小
-            gradient_accumulation_steps=self.gradient_accumulation_steps,  # 累积多个步骤的梯度，以有效地增加批次大小
-            learning_rate=self.__extra_args["lr"],  # 初始学习率
-            weight_decay=self.__extra_args["weight_decay_l2"],  # 权重衰减率
-            optim="adamw_torch",  # 优化器
+            per_device_train_batch_size=self.per_device_train_batch_size,
+            gradient_accumulation_steps=self.gradient_accumulation_steps,
+            learning_rate=self.__extra_args["lr"],
+            weight_decay=self.__extra_args["weight_decay_l2"],
+            optim="adamw_torch",
             eval_strategy="no",
             save_strategy="no",
-            # fp16=True,  # 启用混合精度训练
-            # bf16=True,  # 启用BF16
-            max_grad_norm=self.__extra_args["max_grad_norm"],  # 裁剪梯度
-            warmup_ratio=self.__extra_args["warmup_ratio"],  # 训练开始时的预热样本比例
-            group_by_length=True,  # 将训练数据集中大致相同长度的样本分组到同一batch中，提升prefill效率
-            lr_scheduler_type="cosine",  # 学习率调度器衰减策略
+            # fp16=True,
+            # bf16=True,
+            max_grad_norm=self.__extra_args["max_grad_norm"],
+            warmup_ratio=self.__extra_args["warmup_ratio"],
+            group_by_length=True,
+            lr_scheduler_type="cosine",
             ddp_timeout=180000000,
             dataset_text_field=dataset_text_field,
             max_seq_length=self.max_seq_length,
