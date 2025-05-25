@@ -77,8 +77,8 @@ DEV_REQUIRED = [
 
 FULL_REQUIRED = [
     # The default full requirements for learnware package
-    "torch==2.0.1",
-    "torchvision==0.15.2",
+    "torch>=2.1.0",
+    "torchvision>=0.16.0",
     "torch-optimizer>=0.3.0",
     "lightgbm>=3.3.0",
     "sentence_transformers==3.2.1",
