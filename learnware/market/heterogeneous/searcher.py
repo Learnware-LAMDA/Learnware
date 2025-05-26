@@ -13,16 +13,10 @@ class HeteroStatSearcher(EasyStatSearcher):
     SPEC_TYPES = ["HeteroMapTableSpecification"]
 
     def is_applicable_learnware(self, learnware: Learnware) -> bool:
-        if not super(HeteroStatSearcher, self).is_applicable_learnware(learnware):
-            return False
-
         spec = learnware.get_specification()
         return is_hetero(stat_specs=spec.get_stat_spec(), semantic_spec=spec.get_semantic_spec(), verbose=False)
 
     def is_applicable_user(self, user_info: BaseUserInfo) -> bool:
-        if not super(HeteroStatSearcher, self).is_applicable_user(user_info):
-            return False
-
         stat_specs = user_info.stat_info
         semantic_spec = user_info.semantic_spec
         return is_hetero(stat_specs=stat_specs, semantic_spec=semantic_spec, verbose=False)
